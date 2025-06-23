@@ -10,16 +10,11 @@ contract Tournament
     // Variables
     address immutable owner;
     uint64 public tournamentCount;
-    mapping(uint64 => TournamentScore) public scores;
-    struct PlayerScore
-    {
-        string name;
-        uint8 score;
-    }
+    mapping(uint64 => TournamentScore) scores;
     struct TournamentScore
     {
-        PlayerScore player1;
-        PlayerScore player2;
+       string[] playerNames;
+       uint8[] playerScores;
     }
 
     // Modifier to only allow certain functions to be called by the owner of the contract
@@ -42,30 +37,23 @@ contract Tournament
      */
     event BroadcastTournament(
         uint64 indexed id,
-        string player1,
-        uint8 score1,
-        string player2,
-        uint8 score2
+        string[] playerNames,
+        uint8[] playerScores
     );
 
     /**
      * @notice Registers a tournament's score
      * @dev Can only be called by the one who created the contract
-     * @param player1 Name of the first player
-     * @param score1 Score of the first player
-     * @param player2 Name of the second player
-     * @param score2 Score of the second player
+     * @param playerNames Name of the players
+     * @param playerScores Score of the players
      */
-    function registerTournament(string calldata player1, uint8 score1, string calldata player2, uint8 score2)
+    function registerTournament(string[] calldata playerNames, uint8[] calldata playerScores)
     public
     onlyOwner
     {
-        PlayerScore memory ps1 = PlayerScore(player1, score1);
-        PlayerScore memory ps2 = PlayerScore(player2, score2);
-
-        TournamentScore memory ts = TournamentScore(ps1, ps2);
+        TournamentScore memory ts = TournamentScore(playerNames, playerScores);
         scores[tournamentCount] = ts;
-        emit BroadcastTournament(tournamentCount, player1, score1, player2, score2);
+        emit BroadcastTournament(tournamentCount, playerNames, playerScores);
         tournamentCount++;
     }
 
@@ -90,10 +78,10 @@ contract Tournament
     function getPlayerScores(uint64 id)
     public 
     view 
-    returns (string memory player1, uint8 score1, string memory player2, uint8 score2)
+    returns (string[] memory playerNames, uint8[] memory playerScores)
     {
         require(id < tournamentCount);
         TournamentScore memory ts = scores[id];
-        return (ts.player1.name, ts.player1.score, ts.player2.name, ts.player2.score);
+        return (ts.playerNames, ts.playerScores);
     }
 }
