@@ -1,3 +1,6 @@
+import HTML_home from './html/home.html?raw';
+import HTML_login from './html/login.html?raw';
+
 interface GameInfo {
   name: string;
   version: string;
@@ -38,68 +41,17 @@ class TranscendanceApp {
   }
 
   private async init() {
-    this.render();
+    this.renderLogin();
     await this.loadServerStatus();
   }
 
-  private render() {
-    this.appContainer.innerHTML = `
-      <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <header class="text-center mb-12">
-          <h1 class="text-6xl font-bold mb-4 title-glow text-pong-blue">
-            TRANSCENDENCE
-          </h1>
-          <p class="text-xl text-gray-300 mb-8">
-            Le Pong ultime en temps réel
-          </p>
-          <div class="flex justify-center space-x-2">
-            <div class="w-3 h-3 bg-pong-green rounded-full animate-pulse"></div>
-            <div class="w-3 h-3 bg-pong-blue rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-            <div class="w-3 h-3 bg-pong-purple rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-          </div>
-        </header>
+  private renderLogin() {
+	this.appContainer.innerHTML = HTML_login;
+	this.bindEvents();
+  }
 
-        <!-- Status Cards -->
-        <div class="grid md:grid-cols-2 gap-6 mb-12">
-          <div class="card-pong">
-            <h3 class="text-xl font-bold mb-4 text-pong-green">🚀 Statut du Serveur</h3>
-            <div id="server-status" class="space-y-2">
-              <div class="animate-pulse">Chargement...</div>
-            </div>
-          </div>
-          
-          <div class="card-pong">
-            <h3 class="text-xl font-bold mb-4 text-pong-purple">🎮 Informations du Jeu</h3>
-            <div id="game-info" class="space-y-2">
-              <div class="animate-pulse">Chargement...</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="text-center">
-          <h2 class="text-3xl font-bold mb-8">Prêt à jouer ?</h2>
-          <div class="space-y-4 md:space-y-0 md:space-x-4 md:flex md:justify-center">
-            <button id="play-btn" class="btn-pong block md:inline-block">
-              🏓 Jouer au Pong
-            </button>
-            <button id="tournament-btn" class="btn-pong block md:inline-block bg-pong-purple hover:bg-purple-600">
-              🏆 Tournoi
-            </button>
-            <button id="scores-btn" class="btn-pong block md:inline-block bg-pong-green hover:bg-green-600">
-              📊 Scores
-            </button>
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="text-center mt-16 text-gray-500">
-          <p>&copy; 2025 Transcendence - Architecture Microservices</p>
-        </footer>
-      </div>
-    `;
-
+  private renderHome() {
+    this.appContainer.innerHTML = HTML_home;
     this.bindEvents();
   }
 
@@ -171,7 +123,7 @@ class TranscendanceApp {
     } catch (error) {
       console.error('Erreur lors du chargement:', error);
       this.showNotification('❌ Erreur de connexion au serveur', 'error');
-    }a
+    }
   }
 
   private showNotification(message: string, type: 'success' | 'error' | 'info') {
