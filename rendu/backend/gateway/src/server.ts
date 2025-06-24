@@ -1,9 +1,16 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import proxy from '@fastify/http-proxy';
 
 const fastify = Fastify({ 
   logger: true 
 });
+
+// Enregistrement du plugin @fastify/http-proxy
+// Les URL des microservices devraient idéalement provenir de variables d'environnement
+const AUTH_SERVICE_BASE_URL = 'http://localhost:3001'; // Remplacez par l'URL de votre service d'authentification
+// // const TOURNAMENT_SERVICE_BASE_URL = 'http://localhost:3002'; // Remplacez par l'URL de votre service de tournoi
+
 
 // Configuration CORS pour permettre les requêtes depuis le frontend
 await fastify.register(cors, {
@@ -39,7 +46,17 @@ fastify.get('/api/game/info', async (request, reply) => {
   };
 });
 
-// Démarrage du serveur
+// Implémentation du routage dynamique avec @fastify/http-proxy
+
+// Proxy pour le service d'authentification
+// Toutes les requêtes vers /api/auth/* seront redirigées vers AUTH_SERVICE_BASE_URL
+fastify.register(proxy, {
+  upstream: AUTH_SERVICE_BASE_URL,
+  prefix: '/api/auth', // Chemin d'API pour le service d'authentification
+  rewritePrefix: '/api/auth', // Réécrit l'URL pour le service cible si nécessaire, ici on garde le même chemin
+  http2: false // Définissez à true si votre service cible utilise HTTP/2
+});
+
 const start = async (): Promise<void> => {
   try {
     await fastify.listen({ 

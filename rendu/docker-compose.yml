@@ -1,4 +1,5 @@
 services:
+
   gateway:
     build: ./backend/gateway
     ports:
@@ -9,6 +10,15 @@ services:
       - ./backend/gateway:/app
       - /app/node_modules
     command: npm run dev
+    depends_on:
+      - authentification
+    networks:
+      - transcendence-network
+
+  authentification:
+    build: ./backend/authentification
+    networks:
+      - transcendence-network
 
   frontend:
     build: ./frontend
@@ -20,3 +30,9 @@ services:
     command: npm run dev
     depends_on:
       - gateway
+    networks:
+      - transcendence-network
+
+networks:
+  transcendence-network:
+    driver: bridge

@@ -1,24 +1,29 @@
 {
-  "name": "transcendance-gateway",
+  "name": "transcendence-gateway",
   "version": "1.0.0",
-  "description": "Gateway pour l'application Transcendance",
+  "description": "Gateway for Transcendence",
   "main": "src/server.ts",
   "type": "module",
+
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts"
   },
+
   "dependencies": {
     "@fastify/cors": "^8.4.0",
+    "@fastify/http-proxy": "^9.x.x",
     "fastify": "^4.24.3"
   },
+
   "devDependencies": {
     "@types/node": "^20.8.10",
     "tsx": "^4.6.0",
     "typescript": "^5.2.2"
   },
+
   "keywords": ["fastify", "gateway", "pong", "typescript"],
-  "author": "Votre nom",
+  "author": "VITE",
   "license": "MIT"
 }

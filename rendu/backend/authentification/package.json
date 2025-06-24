@@ -1,0 +1,27 @@
+{
+  "name": "transcendence-authentification",
+  "version": "1.0.0",
+  "description": "Authentication service for Transcendance",
+  "main": "src/index.ts",
+
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node-dev src/index.ts"
+  },
+
+
+  "dependencies": {
+    "fastify": "^4.x"
+  },
+
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "ts-node": "^10.x",
+    "ts-node-dev": "^2.x",
+    "typescript": "^5.x"
+  },
+
+  "keywords": [],
+  "author": "VITE",
+  "license": "ISC"
+}
