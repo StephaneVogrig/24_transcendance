@@ -1,7 +1,7 @@
 {
-  "name": "transcendence-authentification",
+  "name": "transcendence-websocket",
   "version": "1.0.0",
-  "description": "Authentication service for Transcendance",
+  "description": "Websocket service for Transcendance",
   "main": "src/index.ts",
   "type": "module",
 

@@ -1,7 +1,7 @@
 {
-  "name": "transcendence-authentification",
+  "name": "transcendence-matchmaking",
   "version": "1.0.0",
-  "description": "Authentication service for Transcendance",
+  "description": "Matchmaking service for Transcendance",
   "main": "src/index.ts",
   "type": "module",
 

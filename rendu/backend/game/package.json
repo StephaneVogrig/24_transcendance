@@ -1,7 +1,7 @@
 {
-  "name": "transcendence-authentification",
+  "name": "transcendence-game",
   "version": "1.0.0",
-  "description": "Authentication service for Transcendance",
+  "description": "Game service for Transcendance",
   "main": "src/index.ts",
   "type": "module",
 

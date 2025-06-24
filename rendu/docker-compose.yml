@@ -12,11 +12,69 @@ services:
     command: npm run dev
     depends_on:
       - authentification
+      - blockchain
+      - database
+      - game
+      - matchmaking
+      - scores
+      - tournament
+      - websocket
     networks:
       - transcendence-network
 
   authentification:
     build: ./backend/authentification
+    ports:
+      - "3001:3001"
+    networks:
+      - transcendence-network
+
+  blockchain:
+    build: ./backend/blockchain
+    ports:
+      - "3002:3002"
+    networks:
+      - transcendence-network
+
+  database:
+    build: ./backend/database
+    ports:
+      - "3003:3003"
+    networks:
+      - transcendence-network
+
+  game:
+    build: ./backend/game
+    ports:
+      - "3004:3004"
+    networks:
+      - transcendence-network
+
+  matchmaking:
+    build: ./backend/matchmaking
+    ports:
+      - "3005:3005"
+    networks:
+      - transcendence-network
+
+  scores:
+    build: ./backend/scores
+    ports:
+      - "3006:3006"
+    networks:
+      - transcendence-network
+
+  tournament:
+    build: ./backend/tournament
+    ports:
+      - "3007:3007"
+    networks:
+      - transcendence-network
+
+  websocket:
+    build: ./backend/websocket
+    ports:
+      - "3008:3008"
     networks:
       - transcendence-network
 

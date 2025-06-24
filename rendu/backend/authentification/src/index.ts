@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 
 const fastify = Fastify({ logger: true });
 
-fastify.get('/', async (request, reply) => {
+fastify.get('/api/auth', async (request, reply) => { 
   return { message: 'Hello from Authentification Service!' };
 });
 

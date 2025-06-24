@@ -1,7 +1,7 @@
 {
-  "name": "transcendence-authentification",
+  "name": "transcendence-scores",
   "version": "1.0.0",
-  "description": "Authentication service for Transcendance",
+  "description": "Scores service for Transcendance",
   "main": "src/index.ts",
   "type": "module",
 
