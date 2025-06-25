@@ -1,5 +1,6 @@
 import HTML_home from './html/home.html?raw';
 import HTML_login from './html/login.html?raw';
+import HTML_game from './html/game.html?raw';
 
 interface GameInfo {
   name: string;
@@ -41,12 +42,17 @@ class TranscendanceApp {
   }
 
   private async init() {
-    this.renderLogin();
+    this.renderGame();
     await this.loadServerStatus();
   }
 
   private renderLogin() {
 	this.appContainer.innerHTML = HTML_login;
+	this.bindEvents();
+  }
+
+  private renderGame() {
+	this.appContainer.innerHTML = HTML_game;
 	this.bindEvents();
   }
 

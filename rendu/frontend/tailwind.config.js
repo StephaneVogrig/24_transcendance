@@ -3,6 +3,8 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/3d/main3d.ts",
+    "./src/3d/**/*.{js,ts,jsx,tsx}",
 	'./src/html/**/*.html'
   ],
   theme: {
