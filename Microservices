@@ -1,8 +1,0 @@
-
-GameService (engine)
-MatchmakingService
-TournamentService (gestion tournoi)
-BlockChainService
-AuthentificationService (User Service)
-APIGateway
-Frontend
