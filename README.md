@@ -21,11 +21,11 @@
 
 ❌ Major: Use advanced 3D techniques. (Gael)
 
-❌ Major module: Designing the backend as microservices. *
+✅ Major module: Designing the backend as microservices. *
 
 ❌ Minor module: Multiple language support. (Sebastien)
 
-❌ Major module: Replace basic Pong with server-side Pong and implement an API. (Mathieu)
+✅ Major module: Replace basic Pong with server-side Pong and implement an API. (Mathieu)
 
 # Microservices
 ```
