@@ -19,7 +19,7 @@
 
 ❌ Major module: Introduce an AI opponent. (Mathieu)
 
-❌ Major: Use advanced 3D techniques. (Gael)
+✅ Major: Use advanced 3D techniques. (Gael)
 
 ✅ Major module: Designing the backend as microservices. *
 
