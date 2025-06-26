@@ -6,4 +6,4 @@ HomePage -> LeaderboardPage
 HomePage -> AboutPage
 
 
-Je realise un jeu web (pong) en spa et microservices. Frontend uniquement avec Tailwind css et Typescript, backend avec Fastify et node.js.
+Je realise un jeu web (pong) en spa et microservices sous docker. Frontend uniquement avec Tailwind css et Typescript, backend avec Fastify et node.js.

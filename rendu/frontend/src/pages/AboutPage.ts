@@ -1,47 +1,103 @@
-export const AboutPage = (): { html: string; onMount?: () => (() => void) | void } => ({
-    html: `
-<div class="container mx-auto px-4 py-12 max-w-4xl">
+export const AboutPage = (): HTMLElement => {
+    // Conteneur principal
+    const container = document.createElement('div');
+    container.className = 'container mx-auto px-4 py-12 max-w-4xl';
 
-    <section class="text-center mb-12">
-        <h1 class="text-5xl font-extrabold text-blue-600 mb-4">About Viiiiite</h1>
-        <p class="text-xl text-gray-700 leading-relaxed">
-            Welcome to Viiiiite, a modern take on the classic arcade game, Pong! We've reimagined this timeless favorite for the web, bringing you fast-paced, addictive gameplay right in your browser.
-        </p>
-    </section>
+    // Section "About Viiiiite"
+    const aboutSection = document.createElement('section');
+    aboutSection.className = 'text-center mb-12';
 
-    <hr class="my-12 border-gray-300">
+    const h1 = document.createElement('h1');
+    h1.className = 'text-5xl font-extrabold text-blue-600 mb-4';
+    h1.textContent = 'About Viiiiite';
+    aboutSection.appendChild(h1);
 
-    <section class="mb-12">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Under the Hood</h2>
-        <div class="flex flex-wrap justify-center items-center gap-8">
-            <div class="flex flex-col items-center p-4 rounded-lg shadow-md bg-white">
-                <img src="/path/to/typescript-icon.svg" alt="TypeScript" class="w-16 h-16 mb-2">
-                <span class="text-lg font-semibold text-gray-800">TypeScript</span>
-            </div>
-            </div>
-        <p class="text-lg text-gray-700 mt-6 text-center">
-            Built as a Single-Page Application (SPA) for a smooth user experience, Viiiiite leverages <strong>TypeScript</strong> for robust frontend logic and <strong>Tailwind CSS</strong> for a sleek, responsive design. Our backend, powered by <strong>Node.js</strong> and <strong>Fastify</strong>, ensures lightning-fast communication and reliable gameplay.
-        </p>
-    </section>
+    const pIntro = document.createElement('p');
+    pIntro.className = 'text-xl text-gray-700 leading-relaxed';
+    pIntro.textContent = `
+        Welcome to Viiiiite, a modern take on the classic arcade game, Pong! We've reimagined this timeless favorite for the web, bringing you fast-paced, addictive gameplay right in your browser.
+    `;
+    aboutSection.appendChild(pIntro);
+    container.appendChild(aboutSection);
 
-    <hr class="my-12 border-gray-300">
+    // Ligne de séparation
+    const hr1 = document.createElement('hr');
+    hr1.className = 'my-12 border-gray-300';
+    container.appendChild(hr1);
 
-    <section class="text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6">We'd Love to Hear From You!</h2>
-        <p class="text-lg text-gray-700 mb-8">
-            Your feedback helps us make Viiiiite even better! If you have suggestions, found a bug, or just want to say hello, feel free to reach out.
-        </p>
-        <a href="mailto:your.email@example.com" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full text-lg transition duration-300 ease-in-out">
-            Send Us an Email
-        </a>
-        <a href="https://github.com/yourusername/yourgamerepo" target="_blank" rel="noopener noreferrer" class="ml-4 text-blue-600 hover:text-blue-800 text-lg">
-            Check out on GitHub
-        </a>
-    </section>
+    // Section "Under the Hood"
+    const techSection = document.createElement('section');
+    techSection.className = 'mb-12';
 
-</div>
-`,
-    onMount: () => {
-        return undefined;
-    },
-});
+    const h2Tech = document.createElement('h2');
+    h2Tech.className = 'text-3xl font-bold text-gray-800 mb-6 text-center';
+    h2Tech.textContent = 'Under the Hood';
+    techSection.appendChild(h2Tech);
+
+    const techLogosDiv = document.createElement('div');
+    techLogosDiv.className = 'flex flex-wrap justify-center items-center gap-8';
+    // Les images des logos sont à ajouter ici si besoin, ex:
+    // const tsLogoDiv = document.createElement('div');
+    // tsLogoDiv.className = 'flex flex-col items-center p-4 rounded-lg shadow-md bg-white';
+    // const tsImg = document.createElement('img');
+    // tsImg.src = '/path/to/typescript-icon.svg'; // Assurez-vous que le chemin est correct
+    // tsImg.alt = 'TypeScript';
+    // tsImg.className = 'w-16 h-16 mb-2';
+    // tsLogoDiv.appendChild(tsImg);
+    // const tsSpan = document.createElement('span');
+    // tsSpan.className = 'text-lg font-semibold text-gray-800';
+    // tsSpan.textContent = 'TypeScript';
+    // tsLogoDiv.appendChild(tsSpan);
+    // techLogosDiv.appendChild(tsLogoDiv);
+    // ... répéter pour Tailwind, Node.js, Fastify etc.
+    techSection.appendChild(techLogosDiv);
+
+    const pTechDesc = document.createElement('p');
+    pTechDesc.className = 'text-lg text-gray-700 mt-6 text-center';
+    pTechDesc.innerHTML = `
+        Built as a Single-Page Application (SPA) for a smooth user experience, Viiiiite leverages <strong>TypeScript</strong> for robust frontend logic and <strong>Tailwind CSS</strong> for a sleek, responsive design. Our backend, powered by <strong>Node.js</strong> and <strong>Fastify</strong>, ensures lightning-fast communication and reliable gameplay.
+    `;
+    techSection.appendChild(pTechDesc);
+    container.appendChild(techSection);
+
+    // Ligne de séparation
+    const hr2 = document.createElement('hr');
+    hr2.className = 'my-12 border-gray-300';
+    container.appendChild(hr2);
+
+    // Section "We'd Love to Hear From You!"
+    const contactSection = document.createElement('section');
+    contactSection.className = 'text-center';
+
+    const h2Contact = document.createElement('h2');
+    h2Contact.className = 'text-3xl font-bold text-gray-800 mb-6';
+    h2Contact.textContent = 'We\'d Love to Hear From You!';
+    contactSection.appendChild(h2Contact);
+
+    const pContact = document.createElement('p');
+    pContact.className = 'text-lg text-gray-700 mb-8';
+    pContact.textContent = `
+        Your feedback helps us make Viiiiite even better! If you have suggestions, found a bug, or just want to say hello, feel free to reach out.
+    `;
+    contactSection.appendChild(pContact);
+
+    // Lien Email
+    const emailLink = document.createElement('a');
+    emailLink.href = 'mailto:your.email@example.com';
+    emailLink.className = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full text-lg transition duration-300 ease-in-out';
+    emailLink.textContent = 'Send Us an Email';
+    contactSection.appendChild(emailLink);
+
+    // Lien GitHub
+    const githubLink = document.createElement('a');
+    githubLink.href = 'https://github.com/yourusername/yourgamerepo';
+    githubLink.target = '_blank';
+    githubLink.rel = 'noopener noreferrer';
+    githubLink.className = 'ml-4 text-blue-600 hover:text-blue-800 text-lg';
+    githubLink.textContent = 'Check out on GitHub';
+    contactSection.appendChild(githubLink);
+
+    container.appendChild(contactSection);
+
+    return container; // Retourne l'élément DOM racine du composant
+};

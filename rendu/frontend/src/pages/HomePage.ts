@@ -1,19 +1,38 @@
-export const HomePage = (): { html: string; onMount?: () => (() => void) | void } => ({
-    html: `
-  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
-    <h1 class="text-6xl font-bold mb-8 animate-bounce">Viiiiite, un Pong vite fait !</h1>
-    <nav class="flex flex-col space-y-4">
-      <a href="#" data-route="/choice-game" class="btn btn-primary">Jouer</a>
-      <a href="#" data-route="/tournament" class="btn btn-secondary">Tournois</a>
-      <a href="#" data-route="/profile" class="btn btn-secondary">Profil</a>
-      <a href="#" data-route="/leaderboard" class="btn btn-secondary">Classement</a>
-      <a href="#" data-route="/about" class="btn btn-secondary">À propos</a>
-      <a href="#" data-route="/login" class="btn btn-outline">Se connecter</a>
-      <a href="#" data-route="/register" class="btn btn-outline">S'inscrire</a>
-    </nav>
-  </div>
-`,
-    onMount: () => {
-        return undefined;
-    },
-});
+export const HomePage = (): HTMLElement => {
+    // Crée le conteneur principal
+    const mainDiv = document.createElement('div');
+    mainDiv.className = 'min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white';
+
+    // Titre
+    const h1 = document.createElement('h1');
+    h1.className = 'text-6xl font-bold mb-8 animate-bounce';
+    h1.textContent = 'Viiiiite, un Pong vite fait !';
+    mainDiv.appendChild(h1);
+
+    // Navigation
+    const nav = document.createElement('nav');
+    nav.className = 'flex flex-col space-y-4';
+
+    // Fonction utilitaire pour créer un lien de navigation
+    const createNavLink = (text: string, route: string, className: string): HTMLAnchorElement => {
+        const link = document.createElement('a');
+        link.href = '#'; // Le href est souvent un '#' ou le chemin réel pour l'accessibilité
+        link.setAttribute('data-route', route);
+        link.className = className;
+        link.textContent = text;
+        return link;
+    };
+
+    nav.appendChild(createNavLink('Jouer', '/choice-game', 'btn btn-primary'));
+    nav.appendChild(createNavLink('Tournois', '/tournament', 'btn btn-secondary'));
+    nav.appendChild(createNavLink('Profil', '/profile', 'btn btn-secondary'));
+    nav.appendChild(createNavLink('Classement', '/leaderboard', 'btn btn-secondary'));
+    nav.appendChild(createNavLink('À propos', '/about', 'btn btn-secondary'));
+    nav.appendChild(createNavLink('Se connecter', '/login', 'btn btn-outline'));
+    nav.appendChild(createNavLink('S\'inscrire', '/register', 'btn btn-outline'));
+
+    mainDiv.appendChild(nav);
+
+    return mainDiv;
+  }
+  
