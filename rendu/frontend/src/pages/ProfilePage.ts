@@ -1,4 +1,6 @@
-export const ProfilePage = (): string => `
+// export const ProfilePage = (): string => `
+export const ProfilePage = (): { html: string; onMount?: () => (() => void) | void } => ({
+    html: `
 <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
     <div class="bg-white p-8 rounded-lg shadow-xl text-center max-w-md w-full">
 
@@ -8,7 +10,7 @@ export const ProfilePage = (): string => `
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
             </div>
-
+        Profile 
         <h1 class="text-4xl font-extrabold text-gray-900 mb-4">
             Page en Construction
         </h1>
@@ -23,4 +25,12 @@ export const ProfilePage = (): string => `
 
     </div>
 </div>
-`;
+`,
+    // La page About ne nécessite pas de logique JavaScript spécifique pour le moment,
+    // donc onMount peut être une fonction vide ou être omise.
+    onMount: () => {
+        // console.log("AboutPage a été montée !");
+        // Retournez une fonction de nettoyage si nécessaire, sinon rien.
+        return undefined;
+    },
+});

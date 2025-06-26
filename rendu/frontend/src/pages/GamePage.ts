@@ -1,4 +1,5 @@
-export const GamePage = (): string => `
+export const GamePage = (): { html: string; onMount?: () => (() => void) | void } => ({
+    html: `
 <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
     <div class="bg-white p-8 rounded-lg shadow-xl text-center max-w-md w-full">
 
@@ -8,13 +9,14 @@ export const GamePage = (): string => `
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
             </div>
-
+        Game
         <h1 class="text-4xl font-extrabold text-gray-900 mb-4">
             Page en Construction
         </h1>
 
         <p class="text-lg text-gray-700 mb-8">
             Nous travaillons dur pour vous apporter cette section ! Revenez nous voir bientôt pour découvrir les nouveautés.
+            Game page
         </p>
 
         <a href="/" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
@@ -23,4 +25,8 @@ export const GamePage = (): string => `
 
     </div>
 </div>
-`;
+`,
+    onMount: () => {
+        return undefined;
+    },
+});

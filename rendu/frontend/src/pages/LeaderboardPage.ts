@@ -1,4 +1,5 @@
-export const LeaderboardPage = (): string => `
+export const LeaderboardPage = (): { html: string; onMount?: () => (() => void) | void } => ({
+    html: `
 <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
     <div class="bg-white p-8 rounded-lg shadow-xl text-center max-w-md w-full">
 
@@ -8,7 +9,7 @@ export const LeaderboardPage = (): string => `
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
             </div>
-
+        Leadearboard
         <h1 class="text-4xl font-extrabold text-gray-900 mb-4">
             Page en Construction
         </h1>
@@ -23,4 +24,8 @@ export const LeaderboardPage = (): string => `
 
     </div>
 </div>
-`;
+`,
+    onMount: () => {
+        return undefined;
+    },
+});

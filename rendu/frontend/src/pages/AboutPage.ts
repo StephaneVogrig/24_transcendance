@@ -1,4 +1,5 @@
-export const AboutPage = (): string => `
+export const AboutPage = (): { html: string; onMount?: () => (() => void) | void } => ({
+    html: `
 <div class="container mx-auto px-4 py-12 max-w-4xl">
 
     <section class="text-center mb-12">
@@ -39,4 +40,8 @@ export const AboutPage = (): string => `
     </section>
 
 </div>
-`;
+`,
+    onMount: () => {
+        return undefined;
+    },
+});

@@ -1,4 +1,76 @@
-export const LoginPage = (): string => `
+
+import { navigate } from '../router';
+
+// Fonction onMount qui encapsule toute la logique JavaScript de la page de connexion
+const onLoginPageMount = (): (() => void) | void => {
+    const loginForm = document.getElementById('login-form') as HTMLFormElement;
+    const authMessageDiv = document.getElementById('auth-message') as HTMLDivElement;
+    const usernameOrEmailInput = document.getElementById('usernameOrEmail') as HTMLInputElement;
+    const passwordInput = document.getElementById('password') as HTMLInputElement;
+
+    // S'assurer que les éléments existent avant d'ajouter des écouteurs
+    if (!loginForm || !authMessageDiv || !usernameOrEmailInput || !passwordInput) {
+        console.error("Un ou plusieurs éléments du formulaire de connexion sont manquants. La logique ne sera pas initialisée.");
+        return;
+    }
+
+    const handleSubmit = async (event: Event) => {
+        event.preventDefault(); // Empêche la soumission par défaut du formulaire
+
+        const usernameOrEmail = usernameOrEmailInput.value;
+        const password = passwordInput.value;
+
+        // Réinitialiser les messages
+        authMessageDiv.textContent = '';
+        authMessageDiv.className = 'text-center text-sm mb-6 font-medium';
+
+        // Validation côté client
+        if (!usernameOrEmail || !password) {
+            authMessageDiv.textContent = 'Veuillez entrer un nom d\'utilisateur/email et un mot de passe.';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/login', { // Votre endpoint Fastify de connexion
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ usernameOrEmail, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                authMessageDiv.textContent = 'Connexion réussie ! Redirection...';
+                authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-green-600';
+                localStorage.setItem('jwt_token', data.token); // Stocker le JWT
+
+                setTimeout(() => {
+                    navigate('/choice-game'); // Rediriger vers la page de choix de jeu ou l'accueil
+                }, 1000);
+            } else {
+                authMessageDiv.textContent = data.message || 'Identifiants invalides. Veuillez réessayer.';
+                authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+            }
+        } catch (error) {
+            console.error('Erreur de connexion :', error);
+            authMessageDiv.textContent = 'Erreur réseau. Veuillez réessayer plus tard.';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+        }
+    };
+
+    loginForm.addEventListener('submit', handleSubmit);
+
+    // Retourne une fonction de nettoyage pour supprimer les écouteurs si la page est déchargée
+    return () => {
+        loginForm.removeEventListener('submit', handleSubmit);
+    };
+};
+
+export const LoginPage = (): { html: string; onMount: () => (() => void) | void } => ({
+    html: `
 <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-12">
     <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
         <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Log In</h2>
@@ -33,7 +105,7 @@ export const LoginPage = (): string => `
 
             <div class="flex items-center justify-between">
                 <div class="text-sm">
-                    <a href="/forgot-password" class="font-medium text-blue-600 hover:text-blue-500">
+                    <a href="/forgot-password" class="font-medium text-blue-600 hover:text-blue-500" data-route="/forgot-password">
                         Forgot your password?
                     </a>
                 </div>
@@ -52,60 +124,13 @@ export const LoginPage = (): string => `
         <div class="mt-6 text-center">
             <p class="text-sm text-gray-600">
                 Don't have an account?
-                <a href="/register" class="font-medium text-blue-600 hover:text-blue-500">
+                <a href="/register" class="font-medium text-blue-600 hover:text-blue-500" data-route="/register">
                     Register here
                 </a>
             </p>
         </div>
     </div>
 </div>
-
-<script type="module">
-    // This is conceptual TypeScript logic, actual implementation would be in a .ts file
-    const loginForm = document.getElementById('login-form');
-    const authMessageDiv = document.getElementById('auth-message');
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent default form submission
-
-            const usernameOrEmail = (document.getElementById('usernameOrEmail') as HTMLInputElement).value;
-            const password = (document.getElementById('password') as HTMLInputElement).value;
-
-            // Simple client-side validation
-            if (!usernameOrEmail || !password) {
-                authMessageDiv.textContent = 'Please enter both username/email and password.';
-                authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/auth/login', { // Your Fastify login endpoint
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ usernameOrEmail, password }),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    authMessageDiv.textContent = 'Login successful! Redirecting...';
-                    authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-green-600';
-                    localStorage.setItem('jwt_token', data.token); // Store the JWT
-                    // Redirect to ChoiceGamePage or HomePage
-                    window.location.href = '/choice-game'; // Or whatever your next page is
-                } else {
-                    authMessageDiv.textContent = data.message || 'Invalid credentials. Please try again.';
-                    authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                authMessageDiv.textContent = 'Network error. Please try again later.';
-                authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
-            }
-        });
-    }
-</script>
-`;
+    `,
+    onMount: onLoginPageMount,
+});

@@ -1,4 +1,5 @@
-export const HomePage = (): string => `
+export const HomePage = (): { html: string; onMount?: () => (() => void) | void } => ({
+    html: `
   <div class="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
     <h1 class="text-6xl font-bold mb-8 animate-bounce">Viiiiite, un Pong vite fait !</h1>
     <nav class="flex flex-col space-y-4">
@@ -11,4 +12,8 @@ export const HomePage = (): string => `
       <a href="#" data-route="/register" class="btn btn-outline">S'inscrire</a>
     </nav>
   </div>
-`;
+`,
+    onMount: () => {
+        return undefined;
+    },
+});

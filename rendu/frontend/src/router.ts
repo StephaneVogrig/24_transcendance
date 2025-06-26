@@ -1,18 +1,29 @@
+// interface Route {
+//   path: string;
+//   component: () => string;
+// }
+
+interface ComponentResult {
+  html: string;
+  onMount?: () => (() => void) | void; // Fonction à exécuter après le rendu, retourne une fonction de nettoyage
+}
+
 interface Route {
   path: string;
-  component: () => string;
+  component: () => ComponentResult; // Le composant retourne maintenant un ComponentResult
 }
 
 const appRoot = document.getElementById('app') as HTMLElement;
 
 const routes: Route[] = [];
+let currentCleanup: (() => void) | void = undefined; // Pour stocker la fonction de nettoyage de la page précédente
 
 /**
  * Ajoute une nouvelle route au routeur.
  * @param path Le chemin de l'URL (ex: '/', '/login')
  * @param component La fonction qui retourne le HTML de la page
  */
-export function addRoute(path: string, component: () => string): void {
+export function addRoute(path: string, component: () => ComponentResult): void {
   routes.push({ path, component });
 }
 
@@ -31,8 +42,22 @@ export function navigate(path: string, pushState: boolean = true): void {
     }
 
     if (appRoot) {
-      appRoot.innerHTML = targetRoute.component();
-      addNavigationListeners(appRoot);
+      // Exécuter la fonction de nettoyage de la page précédente si elle existe
+      if (currentCleanup && typeof currentCleanup === 'function') {
+        currentCleanup();
+      }
+
+      const componentResult = targetRoute.component(); // Obtenir l'objet { html, onMount }
+      appRoot.innerHTML = componentResult.html; // Injecter le HTML
+
+      addNavigationListeners(appRoot); // Ré-attache les écouteurs de navigation globaux
+
+      // Exécuter la logique spécifique à la page si elle est définie
+      if (componentResult.onMount) {
+        currentCleanup = componentResult.onMount(); // Stocker la fonction de nettoyage de la nouvelle page
+      } else {
+        currentCleanup = undefined; // Pas de fonction de nettoyage pour cette page
+      }
     }
   } else {
     console.warn(`Route non trouvée: ${path}. Redirection vers l'accueil.`);
