@@ -57,64 +57,128 @@ transcendence/
 ```
 
 # Tutos
-## node.js
-### installation
-Links:
-- [Telecharger Node.js](https://nodejs.org/fr/download)
-- [Linux-Terminal.com](https://fr.linux-terminal.com/?p=4411)
+### Installation sur la session
 
-#### nvm (Node Version Manager)
+#### [nvm (Node Version Manager)](https://github.com/nvm-sh/nvm?tab=readme-ov-file#about)
+
 - Télécharger et installer nvm (script bash utilisé pour gérer plusieurs versions de Node.js.):
 	```sh
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 	```
-	La commande ci-dessus clonera le référentiel nvm sur ~/.nvm et ajoutera la ligne source à votre profil (~/.bash_profile, ~/.zshrc, ~/.profile ou ~/.bashrc).  
+	La commande ci-dessus clonera le référentiel nvm sur \~/.nvm et ajoutera la ligne source à votre profil (~/.bash_profile, ~/.zshrc, ~/.profile ou ~/.bashrc).  
 
 - Verification de l'installation de nvm:
 	```sh
 	command -v nvm
 	```
 	Doit afficher `nvm`
+
+- pour connaitre la version installe:
+	```sh
+	nvm --version
+	```
 - redémarrer le shell ou:
 	```sh
 	\. "$HOME/.nvm/nvm.sh"
 	```
 
 #### node.js
+Links:
+- [Telecharger Node.js](https://nodejs.org/fr/download)
+- [Linux-Terminal.com](https://fr.linux-terminal.com/?p=4411)
 - Installation de node.js et npm (Node Package Manager).
-	Pour la version 22 (LTS au 25/06/2025):
+	Nos docker sont base sur node:20-alpine donc utilisation de la version 20
 	```sh
-	nvm install 22
-	```
-	ou pour la version la plus recente:
-	```sh
-	nvm install node
+	nvm install 20
 	```
 
 - Vérifier la version de Node.js :
 	```sh
 	node -v
 	```
-	Doit afficher `v22.17.0` (au 25/06/2025).  
-	Puis:
+	et
 	```sh
 	nvm current
 	```
-	Doit afficher `v22.17.0` (au 25/06/2025).  
+	Doivent afficher `v20.19.3`
 
 - Vérifier la version de npm (Node Package Manager):
 	```sh
 	npm -v
 	```
-	Doit afficher `10.9.2` (au 25/06/2025).
+	Doit afficher `10.8.2`
 
-## Tailwind CSS
+### Installation dans le projet
+- Dans le terminal situez vous a la racine de votre projet.
+
+	```sh
+	npm init -y
+	```
+	Cela cree le fichier package.json.
+- [Installation de Typescript]()
+	```sh
+	npm install -D typescript
+	```
+	Cela va cree le fichier package_lock, le dossier node_modules.
+	```sh
+	npx tsc --init
+	```
+	Cela cree le fichier tsconfig.json. Le fichier package.json est modifie.
 
 
+- [Installation de Tailwind CSS](https://v3.tailwindcss.com/docs/installation)  
+Tailwind CSS necessite postcss pour fonctionner. autoprefixer ajoute automatiquement les prefixe css pour la compatibilite avec les differents navigateurs.
+	```sh
+	npm install -D tailwindcss@3 postcss autoprefixer
+	```
+	Le fichier package.json est modifie.
+	
+	```sh
+	npx tailwindcss init -p
+	```
+	Cela cree les fichiers tailwind.config.js et postcss.config.js.
+	Pour connaitre la version de Tailwindcss installe dans le projet:
+	```sh
+	npm list tailwindcss
+	```
+	ou lire dans le fichier package.json.  
+	Configuration du fichier 'tailwind.config.js'
+	```js
+	...
+		content: ["./index.html", "./src/**/*.{js,ts}"],
+	...
+	```
+	Dans le fichier .css ajouter au debut
+	```css
+	@tailwind base;
+	@tailwind components;
+	@tailwind utilities;
+	```
+
+- [Installation de Vite](https://vite.dev/)
+	```sh
+	npm install -D vite@7
+	```
+	Configuration : ajouter dans le fichier 'package.json' dans la rubrique scripts
+	```json
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	}
+	```
+	Creer si besoin le fichier vit.config.js ou vit.config.ts
 ## Single Page Application
 Links:
 - [medium.com - Exploring Single Page Applications and TypeScript- Part I](https://medium.com/@pratheeshrussell/exploring-single-page-applications-and-typescript-part-i-15990126f601)
+- [InfiniteJS - Building a SPA site without using a framework](https://infinitejs.com/posts/building-spa-site-without-framework/)
+
+Manipulation de l'historique de navigation.
+- [developer.mozilla.org - History](https://developer.mozilla.org/en-US/docs/Web/API/History)
 
 ## Frontend
 Links:
 	[color - generate color palette](https://coolors.co/)
+
+## Typescript
+[TypeScript Documentation officielle](https://www.typescriptlang.org/fr/docs/)
