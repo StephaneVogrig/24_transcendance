@@ -23,7 +23,8 @@ export const HomePage = (): HTMLElement => {
         return link;
     };
 
-    nav.appendChild(createNavLink('Jouer', '/choice-game', 'btn btn-primary'));
+    nav.appendChild(createNavLink('Choisir jeu', '/choice-game', 'btn btn-primary'));
+    nav.appendChild(createNavLink('Jouer', '/game', 'btn btn-secondary'));
     nav.appendChild(createNavLink('Tournois', '/tournament', 'btn btn-secondary'));
     nav.appendChild(createNavLink('Profil', '/profile', 'btn btn-secondary'));
     nav.appendChild(createNavLink('Classement', '/leaderboard', 'btn btn-secondary'));
