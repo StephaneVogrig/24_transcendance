@@ -9,6 +9,24 @@
 }
 
 @layer components {
+  /* Styles pour les boutons génériques */
+  .btn {
+    @apply font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105;
+  }
+
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white; /* Exemple de couleur primaire */
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-700 hover:bg-gray-600 text-white; /* Exemple de couleur secondaire */
+  }
+
+  .btn-outline {
+    @apply border border-white text-white hover:bg-white hover:text-gray-900; /* Exemple de bouton outline */
+  }
+
+  /* Styles existants */
   .btn-pong {
     @apply bg-pong-blue hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105;
   }

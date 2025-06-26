@@ -1,0 +1,9 @@
+HomePage -> LoginPage -> RegisterPage
+HomePage -> ChoicegamePage -> GamePage
+HomePage -> TournamentPage
+HomePage -> ProfilPage
+HomePage -> LeaderboardPage
+HomePage -> AboutPage
+
+
+Je realise un jeu web (pong) en spa et microservices. Frontend uniquement avec Tailwind css et Typescript, backend avec Fastify et node.js.

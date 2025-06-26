@@ -1,153 +1,180 @@
-import HTML_home from './html/home.html?raw';
-import HTML_login from './html/login.html?raw';
+import './style.css';
 
-interface GameInfo {
-  name: string;
-  version: string;
-  players: number;
-  activeGames: number;
-}
+import { addRoute, startRouter } from './router';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { ChoiceGamePage } from './pages/ChoiceGamePage';
+import { GamePage } from './pages/GamePage';
+import { TournamentPage } from './pages/TournamentPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { LeaderboardPage } from './pages/LeaderboardPage';
+import { AboutPage } from './pages/AboutPage';
 
-interface HealthStatus {
-  status: string;
-  service: string;
-  uptime: number;
-}
+addRoute('/', HomePage);
+addRoute('/login', LoginPage);
+addRoute('/register', RegisterPage);
+addRoute('/choice-game', ChoiceGamePage);
+addRoute('/game', GamePage);
+addRoute('/tournament', TournamentPage);
+addRoute('/profile', ProfilePage);
+addRoute('/leaderboard', LeaderboardPage);
+addRoute('/about', AboutPage);
 
-// API Helper
-class API {
-  private baseUrl = '/api';
+document.addEventListener('DOMContentLoaded', () => {
+  startRouter();
+});
 
-  async getHealth(): Promise<HealthStatus> {
-    const response = await fetch(`${this.baseUrl}/health`);
-    return response.json();
-  }
+// import HTML_home from './html/home.html?raw';
+// import HTML_login from './html/login.html?raw';
 
-  async getGameInfo(): Promise<GameInfo> {
-    const response = await fetch(`${this.baseUrl}/game/info`);
-    return response.json();
-  }
-}
+// interface GameInfo {
+//   name: string;
+//   version: string;
+//   players: number;
+//   activeGames: number;
+// }
 
-// App Class
-class TranscendanceApp {
-  private api: API;
-  private appContainer: HTMLElement;
+// interface HealthStatus {
+//   status: string;
+//   service: string;
+//   uptime: number;
+// }
 
-  constructor() {
-    this.api = new API();
-    this.appContainer = document.getElementById('app')!;
-    this.init();
-  }
+// // API Helper
+// class API {
+//   private baseUrl = '/api';
 
-  private async init() {
-    this.renderLogin();
-    await this.loadServerStatus();
-  }
+//   async getHealth(): Promise<HealthStatus> {
+//     const response = await fetch(`${this.baseUrl}/health`);
+//     return response.json();
+//   }
 
-  private renderLogin() {
-	this.appContainer.innerHTML = HTML_login;
-	this.bindEvents();
-  }
+//   async getGameInfo(): Promise<GameInfo> {
+//     const response = await fetch(`${this.baseUrl}/game/info`);
+//     return response.json();
+//   }
+// }
 
-  private renderHome() {
-    this.appContainer.innerHTML = HTML_home;
-    this.bindEvents();
-  }
+// // App Class
+// class TranscendanceApp {
+//   private api: API;
+//   private appContainer: HTMLElement;
 
-  private bindEvents() {
-    document.getElementById('play-btn')?.addEventListener('click', () => {
-      this.showNotification('🎮 Mode jeu à venir !', 'info');
-    });
+//   constructor() {
+//     this.api = new API();
+//     this.appContainer = document.getElementById('app')!;
+//     this.init();
+//   }
 
-    document.getElementById('tournament-btn')?.addEventListener('click', () => {
-      this.showNotification('🏆 Tournois à venir !', 'info');
-    });
+//   private async init() {
+//     this.renderLogin();
+//     await this.loadServerStatus();
+//   }
 
-    document.getElementById('scores-btn')?.addEventListener('click', () => {
-      this.showNotification('📊 Système de scores à venir !', 'info');
-    });
-  }
+//   private renderLogin() {
+// 	this.appContainer.innerHTML = HTML_login;
+// 	this.bindEvents();
+//   }
 
-  private async loadServerStatus() {
-    try {
-      const [health, gameInfo] = await Promise.all([
-        this.api.getHealth(),
-        this.api.getGameInfo()
-      ]);
+//   private renderHome() {
+//     this.appContainer.innerHTML = HTML_home;
+//     this.bindEvents();
+//   }
 
-      // Mise à jour du statut serveur
-      const statusElement = document.getElementById('server-status');
-      if (statusElement) {
-        statusElement.innerHTML = `
-          <div class="flex justify-between">
-            <span>Statut:</span>
-            <span class="text-green-400 font-bold">${health.status.toUpperCase()}</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Service:</span>
-            <span class="text-blue-400">${health.service}</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Uptime:</span>
-            <span class="text-yellow-400">${Math.floor(health.uptime)}s</span>
-          </div>
-        `;
-      }
+//   private bindEvents() {
+//     document.getElementById('play-btn')?.addEventListener('click', () => {
+//       this.showNotification('🎮 Mode jeu à venir !', 'info');
+//     });
 
-      // Mise à jour des infos jeu
-      const gameElement = document.getElementById('game-info');
-      if (gameElement) {
-        gameElement.innerHTML = `
-          <div class="flex justify-between">
-            <span>Nom:</span>
-            <span class="text-pong-blue font-bold">${gameInfo.name}</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Version:</span>
-            <span class="text-green-400">${gameInfo.version}</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Joueurs en ligne:</span>
-            <span class="text-yellow-400">${gameInfo.players}</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Parties actives:</span>
-            <span class="text-purple-400">${gameInfo.activeGames}</span>
-          </div>
-        `;
-      }
+//     document.getElementById('tournament-btn')?.addEventListener('click', () => {
+//       this.showNotification('🏆 Tournois à venir !', 'info');
+//     });
 
-      this.showNotification('✅ Connexion au serveur aétablie !', 'success');
+//     document.getElementById('scores-btn')?.addEventListener('click', () => {
+//       this.showNotification('📊 Système de scores à venir !', 'info');
+//     });
+//   }
 
-    } catch (error) {
-      console.error('Erreur lors du chargement:', error);
-      this.showNotification('❌ Erreur de connexion au serveur', 'error');
-    }
-  }
+//   private async loadServerStatus() {
+//     try {
+//       const [health, gameInfo] = await Promise.all([
+//         this.api.getHealth(),
+//         this.api.getGameInfo()
+//       ]);
 
-  private showNotification(message: string, type: 'success' | 'error' | 'info') {
-    const notification = document.createElement('div');
-    const bgColor = type === 'success' ? 'bg-green-600' : 
-                   type === 'error' ? 'bg-red-600' : 'bg-blue-600';
+//       // Mise à jour du statut serveur
+//       const statusElement = document.getElementById('server-status');
+//       if (statusElement) {
+//         statusElement.innerHTML = `
+//           <div class="flex justify-between">
+//             <span>Statut:</span>
+//             <span class="text-green-400 font-bold">${health.status.toUpperCase()}</span>
+//           </div>
+//           <div class="flex justify-between">
+//             <span>Service:</span>
+//             <span class="text-blue-400">${health.service}</span>
+//           </div>
+//           <div class="flex justify-between">
+//             <span>Uptime:</span>
+//             <span class="text-yellow-400">${Math.floor(health.uptime)}s</span>
+//           </div>
+//         `;
+//       }
+
+//       // Mise à jour des infos jeu
+//       const gameElement = document.getElementById('game-info');
+//       if (gameElement) {
+//         gameElement.innerHTML = `
+//           <div class="flex justify-between">
+//             <span>Nom:</span>
+//             <span class="text-pong-blue font-bold">${gameInfo.name}</span>
+//           </div>
+//           <div class="flex justify-between">
+//             <span>Version:</span>
+//             <span class="text-green-400">${gameInfo.version}</span>
+//           </div>
+//           <div class="flex justify-between">
+//             <span>Joueurs en ligne:</span>
+//             <span class="text-yellow-400">${gameInfo.players}</span>
+//           </div>
+//           <div class="flex justify-between">
+//             <span>Parties actives:</span>
+//             <span class="text-purple-400">${gameInfo.activeGames}</span>
+//           </div>
+//         `;
+//       }
+
+//       this.showNotification('✅ Connexion au serveur aétablie !', 'success');
+
+//     } catch (error) {
+//       console.error('Erreur lors du chargement:', error);
+//       this.showNotification('❌ Erreur de connexion au serveur', 'error');
+//     }
+//   }
+
+//   private showNotification(message: string, type: 'success' | 'error' | 'info') {
+//     const notification = document.createElement('div');
+//     const bgColor = type === 'success' ? 'bg-green-600' : 
+//                    type === 'error' ? 'bg-red-600' : 'bg-blue-600';
     
-    notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-transform`;
-    notification.textContent = message;
+//     notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-transform`;
+//     notification.textContent = message;
     
-    document.body.appendChild(notification);
+//     document.body.appendChild(notification);
     
-    // Animation d'entrée
-    setTimeout(() => {
-      notification.style.transform = 'translateX(0)';
-    }, 100);
+//     // Animation d'entrée
+//     setTimeout(() => {
+//       notification.style.transform = 'translateX(0)';
+//     }, 100);
     
-    // Suppression après 3 secondes
-    setTimeout(() => {
-      notification.style.transform = 'translateX(100%)';
-      setTimeout(() => notification.remove(), 300);
-    }, 3000);
-  }
-}
+//     // Suppression après 3 secondes
+//     setTimeout(() => {
+//       notification.style.transform = 'translateX(100%)';
+//       setTimeout(() => notification.remove(), 300);
+//     }, 3000);
+//   }
+// }
 
-// Initialisation de l'application
-new TranscendanceApp();
+// // Initialisation de l'application
+// new TranscendanceApp();
