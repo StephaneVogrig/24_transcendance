@@ -5,6 +5,8 @@ WORKDIR /app
 COPY package.json ./
 COPY tsconfig.json ./
 
+RUN npm install socket.io --save
+RUN npm install @fastify/cors@^8 --save
 RUN npm install
 
 COPY . .

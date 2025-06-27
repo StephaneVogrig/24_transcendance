@@ -1,7 +1,15 @@
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, MeshBuilder, GlowLayer } from '@babylonjs/core';
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, GlowLayer } from '@babylonjs/core';
 import { createSky } from '../meshes/skybox';
 import { createSphere } from '../meshes/sphere';
 import { createPlatform } from '../meshes/playform';
+
+export const ballPosition = new Vector3(0, 0, 0);
+export const platform1Position = new Vector3(0, 0, 20);
+export const platform2Position = new Vector3(0, 0, -20);
+
+let ball: any = null;
+let platform1: any = null;
+let platform2: any = null;
 
 export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);
@@ -20,18 +28,33 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     glow.intensity = 0.6;
 
     createSky(scene);
-    const box = MeshBuilder.CreateBox("box", { size: 1 }, scene);
 
-    const ball = createSphere(scene);
-    ball.position = new Vector3(0, 0, 0);
+    ball = createSphere(scene);
+    ball.position = ballPosition;
 
-    const platform1 = createPlatform(scene);
-    platform1.position = new Vector3(0, 0, 20);
+    platform1 = createPlatform(scene);
+    platform1.position = platform1Position;
     platform1.rotation.x = Math.PI / -2;
 
-    const platform2 = createPlatform(scene);
-    platform2.position = new Vector3(0, 0, -20);
+    platform2 = createPlatform(scene);
+    platform2.position = platform2Position;
     platform2.rotation.x = Math.PI / 2;
 
     return scene;
 };
+
+export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: number }, platform1Pos: { x: number, y: number, z: number }, platform2Pos: { x: number, y: number, z: number }) {
+    if (ball) {
+        ball.position.set(ballPos.x, ballPos.y, ballPos.z);
+        console.log("Ball position updated:", ball.position);
+    }
+    if (platform1) {
+        platform1.position.set(platform1Pos.x, platform1Pos.y, platform1Pos.z);
+        console.log("Platform 1 position updated:", platform1.position);
+    }
+    if (platform2) {
+        platform2.position.set(platform2Pos.x, platform2Pos.y, platform2Pos.z);
+        console.log("Platform 2 position updated:", platform2.position);
+    }
+    console.log("Positions updated:");
+}

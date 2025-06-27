@@ -14,11 +14,11 @@ const GAME_SERVICE_BASE_URL = 'http://blockchain:3004';
 const MATCHMAKING_SERVICE_BASE_URL = 'http://blockchain:3005';
 const SCORES_SERVICE_BASE_URL = 'http://blockchain:3006';
 const TOURNAMENT_SERVICE_BASE_URL = 'http://blockchain:3007';
-const WEBSOCKET_SERVICE_BASE_URL = 'http://blockchain:3008';
+const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 
 // Configuration CORS pour permettre les requêtes depuis le frontend
 await fastify.register(cors, {
-  origin: ['http://localhost:5173'], // Port Vite par défaut
+  origin: ['http://${window.location.hostname}:5173'],
   credentials: true
 });
 
@@ -89,7 +89,8 @@ fastify.register(proxy, {
 
 fastify.register(proxy, {
   upstream: WEBSOCKET_SERVICE_BASE_URL,
-  prefix: '/api/websocket'
+  prefix: '/api/websocket',
+  websocket: true
 });
 
 const start = async (): Promise<void> => {
