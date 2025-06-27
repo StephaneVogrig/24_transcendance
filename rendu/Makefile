@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: svogrig <svogrig@student.42.fr>            +#+  +:+       +#+         #
+#    By: scraeyme <scraeyme@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/25 23:10:34 by svogrig           #+#    #+#              #
-#    Updated: 2025/06/25 23:12:38 by svogrig          ###   ########.fr        #
+#    Updated: 2025/06/27 10:54:27 by scraeyme         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,6 +17,8 @@ up:
 
 down:
 	$(DOCKER_COMPOSE) down
+
+reboot: down up
 
 clean: down
 	docker system prune -af
