@@ -77,8 +77,13 @@ export class GameManager {
         return false;
     }
 
-    getGameInfo(firstPlayer: string, secondPlayer: string) {
-        return this._games.get(this.createPair(firstPlayer, secondPlayer));
+    getGameInfo(firstPlayer: string, secondPlayer: string = "") {
+        if (!secondPlayer.length)
+            return this._games.get(this.createPair(firstPlayer, secondPlayer));
+        for (const [[player1, player2], game] of this._games.entries())
+            if (player1 === firstPlayer || player2 === firstPlayer)
+                return game;
+        return undefined;
     }
 
 }
