@@ -4,19 +4,11 @@ import cors from '@fastify/cors';
 
 const fastify = Fastify({ logger: true });
 
-// Définissez l'origine de votre application cliente.
-// Si votre client s'exécute sur http://localhost:5173, utilisez cette valeur.
-// Si votre client s'exécute sur une adresse IP spécifique (par exemple, 192.168.1.100:5173), utilisez-la.
-const clientOrigin = `http://${window.location.hostname}:5173`; // À adapter selon l'adresse de votre client
-
+const clientOrigin = `http://localhost:5173`;
 fastify.register(cors, {
     origin: clientOrigin,
     methods: ['GET', 'POST'],
     credentials: true
-});
-
-fastify.get('/api/websocket', async (request, reply) => {
-    return { message: 'Hello from Websocket Service!' };
 });
 
 const io = new Server(fastify.server, {
@@ -24,7 +16,8 @@ const io = new Server(fastify.server, {
         origin: clientOrigin,
         methods: ['GET', 'POST'],
         credentials: true
-    }
+    },
+    path: '/my-websocket/'
 });
 
 io.on('connection', (socket) => {
@@ -35,7 +28,17 @@ io.on('connection', (socket) => {
 
     socket.on('message', (data) => {
         console.log(`Message from client ${socket.id}:`, data);
-        socket.emit('message', `Server received: ${data}`);
+        io.emit('message', `Server received: ${data}`);
+    });
+
+    socket.on('keydown', (data) => {
+        console.log(`Key down from client ${socket.id}:`, data);
+        io.emit('message', `Key pressed: ${data.key}`);
+    });
+
+    socket.on('keyup', (data) => {
+        console.log(`Key up from client ${socket.id}:`, data);
+        io.emit('message', `Key released: ${data.key}`);
     });
 
     socket.on('disconnect', () => {
