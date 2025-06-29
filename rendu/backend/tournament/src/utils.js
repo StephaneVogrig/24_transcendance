@@ -34,3 +34,19 @@ export function readTournament(tournament)
 		createdAt: tournament.createdAt
 	}
 }
+
+export function readRound(round) {
+	return {
+		matchups: round.map(([player1, player2], matchIndex) => ({
+			matchIndex,
+			player1: {
+				name: player1.name,
+				score: player1.score
+			},
+			player2: {
+				name: player2.name,
+				score: player2.score
+			}
+		}))
+	};
+}
