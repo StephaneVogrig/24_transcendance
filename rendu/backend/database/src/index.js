@@ -1,5 +1,5 @@
 import Fastify from 'fastify';
-import Bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { initDatabase } from './db.js';
 import fs from 'fs';
 
@@ -17,8 +17,23 @@ const start = async () => {
 		const sql = fs.readFileSync('./init.sql').toString();
 		await db.exec(sql);
 
-		fastify.get('/api/database/users', async () => {
-			return await db.all('SELECT * FROM `users`');
+		fastify.post('/api/database/login', async (request, reply) => {
+			const { username, password } = request.body;
+			if (!username || !password)
+				return reply.status(400).send({error: 'Missing username and/or password.'});
+			try
+			{
+				const user = await db.get('SELECT * FROM `users` WHERE username = ?', [username]);
+				if (!user)
+					return reply.status(401).send({error: `Username doesn't exist.`});
+				const checkPassword = await bcrypt.compare(password, user.password);
+				if (!checkPassword)
+					return reply.status(401).send({error: `Password is invalid.`});
+				return reply.status(200).send({message: 'Login successful!', username: user.username});
+			} catch (err)
+			{
+				return reply.status(500).send({error: err.message});
+			}
 		});
 
 		fastify.post('/api/database/register', async (request, reply) => {
@@ -27,13 +42,16 @@ const start = async () => {
 				return reply.status(400).send({error: 'Missing username and/or password.'});
 			try
 			{
-				const cryptedPass = await Bcrypt.hash(password, 10);
+				const cryptedPass = await bcrypt.hash(password, 10);
 				await db.run('INSERT INTO `users` (username, password) VALUES (?, ?)', [username, cryptedPass]);
 				reply.status(201).send({message: 'User registered.'});
 			}
 			catch (err)
 			{
-				reply.status(500).send({error: err.message});
+				if (err.message.includes('UNIQUE constraint failed: users.username'))
+      				reply.status(400).send({error: 'Username already exists.'});
+				else
+					reply.status(500).send({error: err.message});
 			}
 		});
 
