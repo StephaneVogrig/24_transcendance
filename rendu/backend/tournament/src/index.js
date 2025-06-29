@@ -28,30 +28,66 @@ const start = async () => {
   }
 };
 
+fastify.post('/api/tournament/get', async (request, reply) => {
+	if (!request.body || typeof request.body.id !== 'number')
+	{
+		reply.status(400).send({ error: 'Missing or invalid id.' });
+		return;
+	}
+	const tournament = TOURNAMENT_LIST[request.body.id];
+	if (!tournament)
+	{
+		reply.status(400).send({error: `ID ${request.body.id} is invalid.`});
+		return;
+	}
+	const readableTournament = Utils.readTournament(tournament);
+	reply.status(200).send(readableTournament);
+});
+
+fastify.post('/api/tournament/create', async (request, reply) => {
+	const players = request.body.players;
+	if (!players || !Array.isArray(players))
+	{
+		reply.status(400).send({error: 'Players need to be an array'});
+		return;
+	}
+	for (const [index, player] of players.entries())
+	{
+		if (typeof player !== 'object' || player === null)
+		{
+			reply.status(400).send({ error: `Player at index ${index} is not a valid object.` });
+    		return;
+		}
+		else if ('name' in player && typeof player.name !== 'string' || player.name.trim() === '')
+		{
+			reply.status(400).send({ error: `Player at index ${index} has invalid or missing name.` });
+  			return;
+		}
+		else if ('score' in player && typeof player.score !== 'number')
+		{
+			reply.status(400).send({ error: `Player at index ${index} has invalid score.` });
+    		return;
+		}
+	}
+	try
+	{
+		const result = createTournament(players);
+		reply.status(201).send(result);
+	}
+	catch (error)
+	{
+		reply.status(400).send({error: error.message});
+	}
+});
+
 let TOTAL_TOURNAMENTS = 0;
 
 // Stores all Tournament objects
 let TOURNAMENT_LIST = {};
 
-function getTopScorer(players) {
-	let highest = -1;
-	let bestPlayer = {
-		name: 'None',
-		score: -1
-	};
-	for (const player of players) {
-		if (player.score > highest)
-		{
-			highest = player.score;
-			bestPlayer = player;
-		}
-	}
-	return bestPlayer;
-}
-
-function createTournament(players) {
+export function createTournament(players) {
 	if (players.length < 2)
-		throw new Error("Not enough players to create tournament! Received: " + players.length);
+		throw new Error(`Not enough players to create tournament! Received: ${players.length}`);
 	else if (Utils.checkDuplicates(players))
 		throw new Error("Duplicate names in tournament!");
 	else if (players.length % 2 == 1)
@@ -62,25 +98,26 @@ function createTournament(players) {
 		players: players,
 		rounds: [generateBracket(players)],
 		currentRound: 0,
-		createdAt: new Date()
+		createdAt: new Date().toISOString()
 	 };
-	 TOURNAMENT_LIST[tournament.id] = tournament;
-	 return tournament;
+	TOURNAMENT_LIST[tournament.id] = tournament;
+	const bracket = tournament.rounds[0];
+	return Utils.readTournament(tournament);
 }
 
 function getCurrentRound(id)
 {
-	let tournament = TOURNAMENT_LIST[id];
+	const tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
-		throw new Error("ID " + id + " is invalid in getCurrentRound call.");
+		throw new Error(`ID ${id} is invalid in getCurrentRound call.`);
 	return tournament.rounds[tournament.currentRound];
 }
 
 function updatePlayerScore(id, name, score)
 {
-	let tournament = TOURNAMENT_LIST[id];
+	const tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
-		throw new Error("ID " + id + " is invalid in getCurrentRound call.");
+		throw new Error(`ID ${id} is invalid in updatePlayerScore call.`);
 	for (const round of tournament.rounds[tournament.currentRound])
 	{
 		if (round.length != 2)
@@ -108,15 +145,15 @@ function tournamentToArrays(tournament) {
 		if (player.score >= 0 && player.score <= 255)
 			playerScores.push(player.score);
 		else
-			throw new Error("Score of " + player.score + " is invalid for player " + player.name);
+			throw new Error(`Score of ${player.score} is invalid for player ${player.name}`);
 	}
 	return {names: playerNames, scores: playerScores};
 }
 
 function getTournament(id) {
-	let tournament = TOURNAMENT_LIST[id];
+	const tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
-		throw new Error("ID " + id + " is invalid in getTournament call.");
+		throw new Error(`ID ${id} is invalid in getTournament call.`);
 	return tournament;
 }
 
@@ -134,13 +171,26 @@ function generateNextRound(pairedPlayers)
 	return winners;
 }
 
+function getWinner(id)
+{
+	const tournament = TOURNAMENT_LIST[id];
+	if (!tournament)
+		throw new Error(`ID ${id} is invalid in getWinner call.`);
+	const round = tournament.rounds[tournament.currentRound];
+	if (round.length > 1)
+		throw new Error(`"No winners yet for tournament ID ${id} .`);
+	if (round[0][0].score === undefined || round[0][1].score === undefined)
+		throw new Error("Final match's score is still undefined.");
+	return round[0][0].score > round[0][1].score ? round[0][0] : round[0][1];
+}
+
 function advanceToNextRound(id)
 {
 	let tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
-		throw new Error("ID " + id + " is invalid in advanceToNextRound call.");
-	let currentRound = tournament.rounds[tournament.currentRound];
-	let nextPlayers = generateNextRound(currentRound);
+		throw new Error(`ID ${id} is invalid in advanceToNextRound call.`);
+	const ongoingRound = tournament.rounds[tournament.currentRound];
+	const nextPlayers = generateNextRound(ongoingRound);
 	if (nextPlayers.length == 1)
 	{
 		// TODO Register tournament to the blockchain
@@ -158,7 +208,7 @@ function generateBracket(players)
 {
 	if (players.length % 2 == 1)
 		throw new Error("There must be an even number of players!");
-	let indexes = Utils.generateIndexes(players.length);
+	const indexes = Utils.generateIndexes(players.length);
 	let bracketPlayers = [];
 	for (let i = 0; i < indexes.length; i++)
 		bracketPlayers[i] = players[indexes[i]];

@@ -15,3 +15,22 @@ export function checkDuplicates(players) {
 		playerNames.push(player.name);
 	return new Set(playerNames).size != playerNames.length;
 }
+
+export function readTournament(tournament)
+{
+	const bracket = tournament.rounds[tournament.currentRound];
+	return {
+		id: tournament.id,
+		playerNames: tournament.players.map(p => p.name),
+		playerScores: tournament.players.map(p => p.score),
+		totalPlayers: tournament.players.length,
+		currentRound: tournament.currentRound,
+		bracket: bracket,
+		matchups: bracket.map(match => ({
+			player1: match[0].name,
+			player2: match[1].name
+		})),
+		currentMatch: bracket[0],
+		createdAt: tournament.createdAt
+	}
+}
