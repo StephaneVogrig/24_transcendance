@@ -1,34 +1,28 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import proxy from '@fastify/http-proxy';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const APP_HOST = process.env.HOST || 'localhost';
 
 const fastify = Fastify({ 
   logger: true 
 });
 
-// Les URL des microservices devraient idéalement provenir de variables d'environnement
 const AUTH_SERVICE_BASE_URL = 'http://authentification:3001';
 const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';
 const DATABASE_SERVICE_BASE_URL = 'http://database:3003';
-const GAME_SERVICE_BASE_URL = 'http://blockchain:3004';
-const MATCHMAKING_SERVICE_BASE_URL = 'http://blockchain:3005';
-const SCORES_SERVICE_BASE_URL = 'http://blockchain:3006';
-const TOURNAMENT_SERVICE_BASE_URL = 'http://blockchain:3007';
+const GAME_SERVICE_BASE_URL = 'http://game:3004';
+const MATCHMAKING_SERVICE_BASE_URL = 'http://matchmaking:3005';
+const SCORES_SERVICE_BASE_URL = 'http://scores:3006';
+const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
 const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 
-// Configuration CORS pour permettre les requêtes depuis le frontend
 await fastify.register(cors, {
-  origin: ['http://${window.location.hostname}:5173'],
+  origin: [`http://10.13.3.3:5173`],
   credentials: true
-});
-
-// Route de base pour tester que le gateway fonctionne
-fastify.get('/', async (request, reply) => {
-  return { 
-    message: 'Gateway Transcendence - Prêt pour le Pong !',
-    timestamp: new Date().toISOString(),
-    status: 'running'
-  };
 });
 
 // Route API de base

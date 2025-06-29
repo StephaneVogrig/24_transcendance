@@ -35,10 +35,12 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     platform1 = createPlatform(scene);
     platform1.position = platform1Position;
     platform1.rotation.x = Math.PI / -2;
+    platform1.rotation.y = Math.PI / 2;
 
     platform2 = createPlatform(scene);
     platform2.position = platform2Position;
     platform2.rotation.x = Math.PI / 2;
+    platform2.rotation.y = Math.PI / 2;
 
     return scene;
 };
