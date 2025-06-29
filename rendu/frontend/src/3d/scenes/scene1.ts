@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, GlowLayer } from '@babylonjs/core';
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, GlowLayer, Color3 } from '@babylonjs/core';
 import { createSky } from '../meshes/skybox';
 import { createSphere } from '../meshes/sphere';
 import { createPlatform } from '../meshes/playform';
@@ -34,12 +34,12 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     ball = createSphere(scene);
     ball.position = ballPosition;
 
-    platform1 = createPlatform(scene);
+    platform1 = createPlatform(scene, new Color3(0, 1, 1));
     platform1.position = platform1Position;
     platform1.rotation.x = Math.PI / -2;
     platform1.rotation.y = Math.PI / 2;
 
-    platform2 = createPlatform(scene);
+    platform2 = createPlatform(scene, new Color3(1, 0.5, 0));
     platform2.position = platform2Position;
     platform2.rotation.x = Math.PI / 2;
     platform2.rotation.y = Math.PI / 2;
@@ -61,10 +61,4 @@ export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: numbe
         console.log("Platform 2 position updated:", platform2.position);
     }
     console.log("Positions updated:");
-}
-
-export function updateScores(player1Score: number, player2Score: number) {
-    console.log(`Player 1 Score: ${player1Score}, Player 2 Score: ${player2Score}`);
-    scoreParagraph.textContent = `Score: ${player1Score} - ${player2Score}`;
-    // Here you can update the UI or any other logic related to scores
 }

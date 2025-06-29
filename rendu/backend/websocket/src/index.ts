@@ -254,12 +254,10 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('keydown', (data: { key: string }) => {
-
         sendInput(socket.id, data.key, 'keydown');
     });
 
     socket.on('keyup', (data: { key: string }) => {
-
         sendInput(socket.id, data.key, 'keyup');
     });
 
