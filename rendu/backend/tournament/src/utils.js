@@ -19,6 +19,17 @@ export function checkDuplicates(players) {
 export function readTournament(tournament)
 {
 	const bracket = tournament.rounds[tournament.currentRound];
+	if (tournament.status === 'open')
+	{
+		return {
+			id: tournament.id,
+			playerNames: tournament.players.map(p => p.name),
+			playerScores: tournament.players.map(p => p.score),
+			totalPlayers: tournament.players.length,
+			currentRound: tournament.currentRound,
+			createdAt: tournament.createdAt
+		}
+	}
 	return {
 		id: tournament.id,
 		playerNames: tournament.players.map(p => p.name),

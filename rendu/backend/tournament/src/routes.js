@@ -1,8 +1,15 @@
 import Fastify from 'fastify';
 import * as Tournament from './tournament.js'
 import * as Utils from './utils.js';
+import cors from '@fastify/cors'
 
 const fastify = Fastify({ logger: true });
+
+await fastify.register(cors, {
+	origin: 'http://10.11.5.5:5173',
+	methods: ['GET', 'POST'],
+	credentials: true
+});
 
 const start = async () => {
   try {
@@ -27,38 +34,31 @@ fastify.get('/api/tournament/get', async (request, reply) => {
 });
 
 fastify.post('/api/tournament/create', async (request, reply) => {
-	const players = request.body.players;
-	if (!players || !Array.isArray(players))
-	{
-		reply.status(400).send({error: 'Players need to be an array'});
-		return;
-	}
-	for (const [index, player] of players.entries())
-	{
-		if (typeof player !== 'object' || player === null)
-		{
-			reply.status(400).send({ error: `Player at index ${index} is not a valid object.` });
-			return;
-		}
-		else if ('name' in player && typeof player.name !== 'string' || player.name.trim() === '')
-		{
-			reply.status(400).send({ error: `Player at index ${index} has invalid or missing name.` });
-			return;
-		}
-		else if ('score' in player && typeof player.score !== 'number')
-		{
-			reply.status(400).send({ error: `Player at index ${index} has invalid score.` });
-			return;
-		}
-	}
+	if (!request.body || typeof request.body.name !== 'string')
+		return reply.status(400).send({ error: 'Missing or invalid name.' });
+	const name = request.body.name;
 	try
 	{
-		const result = Tournament.createTournament(players);
-		reply.status(201).send(Utils.readTournament(result));
-	}
-	catch (error)
+		const tournament = Tournament.createTournament(name);
+		return reply.send(tournament);
+	} catch (err)
 	{
-		reply.status(400).send({error: error.message});
+		return reply.status(400).send({ error: err.message });
+	}
+});
+
+fastify.post('/api/tournament/join', async (request, reply) => {
+	if (!request.body || typeof request.body.name !== 'string')
+		return reply.status(400).send({ error: 'Missing or invalid name.' });
+	const name = request.body.name;
+	try
+	{
+		const tournament = Tournament.findTournament();
+		Tournament.joinTournament(tournament.id, name);
+		return reply.send(tournament);
+	} catch (err)
+	{
+		return reply.status(400).send({ error: err.message });
 	}
 });
 
