@@ -62,3 +62,9 @@ export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: numbe
     }
     console.log("Positions updated:");
 }
+
+export function updateScores(player1Score: number, player2Score: number) {
+    console.log(`Player 1 Score: ${player1Score}, Player 2 Score: ${player2Score}`);
+    scoreParagraph.textContent = `Score: ${player1Score} - ${player2Score}`;
+    // Here you can update the UI or any other logic related to scores
+}

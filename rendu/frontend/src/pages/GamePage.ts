@@ -26,11 +26,11 @@ export const GamePage = (): HTMLElement => {
     scriptConsole.textContent = 'console.log("Game canvas ready");';
     gameContainer.appendChild(scriptConsole);
 
-    const welcomeParagraph = document.createElement('p');
-    welcomeParagraph.textContent = 'Welcome to Transcendence!';
-    // Vous pouvez ajouter des classes Tailwind ici pour styliser le paragraphe
-    welcomeParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-xl font-semibold text-gray-800 z-10';
-    gameContainer.appendChild(welcomeParagraph);
+    const scoreParagraph = document.createElement('p');
+    scoreParagraph.id = 'gameScoreDisplay';
+    scoreParagraph.textContent = 'Score: 0 - 0';
+    scoreParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-lg font-semibold text-blue-300 z-10 drop-shadow-[0_0_5px_rgba(66,153,225,0.7)]';
+    gameContainer.appendChild(scoreParagraph);
 
     const canvas = document.createElement('canvas');
     canvas.id = 'renderCanvas';
@@ -63,3 +63,13 @@ export const GamePage = (): HTMLElement => {
 
     return mainDiv;
 };
+
+export function updateScores(player1Score: number, player2Score: number) {
+    const scoreParagraph = document.getElementById('gameScoreDisplay') as HTMLParagraphElement;
+    if (scoreParagraph) {
+        scoreParagraph.textContent = `Score: ${player1Score} - ${player2Score}`;
+    }
+    else {
+        console.error("Score paragraph element not found.");
+    }
+}

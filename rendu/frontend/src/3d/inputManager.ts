@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 import { updateBallAndPlatforms } from './scenes/scene1';
+import { updateScores } from '../pages/GamePage';
 
 
 export class InputManager {
@@ -26,6 +27,10 @@ export class InputManager {
 		socket.on('updatePositions', (data: { ball: { x: number, y: number, z: number }, platform1: { x: number, y: number, z: number }, platform2: { x: number, y: number, z: number } }) => {
 			console.log('Received position update:', data);
 			updateBallAndPlatforms(data.ball, data.platform1, data.platform2);
+		});
+		socket.on('scoreUpdate', (data: { player1Score: number, player2Score: number }) => {
+			console.log('Score update received:', data);
+			updateScores(data.player1Score, data.player2Score);
 		});
 
 		window.addEventListener("keydown", (event) => {

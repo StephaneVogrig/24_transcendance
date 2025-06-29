@@ -133,6 +133,7 @@ async function getstate(gameId: string, socketId: string) {
 
         if (responseData.success && responseData.gameState) {
             const gameState = responseData.gameState;
+            console.log(`getstate: ${JSON.stringify(gameState)}`);
 
             const ballPos = {
                 x: gameState._ball._pos._x * 2,
@@ -163,6 +164,14 @@ async function getstate(gameId: string, socketId: string) {
                     ball: ballPos,
                     platform1: platform1Pos,
                     platform2: platform2Pos
+                });
+            }
+            if (gameState._score) {
+                const player1Score = gameState._score[0];
+                const player2Score = gameState._score[1];
+                io.to(gameId).emit('scoreUpdate', {
+                    player1Score: player1Score,
+                    player2Score: player2Score
                 });
             }
             return responseData.gameState;
