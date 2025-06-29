@@ -28,6 +28,7 @@ export const LoginPage = (): HTMLElement => {
     loginForm.className = 'space-y-6';
     cardDiv.appendChild(loginForm);
 
+
     // Champ Username/Email
     const usernameDiv = document.createElement('div');
     usernameDiv.innerHTML = `
@@ -38,7 +39,7 @@ export const LoginPage = (): HTMLElement => {
             name="usernameOrEmail"
             required
             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="yourusername or your@email.com"
+            placeholder="username or your@email.com"
         >
     `;
     loginForm.appendChild(usernameDiv);
@@ -74,15 +75,46 @@ export const LoginPage = (): HTMLElement => {
 
     // Bouton de connexion
     const loginButtonDiv = document.createElement('div');
-    loginButtonDiv.innerHTML = `
-        <button
-            type="submit"
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-        >
-            Log In
-        </button>
-    `;
+    const button = document.createElement('button');
+    button.type = 'submit'; 
+    button.className = 'w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200';
+    button.textContent = 'Log In';
+    loginButtonDiv.appendChild(button);
     loginForm.appendChild(loginButtonDiv);
+
+
+    // Bouton google
+    const googleAuth = document.createElement('div');
+    const googleButton = document.createElement('button');
+    googleButton.type = 'button';
+    googleButton.className = 'w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200';
+    googleButton.textContent = 'Log In with Google';
+    const image = document.createElement('img');
+    image.src = '../../public/assets/logo.png';
+    image.alt = 'Google logo';
+
+    image.className = 'w-6 h-6'; // resize taille image 
+
+    // googleButton.prepend(image); // pour afficher l'image avant le texte
+    googleButton.appendChild(image); // afficher l'image apres le texte
+    
+    // Redirection vers OAuth Google au clic
+    googleButton.addEventListener('click', () => {
+        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' +
+            new URLSearchParams({
+                // client_id: 'TON_CLIENT_ID_GOOGLE', 
+                client_id: '60526203696-ormpr20fj2jsdnmsoqp527cua1dsqk5a.apps.googleusercontent.com', 
+                redirect_uri: 'http://localhost:5173/auth/callback', // L'URL de ton appli qui reçoit la réponse
+                response_type: 'token', // ou 'code' si tu fais un flow complet
+                scope: 'email profile',
+                include_granted_scopes: 'true',
+                state: 'state_parameter_passthrough_value'
+            }).toString();
+    });
+    googleAuth.appendChild(googleButton);
+    loginForm.appendChild(googleAuth);// Ajout du bouton à la page
+
+  
 
     // Section "Don't have an account?"
     const registerPromptDiv = document.createElement('div');
