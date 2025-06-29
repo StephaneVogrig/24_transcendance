@@ -12,6 +12,8 @@ let ball: any = null;
 let platform1: any = null;
 let platform2: any = null;
 
+let mirror = 1;
+
 export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);
 
@@ -34,12 +36,12 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     ball = createSphere(scene);
     ball.position = ballPosition;
 
-    platform1 = createPlatform(scene, new Color3(0, 1, 1));
+    platform1 = createPlatform(scene, new Color3(1, 0.5, 0));
     platform1.position = platform1Position;
     platform1.rotation.x = Math.PI / -2;
     platform1.rotation.y = Math.PI / 2;
 
-    platform2 = createPlatform(scene, new Color3(1, 0.5, 0));
+    platform2 = createPlatform(scene, new Color3(0, 1, 1));
     platform2.position = platform2Position;
     platform2.rotation.x = Math.PI / 2;
     platform2.rotation.y = Math.PI / 2;
@@ -49,16 +51,22 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
 
 export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: number }, platform1Pos: { x: number, y: number, z: number }, platform2Pos: { x: number, y: number, z: number }) {
     if (ball) {
-        ball.position.set(ballPos.x, ballPos.y, ballPos.z);
+        ball.position.set(ballPos.x * mirror, ballPos.y, ballPos.z);
         console.log("Ball position updated:", ball.position);
     }
     if (platform1) {
-        platform1.position.set(platform1Pos.x, platform1Pos.y, platform1Pos.z);
+        platform1.position.set(platform1Pos.x * mirror, platform1Pos.y, platform1Pos.z);
         console.log("Platform 1 position updated:", platform1.position);
     }
     if (platform2) {
-        platform2.position.set(platform2Pos.x, platform2Pos.y, platform2Pos.z);
+        platform2.position.set(platform2Pos.x * mirror, platform2Pos.y, platform2Pos.z);
         console.log("Platform 2 position updated:", platform2.position);
     }
     console.log("Positions updated:");
+}
+
+export function teamPing(team: string) {
+    mirror = -1;
+    platform1.rotation.x = Math.PI / 2;
+    platform2.rotation.x = Math.PI / -2;
 }

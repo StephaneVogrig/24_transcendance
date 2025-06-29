@@ -9,7 +9,7 @@ const APP_HOST = process.env.HOST || 'localhost';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.13.3.3:5173`;
+const clientOrigin = `http://10.11.5.6:5173`;
 fastify.register(cors, {
     origin: clientOrigin,
     methods: ['GET', 'POST'],
@@ -133,7 +133,7 @@ async function getstate(gameId: string, socketId: string) {
 
         if (responseData.success && responseData.gameState) {
             const gameState = responseData.gameState;
-            console.log(`getstate: ${JSON.stringify(gameState)}`);
+            // console.log(`getstate: ${JSON.stringify(gameState)}`);
 
             const ballPos = {
                 x: gameState._ball._pos._x * 2,
@@ -144,7 +144,7 @@ async function getstate(gameId: string, socketId: string) {
             let platform1Pos = null;
             if (gameState._leftTeam && gameState._leftTeam.length > 0 && gameState._leftTeam[0]._hitbox && gameState._leftTeam[0]._hitbox._pos) {
                 platform1Pos = {
-                    x: gameState._leftTeam[0]._hitbox._pos._x * 2,
+                    x: gameState._leftTeam[0]._hitbox._pos._x * 2 + 0.5,
                     y: 0,
                     z: gameState._leftTeam[0]._hitbox._pos._y * 2 + 2.5
                 };
@@ -153,12 +153,17 @@ async function getstate(gameId: string, socketId: string) {
             let platform2Pos = null;
             if (gameState._rightTeam && gameState._rightTeam.length > 0 && gameState._rightTeam[0]._hitbox && gameState._rightTeam[0]._hitbox._pos) {
                 platform2Pos = {
-                    x: gameState._rightTeam[0]._hitbox._pos._x * 2,
+                    x: gameState._rightTeam[0]._hitbox._pos._x * 2 + 0.5,
                     y: 0,
                     z: gameState._rightTeam[0]._hitbox._pos._y * 2 + 2.5
                 };
             }
-
+            const paddleName = "paddle." + socketId;
+            console.log(`gameState.leftTeam: ${JSON.stringify(gameState._leftTeam[0]._hitbox._name)}, user socketId: ${paddleName}`);
+            if (gameState._leftTeam && gameState._leftTeam.length > 0 && paddleName === gameState._leftTeam[0]._hitbox._name) {
+                console.debug(`state: Emitting teamPing to left team for socketId: ${socketId}`);
+                io.to(socketId).emit('teamPing');
+            }
             if (ballPos && platform1Pos && platform2Pos) {
                 io.to(gameId).emit('updatePositions', {
                     ball: ballPos,

@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 import { updateBallAndPlatforms } from './scenes/scene1';
 import { updateScores } from '../pages/GamePage';
+import { teamPing } from './scenes/scene1';
 
 
 export class InputManager {
@@ -31,6 +32,11 @@ export class InputManager {
 		socket.on('scoreUpdate', (data: { player1Score: number, player2Score: number }) => {
 			console.log('Score update received:', data);
 			updateScores(data.player1Score, data.player2Score);
+		});
+
+		socket.on('teamPing', () => {
+			console.debug(`Received team ping for team`);
+			teamPing();
 		});
 
 		window.addEventListener("keydown", (event) => {
