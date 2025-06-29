@@ -44,7 +44,7 @@ export function createArena(scene : Scene): TransformNode {
     height: 20,
     tessellation: 64,
   }, scene);
-    middleLine.material = createNeonMaterial(scene, new Color3(0, 1, 1));
+    middleLine.material = createNeonMaterial(scene, new Color3(1, 1, 1));
     middleLine.position = new Vector3(0, 0, 0);
     middleLine.rotation.x = Math.PI / 2;
 
@@ -53,7 +53,7 @@ export function createArena(scene : Scene): TransformNode {
     height: 20,
     tessellation: 64,
   }, scene);
-    goal1.material = createNeonMaterial(scene, new Color3(0, 1, 1));
+    goal1.material = createNeonMaterial(scene, new Color3(1, 1, 1));
     goal1.position = new Vector3(0, 20, 0);
     goal1.rotation.x = Math.PI / 2;
 
@@ -62,7 +62,8 @@ export function createArena(scene : Scene): TransformNode {
     height: 20,
     tessellation: 64,
   }, scene);
-    goal2.material = createNeonMaterial(scene, new Color3(0, 1, 1));
+
+    goal2.material = createNeonMaterial(scene, new Color3(1, 1, 1));
     goal2.position = new Vector3(0, -20, 0);
     goal2.rotation.x = Math.PI / 2;
     const ornementMiddle = createOrnement(scene);
