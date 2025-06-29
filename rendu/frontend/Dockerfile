@@ -7,6 +7,7 @@ RUN npm install
 RUN npm install socket.io-client
 RUN npm install @babel/core --save-dev
 RUN npm i --save @types/node
+RUN npm install @babylonjs/core
 
 COPY . .
 

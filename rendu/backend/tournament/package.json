@@ -1,27 +1,16 @@
 {
   "name": "transcendence-tournament",
   "version": "1.0.0",
-  "description": "Tournament service for Transcendance",
-  "main": "src/index.ts",
+  "description": "Tournament service for Transcendence",
+  "main": "src/routes.js",
   "type": "module",
-
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts"
+    "start": "node src/routes.js",
+    "dev": "node src/routes.js"
   },
-
-
   "dependencies": {
     "fastify": "^4.24.3"
   },
-
-  "devDependencies": {
-    "@types/node": "^20.8.10",
-    "tsx": "^4.6.0",
-    "typescript": "^5.2.2"
-  },
-
   "keywords": [],
   "author": "VITE",
   "license": "ISC"
