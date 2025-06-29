@@ -18,13 +18,11 @@ fastify.get('/api/tournament', async (request, reply) => {
   return { message: 'Hello from Tournament Service!' };
 });
 
-fastify.post('/api/tournament/get', async (request, reply) => {
-	if (!request.body || typeof request.body.id !== 'number')
-	{
-		reply.status(400).send({ error: 'Missing or invalid id.' });
-		return;
-	}
-	const tournament = Tournament.getTournament(request.body.id);
+fastify.get('/api/tournament/get', async (request, reply) => {
+	const { id } = request.query;
+	if (typeof id === 'undefined' || isNaN(Number(id)))
+		return reply.status(400).send({ error: 'Missing or invalid id.' });
+	const tournament = Tournament.getTournament(id);
 	reply.status(200).send(Utils.readTournament(tournament));
 });
 
@@ -80,23 +78,19 @@ fastify.post('/api/tournament/advance', async (request, reply) => {
 	reply.status(200).send(Utils.readRound(newTournament));
 });
 
-fastify.post('/api/tournament/winner', async (request, reply) => {
-	if (!request.body || typeof request.body.id !== 'number')
-	{
-		reply.status(400).send({ error: 'Missing or invalid id.' });
-		return;
-	}
-	const winner = Tournament.getWinner(request.body.id);
+fastify.get('/api/tournament/winner', async (request, reply) => {
+	const { id } = request.query;
+	if (typeof id === 'undefined' || isNaN(Number(id)))
+		return reply.status(400).send({ error: 'Missing or invalid id.' });
+	const winner = Tournament.getWinner(id);
 	reply.status(200).send({name: winner.name, score: winner.score});
 });
 
-fastify.post('/api/tournament/round', async (request, reply) => {
-	if (!request.body || typeof request.body.id !== 'number')
-	{
-		reply.status(400).send({ error: 'Missing or invalid id.' });
-		return;
-	}
-	const round = Tournament.getCurrentRound(request.body.id);
+fastify.get('/api/tournament/round', async (request, reply) => {
+	const { id } = request.query;
+	if (typeof id === 'undefined' || isNaN(Number(id)))
+		return reply.status(400).send({ error: 'Missing or invalid id.' });
+	const round = Tournament.getCurrentRound(id);
 	reply.status(200).send(Utils.readRound(round));
 });
 
