@@ -2,10 +2,11 @@ import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, GlowLayer } 
 import { createSky } from '../meshes/skybox';
 import { createSphere } from '../meshes/sphere';
 import { createPlatform } from '../meshes/playform';
+import { createArena } from '../meshes/arena';
 
 export const ballPosition = new Vector3(0, 0, 0);
-export const platform1Position = new Vector3(0, 0, 20);
-export const platform2Position = new Vector3(0, 0, -20);
+export const platform1Position = new Vector3(20, 0, 0);
+export const platform2Position = new Vector3(-20, 0, 0);
 
 let ball: any = null;
 let platform1: any = null;
@@ -28,6 +29,7 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     glow.intensity = 0.6;
 
     createSky(scene);
+    const arena = createArena(scene);
 
     ball = createSphere(scene);
     ball.position = ballPosition;
