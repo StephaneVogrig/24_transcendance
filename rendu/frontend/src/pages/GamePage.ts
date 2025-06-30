@@ -39,8 +39,15 @@ export const GamePage = (): HTMLElement => {
     canvas.style.display = 'block';
     gameContainer.appendChild(canvas);
 
+    // const homeLink = document.createElement('a');
+    // homeLink.href = '/';
+    // homeLink.setAttribute('data-route', '/');
+    // homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
+    // homeLink.textContent = 'Return to Home';
+    // gameContainer.appendChild(homeLink);
+
     cardDiv.appendChild(gameContainer);
-    
+
     // ***************************************************************
     // IMPORTANT: Initialiser la scène Babylon.js après que le canvas soit dans le DOM
     // Utilisez setTimeout avec un délai de 0 pour s'assurer que le rendu du DOM est terminé
@@ -64,6 +71,42 @@ export const GamePage = (): HTMLElement => {
 
     return mainDiv;
 };
+
+
+export function gameOver() {
+    showGameOverModal();
+}
+
+function showGameOverModal() {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+    modalOverlay.id = 'gameOverModalOverlay';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+
+    const title = document.createElement('h2');
+    title.className = 'text-5xl font-extrabold text-red-600 mb-4 tracking-wide';
+    title.textContent = 'Game Over !';
+    modalContent.appendChild(title);
+
+    const message = document.createElement('p');
+    message.className = 'text-2xl text-gray-800 font-medium';
+    message.textContent = 'Thanks for playing! Your game has ended.';
+    modalContent.appendChild(message);
+
+
+    const homeLink = document.createElement('a');
+    homeLink.href = '/';
+    homeLink.setAttribute('data-route', '/');
+    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Return to Home';
+
+    modalContent.appendChild(homeLink);
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+}
+
 
 export function updateScores(player1Score: number, player2Score: number) {
     const scoreParagraph = document.getElementById('gameScoreDisplay') as HTMLParagraphElement;

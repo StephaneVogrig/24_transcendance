@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { updateBallAndPlatforms } from './scenes/scene1';
-import { updateScores } from '../pages/GamePage';
+import { updateScores, gameOver } from '../pages/GamePage';
 import { teamPing } from './scenes/scene1';
 
 
@@ -32,6 +32,10 @@ export class InputManager {
 		socket.on('scoreUpdate', (data: { player1Score: number, player2Score: number }) => {
 			console.log('Score update received:', data);
 			updateScores(data.player1Score, data.player2Score);
+		});
+		socket.on('gameOver', (data) => {
+			console.log('Score update received:', data);
+			gameOver();
 		});
 
 		socket.on('teamPing', () => {

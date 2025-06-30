@@ -21,7 +21,7 @@ const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
 const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 
 await fastify.register(cors, {
-  origin: [`http://10.11.5.6:5173`],
+  origin: [`http://10.12.1.3:5173`],
   credentials: true
 });
 

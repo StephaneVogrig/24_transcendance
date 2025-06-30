@@ -9,7 +9,7 @@ const APP_HOST = process.env.HOST || 'localhost';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.11.5.6:5173`;
+const clientOrigin = `http://10.12.1.3:5173`;
 fastify.register(cors, {
     origin: clientOrigin,
     methods: ['GET', 'POST'],
@@ -286,6 +286,7 @@ io.on('connection', async (socket) => {
             const otherPlayerSocketId = game.player1SocketId === socket.id ? game.player2SocketId : game.player1SocketId;
             if (otherPlayerSocketId && io.sockets.sockets.has(otherPlayerSocketId)) {
                 io.to(otherPlayerSocketId).emit('message', 'Votre adversaire s\'est déconnecté. La partie est terminée.');
+                io.to(otherPlayerSocketId).emit('gameOver');
                 io.sockets.sockets.get(otherPlayerSocketId)?.disconnect(true);
             }
             console.log(`Game ${disconnectedGameId} ended due to player disconnect.`);
