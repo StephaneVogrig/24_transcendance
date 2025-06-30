@@ -6,7 +6,7 @@ import cors from '@fastify/cors'
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-	origin: 'http://10.11.5.5:5173',
+	origin: 'http://localhost:5173',
 	methods: ['GET', 'POST'],
 	credentials: true
 });
@@ -39,7 +39,7 @@ fastify.post('/api/tournament/create', async (request, reply) => {
 	const name = request.body.name;
 	try
 	{
-		const tournament = Tournament.createTournament(name);
+		const tournament = await Tournament.createTournament(name);
 		return reply.send(tournament);
 	} catch (err)
 	{

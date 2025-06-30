@@ -37,6 +37,8 @@ services:
       - "3002:3002"
     networks:
       - transcendence-network
+    env_file:
+      - .env
 
   database:
     build: ./backend/database

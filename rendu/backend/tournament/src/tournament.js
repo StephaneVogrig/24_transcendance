@@ -28,7 +28,28 @@ let TOTAL_TOURNAMENTS = 0;
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};
 
-export function createTournament(name)
+async function registerTournamentToDb(tournament)
+{
+	try {
+		const response = await fetch(`http://database:3003/api/database/tournament/create`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ tournament })
+		});
+
+		if (!response.ok) {
+        	const err = await response.text();
+        	throw new Error(err);
+    	}
+
+    	const data = await response.json();
+    	console.log('Registered tournament to database.');
+    } catch (error) {
+    	console.log(`Error while registering tournament to database: ${error.message}.`);
+    }
+}
+
+export async function createTournament(name)
 {
 	const tmp = name;
 	name = name.trim();
@@ -46,6 +67,7 @@ export function createTournament(name)
 	};
 	TOURNAMENT_LIST[tournament.id] = tournament;
 	TOTAL_TOURNAMENTS++;
+	await registerTournamentToDb(tournament);
 	return tournament;
 }
 
@@ -160,6 +182,7 @@ export function advanceToNextRound(id)
 	{
 		tournament.status = 'ended';
 		// TODO Register tournament to the blockchain
+		// 0x25061d69D038C22303AFd83a4C86E1d9afB44cA0
 	}
 	else
 	{

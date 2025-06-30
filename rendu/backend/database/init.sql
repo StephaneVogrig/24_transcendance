@@ -3,3 +3,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`username` TEXT UNIQUE NOT NULL,
 	`password` TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS `tournaments` (
+	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+	`data` TEXT NOT NULL
+);

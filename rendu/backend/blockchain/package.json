@@ -1,24 +1,19 @@
 {
   "name": "transcendence-blockchain",
   "version": "1.0.0",
-  "description": "Blockchain service for Transcendance",
-  "main": "src/index.ts",
+  "description": "Blockchain service for Transcendence",
+  "main": "src/index.js",
   "type": "module",
 
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts"
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
   },
 
   "dependencies": {
-    "fastify": "^4.24.3"
-  },
-
-  "devDependencies": {
-    "@types/node": "^20.8.10",
-    "tsx": "^4.6.0",
-    "typescript": "^5.2.2"
+    "fastify": "^4.24.3",
+	"@fastify/cors": "^8.4.0",
+	"web3": "^1.10.0"
   },
 
   "keywords": [],

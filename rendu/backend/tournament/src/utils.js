@@ -1,3 +1,5 @@
+import { TOURNAMENT_LIST } from './tournament.js';
+
 export function generateIndexes(max)
 {
 	const indexes = Array.from({length: max}, (_, index) => index);
