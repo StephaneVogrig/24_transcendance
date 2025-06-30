@@ -47,6 +47,7 @@ export const GamePage = (): HTMLElement => {
     // ou, mieux encore, une fois que la page est entièrement affichée via un mécanisme de cycle de vie du routeur si tu en as un.
     // Pour l'instant, setTimeout(0) est une solution simple.
     setTimeout(() => {
+        updateScores(0, 0);
         const canvasElement = document.getElementById('renderCanvas') as HTMLCanvasElement;
         if (canvasElement) {
             startBabylonScene(canvasElement); // Appel de la nouvelle fonction d'initialisation
