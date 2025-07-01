@@ -86,6 +86,20 @@ const start = async () => {
 				reply.status(500).send({error: err.message});
 			}
 		});
+
+		fastify.get('/api/database/tournament/get', async (request, reply) => {
+			const { id } = request.query;
+			if (typeof id === 'undefined' || isNaN(Number(id)))
+				return reply.status(400).send({ error: 'Missing or invalid id.' });
+			try
+			{
+				const tournament = await db.all(`SELECT * FROM tournaments WHERE id = ?`, [id]);
+				reply.status(200).send(tournament);
+			} catch (err)
+			{
+				reply.status(500).send({error: err.message});
+			}
+		});
 		
 		fastify.post('/api/database/tournament/delete', async (request, reply) => {
 			const { id } = request.body;
