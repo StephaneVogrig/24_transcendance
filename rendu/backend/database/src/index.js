@@ -68,7 +68,7 @@ const start = async () => {
 				return reply.status(400).send({error: 'Missing tournament data.'});
 			try
 			{
-				await db.run('INSERT INTO `tournaments` (data) VALUES (?)', [JSON.stringify(tournament)]);
+				await db.run('INSERT INTO `tournaments` (id, data) VALUES (?, ?)', [tournament.id, JSON.stringify(tournament)]);
 				reply.status(201).send({message: 'Tournament registered.'});
 			} catch (err)
 			{
@@ -93,8 +93,22 @@ const start = async () => {
 				return reply.status(400).send({ error: 'Missing or invalid id.' });
 			try
 			{
-				await db.run('DELETE FROM `tournaments` WHERE id=(?)', [id + 1]);
+				await db.run('DELETE FROM `tournaments` WHERE id = ?', [id]);
 				reply.status(201).send({message: 'Tournament deleted.'});
+			} catch (err)
+			{
+				reply.status(500).send({error: err.message});
+			}
+		});
+
+		fastify.post('/api/database/tournament/modify', async (request, reply) => {
+			const { tournament } = request.body;
+			if (typeof tournament.id === 'undefined' || isNaN(Number(tournament.id)))
+				return reply.status(400).send({ error: 'Missing or invalid id.' });
+			try
+			{
+				await db.run('UPDATE `tournaments` SET data = ? WHERE id = ? ', [JSON.stringify(tournament), tournament.id]);
+				reply.status(201).send({message: 'Tournament modified.'});
 			} catch (err)
 			{
 				reply.status(500).send({error: err.message});

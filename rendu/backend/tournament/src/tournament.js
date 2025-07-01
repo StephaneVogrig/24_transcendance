@@ -28,6 +28,26 @@ let TOTAL_TOURNAMENTS = 0;
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};
 
+async function modifyTournamentInDb(tournament)
+{
+	try
+	{
+		const response = await fetch(`http://database:3003/api/database/tournament/modify`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ tournament })
+		});
+
+		if (!response.ok) {
+			const err = await response.text();
+			throw new Error(err);
+		}
+	} catch (err)
+	{
+		throw new Error(err);
+	}
+}
+
 async function registerTournamentToDb(tournament)
 {
 	try {
@@ -42,7 +62,6 @@ async function registerTournamentToDb(tournament)
         	throw new Error(err);
     	}
 
-    	const data = await response.json();
     	console.log('Registered tournament to database.');
     } catch (error) {
     	console.log(`Error while registering tournament to database: ${error.message}.`);
@@ -76,10 +95,11 @@ export function deleteTournament(id)
 	delete TOURNAMENT_LIST[id];
 }
 
-export function startTournament(tournament)
+export async function startTournament(tournament)
 {
 	tournament.status = 'ongoing';
 	tournament.rounds = [generateBracket(tournament.players)];
+	await modifyTournamentInDb(tournament);
 }
 
 export function findTournament()
@@ -92,7 +112,7 @@ export function findTournament()
 	return tournaments[0];
 }
 
-export function joinTournament(id, name)
+export async function joinTournament(id, name)
 {
 	const tmp = name;
 	const tournament = getTournament(id);
@@ -103,6 +123,7 @@ export function joinTournament(id, name)
 		throw new Error("Duplicate names in tournament!");
 	tournament.players.push({name: name, score: 0});
 	tournament.playerCount++;
+	await modifyTournamentInDb(tournament);
 }
 
 export function getCurrentRound(id)
@@ -118,7 +139,7 @@ export function getOngoingTournaments()
 	return Object.values(TOURNAMENT_LIST).filter(t => t.status === 'ongoing');
 }
 
-export function updatePlayerScore(id, name, score)
+export async function updatePlayerScore(id, name, score)
 {
 	const tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
@@ -130,11 +151,13 @@ export function updatePlayerScore(id, name, score)
 		if (match[0].name === name)
 		{
 			match[0].score = score;
+			await modifyTournamentInDb(tournament);
 			return;
 		}
 		else if (match[1].name === name)
 		{
 			match[1].score = score;
+			await modifyTournamentInDb(tournament);
 			return;
 		}
 	}
@@ -171,7 +194,7 @@ export function getWinner(id)
 	return round[0][0].score > round[0][1].score ? round[0][0] : round[0][1];
 }
 
-export function advanceToNextRound(id)
+export async function advanceToNextRound(id)
 {
 	let tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
@@ -181,14 +204,29 @@ export function advanceToNextRound(id)
 	if (nextPlayers.length === 1)
 	{
 		tournament.status = 'ended';
-		// TODO Register tournament to the blockchain
-		// 0x25061d69D038C22303AFd83a4C86E1d9afB44cA0
+		try {
+			const response = await fetch(`http://blockchain:3003/api/blockchain/register`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ tournament })
+			});
+
+			if (!response.ok) {
+				const err = await response.text();
+				throw new Error(err);
+			}
+
+			console.log('Registered tournament to blockchain.');
+		} catch (error) {
+			console.log(`Error while registering tournament to blockchain: ${error.message}.`);
+		}
 	}
 	else
 	{
 		tournament.rounds.push(generateBracketInOrder(nextPlayers));
 		tournament.roundIndex++;
 	}
+	await modifyTournamentInDb(tournament);
 }
 
 function generateBracketInOrder(players) {
