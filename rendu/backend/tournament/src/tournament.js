@@ -28,6 +28,26 @@ let TOTAL_TOURNAMENTS = 0;
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};
 
+async function deleteTournamentFromDb(id)
+{
+	try
+	{
+		const response = await fetch(`http://database:3003/api/database/tournament/delete`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({id: id})
+		});
+
+		if (!response.ok) {
+			const err = await response.text();
+			throw new Error(err);
+		}
+	} catch (err)
+	{
+		throw new Error(err);
+	}
+}
+
 async function modifyTournamentInDb(tournament)
 {
 	try
@@ -90,8 +110,12 @@ export async function createTournament(name)
 	return tournament;
 }
 
-export function deleteTournament(id)
+export async function deleteTournament(id)
 {
+	const tournament = TOURNAMENT_LIST[id];
+	if (!tournament)
+		throw new Error(`Couldn't delete tournament: ID '${id}' is invalid.`);
+	await deleteTournamentFromDb(id);
 	delete TOURNAMENT_LIST[id];
 }
 
