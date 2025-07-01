@@ -21,8 +21,6 @@ services:
       - websocket
     networks:
       - transcendence-network
-    env_file:
-      - .env
 
   authentification:
     build: ./backend/authentification
@@ -79,8 +77,6 @@ services:
       - "3008:3008"
     networks:
       - transcendence-network
-    env_file:
-      - .env
 
   frontend:
     build: ./frontend

@@ -1,11 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import proxy from '@fastify/http-proxy';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
-
-const APP_HOST = process.env.HOST || 'localhost';
 
 const fastify = Fastify({ 
   logger: true 
@@ -21,7 +16,7 @@ const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
 const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 
 await fastify.register(cors, {
-  origin: [`http://10.12.1.3:5173`],
+  origin: [`http://10.13.6.3:5173`],
   credentials: true
 });
 

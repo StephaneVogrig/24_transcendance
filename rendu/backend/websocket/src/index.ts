@@ -1,15 +1,10 @@
 import Fastify from 'fastify';
 import { Server } from 'socket.io';
 import cors from '@fastify/cors';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
-
-const APP_HOST = process.env.HOST || 'localhost';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.12.1.3:5173`;
+const clientOrigin = `http://10.13.6.3:5173`;
 fastify.register(cors, {
     origin: clientOrigin,
     methods: ['GET', 'POST'],
