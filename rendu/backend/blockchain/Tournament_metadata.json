@@ -1,0 +1,212 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "errNotOwner",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint64",
+						"name": "id",
+						"type": "uint64"
+					},
+					{
+						"indexed": false,
+						"internalType": "string[]",
+						"name": "playerNames",
+						"type": "string[]"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint8[]",
+						"name": "playerScores",
+						"type": "uint8[]"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "date",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "winner",
+						"type": "string"
+					}
+				],
+				"name": "BroadcastTournament",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint64",
+						"name": "id",
+						"type": "uint64"
+					}
+				],
+				"name": "getTournament",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint64",
+								"name": "id",
+								"type": "uint64"
+							},
+							{
+								"internalType": "string[]",
+								"name": "playerNames",
+								"type": "string[]"
+							},
+							{
+								"internalType": "uint8[]",
+								"name": "playerScores",
+								"type": "uint8[]"
+							},
+							{
+								"internalType": "string",
+								"name": "date",
+								"type": "string"
+							}
+						],
+						"internalType": "struct Tournament.TournamentScore",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint64",
+						"name": "id",
+						"type": "uint64"
+					},
+					{
+						"internalType": "string[]",
+						"name": "playerNames",
+						"type": "string[]"
+					},
+					{
+						"internalType": "uint8[]",
+						"name": "playerScores",
+						"type": "uint8[]"
+					},
+					{
+						"internalType": "string",
+						"name": "date",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "winner",
+						"type": "string"
+					}
+				],
+				"name": "registerTournament",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "tournamentCount",
+				"outputs": [
+					{
+						"internalType": "uint64",
+						"name": "",
+						"type": "uint64"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"author": "scraeyme",
+			"events": {
+				"BroadcastTournament(uint64,string[],uint8[],string,string)": {
+					"details": "The keyword emit is used in registerTournament() which calls for this event"
+				}
+			},
+			"kind": "dev",
+			"methods": {
+				"getTournament(uint64)": {
+					"params": {
+						"id": "Index of the tournament to get (max: count - 1)"
+					}
+				},
+				"registerTournament(uint64,string[],uint8[],string,string)": {
+					"details": "Can only be called by the one who created the contract",
+					"params": {
+						"playerNames": "Name of the players",
+						"playerScores": "Score of the players"
+					}
+				}
+			},
+			"title": "Contract that registers tournament scores to the blockchain",
+			"version": 1
+		},
+		"userdoc": {
+			"events": {
+				"BroadcastTournament(uint64,string[],uint8[],string,string)": {
+					"notice": "This is why the major module is validated, it registers the scores to the blockchain"
+				}
+			},
+			"kind": "user",
+			"methods": {
+				"getTournament(uint64)": {
+					"notice": "Get a tournament score by index"
+				},
+				"registerTournament(uint64,string[],uint8[],string,string)": {
+					"notice": "Registers a tournament's score"
+				}
+			},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Tournament.sol": "Tournament"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Tournament.sol": {
+			"keccak256": "0x013fe330f23d7ff147d6848b44063bbf1c13d032f6896a40d3d020009608c62d",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://2dacb8e805a909cf394f3dc7e53a69ec83c61d10cef377d218dcafc7751d33a9",
+				"dweb:/ipfs/QmcgYDhtWzZ5gTPd4isfXbfUqHXeED3hEgvwRG91VyzGxC"
+			]
+		}
+	},
+	"version": 1
+}
