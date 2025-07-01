@@ -6,7 +6,6 @@ COPY package*.json ./
 COPY tsconfig.json ./
 
 RUN npm install
-RUN npm install dotenv --save
 
 COPY . .
 

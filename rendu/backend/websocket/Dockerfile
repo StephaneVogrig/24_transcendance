@@ -7,7 +7,6 @@ COPY tsconfig.json ./
 
 RUN npm install socket.io --save
 RUN npm install @fastify/cors@^8 --save
-RUN npm install dotenv --save
 
 RUN npm install
 
