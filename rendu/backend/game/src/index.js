@@ -1,0 +1,69 @@
+import Fastify from 'fastify';
+import * as GameManager from './gameManager.js';
+
+const fastify = Fastify({ logger: true });
+
+fastify.get('/api/auth', async (request, reply) => { 
+  return { message: 'Hello from Game Service!' };
+});
+
+const start = async () => {
+  try {
+    await fastify.listen({ port: 3004, host: '0.0.0.0' });
+    console.log(`Game service listening on port 3004`);
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
+
+fastify.post('/api/game/start', async (request, reply) => {
+    const { player1, player2 } = request.body;
+    if (!player1 || !player2) {
+        return reply.status(400).send({ error: 'Both player1 and player2 are required' });
+    }
+    try {
+        GameManager.addMatch(player1, player2);
+    } catch (error) {
+        return reply.status(400).send({ error: error.message });
+    }
+    console.log(`Starting game between ${player1} and ${player2}`);
+    return reply.status(200).send({ message: `Game started between ${player1} and ${player2}` });
+});
+
+fastify.post('/api/game/input', async (request, reply) => {
+    const { player, key, action } = request.body;
+    console.log(`Received input from player ${player}: key=${key}, action=${action}`);
+    if (!player || !key || !action)
+        return reply.status(400).send({ error: 'Player, key, and action are required' });
+    const match = GameManager.findMatch(player);
+    if (!match)
+        return reply.status(404).send({ error: `No match found for player ${player}` });
+    match.inputManager(player, key, action);
+});
+
+
+fastify.get('/api/game/state', async (request, reply) => {
+    const { player } = request.query;
+    if (!player)
+        return reply.status(400).send({ error: 'Player is required' });
+    const match = GameManager.findMatch(player);
+    if (!match)
+        return reply.status(404).send({ error: `No match found for player ${player}` });
+    const state = {
+        player1: {
+            name: match.player1.getName(),
+            paddle: match.player1.getPaddle().getPosition()
+        },
+        player2: {
+            name: match.player2.getName(),
+            paddle: match.player2.getPaddle().getPosition()
+        },
+        ball: match.ball.getPosition(),
+        score: [match.player1.getScore(), match.player2.getScore()]
+    };
+    return reply.status(200).send({state: state});
+
+});
+
+start();

@@ -52,17 +52,17 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
 export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: number }, platform1Pos: { x: number, y: number, z: number }, platform2Pos: { x: number, y: number, z: number }) {
     if (ball) {
         ball.position.set(ballPos.x * mirror, ballPos.y, ballPos.z);
-        console.log("Ball position updated:", ball.position);
+        // console.log("Ball position updated:", ball.position);
     }
     if (platform1) {
         platform1.position.set(platform1Pos.x * mirror, platform1Pos.y, platform1Pos.z);
-        console.log("Platform 1 position updated:", platform1.position);
+        // console.log("Platform 1 position updated:", platform1.position);
     }
     if (platform2) {
         platform2.position.set(platform2Pos.x * mirror, platform2Pos.y, platform2Pos.z);
-        console.log("Platform 2 position updated:", platform2.position);
+        // console.log("Platform 2 position updated:", platform2.position);
     }
-    console.log("Positions updated:");
+    // console.log("Positions updated:");
 }
 
 export function teamPing(team: string) {

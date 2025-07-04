@@ -4,7 +4,7 @@ import cors from '@fastify/cors';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.13.6.3:5173`;
+const clientOrigin = `http://10.13.7.6:5173`;
 fastify.register(cors, {
     origin: clientOrigin,
     methods: ['GET', 'POST'],
@@ -40,7 +40,7 @@ async function sendInput(socketId, key, action) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                socketId: socketId,
+                player: socketId,
                 key: key,
                 action: action,
                 timestamp: Date.now()
@@ -61,8 +61,8 @@ async function sendInput(socketId, key, action) {
 
 async function sendjoin(player1, player2) {
     try {
-        console.log(`join: Sending join request for players: ${player1}, ${player2}`);
-        const response = await fetch(`http://game:3004/api/game/create`, {
+        // console.log(`join: Sending join request for players: ${player1}, ${player2}`);
+        const response = await fetch(`http://game:3004/api/game/start`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -113,7 +113,7 @@ async function sendstart(player1, player2) {
 
 async function getstate(gameId: string, socketId: string) {
     try {
-        const response = await fetch(`http://game:3004/api/game/state?socketId=${socketId}`, {
+        const response = await fetch(`http://game:3004/api/game/state?player=${socketId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -126,36 +126,35 @@ async function getstate(gameId: string, socketId: string) {
 
         const responseData = await response.json();
 
-        if (responseData.success && responseData.gameState) {
-            const gameState = responseData.gameState;
+        if (responseData.state) {
+            const gameState = responseData.state;
             // console.log(`getstate: ${JSON.stringify(gameState)}`);
 
             const ballPos = {
-                x: gameState._ball._pos._x * 2,
+                x: gameState.ball._x / 2.5,
                 y: 0,
-                z: gameState._ball._pos._y * 2
+                z: gameState.ball._y / 2.5
             };
 
             let platform1Pos = null;
-            if (gameState._leftTeam && gameState._leftTeam.length > 0 && gameState._leftTeam[0]._hitbox && gameState._leftTeam[0]._hitbox._pos) {
+            if (gameState.player1 && gameState.player1.paddle){
                 platform1Pos = {
-                    x: gameState._leftTeam[0]._hitbox._pos._x * 2 + 0.5,
+                    x: gameState.player1.paddle._x / 2.5 + 1,
                     y: 0,
-                    z: gameState._leftTeam[0]._hitbox._pos._y * 2 + 2.5
+                    z: gameState.player1.paddle._y / 2.5
                 };
             }
 
             let platform2Pos = null;
-            if (gameState._rightTeam && gameState._rightTeam.length > 0 && gameState._rightTeam[0]._hitbox && gameState._rightTeam[0]._hitbox._pos) {
+            if (gameState.player2 && gameState.player2.paddle) {
                 platform2Pos = {
-                    x: gameState._rightTeam[0]._hitbox._pos._x * 2 + 0.5,
+                    x: gameState.player2.paddle._x / 2.5 - 1,
                     y: 0,
-                    z: gameState._rightTeam[0]._hitbox._pos._y * 2 + 2.5
+                    z: gameState.player2.paddle._y / 2.5
                 };
             }
-            const paddleName = "paddle." + socketId;
-            console.log(`gameState.leftTeam: ${JSON.stringify(gameState._leftTeam[0]._hitbox._name)}, user socketId: ${paddleName}`);
-            if (gameState._leftTeam && gameState._leftTeam.length > 0 && paddleName === gameState._leftTeam[0]._hitbox._name) {
+            // console.log(`gameState.leftTeam: ${JSON.stringify(gameState.player1.name)}, user socketId: ${socketId}`);
+            if (gameState.player1.name === socketId) {
                 console.debug(`state: Emitting teamPing to left team for socketId: ${socketId}`);
                 io.to(socketId).emit('teamPing');
             }
@@ -166,9 +165,9 @@ async function getstate(gameId: string, socketId: string) {
                     platform2: platform2Pos
                 });
             }
-            if (gameState._score) {
-                const player1Score = gameState._score[0];
-                const player2Score = gameState._score[1];
+            if (gameState.score) {
+                const player1Score = gameState.score[0];
+                const player2Score = gameState.score[1];
                 io.to(gameId).emit('scoreUpdate', {
                     player1Score: player1Score,
                     player2Score: player2Score
@@ -185,12 +184,12 @@ async function getstate(gameId: string, socketId: string) {
 }
 
 io.on('connection', async (socket) => {
-    console.log(`Socket connected: ${socket.id}`);
+    // console.log(`Socket connected: ${socket.id}`);
 
     if (waitingPlayerSocketId === null) {
         waitingPlayerSocketId = socket.id;
         socket.emit('message', 'En attente d\'un autre joueur...');
-        console.log(`Player ${socket.id} is now waiting for an opponent.`);
+        // console.log(`Player ${socket.id} is now waiting for an opponent.`);
     } else {
         const player1SocketId = waitingPlayerSocketId;
         const player2SocketId = socket.id;
@@ -211,27 +210,27 @@ io.on('connection', async (socket) => {
         io.sockets.sockets.get(player1SocketId)?.join(gameId);
         io.sockets.sockets.get(player2SocketId)?.join(gameId);
 
-        console.log(`Matching players ${player1SocketId} and ${player2SocketId} for game ${gameId}`);
+        // console.log(`Matching players ${player1SocketId} and ${player2SocketId} for game ${gameId}`);
 
-        const createSuccess = await sendjoin(player1SocketId, player2SocketId);
-        if (!createSuccess) {
-            io.to(gameId).emit('message', 'Échec de la création de la partie. Veuillez réessayer.');
-            console.error(`Failed to create game for ${gameId}. Disconnecting players.`);
-            io.sockets.sockets.get(player1SocketId)?.disconnect(true);
-            io.sockets.sockets.get(player2SocketId)?.disconnect(true);
-            activeGames.delete(gameId);
-            return;
-        }
+        // const createSuccess = await sendjoin(player1SocketId, player2SocketId);
+        // if (!createSuccess) {
+        //     io.to(gameId).emit('message', 'Échec de la création de la partie. Veuillez réessayer.');
+        //     console.error(`Failed to create game for ${gameId}. Disconnecting players.`);
+        //     io.sockets.sockets.get(player1SocketId)?.disconnect(true);
+        //     io.sockets.sockets.get(player2SocketId)?.disconnect(true);
+        //     activeGames.delete(gameId);
+        //     return;
+        // }
 
         const startSuccess = sendstart(player1SocketId, player2SocketId);
         
         if (startSuccess) {
             newGame.status = 'playing';
             io.to(gameId).emit('message', 'La partie commence !');
-            console.log(`Game ${gameId} started successfully.`);
+            // console.log(`Game ${gameId} started successfully.`);
 
             newGame.intervalId = setInterval(async () => {
-                await getstate(gameId, player1SocketId); 
+                await getstate(gameId, player1SocketId);
             }, 10);
         } else {
             io.to(gameId).emit('message', 'Échec du démarrage de la partie. Veuillez réessayer.');
@@ -243,7 +242,7 @@ io.on('connection', async (socket) => {
     }
 
     socket.on('message', (data: string) => {
-        console.log(`Message from client ${socket.id}:`, data);
+        // console.log(`Message from client ${socket.id}:`, data);
 
         const gameId = getGameIdBySocketId(socket.id);
         if (gameId) {
@@ -262,7 +261,7 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log(`Socket disconnected: ${socket.id}`);
+        // console.log(`Socket disconnected: ${socket.id}`);
         let disconnectedGameId: string | null = null;
         activeGames.forEach((game, gameId) => {
             if (game.player1SocketId === socket.id || game.player2SocketId === socket.id) {
@@ -284,10 +283,10 @@ io.on('connection', async (socket) => {
                 io.to(otherPlayerSocketId).emit('gameOver');
                 io.sockets.sockets.get(otherPlayerSocketId)?.disconnect(true);
             }
-            console.log(`Game ${disconnectedGameId} ended due to player disconnect.`);
+            // console.log(`Game ${disconnectedGameId} ended due to player disconnect.`);
         } else if (waitingPlayerSocketId === socket.id) {
             waitingPlayerSocketId = null;
-            console.log(`Waiting player ${socket.id} disconnected.`);
+            // console.log(`Waiting player ${sockets.id} disconnected.`);
         }
     });
 });
@@ -304,7 +303,7 @@ function getGameIdBySocketId(socketId: string): string | null {
 const start = async () => {
     try {
         await fastify.listen({ port: 3008, host: '0.0.0.0' });
-        console.log(`Fastify and Socket.IO server listening on port 3008`);
+        // console.log(`Fastify and Socket.IO server listening on port 3008`);
     } catch (err) {
         fastify.log.error(err);
         process.exit(1);
