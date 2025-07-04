@@ -1,5 +1,3 @@
-import { TOURNAMENT_LIST } from './tournament.js';
-
 export function generateIndexes(max)
 {
 	const indexes = Array.from({length: max}, (_, index) => index);
@@ -49,8 +47,9 @@ export function readTournament(tournament)
 }
 
 export function readRound(round) {
+	const roundArray = Object.values(round);
 	return {
-		matchups: round.map(([player1, player2], matchIndex) => ({
+		matchups: roundArray.map(([player1, player2], matchIndex) => ({
 			matchIndex,
 			player1: {
 				name: player1.name,

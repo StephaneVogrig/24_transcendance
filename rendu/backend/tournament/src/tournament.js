@@ -147,6 +147,7 @@ export async function joinTournament(id, name)
 		throw new Error("Duplicate names in tournament!");
 	tournament.players.push({name: name, score: 0});
 	tournament.playerCount++;
+	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
 }
 
@@ -175,12 +176,14 @@ export async function updatePlayerScore(id, name, score)
 		if (match[0].name === name)
 		{
 			match[0].score = score;
+			TOURNAMENT_LIST[tournament.id] = tournament;
 			await modifyTournamentInDb(tournament);
 			return;
 		}
 		else if (match[1].name === name)
 		{
 			match[1].score = score;
+			TOURNAMENT_LIST[tournament.id] = tournament;
 			await modifyTournamentInDb(tournament);
 			return;
 		}
@@ -250,6 +253,7 @@ export async function advanceToNextRound(id)
 		tournament.rounds.push(generateBracketInOrder(nextPlayers));
 		tournament.roundIndex++;
 	}
+	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
 }
 
