@@ -43,6 +43,12 @@ export class InputManager {
 			teamPing();
 		});
 
+		window.addEventListener("popstate", (event) => {
+			if (socket) {
+				socket.disconnect();
+				console.log("Popstate event triggered:", event);
+			}
+		});
 		window.addEventListener("keydown", (event) => {
 			if (event.code === "ArrowLeft" && !this.isLeftPressed) {
 				// console.log("Left arrow key pressed");
