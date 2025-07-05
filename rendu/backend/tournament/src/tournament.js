@@ -28,6 +28,16 @@ let TOTAL_TOURNAMENTS = 0;
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};
 
+function playerExistsInAnyTournament(name)
+{
+	for (const tournament of Object.values(TOURNAMENT_LIST))
+	{
+		if (tournament.players && (tournament.players[0].name === name || tournament.players[1].name === name))
+			return (true);
+	}
+	return (false);
+}
+
 async function deleteTournamentFromDb(id)
 {
 	try
@@ -92,7 +102,9 @@ export async function createTournament(name)
 {
 	const tmp = name;
 	name = name.trim();
-	if (name.length < 1)
+	if (playerExistsInAnyTournament(name))
+		throw new Error(`Couldn't create tournament: name '${name}' is already in a tournament.`);
+	if (name.length < 3)
 		throw new Error(`Couldn't create tournament: name '${tmp}' is invalid.`);
 	const tournament = {
 		id: TOTAL_TOURNAMENTS,
@@ -139,12 +151,14 @@ export function findTournament()
 export async function joinTournament(id, name)
 {
 	const tmp = name;
-	const tournament = getTournament(id);
 	name = name.trim();
+	if (playerExistsInAnyTournament(name))
+		throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
+	if (name.length < 3)
+		throw new Error(`Couldn't create tournament: name '${tmp}' is invalid.`);
+	const tournament = getTournament(id);
 	if (tournament.status !== 'open')
 		throw new Error(`Tournament ${id} is full, ongoing or finished.`);
-	if (tournament.players.find(p => p.name === name))
-		throw new Error("Duplicate names in tournament!");
 	tournament.players.push({name: name, score: 0});
 	tournament.playerCount++;
 	TOURNAMENT_LIST[tournament.id] = tournament;

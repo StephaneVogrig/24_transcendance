@@ -1,0 +1,21 @@
+{
+  "name": "transcendence-ai",
+  "version": "1.0.0",
+  "description": "AI service for Transcendence",
+  "main": "src/routes.js",
+  "type": "module",
+
+  "scripts": {
+    "start": "node src/routes.js",
+    "dev": "node src/routes.js"
+  },
+
+
+  "dependencies": {
+    "fastify": "^4.24.3"
+  },
+
+  "keywords": [],
+  "author": "VITE",
+  "license": "ISC"
+}

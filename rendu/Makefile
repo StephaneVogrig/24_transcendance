@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: scraeyme <scraeyme@student.42.fr>          +#+  +:+       +#+         #
+#    By: scraeyme <scraeyme@student.42angouleme.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/25 23:10:34 by svogrig           #+#    #+#              #
-#    Updated: 2025/07/07 15:57:20 by scraeyme         ###   ########.fr        #
+#    Updated: 2025/07/10 13:12:55 by scraeyme         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 

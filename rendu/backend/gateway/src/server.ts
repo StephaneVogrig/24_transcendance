@@ -14,6 +14,7 @@ const MATCHMAKING_SERVICE_BASE_URL = 'http://matchmaking:3005';
 const SCORES_SERVICE_BASE_URL = 'http://scores:3006';
 const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
 const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
+const AI_SERVICE_BASE_URL = 'http://ai:3009';
 
 await fastify.register(cors, {
   origin: [`http://10.11.6.1:5173`],
@@ -80,6 +81,11 @@ fastify.register(proxy, {
   upstream: WEBSOCKET_SERVICE_BASE_URL,
   prefix: '/api/websocket',
   websocket: true
+});
+
+fastify.register(proxy, {
+  upstream: AI_SERVICE_BASE_URL,
+  prefix: '/api/ai',
 });
 
 const start = async (): Promise<void> => {
