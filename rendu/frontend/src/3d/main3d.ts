@@ -18,7 +18,8 @@ export const startBabylonScene = (canvas: HTMLCanvasElement) => {
         });
     });
 
-    const inputManager = new InputManager();
+    // Initialiser le gestionnaire d'entrées
+    new InputManager();
 
     window.addEventListener('resize', function () {
         engine.resize();

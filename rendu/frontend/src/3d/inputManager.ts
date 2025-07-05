@@ -21,7 +21,7 @@ export class InputManager {
 			// console.log('Connecté au serveur Socket.IO !');
 			socket.emit('message', 'Hello server from Socket.IO client!');
 		});
-		socket.on('message', (data) => {
+		socket.on('message', (_data: any) => {
 			// console.log(`Message from server: ${data}`);
 		});
 
@@ -33,14 +33,14 @@ export class InputManager {
 			// console.log('Score update received:', data);
 			updateScores(data.player1Score, data.player2Score);
 		});
-		socket.on('gameOver', (data) => {
+		socket.on('gameOver', (_data: any) => {
 			// console.log('Score update received:', data);
 			gameOver();
 		});
 
-		socket.on('teamPing', () => {
+		socket.on('teamPing', (data: { team?: string } = {}) => {
 			// console.debug(`Received team ping for team`);
-			teamPing();
+			teamPing(data.team || 'unknown');
 		});
 
 		window.addEventListener("popstate", (event) => {

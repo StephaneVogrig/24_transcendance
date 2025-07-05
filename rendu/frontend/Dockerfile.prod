@@ -1,0 +1,27 @@
+# Build stage
+FROM node:18-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+# Essayer le build normal, sinon utiliser le build sûr
+RUN npm run build || npm run build-safe
+
+# Production stage
+FROM nginx:alpine
+
+# Copy built files
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx config
+COPY nginx.prod.conf /etc/nginx/nginx.conf
+
+# Create non-root user (nginx group already exists in nginx:alpine)
+RUN adduser -S appuser -u 1001 -G nginx
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

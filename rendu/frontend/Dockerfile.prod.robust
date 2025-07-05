@@ -1,0 +1,33 @@
+# Build stage
+FROM node:18-alpine as build
+
+WORKDIR /app
+
+# Install bash for our build script
+RUN apk add --no-cache bash
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# Make build script executable and run it
+RUN chmod +x build-robust.sh
+RUN ./build-robust.sh
+
+# Production stage
+FROM nginx:alpine
+
+# Copy built files
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx config
+COPY nginx.prod.conf /etc/nginx/nginx.conf
+
+# Create non-root user
+RUN addgroup -g 1001 -S nginx
+RUN adduser -S nginx -u 1001 -G nginx
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,4 +1,5 @@
-import { MeshBuilder, TransformNode, Scene, Color3, Vector3 } from "@babylonjs/core";
+import { MeshBuilder, TransformNode, Scene, Vector3 } from "@babylonjs/core";
+// import { Color3 } from "@babylonjs/core"; // Commenté car non utilisé
 import { createMetalMaterial } from "../materials/metal";
 
 export function createOrnement(scene : Scene): TransformNode {

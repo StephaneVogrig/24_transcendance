@@ -2,7 +2,7 @@ import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, GlowLayer, C
 import { createSky } from '../meshes/skybox';
 import { createSphere } from '../meshes/sphere';
 import { createPlatform } from '../meshes/playform';
-import { createArena } from '../meshes/arena';
+// import { createArena } from '../meshes/arena'; // Commenté car non utilisé
 
 export const ballPosition = new Vector3(0, 0, 0);
 export const platform1Position = new Vector3(18, 0, 0);
@@ -31,7 +31,7 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     glow.intensity = 0.6;
 
     createSky(scene);
-    const arena = createArena(scene);
+    // const arena = createArena(scene); // Commenté car non utilisé
 
     ball = createSphere(scene);
     ball.position = ballPosition;
@@ -51,21 +51,27 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
 
 export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: number }, platform1Pos: { x: number, y: number, z: number }, platform2Pos: { x: number, y: number, z: number }) {
     if (ball) {
-        ball.position.set(ballPos.x * mirror, ballPos.y, ballPos.z);
+        ball.position.x = ballPos.x * mirror;
+        ball.position.y = ballPos.y;
+        ball.position.z = ballPos.z;
         console.log("Ball position updated:", ball.position);
     }
     if (platform1) {
-        platform1.position.set(platform1Pos.x * mirror, platform1Pos.y, platform1Pos.z);
+        platform1.position.x = platform1Pos.x * mirror;
+        platform1.position.y = platform1Pos.y;
+        platform1.position.z = platform1Pos.z;
         console.log("Platform 1 position updated:", platform1.position);
     }
     if (platform2) {
-        platform2.position.set(platform2Pos.x * mirror, platform2Pos.y, platform2Pos.z);
+        platform2.position.x = platform2Pos.x * mirror;
+        platform2.position.y = platform2Pos.y;
+        platform2.position.z = platform2Pos.z;
         console.log("Platform 2 position updated:", platform2.position);
     }
     console.log("Positions updated:");
 }
 
-export function teamPing(team: string) {
+export function teamPing(_team: string) {
     mirror = -1;
     platform1.rotation.x = Math.PI / 2;
     platform2.rotation.x = Math.PI / -2;

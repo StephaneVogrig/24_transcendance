@@ -1,4 +1,9 @@
+import { AuthGuard } from '../auth/AuthGuard';
+
 export const ChoiceGamePage = (): HTMLElement => {
+    // Vérifier l'authentification
+    AuthGuard.requireAuth();
+
     // Conteneur principal
     const mainDiv = document.createElement('div');
     mainDiv.className = 'min-h-screen flex items-center justify-center bg-gray-100 p-4';
@@ -7,6 +12,36 @@ export const ChoiceGamePage = (): HTMLElement => {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'bg-white p-8 rounded-lg shadow-xl text-center max-w-md w-full';
     mainDiv.appendChild(cardDiv);
+
+    // Header avec logout
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'flex justify-between items-center mb-6';
+    
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.className = 'text-left';
+    welcomeDiv.innerHTML = `
+        <p class="text-sm text-gray-600">Bienvenue</p>
+        <p id="user-name" class="text-lg font-semibold text-gray-900">Utilisateur</p>
+    `;
+    
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'text-sm text-red-600 hover:text-red-800 underline';
+    logoutBtn.textContent = 'Déconnexion';
+    logoutBtn.addEventListener('click', () => {
+        AuthGuard.logout();
+    });
+    
+    headerDiv.appendChild(welcomeDiv);
+    headerDiv.appendChild(logoutBtn);
+    cardDiv.appendChild(headerDiv);
+
+    // Récupérer et afficher le nom de l'utilisateur
+    AuthGuard.getCurrentUser().then(user => {
+        const userNameEl = cardDiv.querySelector('#user-name');
+        if (userNameEl && user) {
+            userNameEl.textContent = user.name || user.username || user.email || 'Utilisateur';
+        }
+    });
 
     // Icône SVG
     const svgDiv = document.createElement('div');

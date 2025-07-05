@@ -1,0 +1,135 @@
+services:
+  gateway:
+    build: 
+      context: ./backend/gateway
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    depends_on:
+      - authentification
+      - blockchain
+      - database
+      - game
+      - matchmaking
+      - scores
+      - tournament
+      - websocket
+    networks:
+      - transcendence-network
+
+  authentification:
+    build: 
+      context: ./backend/authentification
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+
+  blockchain:
+    build: 
+      context: ./backend/blockchain
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+    env_file:
+      - .env
+
+  database:
+    build: 
+      context: ./backend/database
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+
+  game:
+    build: 
+      context: ./backend/game
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+
+  matchmaking:
+    build: 
+      context: ./backend/matchmaking
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+
+  scores:
+    build: 
+      context: ./backend/scores
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+
+  tournament:
+    build: 
+      context: ./backend/tournament
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+
+  websocket:
+    build: 
+      context: ./backend/websocket
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    networks:
+      - transcendence-network
+
+networks:
+  transcendence-network:
+    driver: bridge

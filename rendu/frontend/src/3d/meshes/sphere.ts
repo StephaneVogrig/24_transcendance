@@ -1,4 +1,5 @@
-import { MeshBuilder, Scene, Mesh, StandardMaterial, Color3, Texture } from '@babylonjs/core';
+import { MeshBuilder, Scene, Mesh } from '@babylonjs/core';
+// import { StandardMaterial, Color3, Texture } from '@babylonjs/core'; // Commenté car non utilisé
 import { createMetalMaterial } from '../materials/metal';
 
 export function createSphere(scene: Scene): Mesh {
