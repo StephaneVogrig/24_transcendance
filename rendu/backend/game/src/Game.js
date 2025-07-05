@@ -4,15 +4,44 @@ import { Player } from './Player.js';
 
 export class Game {
 
-    constructor( { player1, player2 }) {
+    constructor( { player1, player2, gameId }) {
 		this.player1 = new Player(player1, 'left');
         this.player2 = new Player(player2, 'right');
         this.ball = new Ball.Ball([this.player1, this.player2]);
+        this.gameId = gameId;
         this.start();
     }
 
-    start()
+    async redirectPlayer( playerName )
     {
+        try {
+            const response = await fetch(`http://websocket:3008/api/websocket/redirect`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: playerName,
+                    gameId: this.gameId
+                })
+            });
+            
+            if (!response.ok) {
+                return false;
+            }
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async start()
+    {
+        console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
+        await this.redirectPlayer(this.player1.getName());
+        console.log(`motclefpourlegrep`);
+        await this.redirectPlayer(this.player2.getName());
+
         const loop = () => {
             this.player1.inputManager();
             this.player2.inputManager();
