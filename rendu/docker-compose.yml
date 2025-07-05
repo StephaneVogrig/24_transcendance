@@ -19,6 +19,7 @@ services:
       - scores
       - tournament
       - websocket
+      - ai
     networks:
       - transcendence-network
 
@@ -77,6 +78,13 @@ services:
     build: ./backend/websocket
     ports:
       - "3008:3008"
+    networks:
+      - transcendence-network
+
+  ai:
+    build: ./backend/ai
+    ports:
+      - "3009:3009"
     networks:
       - transcendence-network
 

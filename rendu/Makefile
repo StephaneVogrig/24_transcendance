@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: scraeyme <scraeyme@student.42.fr>          +#+  +:+       +#+         #
+#    By: scraeyme <scraeyme@student.42angouleme.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/25 23:10:34 by svogrig           #+#    #+#              #
-#    Updated: 2025/06/27 10:54:27 by scraeyme         ###   ########.fr        #
+#    Updated: 2025/07/05 13:26:44 by scraeyme         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,8 +25,6 @@ clean: down
 
 fclean:
 	docker system prune -af --volumes
-	rm -rf $(DATA_DIR_MARIADB)
-	rm -rf $(DATA_DIR_WORDPRESS)
 
 re: down clean up
 
