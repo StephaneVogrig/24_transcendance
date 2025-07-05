@@ -9,7 +9,7 @@ export class Paddle {
         else if (side === 'right')
             this.position = new Vec2D.Vector(-50, 0);
         this.size = 12;
-        this.speed = 1;
+        this.speed = 0.5;
     }
 
     moveUp()

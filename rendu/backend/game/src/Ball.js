@@ -1,11 +1,12 @@
 import * as Vec2D from "vector2d"
 
 export class Ball {
-    constructor()
+    constructor(players)
     {
+		this.players = players;
         this.radius = 2.5;
         this.position = new Vec2D.Vector(0, 0);
-        this.speed = new Vec2D.Vector(0.375, 0);
+        this.speed = new Vec2D.Vector(0.42, 0);
     }
 
     getPosition()
@@ -24,8 +25,10 @@ export class Ball {
         const speed = Math.hypot(this.speed.x, this.speed.y);
 
         const direction = this.speed.x > 0 ? -1 : 1;
-        this.speed.x = direction * speed * Math.cos(bounceAngle) + 0.2;
-        this.speed.y = speed * Math.sin(bounceAngle) + 0.2;
+		const xfactor = (this.speed.x < 0 ? 0.0275 : -0.0275);
+		const yfactor = (this.speed.y < 0 ? 0.0275 : -0.0275);
+		this.speed.x = direction * speed * Math.cos(bounceAngle) + (this.speed.x < 1.3 ? xfactor : 0);
+		this.speed.y = speed * Math.sin(bounceAngle) + (this.speed.y < 1.3 ? yfactor : 0);
     }
 
     checkPaddleCollision(paddle1, paddle2)
@@ -53,13 +56,13 @@ export class Ball {
         }
 
         if (this.position.x - this.radius <= -53 || this.position.x + this.radius >= 53) {
+			this.players[this.position.x - this.radius <= -53 ? 1 : 0].score++;
             this.position.x = 0;
             this.position.y = 0;
-            this.speed.x = Math.random() < 0.5 ? -1 : 1;
+            this.speed.x = Math.random() < 0.5 ? -0.42 : 0.42;
             this.speed.y = 0;
         }
     }
-
 
     move(paddle1, paddle2)
     {
@@ -68,8 +71,6 @@ export class Ball {
 
         this.checkPaddleCollision(paddle1, paddle2);
         this.checkWallCollision();
-
-
     }
 
 }
