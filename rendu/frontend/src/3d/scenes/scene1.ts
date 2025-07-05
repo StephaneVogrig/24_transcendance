@@ -5,8 +5,8 @@ import { createPlatform } from '../meshes/playform';
 import { createArena } from '../meshes/arena';
 
 export const ballPosition = new Vector3(0, 0, 0);
-export const platform1Position = new Vector3(18, 0, 0);
-export const platform2Position = new Vector3(-18, 0, 0);
+export const platform1Position = new Vector3(19.25, 0, 0);
+export const platform2Position = new Vector3(-19.25, 0, 0);
 
 let ball: any = null;
 let platform1: any = null;

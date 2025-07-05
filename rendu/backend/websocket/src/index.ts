@@ -4,7 +4,7 @@ import cors from '@fastify/cors';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.12.6.1:5173`;
+const clientOrigin = `http://10.11.5.2:5173`;
 fastify.register(cors, {
     origin: clientOrigin,
     methods: ['GET', 'POST'],
@@ -139,7 +139,7 @@ async function getstate(gameId: string, socketId: string) {
             let platform1Pos = null;
             if (gameState.player1 && gameState.player1.paddle){
                 platform1Pos = {
-                    x: gameState.player1.paddle._x / 2.5 + 1,
+                    x: gameState.player1.paddle._x / 2.5 + 0.5,
                     y: 0,
                     z: gameState.player1.paddle._y / 2.5
                 };
@@ -148,7 +148,7 @@ async function getstate(gameId: string, socketId: string) {
             let platform2Pos = null;
             if (gameState.player2 && gameState.player2.paddle) {
                 platform2Pos = {
-                    x: gameState.player2.paddle._x / 2.5 - 1,
+                    x: gameState.player2.paddle._x / 2.5 - 0.5,
                     y: 0,
                     z: gameState.player2.paddle._y / 2.5
                 };
