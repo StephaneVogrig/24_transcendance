@@ -10,17 +10,45 @@
 #                                                                              #
 # **************************************************************************** #
 
-DOCKER_COMPOSE	= docker compose -f docker-compose.yml
+DOCKER_COMPOSE_DEV	= docker compose -f docker-compose.yml
+DOCKER_COMPOSE_PROD	= docker compose -f docker-compose.prod.yml
 
+# Development targets
 up:
-	$(DOCKER_COMPOSE) up -d --build
+	$(DOCKER_COMPOSE_DEV) up -d --build
 
 down:
-	$(DOCKER_COMPOSE) down
+	$(DOCKER_COMPOSE_DEV) down
 
+# Production targets
+production:
+	$(DOCKER_COMPOSE_PROD) up -d --build
+
+production-down:
+	$(DOCKER_COMPOSE_PROD) down
+
+production-logs:
+	$(DOCKER_COMPOSE_PROD) logs -f
+
+production-restart: production-down production
+
+# Common targets
 reboot: down up
 
-clean: down
+# Utility targets
+generate-locks:
+	./generate-lock-files.sh
+
+fix-typescript:
+	./update-tsconfig.sh
+
+setup-frontend-prod:
+	./setup-frontend-prod.sh
+
+validate-json:
+	./validate-json.sh
+
+clean: down production-down
 	docker system prune -af
 
 fclean:
@@ -32,6 +60,15 @@ re: down clean up
 
 .PHONY:	up \
 		down \
+		production \
+		production-down \
+		production-logs \
+		production-restart \
+		generate-locks \
+		fix-typescript \
+		setup-frontend-prod \
+		validate-json \
 		clean \
 		fclean \
-		re
+		re \
+		reboot

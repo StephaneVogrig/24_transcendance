@@ -4,9 +4,9 @@ import { createMetalMaterial } from "../materials/metal";
 import { createOrnement } from "./ornement";
 
 export function createArena(scene : Scene): TransformNode {
-  const arena = new TransformNode("arena", scene);
+  // const arena = new TransformNode("arena", scene);
 
-  const rightTop = MeshBuilder.CreateCylinder("arenaBase", {
+  // const rightTop = MeshBuilder.CreateCylinder("arenaBase", {
     diameter: 0.2,
     height: 40,
     tessellation: 64,
@@ -14,7 +14,7 @@ export function createArena(scene : Scene): TransformNode {
   rightTop.material = createNeonMaterial(scene, new Color3(0, 1, 1));
   rightTop.position = new Vector3(0.5, 0, -10);
 
-  const leftTop = MeshBuilder.CreateCylinder("arenaBase", {
+  // const leftTop = MeshBuilder.CreateCylinder("arenaBase", {
     diameter: 0.2,
     height: 40,
     tessellation: 64,
@@ -22,7 +22,7 @@ export function createArena(scene : Scene): TransformNode {
   leftTop.material = createNeonMaterial(scene, new Color3(0, 1, 1));
   leftTop.position = new Vector3(0.5, 0, 10);
 
-    const rightBottom = MeshBuilder.CreateCylinder("arenaBase", {
+    // const rightBottom = MeshBuilder.CreateCylinder("arenaBase", {
         diameter: 0.2,
         height: 40,
         tessellation: 64,
@@ -31,7 +31,7 @@ export function createArena(scene : Scene): TransformNode {
   rightBottom.material = createNeonMaterial(scene, new Color3(0, 1, 1));
   rightBottom.position = new Vector3(-0.5, 0, -10);
 
-  const leftBottom = MeshBuilder.CreateCylinder("arenaBase", {
+  // const leftBottom = MeshBuilder.CreateCylinder("arenaBase", {
     diameter: 0.2,
     height: 40,
     tessellation: 64,
@@ -39,7 +39,7 @@ export function createArena(scene : Scene): TransformNode {
     leftBottom.material = createNeonMaterial(scene, new Color3(0, 1, 1));
     leftBottom.position = new Vector3(-0.5, 0, 10);
 
-  const middleLine = MeshBuilder.CreateCylinder("arenaBase", {
+  // const middleLine = MeshBuilder.CreateCylinder("arenaBase", {
     diameter: 0.2,
     height: 20,
     tessellation: 64,
@@ -48,7 +48,7 @@ export function createArena(scene : Scene): TransformNode {
     middleLine.position = new Vector3(0, 0, 0);
     middleLine.rotation.x = Math.PI / 2;
 
-  const goal1 = MeshBuilder.CreateCylinder("arenaBase", {
+  // const goal1 = MeshBuilder.CreateCylinder("arenaBase", {
     diameter: 0.2,
     height: 20,
     tessellation: 64,
@@ -57,7 +57,7 @@ export function createArena(scene : Scene): TransformNode {
     goal1.position = new Vector3(0, 20, 0);
     goal1.rotation.x = Math.PI / 2;
 
-  const goal2 = MeshBuilder.CreateCylinder("arenaBase", {
+  // const goal2 = MeshBuilder.CreateCylinder("arenaBase", {
     diameter: 0.2,
     height: 20,
     tessellation: 64,
@@ -66,10 +66,10 @@ export function createArena(scene : Scene): TransformNode {
     goal2.material = createNeonMaterial(scene, new Color3(1, 1, 1));
     goal2.position = new Vector3(0, -20, 0);
     goal2.rotation.x = Math.PI / 2;
-    const ornementMiddle = createOrnement(scene);
-    const ornementtop = createOrnement(scene);
+    // const ornementMiddle = createOrnement(scene);
+    // const ornementtop = createOrnement(scene);
     ornementtop.position = new Vector3(0, -20, 0);
-    const ornementbottom = createOrnement(scene);
+    // const ornementbottom = createOrnement(scene);
     ornementbottom.position = new Vector3(0, 20, 0);
 
   rightTop.parent = arena;

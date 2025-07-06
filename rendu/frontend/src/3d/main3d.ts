@@ -1,6 +1,5 @@
 import { Engine } from '@babylonjs/core';
 import { createScene } from './scenes/scene1';
-import { InputManager } from './inputManager';
 
 // console.log("Initializing Babylon.js scene...");
 
@@ -18,7 +17,7 @@ export const startBabylonScene = (canvas: HTMLCanvasElement) => {
         });
     });
 
-    const inputManager = new InputManager();
+    // const inputManager = new InputManager();
 
     window.addEventListener('resize', function () {
         engine.resize();

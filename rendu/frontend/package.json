@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc && vite build",
+    "build:no-typecheck": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {

@@ -1,6 +1,11 @@
 import Fastify from 'fastify';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import cors from '@fastify/cors';
+
+// Declare global process for Node.js
+declare const process: {
+    exit: (code?: number) => never;
+};
 
 const fastify = Fastify({ logger: true });
 
@@ -24,7 +29,7 @@ interface GameSession {
     player1SocketId: string;
     player2SocketId: string | null;
     gameId: string;
-    intervalId: NodeJS.Timeout | null;
+    intervalId: ReturnType<typeof setTimeout> | null;
     status: 'waiting' | 'playing' | 'ended';
 }
 
@@ -32,7 +37,7 @@ const activeGames = new Map<string, GameSession>();
 let waitingPlayerSocketId: string | null = null;
 
 
-async function sendInput(socketId, key, action) {
+async function sendInput(socketId: string, key: string, action: string) {
     try {
         const response = await fetch(`http://game:3004/api/game/input`, {
             method: 'POST',
@@ -59,33 +64,7 @@ async function sendInput(socketId, key, action) {
     }
 }
 
-async function sendjoin(player1, player2) {
-    try {
-        // console.log(`join: Sending join request for players: ${player1}, ${player2}`);
-        const response = await fetch(`http://game:3004/api/game/start`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                player1: player1,
-                player2: player2,
-                timestamp: Date.now()
-            })
-        });
-        if (!response.ok) {
-            console.error('join: Failed to send to game logic:', response.status, await response.text());
-            return false;
-        } else {
-            return true;
-        }
-    } catch (error) {
-        console.error('join: Error communicating with game logic service:', error);
-        return false;
-    }
-}
-
-async function sendstart(player1, player2) {
+async function sendstart(player1: string, player2: string) {
     try {
         const response = await fetch(`http://game:3004/api/game/start`, {
             method: 'POST',
@@ -183,7 +162,7 @@ async function getstate(gameId: string, socketId: string) {
     }
 }
 
-io.on('connection', async (socket) => {
+io.on('connection', async (socket: Socket) => {
     // console.log(`Socket connected: ${socket.id}`);
 
     if (waitingPlayerSocketId === null) {
@@ -222,7 +201,7 @@ io.on('connection', async (socket) => {
         //     return;
         // }
 
-        const startSuccess = sendstart(player1SocketId, player2SocketId);
+        const startSuccess = await sendstart(player1SocketId, player2SocketId);
         
         if (startSuccess) {
             newGame.status = 'playing';

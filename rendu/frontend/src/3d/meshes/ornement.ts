@@ -2,9 +2,9 @@ import { MeshBuilder, TransformNode, Scene, Color3, Vector3 } from "@babylonjs/c
 import { createMetalMaterial } from "../materials/metal";
 
 export function createOrnement(scene : Scene): TransformNode {
-  const ornement = new TransformNode("ornement", scene);
+  // const ornement = new TransformNode("ornement", scene);
 
-  const ornementRight = MeshBuilder.CreateCylinder("ornement", {
+  // const ornementRight = MeshBuilder.CreateCylinder("ornement", {
     diameter: 2.0,
     height: 0.5,
     tessellation: 64,
@@ -13,7 +13,7 @@ export function createOrnement(scene : Scene): TransformNode {
   ornementRight.position = new Vector3(0, 0, -10);
   ornementRight.rotation.x = Math.PI / 2;
 
-    const ornementLeft = MeshBuilder.CreateCylinder("ornement", {
+    // const ornementLeft = MeshBuilder.CreateCylinder("ornement", {
         diameter: 2.0,
         height: 0.5,
         tessellation: 64,

@@ -17,7 +17,7 @@ let mirror = 1;
 export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);
 
-    const camera = new ArcRotateCamera("camera", 2.2*(Math.PI/3), Math.PI/2, 50, Vector3.Zero(), scene);
+    const camera = new ArcRotateCamera("camera", 2.2 * (Math.PI / 3), Math.PI / 2, 50, Vector3.Zero(), scene);
     camera.lowerRadiusLimit = 30;
     camera.upperRadiusLimit = 80;
     camera.inputs.remove(camera.inputs.attached.keyboard);
@@ -31,7 +31,7 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     glow.intensity = 0.6;
 
     createSky(scene);
-    const arena = createArena(scene);
+    // const arena = createArena(scene);
 
     ball = createSphere(scene);
     ball.position = ballPosition;
@@ -65,7 +65,7 @@ export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: numbe
     // console.log("Positions updated:");
 }
 
-export function teamPing(team: string) {
+export function teamPing(_team: string) {
     mirror = -1;
     platform1.rotation.x = Math.PI / 2;
     platform2.rotation.x = Math.PI / -2;

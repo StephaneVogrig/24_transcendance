@@ -1,5 +1,10 @@
 import Fastify from 'fastify';
 
+// Declare global process for Node.js
+declare const process: {
+  exit: (code?: number) => never;
+};
+
 const fastify = Fastify({ logger: true });
 
 fastify.get('/api/auth', async (request, reply) => { 

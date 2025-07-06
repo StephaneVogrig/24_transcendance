@@ -14,60 +14,60 @@ export class InputManager {
 	}
 
 	private init() {
-		const socket = io(`http://${window.location.hostname}:3000`, {
+		// const socket = io(`http://${window.location.hostname}:3000`, {
 		path: '/api/websocket/my-websocket/'
 	  	});
 		socket.on('connect', () => {
 			// console.log('Connecté au serveur Socket.IO !');
 			socket.emit('message', 'Hello server from Socket.IO client!');
 		});
-		socket.on('message', (data) => {
-			// console.log(`Message from server: ${data}`);
+		socket.on(_data) => {
+			// console.log(_data}`);
 		});
 
-		socket.on('updatePositions', (data: { ball: { x: number, y: number, z: number }, platform1: { x: number, y: number, z: number }, platform2: { x: number, y: number, z: number } }) => {
-			// console.log('Received position update:', data);
-			updateBallAndPlatforms(data.ball, data.platform1, data.platform2);
+		socket.on(_data: { ball: { x: number, y: number, z: number }, platform1: { x: number, y: number, z: number }, platform2: { x: number, y: number, z: number } }) => {
+			// console.log(_data);
+			updateBallAndPlatforms(_data.platform2);
 		});
-		socket.on('scoreUpdate', (data: { player1Score: number, player2Score: number }) => {
-			// console.log('Score update received:', data);
-			updateScores(data.player1Score, data.player2Score);
+		socket.on(_data: { player1Score: number, player2Score: number }) => {
+			// console.log(_data);
+			updateScores(_data.player2Score);
 		});
-		socket.on('gameOver', (data) => {
-			// console.log('Score update received:', data);
+		socket.on(_data) => {
+			// console.log(_data);
 			gameOver();
 		});
 
-		socket.on('teamPing', () => {
-			// console.debug(`Received team ping for team`);
+		socket.on(_teamPing', () => {
+			// console.debug(_team`);
 			teamPing();
 		});
 
-		window.addEventListener("popstate", (event) => {
+		window.addEventListener(_event) => {
 			if (socket) {
 				socket.disconnect();
-				console.log("Popstate event triggered:", event);
+				console.log(_event);
 			}
 		});
-		window.addEventListener("keydown", (event) => {
-			if (event.code === "ArrowLeft" && !this.isLeftPressed) {
+		window.addEventListener(_event) => {
+			if (_event.code === "ArrowLeft" && !this.isLeftPressed) {
 				// console.log("Left arrow key pressed");
 				this.isLeftPressed = true;
 				socket.emit('keydown', { key: 'ArrowLeft' });
 			}
-			if (event.code === "ArrowRight" && !this.isRightPressed) {
+			if (_event.code === "ArrowRight" && !this.isRightPressed) {
 				// console.log("Right arrow key pressed");
 				this.isRightPressed = true;
 				socket.emit('keydown', { key: 'ArrowRight' });
 			}
 		});
-		window.addEventListener("keyup", (event) => {
-			if (event.code === "ArrowLeft") {
+		window.addEventListener(_event) => {
+			if (_event.code === "ArrowLeft") {
 				// console.log("Left arrow key released");
 				socket.emit('keyup', { key: 'ArrowLeft' });
 				this.isLeftPressed = false;
 			}
-			if (event.code === "ArrowRight") {
+			if (_event.code === "ArrowRight") {
 				// console.log("Right arrow key released");
 				socket.emit('keyup', { key: 'ArrowRight' });
 				this.isRightPressed = false;

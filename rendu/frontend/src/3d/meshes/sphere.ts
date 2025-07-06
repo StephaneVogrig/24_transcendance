@@ -7,7 +7,7 @@ export function createSphere(scene: Scene): Mesh {
         segments: 32
     }, scene);
 
-  sphere.material = createMetalMaterial(scene);
+    sphere.material = createMetalMaterial(scene);
 
-  return sphere;
+    return sphere;
 }
