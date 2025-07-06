@@ -1,8 +1,8 @@
 import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
-import { GoogleAuthService } from './googleAuthService.js';
-import { UserService } from './userService.js';
+import { GoogleAuthService } from './googleAuthService';
+import { UserService } from './userService';
 import dotenv from 'dotenv';
 
 // Charger les variables d'environnement
