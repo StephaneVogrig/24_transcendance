@@ -1,4 +1,6 @@
 import { WebSocketBridge } from '../websocket/bridge';
+import { getSocket, setPlayerName } from '../websocket/websocket';
+import { navigate } from '../router';
 
 export const ChoiceGamePage = (): HTMLElement => {
 
@@ -42,8 +44,21 @@ export const ChoiceGamePage = (): HTMLElement => {
     const name = input.value.trim();
     console.log(`Rejoindre une partie avec le nom: ${name}`);
     try {
-      const webSocketBridge = new WebSocketBridge(name);
-      await webSocketBridge.init(name);
+      const socket = getSocket();
+      setPlayerName(name);
+      
+      if (!socket.connected) {
+        console.log("Socket not yet connected, waiting for 'connect' event...");
+        const socket = getSocket();
+      }
+
+      socket.emit('join', { name: name });
+
+      socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+        console.log(`ChoiceGamePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+        startGame();
+      });
+
       console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
       const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
         method: 'POST',
@@ -52,7 +67,7 @@ export const ChoiceGamePage = (): HTMLElement => {
       });
 
       if (!response.ok) {
-        const err = await response.text();
+        console.error('Erreur lors de la requête de matchmaking:', response.statusText);
         throw new Error(err);
       }
 
@@ -84,10 +99,16 @@ function showGameModal() {
     
     
     const homeLink = document.createElement('a');
-    homeLink.href = '/game';
+    homeLink.href = '#';
     homeLink.setAttribute('data-route', '/game');
     homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     homeLink.textContent = 'Join the game';
+    homeLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        modalOverlay.remove(); 
+        navigate('/game');
+    });
+
     
     modalContent.appendChild(homeLink);
     modalOverlay.appendChild(modalContent);

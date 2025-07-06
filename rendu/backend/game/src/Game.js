@@ -35,20 +35,50 @@ export class Game {
         }
     }
 
+    async sendStart()
+    {
+        try {
+            const response = await fetch(`http://websocket:3008/api/websocket/startGame`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    player1Name: this.player1.getName(),
+                    player2Name: this.player2.getName(),
+                    gameId: this.gameId
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to start the game');
+            }
+        } catch (error) {
+            console.error('Error starting the game:', error);
+            throw error;
+        }
+    }
+
     async start()
     {
-        console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
-        await this.redirectPlayer(this.player1.getName());
-        console.log(`motclefpourlegrep`);
-        await this.redirectPlayer(this.player2.getName());
+        try {
+            console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
+            await this.redirectPlayer(this.player1.getName());
+            console.log(`motclefpourlegrep`);
+            await this.redirectPlayer(this.player2.getName());
+            console.log(`motclefpourlegrep`);
+            this.sendStart();
 
-        const loop = () => {
-            this.player1.inputManager();
-            this.player2.inputManager();
-            this.ball.move(this.player1.getPaddle(), this.player2.getPaddle());
-            setTimeout(loop, 1000 / 120);
-        };
-        loop();
+            const loop = () => {
+                this.player1.inputManager();
+                this.player2.inputManager();
+                this.ball.move(this.player1.getPaddle(), this.player2.getPaddle());
+                setTimeout(loop, 1000 / 120);
+            };
+            loop();
+        } catch (error) {
+            console.error('Error starting the game:', error);
+        }
     }
 
     inputManager(player, key, action)
