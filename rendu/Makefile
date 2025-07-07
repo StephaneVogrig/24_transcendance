@@ -6,7 +6,7 @@
 #    By: scraeyme <scraeyme@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/25 23:10:34 by svogrig           #+#    #+#              #
-#    Updated: 2025/06/27 10:54:27 by scraeyme         ###   ########.fr        #
+#    Updated: 2025/07/07 15:57:20 by scraeyme         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,9 +24,7 @@ clean: down
 	docker system prune -af
 
 fclean:
-	docker system prune -af --volumes
-	rm -rf $(DATA_DIR_MARIADB)
-	rm -rf $(DATA_DIR_WORDPRESS)
+	docker system prune -af --volumes --remove-orphans
 
 re: down clean up
 
