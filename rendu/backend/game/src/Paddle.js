@@ -5,10 +5,10 @@ export class Paddle {
     {
         this.side = side;
         if (side === 'left')
-            this.position = new Vec2D.Vector(50, 0);
+            this.position = new Vec2D.Vector(47, 0);
         else if (side === 'right')
-            this.position = new Vec2D.Vector(-50, 0);
-        this.size = 12;
+            this.position = new Vec2D.Vector(-47, 0);
+        this.size = 11.5;
         this.speed = 0.5;
     }
 
