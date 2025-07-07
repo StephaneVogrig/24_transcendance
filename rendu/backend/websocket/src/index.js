@@ -134,7 +134,7 @@ async function getstate(gameId, player) {
 
         if (!response.ok) {
             return null;
-        } 
+        }
 
         const responseData = await response.json();
 

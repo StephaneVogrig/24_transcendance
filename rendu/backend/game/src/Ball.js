@@ -9,6 +9,11 @@ export class Ball {
         this.speed = new Vec2D.Vector(0.42, 0);
     }
 
+	getSpeed()
+	{
+		return this.speed;
+	}
+
     getPosition()
     {
         return this.position;
