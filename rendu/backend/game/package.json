@@ -10,7 +10,6 @@
     "dev": "node src/index.js"
   },
 
-
   "dependencies": {
     "fastify": "^4.24.3"
   },

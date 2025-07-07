@@ -12,7 +12,7 @@ export function addMatch(player1, player2) {
     const key = createMatchKey(player1, player2);
     if (map.has(key))
         throw new Error(`Match already exists for players ${player1} and ${player2}`);
-    map.set(key, new Game.Game({ player1, player2 }));
+    map.set(key, new Game.Game({ player1, player2, gameId: key }));
 }
 
 export function deleteMatch(player1, player2) {

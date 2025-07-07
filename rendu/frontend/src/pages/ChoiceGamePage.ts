@@ -1,49 +1,120 @@
+import { WebSocketBridge } from '../websocket/bridge';
+import { getSocket, setPlayerName } from '../websocket/websocket';
+import { navigate } from '../router';
+
 export const ChoiceGamePage = (): HTMLElement => {
-    // Conteneur principal
-    const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen flex items-center justify-center bg-gray-100 p-4';
 
-    // Carte blanche centrale
-    const cardDiv = document.createElement('div');
-    cardDiv.className = 'bg-white p-8 rounded-lg shadow-xl text-center max-w-md w-full';
-    mainDiv.appendChild(cardDiv);
+  const mainDiv = document.createElement('div');
+  mainDiv.className = 'min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white';
 
-    // Icône SVG
-    const svgDiv = document.createElement('div');
-    svgDiv.className = 'mb-6';
-    svgDiv.innerHTML = `
-        <svg class="mx-auto h-24 w-24 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-        </svg>
-    `;
-    cardDiv.appendChild(svgDiv);
+  const h1 = document.createElement('h1');
+  h1.className = 'text-6xl font-bold mb-8 animate-bounce';
+  h1.textContent = 'Matchmaking Pong 🔥';
+  mainDiv.appendChild(h1);
 
-    const pt = document.createElement('p');
-    pt.textContent = `Choix du game`;
-    cardDiv.appendChild(pt);
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Entrez votre nom...';
+  input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-80 focus:outline-none';
+  mainDiv.appendChild(input);
 
-    // Titre "Page en Construction"
-    const h1 = document.createElement('h1');
-    h1.className = 'text-4xl font-extrabold text-gray-900 mb-4';
-    h1.textContent = 'Page en Construction';
-    cardDiv.appendChild(h1);
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'flex flex-col space-y-4';
 
-    // Paragraphe descriptif
-    const p = document.createElement('p');
-    p.className = 'text-lg text-gray-700 mb-8';
-    p.textContent = `
-        Nous travaillons dur pour vous apporter cette section ! Revenez nous voir bientôt pour découvrir les nouveautés.
-    `;
-    cardDiv.appendChild(p);
+  const createButton = (text: string, className: string): HTMLButtonElement => {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.className = `${className} px-6 py-3 rounded-xl text-lg font-semibold shadow-md transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`;
+    return button;
+  };
 
-    // Lien "Retourner à l'Accueil"
-    const homeLink = document.createElement('a');
-    homeLink.href = '/';
-    homeLink.setAttribute('data-route', '/');
-    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-    homeLink.textContent = 'Retourner à l\'Accueil';
-    cardDiv.appendChild(homeLink);
+  const createBtn = createButton('Rejoindre une partie', 'bg-blue-600 hover:bg-blue-700');
 
-    return mainDiv;
+  createBtn.disabled = true;
+
+  input.addEventListener('input', () => {
+    const isEmpty = input.value.trim().length < 3;
+    createBtn.disabled = isEmpty;
+  });
+
+  buttonContainer.appendChild(createBtn);
+  mainDiv.appendChild(buttonContainer);
+
+  createBtn.addEventListener('click', async () => {
+    const name = input.value.trim();
+    console.log(`Rejoindre une partie avec le nom: ${name}`);
+    try {
+      const socket = getSocket();
+      setPlayerName(name);
+      
+      if (!socket.connected) {
+        console.log("Socket not yet connected, waiting for 'connect' event...");
+        const socket = getSocket();
+      }
+
+      socket.emit('join', { name: name });
+
+      socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+        console.log(`ChoiceGamePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+        startGame();
+      });
+
+      console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
+      const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name })
+      });
+
+      if (!response.ok) {
+        console.error('Erreur lors de la requête de matchmaking:', response.statusText);
+        throw new Error(err);
+      }
+
+    } catch (error) {
+      alert(`Erreur lors de la création: ${(error as Error).message}`);
+    }
+  });
+
+  return mainDiv;
 };
+
+function showGameModal() {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+    modalOverlay.id = 'gameOverModalOverlay';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+    
+    const title = document.createElement('h2');
+    title.className = 'text-5xl font-extrabold text-red-600 mb-4 tracking-wide';
+    title.textContent = 'game found !';
+    modalContent.appendChild(title);
+    
+    const message = document.createElement('p');
+    message.className = 'text-2xl text-gray-800 font-medium';
+    message.textContent = 'Thanks for waiting! Your game is starting now.';
+    modalContent.appendChild(message);
+    
+    
+    const homeLink = document.createElement('a');
+    homeLink.href = '#';
+    homeLink.setAttribute('data-route', '/game');
+    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Join the game';
+    homeLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        modalOverlay.remove(); 
+        navigate('/game');
+    });
+
+    
+    modalContent.appendChild(homeLink);
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+}
+
+export function startGame() {
+    showGameModal();
+}

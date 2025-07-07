@@ -6,7 +6,7 @@
 #    By: scraeyme <scraeyme@student.42angouleme.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/25 23:10:34 by svogrig           #+#    #+#              #
-#    Updated: 2025/07/05 13:26:44 by scraeyme         ###   ########.fr        #
+#    Updated: 2025/07/07 16:25:09 by scraeyme         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ clean: down
 	docker system prune -af
 
 fclean:
-	docker system prune -af --volumes
+	docker system prune -af --volumes --remove-orphans
 
 re: down clean up
 
