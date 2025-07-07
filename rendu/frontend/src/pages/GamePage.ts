@@ -2,10 +2,10 @@ import { startBabylonScene } from '../3d/main3d';
 
 export const GamePage = (): HTMLElement => {
     const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen flex items-center justify-center p-4';
+    mainDiv.className = 'min-h-screen flex items-center justify-center';
 
    const cardDiv = document.createElement('div');
-    cardDiv.className = 'bg-white p-2 rounded-lg shadow-xl text-center max-w-full w-full h-[90vh] flex items-center justify-center relative overflow-hidden'; // Exemple: s'adapte à la hauteur de la fenêtre avec overflow hidden
+    cardDiv.className = ' shadow-xl text-center max-w-full w-full h-[100vh] flex items-center justify-center relative overflow-hidden'; // Exemple: s'adapte à la hauteur de la fenêtre avec overflow hidden
     mainDiv.appendChild(cardDiv);
 
     // const homeLink = document.createElement('a');
@@ -42,6 +42,7 @@ export const GamePage = (): HTMLElement => {
     gameContainer.appendChild(canvas);
 
     cardDiv.appendChild(gameContainer);
+    // mainDiv.appendChild(gameContainer);
 
     setTimeout(() => {
         updateScores(0, 0);
