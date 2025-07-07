@@ -1,0 +1,6 @@
+cd /tmp && chmod +x mkcert-v*-linux-amd64 && mv mkcert-v*-linux-amd64 ~/.local/bin/mkcert 2>/dev/null || mkdir -p ~/.local/bin && mv mkcert-v*-linux-amd64 ~/.local/bin/mkcert && export PATH="$HOME/.local/bin:$PATH" && mkcert --version
+
+export PATH="$HOME/.local/bin:$PATH" && mkcert -install
+
+
+cd /home/smortemo/Documents/24_transcendance/rendu && mkdir -p ssl && export PATH="$HOME/.local/bin:$PATH" && mkcert -key-file ssl/localhost-key.pem -cert-file ssl/localhost.pem localhost 127.0.0.1 ::1

@@ -206,7 +206,7 @@ export const RegisterPage = (): HTMLElement => {
     const handleGoogleRegister = async () => {
         try {
             // Obtenir l'URL d'autorisation Google pour l'enregistrement
-            const response = await fetch('http://gateway:3000/api/auth/google/register', {
+            const response = await fetch('http://localhost:3000/api/auth/google/register', {
                 method: 'GET',
                 credentials: 'include'
             });

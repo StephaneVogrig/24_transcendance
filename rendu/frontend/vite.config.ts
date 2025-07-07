@@ -6,7 +6,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://gateway:3000',
+        target: 'http://host.docker.internal:3000',
         changeOrigin: true
       }
     }

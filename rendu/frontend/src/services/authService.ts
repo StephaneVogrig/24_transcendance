@@ -29,7 +29,7 @@ class AuthService {
     this.setState({ loading: true });
 
     try {
-      const response = await fetch('http://gateway:3000/api/auth/verify', {
+      const response = await fetch('http://localhost:3000/api/auth/verify', {
         method: 'GET',
         credentials: 'include'
       });
@@ -59,7 +59,7 @@ class AuthService {
   // Obtenir le profil utilisateur
   async getProfile(): Promise<User | null> {
     try {
-      const response = await fetch('http://gateway:3000/api/auth/profile', {
+      const response = await fetch('http://localhost:3000/api/auth/profile', {
         method: 'GET',
         credentials: 'include'
       });
@@ -85,7 +85,7 @@ class AuthService {
   // Se déconnecter
   async logout(): Promise<void> {
     try {
-      await fetch('http://gateway:3000/api/auth/logout', {
+      await fetch('http://localhost:3000/api/auth/logout', {
         method: 'POST',
         credentials: 'include'
       });

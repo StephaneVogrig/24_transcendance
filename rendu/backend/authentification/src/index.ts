@@ -29,12 +29,12 @@ const start = async () => {
   const googleAuthService = new GoogleAuthService();
 
   // Routes d'authentification
-  fastify.get('/api/auth', async (request, reply) => {
+  fastify.get('/', async (request, reply) => {
     return { message: 'Service d\'authentification Transcendence', status: 'active' };
   });
 
   // Route pour obtenir l'URL d'autorisation Google
-  fastify.get('/api/auth/google', async (request, reply) => {
+  fastify.get('/google', async (request, reply) => {
     try {
       const authUrl = googleAuthService.getAuthUrl();
       return { authUrl };
@@ -45,7 +45,7 @@ const start = async () => {
   });
 
   // Route pour obtenir l'URL d'autorisation Google pour l'enregistrement
-  fastify.get('/api/auth/google/register', async (request, reply) => {
+  fastify.get('/google/register', async (request, reply) => {
     try {
       const authUrl = googleAuthService.getAuthUrl('register');
       return { authUrl };
@@ -56,7 +56,7 @@ const start = async () => {
   });
 
   // Route de callback Google OAuth
-  fastify.get('/api/auth/google/callback', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/google/callback', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { code, state } = request.query as { code?: string; state?: string };
 
@@ -95,7 +95,7 @@ const start = async () => {
   });
 
   // Route pour vérifier l'authentification
-  fastify.get('/api/auth/verify', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/verify', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const token = request.cookies.auth_token;
 
@@ -136,13 +136,13 @@ const start = async () => {
   });
 
   // Route pour se déconnecter
-  fastify.post('/api/auth/logout', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/logout', async (request: FastifyRequest, reply: FastifyReply) => {
     reply.clearCookie('auth_token');
     return { success: true, message: 'Déconnexion réussie' };
   });
 
   // Route pour obtenir le profil utilisateur
-  fastify.get('/api/auth/profile', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/profile', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const token = request.cookies.auth_token;
 
@@ -175,7 +175,7 @@ const start = async () => {
   });
 
   // Route de debug pour voir tous les utilisateurs (à supprimer en production)
-  fastify.get('/api/auth/users', async (request, reply) => {
+  fastify.get('/users', async (request, reply) => {
     if (process.env.NODE_ENV === 'production') {
       reply.status(404);
       return { error: 'Route non disponible en production' };

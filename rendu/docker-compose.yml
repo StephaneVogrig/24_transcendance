@@ -85,11 +85,8 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev
+      - "8443:443"
+      - "8080:80"
     depends_on:
       - gateway
     networks:

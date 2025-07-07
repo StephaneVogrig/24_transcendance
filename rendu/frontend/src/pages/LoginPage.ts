@@ -179,7 +179,7 @@ export const LoginPage = (): HTMLElement => {
     const handleGoogleLogin = async () => {
         try {
             // Obtenir l'URL d'autorisation Google
-            const response = await fetch('http://gateway:3000/api/auth/google', {
+            const response = await fetch('http://localhost:3000/api/auth/google', {
                 method: 'GET',
                 credentials: 'include'
             });
