@@ -1,7 +1,11 @@
+import { createSky } from '../3d/skybox';
+
 export const HomePage = (): HTMLElement => {
-    // Crée le conteneur principal
     const mainDiv = document.createElement('div');
     mainDiv.className = 'min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white';
+
+    // Crée le conteneur pour la scène Babylon.js
+    mainDiv.appendChild(createSky());
 
     // Titre
     const h1 = document.createElement('h1');
@@ -35,5 +39,4 @@ export const HomePage = (): HTMLElement => {
     mainDiv.appendChild(nav);
 
     return mainDiv;
-  }
-  
+}
