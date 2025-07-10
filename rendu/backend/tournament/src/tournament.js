@@ -172,6 +172,7 @@ export async function startTournament(tournament)
 {
 	tournament.status = 'ongoing';
 	tournament.rounds = [generateBracket(tournament.players)];
+	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
 	await startMatches(tournament.rounds[tournament.roundIndex]);
 }
@@ -275,6 +276,12 @@ export function getWinner(id)
 	if (round[0][0].score === undefined || round[0][1].score === undefined)
 		throw new Error("Final match's score is still undefined.");
 	return round[0][0].score > round[0][1].score ? round[0][0] : round[0][1];
+}
+
+export async function addRawTournament(tournament)
+{
+	TOURNAMENT_LIST[TOTAL_TOURNAMENTS] = tournament;
+	TOTAL_TOURNAMENTS++;
 }
 
 export async function advanceToNextRound(id)
