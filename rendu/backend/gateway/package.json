@@ -6,9 +6,8 @@
   "type": "module",
 
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts"
+    "start": "node src/server.js",
+    "dev": "node src/server.ts"
   },
 
   "dependencies": {
@@ -17,13 +16,7 @@
     "fastify": "^4.24.3"
   },
 
-  "devDependencies": {
-    "@types/node": "^20.8.10",
-    "tsx": "^4.6.0",
-    "typescript": "^5.2.2"
-  },
-
-  "keywords": ["fastify", "gateway", "pong", "typescript"],
+  "keywords": ["fastify", "gateway", "pong", "javascript"],
   "author": "VITE",
   "license": "MIT"
 }

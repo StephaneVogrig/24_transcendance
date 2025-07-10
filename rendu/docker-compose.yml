@@ -6,6 +6,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - HOST_IP=${HOST_IP}
     volumes:
       - ./backend/gateway:/app
       - /app/node_modules

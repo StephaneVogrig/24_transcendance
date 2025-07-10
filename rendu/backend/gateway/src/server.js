@@ -2,9 +2,9 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import proxy from '@fastify/http-proxy';
 
-const fastify = Fastify({ 
-  logger: true 
-});
+
+const HOST_IP = process.env.HOST_IP;
+const FRONTEND_ORIGIN = `http://${HOST_IP}:5173`;
 
 const AUTH_SERVICE_BASE_URL = 'http://authentification:3001';
 const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';
@@ -16,8 +16,15 @@ const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
 const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 const AI_SERVICE_BASE_URL = 'http://ai:3009';
 
+const fastify = Fastify({ 
+  logger: true 
+});
+
 await fastify.register(cors, {
-  origin: [`http://10.11.5.5:5173`],
+  origin: [
+    FRONTEND_ORIGIN,
+    'http://localhost:5173'
+  ],
   credentials: true
 });
 
@@ -88,13 +95,14 @@ fastify.register(proxy, {
   prefix: '/api/ai',
 });
 
-const start = async (): Promise<void> => {
+const start = async () => {
   try {
     await fastify.listen({ 
       port: 3000, 
       host: '0.0.0.0' 
     });
     console.log('🚀 Gateway démarré sur http://localhost:3000');
+    console.log(`CORS autorisé pour l'origine frontend : ${FRONTEND_ORIGIN}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
