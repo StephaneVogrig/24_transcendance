@@ -4,7 +4,7 @@ import cors from '@fastify/cors';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.11.6.1:5173`;
+const clientOrigin = `http://10.11.5.5:5173`;
 fastify.register(cors, {
     origin: clientOrigin,
     methods: ['GET', 'POST'],
@@ -36,6 +36,20 @@ fastify.post('/api/matchmaking/join', async (request, reply) => {
   try {
     PlayerManager.addPlayer(name);
     return { message: 'Player added successfully' };
+  } catch (error) {
+    reply.status(400).send({ error: error.message });
+  }
+});
+
+fastify.post('/api/matchmaking/leave', async (request, reply) => {
+  const { name } = request.body;
+  console.log(`Received request to leave with name: ${name}`);
+  if (!name) {
+    return reply.status(400).send({ error: 'Player name is required' });
+  }
+  try {
+    PlayerManager.removePlayer(name);
+    return { message: 'Player removed successfully' };
   } catch (error) {
     reply.status(400).send({ error: error.message });
   }
