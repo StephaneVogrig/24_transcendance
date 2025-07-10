@@ -1,3 +1,6 @@
+import { getSocket, setPlayerName } from '../websocket/websocket';
+import { startGame } from './ChoiceGamePage.ts';
+
 export const TournamentPage = (): HTMLElement => {
   // Main container
   const mainDiv = document.createElement('div');
@@ -51,49 +54,80 @@ export const TournamentPage = (): HTMLElement => {
   createBtn.addEventListener('click', async () => {
     const name = input.value.trim();
     try {
-      const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
+		const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/create`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ name })
+		});
 
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err);
-      }
+		if (!response.ok) {
+			const err = await response.text();
+			throw new Error(err);
+		}
 
-      const data = await response.json();
-      console.log('Tournoi créé:', data);
+		let socket = getSocket();
+		setPlayerName(name);
+		
+		if (!socket.connected) {
+			console.log("Socket not yet connected, waiting for 'connect' event...");
+			socket = getSocket();
+		}
 
-      // Optional: Redirect to the tournament view or show success
-      alert(`Tournoi créé avec succès ! ID: ${data.id}`);
-    } catch (error) {
-      alert(`Erreur lors de la création: ${(error as Error).message}`);
-    }
+		socket.emit('join', { name: name });
+
+		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+			console.log(`TournamentPage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			startGame();
+		});
+
+		const data = await response.json();
+		console.log('Tournoi créé:', data);
+
+		// Optional: Redirect to the tournament view or show success
+		alert(`Tournoi créé avec succès ! ID: ${data.id}`);
+		} catch (error) {
+		alert(`Erreur lors de la création: ${(error as Error).message}`);
+		}
   });
 
   joinBtn.addEventListener('click', async () => {
     const name = input.value.trim();
     try {
-      const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name })
-      });
 
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err);
-      }
+		const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ name })
+		});
 
-      const data = await response.json();
-      console.log('Tournoi rejoins:', data);
+		if (!response.ok) {
+			const err = await response.text();
+			throw new Error(err);
+		}
 
-      // Optional: Redirect to the tournament view or show success
-      alert(`Tournoi rejoins avec succès ! ID: ${data.id}`);
-    } catch (error) {
-      alert(`Erreur lors de la création: ${(error as Error).message}`);
-    }
+		let socket = getSocket();
+		setPlayerName(name);
+		
+		if (!socket.connected) {
+			console.log("Socket not yet connected, waiting for 'connect' event...");
+			socket = getSocket();
+		}
+
+		socket.emit('join', { name: name });
+
+		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+			console.log(`TournamentPage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			startGame();
+		});
+
+		const data = await response.json();
+		console.log('Tournoi rejoins:', data);
+
+		// Optional: Redirect to the tournament view or show success
+		alert(`Tournoi rejoins avec succès ! ID: ${data.id}`);
+	} catch (error) {
+		alert(`Erreur lors de la création: ${(error as Error).message}`);
+	}
   });
 
   return mainDiv;

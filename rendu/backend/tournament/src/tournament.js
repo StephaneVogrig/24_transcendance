@@ -32,8 +32,12 @@ function playerExistsInAnyTournament(name)
 {
 	for (const tournament of Object.values(TOURNAMENT_LIST))
 	{
-		if (tournament.players && (tournament.players[0].name === name || tournament.players[1].name === name))
-			return (true);
+		if (tournament.players)
+		{
+			for (const player of tournament.players)
+				if (player.name && player.name === name)
+					return (true);
+		}
 	}
 	return (false);
 }
@@ -122,6 +126,31 @@ export async function createTournament(name)
 	return tournament;
 }
 
+async function startMatches(bracket)
+{
+	for (const players of bracket)
+	{
+		try {
+			const player1 = players[0].name;
+			const player2 = players[1].name;
+			const response = await fetch(`http://game:3004/api/game/start`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ player1, player2 })
+			});
+
+			if (!response.ok) {
+				const err = await response.text();
+				throw new Error(err);
+			}
+
+			console.log(`Starting match between ${player1} and ${player2}`);
+		} catch (error) {
+			console.log(`Error while starting match between ${player1} and ${player2}: ${error.message}.`);
+		}
+	}
+}
+
 export async function deleteTournament(id)
 {
 	const tournament = TOURNAMENT_LIST[id];
@@ -136,6 +165,7 @@ export async function startTournament(tournament)
 	tournament.status = 'ongoing';
 	tournament.rounds = [generateBracket(tournament.players)];
 	await modifyTournamentInDb(tournament);
+	await startMatches(tournament.rounds[tournament.roundIndex]);
 }
 
 export function findTournament()
@@ -161,6 +191,8 @@ export async function joinTournament(id, name)
 		throw new Error(`Tournament ${id} is full, ongoing or finished.`);
 	tournament.players.push({name: name, score: 0});
 	tournament.playerCount++;
+	if (tournament.playerCount === 4)
+		await startTournament(tournament);
 	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
 }
@@ -266,6 +298,7 @@ export async function advanceToNextRound(id)
 	{
 		tournament.rounds.push(generateBracketInOrder(nextPlayers));
 		tournament.roundIndex++;
+		await startMatches(tournament.rounds[tournament.roundIndex]);
 	}
 	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
