@@ -6,7 +6,7 @@ import cors from '@fastify/cors'
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-	origin: 'http://10.11.5.7:5173',
+	origin: 'http://10.11.5.5:5173',
 	methods: ['GET', 'POST'],
 	credentials: true
 });

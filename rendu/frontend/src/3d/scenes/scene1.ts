@@ -4,15 +4,25 @@ import { createSphere } from '../meshes/sphere';
 import { createPlatform } from '../meshes/playform';
 import { createArena } from '../meshes/arena';
 
-export const ballPosition = new Vector3(0, 0, 0);
-export const platform1Position = new Vector3(19.25, 0, 0);
-export const platform2Position = new Vector3(-19.25, 0, 0);
+export let ballPosition = new Vector3(0, 0, 0);
+export let platform1Position = new Vector3(19.25, 0, 0);
+export let platform2Position = new Vector3(-19.25, 0, 0);
 
 let ball: any = null;
 let platform1: any = null;
 let platform2: any = null;
 
 let mirror = 1;
+
+export function resetVariables() {
+    ball = null;
+    platform1 = null;
+    platform2 = null;
+    ballPosition = new Vector3(0, 0, 0);
+    platform1Position = new Vector3(19.25, 0, 0);
+    platform2Position = new Vector3(-19.25, 0, 0);
+    mirror = 1;
+}
 
 export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);

@@ -1,4 +1,3 @@
-import { WebSocketBridge } from '../websocket/bridge';
 import { getSocket, setPlayerName } from '../websocket/websocket';
 import { navigate } from '../router';
 
@@ -51,31 +50,32 @@ export const ChoiceGamePage = (): HTMLElement => {
         });
         if (!response.ok) {
           console.error('Erreur lors de la requête de leave:', response.statusText);
-          throw new Error('Failed to leave the game');
         }
         console.log('Successfully left the game');
       } catch (error) {
         console.error('Error leaving game:', error);
       }
     }
+    isGameStarted = false;
+    console.log('isGameStarted set to :', isGameStarted);
     name = input.value.trim();
     console.log(`Rejoindre une partie avec le nom: ${name}`);
+    let socket = getSocket();
+
+    setPlayerName(name);
+
+    if (!socket.connected)
+      socket = getSocket();
+    socket.emit('join', { name: name });
+
+    console.log(`redirecting to game with name: ${name}`);
+    socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+      console.log(`ChoiceGamePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+      startGame();
+    });
+
+
     try {
-      let socket = getSocket();
-      setPlayerName(name);
-      
-      if (!socket.connected) {
-        console.log("Socket not yet connected, waiting for 'connect' event...");
-        socket = getSocket();
-      }
-
-      socket.emit('join', { name: name });
-
-      socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-        console.log(`ChoiceGamePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-        startGame();
-      });
-
       console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
       const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
         method: 'POST',
@@ -85,7 +85,7 @@ export const ChoiceGamePage = (): HTMLElement => {
 
       if (!response.ok) {
         console.error('Erreur lors de la requête de matchmaking:', response.statusText);
-        throw new Error(err);
+        throw new Error('Failed to join the game');
       }
 
     } catch (error) {
@@ -121,6 +121,9 @@ function showGameModal() {
     homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     homeLink.textContent = 'Join the game';
     homeLink.addEventListener('click', (event) => {
+        console.log('Game started, navigating to game page.');
+        isGameStarted = false;
+        console.log('isGameStarted set to :', isGameStarted);
         event.preventDefault();
         modalOverlay.remove(); 
         navigate('/game');

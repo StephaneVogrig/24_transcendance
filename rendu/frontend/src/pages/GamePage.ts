@@ -1,4 +1,5 @@
 import { startBabylonScene } from '../3d/main3d';
+import { navigate } from '../router';
 
 export const GamePage = (): HTMLElement => {
     const mainDiv = document.createElement('div');
@@ -77,10 +78,15 @@ function showGameOverModal() {
     
     
     const homeLink = document.createElement('a');
-    homeLink.href = '/';
-    homeLink.setAttribute('data-route', '/');
+    homeLink.href = '#';
+    homeLink.setAttribute('data-route', '/game');
     homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-    homeLink.textContent = 'Return to Home';
+    homeLink.textContent = 'Back to Home';
+    homeLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        modalOverlay.remove(); 
+        navigate('/choice-game');
+    });
     
     modalContent.appendChild(homeLink);
     modalOverlay.appendChild(modalContent);

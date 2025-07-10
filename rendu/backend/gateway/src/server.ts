@@ -17,7 +17,7 @@ const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 const AI_SERVICE_BASE_URL = 'http://ai:3009';
 
 await fastify.register(cors, {
-  origin: [`http://10.11.5.7:5173`],
+  origin: [`http://10.11.5.5:5173`],
   credentials: true
 });
 

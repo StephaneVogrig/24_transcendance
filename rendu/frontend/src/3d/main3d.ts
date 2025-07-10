@@ -1,6 +1,7 @@
 import { Engine } from '@babylonjs/core';
 import { createScene } from './scenes/scene1';
 import { InputManager } from './inputManager';
+import { resetVariables } from './scenes/scene1';
 
 // console.log("Initializing Babylon.js scene...");
 
@@ -10,7 +11,10 @@ export const startBabylonScene = (canvas: HTMLCanvasElement) => {
         return;
     }
 
+
     const engine = new Engine(canvas, true);
+
+    resetVariables();
 
     createScene(engine, canvas).then(scene => {
         engine.runRenderLoop(function () {
@@ -18,7 +22,7 @@ export const startBabylonScene = (canvas: HTMLCanvasElement) => {
         });
     });
 
-    const inputManager = new InputManager();
+    new InputManager();
 
     window.addEventListener('resize', function () {
         engine.resize();
