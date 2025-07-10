@@ -1,16 +1,16 @@
-/**
- * Interface définissant le contrat pour une route.
- */
+import { AppLayout } from './AppLayout';
+
+
 interface Route {
   path: string;
   component: () => HTMLElement;
 }
 
-// L'élément racine de l'application où le contenu des pages sera injecté.
 const appRoot = document.getElementById('app') as HTMLElement;
 
-// Tableau pour stocker toutes les routes enregistrées.
 const routes: Route[] = [];
+
+let appLayoutInstance: AppLayout | null = null;
 
 /**
  * Ajoute une nouvelle route au routeur.
@@ -38,24 +38,42 @@ export function navigate(path: string, pushState: boolean = true): void {
     }
 
     if (appRoot) {
+
+      if (path == '/game')
+      {
       // Vide l'élément racine de tout contenu précédent.
       // appRoot.innerHTML = ''; est simple, mais appRoot.replaceChildren() est plus moderne et potentiellement plus performant
       // car il ne force pas une ré-analyse HTML complète à chaque fois.
       appRoot.innerHTML = ''; // Nettoyage de l'ancien contenu
-
+      appLayoutInstance = null;
       // Exécute la fonction du composant pour obtenir le nouvel élément DOM.
       const componentElement = targetRoute.component();
 
       // Ajoute le nouvel élément DOM à l'élément racine de l'application.
       appRoot.appendChild(componentElement);
+       addNavigationListeners(componentElement);
 
-      // Ré-attache les écouteurs de navigation pour les liens 'data-route'
-      // présents dans le HTML du nouveau composant. C'est crucial car les nouveaux
-      // éléments ont été créés et leurs écouteurs doivent être mis en place.
-      addNavigationListeners(componentElement);
+      }
+      else 
+      {
+        if (!appLayoutInstance) {
+          appLayoutInstance = AppLayout.getInstance();
+          appRoot.appendChild(appLayoutInstance.getLayout());
+        }
+
+        const newContent = targetRoute.component();
+        appLayoutInstance.updateContent(newContent);
+
+        // Ré-attache les écouteurs de navigation pour les liens 'data-route'
+        // présents dans le HTML du nouveau composant. C'est crucial car les nouveaux
+        // éléments ont été créés et leurs écouteurs doivent être mis en place.
+        addNavigationListeners(newContent);
+
+      }
+
+
     }
   } else {
-    // Si la route n'est pas trouvée, log un avertissement et redirige vers la page d'accueil.
     console.warn(`Route non trouvée: ${path}. Redirection vers l'accueil.`);
     navigate('/');
   }

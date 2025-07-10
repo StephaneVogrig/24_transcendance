@@ -1,17 +1,13 @@
-import { createSky } from '../3d/skybox';
-
 export const HomePage = (): HTMLElement => {
-    const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white';
 
-    // Crée le conteneur pour la scène Babylon.js
-    mainDiv.appendChild(createSky());
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'flex flex-col items-center';
 
     // Titre
     const h1 = document.createElement('h1');
     h1.className = 'text-6xl font-bold mb-8 animate-bounce';
     h1.textContent = 'Viiiiite, un Pong vite fait !';
-    mainDiv.appendChild(h1);
+    contentDiv.appendChild(h1);
 
     // Navigation
     const nav = document.createElement('nav');
@@ -36,7 +32,7 @@ export const HomePage = (): HTMLElement => {
     nav.appendChild(createNavLink('Se connecter', '/login', 'btn btn-outline'));
     nav.appendChild(createNavLink('S\'inscrire', '/register', 'btn btn-outline'));
 
-    mainDiv.appendChild(nav);
+    contentDiv.appendChild(nav);
 
-    return mainDiv;
+    return contentDiv;
 }
