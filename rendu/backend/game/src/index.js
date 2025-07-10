@@ -42,6 +42,18 @@ fastify.post('/api/game/input', async (request, reply) => {
     match.inputManager(player, key, action);
 });
 
+fastify.post('/api/game/stop', async (request, reply) => {
+    const { player } = request.body;
+    if (!player) {
+        return reply.status(400).send({ error: 'Player is required' });
+    }
+    try {
+        GameManager.stopMatch(player);
+    } catch (error) {
+        return reply.status(404).send({ error: error.message });
+    }
+    return reply.status(200).send({ message: `Game stopped for player ${player}` });
+});
 
 fastify.get('/api/game/state', async (request, reply) => {
     const { player } = request.query;
@@ -64,7 +76,6 @@ fastify.get('/api/game/state', async (request, reply) => {
         score: [match.player1.getScore(), match.player2.getScore()]
     };
     return reply.status(200).send({state: state});
-
 });
 
 start();

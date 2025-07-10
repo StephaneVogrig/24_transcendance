@@ -9,6 +9,7 @@ export class Game {
         this.player2 = new Player(player2, 'right');
         this.ball = new Ball.Ball([this.player1, this.player2]);
         this.gameId = gameId;
+        this.stopBoolean = false;
         this.start();
     }
 
@@ -71,6 +72,10 @@ export class Game {
             this.sendStart();
 
             const loop = () => {
+                if (this.stopBoolean) {
+                    console.log('Game loop stopped');
+                    return;
+                }
                 this.player1.inputManager();
                 this.player2.inputManager();
                 this.ball.move(this.player1.getPaddle(), this.player2.getPaddle());
@@ -101,5 +106,10 @@ export class Game {
             else if (key === 'ArrowRight')
                 this.player2.downPressed = action === 'keydown';
         }
+    }
+
+    stop() {
+        console.log(`Game stopped: ${this.player1.getName()} vs ${this.player2.getName()}`);
+        this.stopBoolean = true;
     }
 }

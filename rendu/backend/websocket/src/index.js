@@ -196,6 +196,29 @@ async function getstate(gameId, player) {
     }
 }
 
+function stopGame(playerName) {
+    try {
+        const reponse = fetch(`http://game:3004/api/game/stop`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                player: playerName,
+                timestamp: Date.now()
+            })
+        });
+        if (!reponse.ok) {
+            console.error('stopGame: Failed to send stop request to game logic:', reponse.status);
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('stopGame: Error communicating with game logic service:', error);
+        return false;
+    }
+}
+
 
 io.on('connection', async (socket) => {
     console.log(`Socket connected: ${socket.id}`);
@@ -261,6 +284,7 @@ io.on('connection', async (socket) => {
                     io.to(otherPlayerSocketId).emit('error', { message: `Your opponent ${disconnectedPlayerName} has disconnected.` });
                     clearInterval(session.intervalId);
                     io.to(gameId).emit('gameOver', { message: `Game over. Player ${disconnectedPlayerName} has disconnected.` });
+                    stopGame(disconnectedPlayerName);
                     gameSessions.delete(gameId);
                 }
             }
