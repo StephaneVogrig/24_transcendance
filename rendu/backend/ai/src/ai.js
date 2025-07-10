@@ -4,12 +4,12 @@ export async function createAI(name)
 {
 	if (!name)
 		throw new Error("Player needed for call to createAI");
-	if (GAMES.has("AI-" + name))
+	if (GAMES.has(name + "AI"))
 		throw new Error("Name already has a game.");
-	GAMES.set("AI-" + name, {player: name, leftPressed: false, rightPressed: false});
+	GAMES.set(name + "AI", {player: name, leftPressed: false, rightPressed: false});
 	try {
-		const player1 = "AI";
-		const player2 = name;
+		const player1 = name;
+		const player2 = "AI";
 		const response = await fetch(`http://game:3004/api/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -45,7 +45,7 @@ export async function getInput(gameId)
 		player2: game.player2,
 		ball: game.ball,
 		ballspeed: game.ballspeed,
-		paddle: game.player1.paddle
+		paddle: game.player2.paddle
 	};
 
 	console.log(`p1: ${player1} | p2: ${player2} | ball: ${ball} | ballspeed: ${ballspeed} | paddle: ${paddle}`);

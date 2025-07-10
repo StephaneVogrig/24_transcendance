@@ -65,9 +65,7 @@ export class Game {
         try {
             console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
             await this.redirectPlayer(this.player1.getName());
-            console.log(`motclefpourlegrep`);
-            await this.redirectPlayer(this.player2.getName());
-            console.log(`motclefpourlegrep`);
+        	await this.redirectPlayer(this.player2.getName());
             this.sendStart();
 
             const loop = () => {

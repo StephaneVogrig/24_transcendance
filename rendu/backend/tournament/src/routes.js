@@ -62,6 +62,17 @@ fastify.post('/api/tournament/join', async (request, reply) => {
 	}
 });
 
+fastify.post('/api/tournament/raw', async (request, reply) => {
+	try
+	{
+		Tournament.addRawTournament(request.body.tournament);
+		reply.status(200).send("OK");
+	} catch (err)
+	{
+		return reply.status(400).send({ error: err.message });
+	}
+});
+
 fastify.post('/api/tournament/advance', async (request, reply) => {
 	if (!request.body || typeof request.body.id !== 'number')
 	{

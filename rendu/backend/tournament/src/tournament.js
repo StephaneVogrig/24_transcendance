@@ -164,6 +164,7 @@ export async function startTournament(tournament)
 {
 	tournament.status = 'ongoing';
 	tournament.rounds = [generateBracket(tournament.players)];
+	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
 	await startMatches(tournament.rounds[tournament.roundIndex]);
 }
@@ -193,8 +194,11 @@ export async function joinTournament(id, name)
 	tournament.playerCount++;
 	if (tournament.playerCount === 4)
 		await startTournament(tournament);
-	TOURNAMENT_LIST[tournament.id] = tournament;
-	await modifyTournamentInDb(tournament);
+	else
+	{
+		TOURNAMENT_LIST[tournament.id] = tournament;
+		await modifyTournamentInDb(tournament);
+	}
 }
 
 export function getCurrentRound(id)
@@ -267,6 +271,12 @@ export function getWinner(id)
 	return round[0][0].score > round[0][1].score ? round[0][0] : round[0][1];
 }
 
+export async function addRawTournament(tournament)
+{
+	TOURNAMENT_LIST[TOTAL_TOURNAMENTS] = tournament;
+	TOTAL_TOURNAMENTS++;
+}
+
 export async function advanceToNextRound(id)
 {
 	let tournament = TOURNAMENT_LIST[id];
@@ -278,7 +288,7 @@ export async function advanceToNextRound(id)
 	{
 		tournament.status = 'ended';
 		try {
-			const response = await fetch(`http://blockchain:3003/api/blockchain/register`, {
+			const response = await fetch(`http://blockchain:3002/api/blockchain/register`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ tournament })
