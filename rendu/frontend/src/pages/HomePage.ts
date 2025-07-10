@@ -28,6 +28,7 @@ export const HomePage = (): HTMLElement => {
     };
 
     nav.appendChild(createNavLink('Choisir jeu', '/choice-game', 'btn btn-primary'));
+	nav.appendChild(createNavLink('Jouer contre IA', '/game-ai', 'btn btn-secondary'));
     nav.appendChild(createNavLink('Jouer', '/game', 'btn btn-secondary'));
     nav.appendChild(createNavLink('Tournois', '/tournament', 'btn btn-secondary'));
     nav.appendChild(createNavLink('Profil', '/profile', 'btn btn-secondary'));
