@@ -66,6 +66,7 @@ export const ChoiceGamePage = (): HTMLElement => {
 
     if (!socket.connected)
       socket = getSocket();
+
     socket.emit('join', { name: name });
 
     console.log(`redirecting to game with name: ${name}`);

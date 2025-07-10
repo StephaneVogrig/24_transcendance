@@ -24,14 +24,6 @@ export const getSocket = (): Socket => {
             console.log('Central Socket: Déconnecté du serveur Socket.IO !');
         });
     }
-    // if (!socketInstance.connected) {
-    //     socketInstance.connect();
-    //     socketInstance.on('connect', () => {
-    //         console.log('Central Socket: Connecté au serveur Socket.IO !');
-    //         if (playerName)
-    //             socketInstance!.emit('identify_player', { name: playerName });
-    //     });
-    // }
     return socketInstance;
 };
 

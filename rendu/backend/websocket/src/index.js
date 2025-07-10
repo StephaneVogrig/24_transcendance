@@ -20,9 +20,9 @@ const io = new Server(fastify.server, {
     path: '/my-websocket/'
 });
 
-const playerNameToSocketId = new Map();
-const socketIdToPlayerName = new Map();
-const gameSessions = new Map();
+let playerNameToSocketId = new Map();
+let socketIdToPlayerName = new Map();
+let gameSessions = new Map();
 
 fastify.get('/api/websocket', async (request, reply) => { 
   return { message: 'Hello from WebSocket Service!' };
@@ -260,8 +260,8 @@ io.on('connection', async (socket) => {
                     const otherPlayerSocketId = session.player1SocketId === socket.id ? session.player2SocketId : session.player1SocketId;
                     io.to(otherPlayerSocketId).emit('error', { message: `Your opponent ${disconnectedPlayerName} has disconnected.` });
                     clearInterval(session.intervalId);
-                    gameSessions.delete(gameId);
                     io.to(gameId).emit('gameOver', { message: `Game over. Player ${disconnectedPlayerName} has disconnected.` });
+                    gameSessions.delete(gameId);
                 }
             }
         } else {
