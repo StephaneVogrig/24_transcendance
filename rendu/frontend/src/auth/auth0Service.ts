@@ -85,18 +85,19 @@ export const loginWithAuth0 = async (): Promise<void> => {
 /**
  * Gère le callback après authentification
  */
-export const handleAuthCallback = async (): Promise<void> => {
-    try {
-        const client = await initAuth0();
-        await client.handleRedirectCallback();
+export const handleAuthCallback = async (code: string): Promise<void> => {
+    console.log('code: ', code);
+//    try {
+//        const client = await initAuth0();
+//        await client.handleRedirectCallback();
         
         // Rediriger vers la page principale après connexion
-        window.location.replace('/choice-game');
-    } catch (error) {
-        console.error('Erreur lors du callback Auth0:', error);
+//        window.location.replace('/choice-game');
+//    } catch (error) {
+//        console.error('Erreur lors du callback Auth0:', error);
         // Rediriger vers la page de connexion en cas d'erreur
-        window.location.replace('/login');
-    }
+//        window.location.replace('/login');
+//    }
 };
 
 /**

@@ -364,12 +364,10 @@ export const LoginPage = (): HTMLElement => {
         window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' +
             new URLSearchParams({
                 // client_id: 'TON_CLIENT_ID_GOOGLE', 
-                client_id: '60526203696-ormpr20fj2jsdnmsoqp527cua1dsqk5a.apps.googleusercontent.com', 
-                redirect_uri: 'http://localhost:5173', // L'URL de ton appli qui reçoit la réponse
-                response_type: 'token', // ou 'code' si tu fais un flow complet
-                scope: 'email profile',
-                include_granted_scopes: 'true',
-                state: 'state_parameter_passthrough_value'
+                client_id: '316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com', 
+                redirect_uri: 'http://localhost:5173/auth/callback', // L'URL de ton appli qui reçoit la réponse
+                response_type: 'code', // ou 'code' si tu fais un flow complet
+                scope: 'email profile openid',
             }).toString();
     });
 
