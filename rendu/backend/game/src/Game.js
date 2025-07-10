@@ -51,7 +51,8 @@ export class Game {
             });
             
             if (!response.ok) {
-                throw new Error('Failed to start the game');
+                console.error('Failed to start the game:', response.statusText);
+                // throw new Error('Failed to start the game');
             }
         } catch (error) {
             console.error('Error starting the game:', error);

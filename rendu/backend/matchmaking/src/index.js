@@ -41,4 +41,18 @@ fastify.post('/api/matchmaking/join', async (request, reply) => {
   }
 });
 
+fastify.post('/api/matchmaking/leave', async (request, reply) => {
+  const { name } = request.body;
+  console.log(`Received request to leave with name: ${name}`);
+  if (!name) {
+    return reply.status(400).send({ error: 'Player name is required' });
+  }
+  try {
+    PlayerManager.removePlayer(name);
+    return { message: 'Player removed successfully' };
+  } catch (error) {
+    reply.status(400).send({ error: error.message });
+  }
+});
+
 start();

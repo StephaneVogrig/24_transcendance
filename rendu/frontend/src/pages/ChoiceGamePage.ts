@@ -39,17 +39,34 @@ export const ChoiceGamePage = (): HTMLElement => {
 
   buttonContainer.appendChild(createBtn);
   mainDiv.appendChild(buttonContainer);
-
+  let name: string;
   createBtn.addEventListener('click', async () => {
-    const name = input.value.trim();
+    if (name) {
+      console.log(`Leaving the game with name: ${name}`);
+      try {
+        const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/leave`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name })
+        });
+        if (!response.ok) {
+          console.error('Erreur lors de la requête de leave:', response.statusText);
+          throw new Error('Failed to leave the game');
+        }
+        console.log('Successfully left the game');
+      } catch (error) {
+        console.error('Error leaving game:', error);
+      }
+    }
+    name = input.value.trim();
     console.log(`Rejoindre une partie avec le nom: ${name}`);
     try {
-      const socket = getSocket();
+      let socket = getSocket();
       setPlayerName(name);
       
       if (!socket.connected) {
         console.log("Socket not yet connected, waiting for 'connect' event...");
-        const socket = getSocket();
+        socket = getSocket();
       }
 
       socket.emit('join', { name: name });
@@ -115,6 +132,13 @@ function showGameModal() {
     document.body.appendChild(modalOverlay);
 }
 
+let isGameStarted = false;
+
 export function startGame() {
+    if (isGameStarted) {
+        console.log('Game already started, skipping modal display.');
+        return;
+    }
+    isGameStarted = true;
     showGameModal();
 }
