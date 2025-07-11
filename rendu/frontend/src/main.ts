@@ -11,6 +11,7 @@ import { TournamentPage } from './pages/TournamentPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AboutPage } from './pages/AboutPage';
+import { AuthCallbackPage } from './pages/AuthCallbackPage';
 
 addRoute('/', HomePage);
 addRoute('/login', LoginPage);
@@ -21,6 +22,7 @@ addRoute('/tournament', TournamentPage);
 addRoute('/profile', ProfilePage);
 addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
+addRoute('/auth/callback', AuthCallbackPage);
 
 document.addEventListener('DOMContentLoaded', () => {
   startRouter();
