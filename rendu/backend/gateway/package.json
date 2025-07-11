@@ -2,21 +2,18 @@
   "name": "transcendence-gateway",
   "version": "1.0.0",
   "description": "Gateway for Transcendence",
-  "main": "src/server.ts",
+  "main": "src/server.js",
   "type": "module",
-
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node src/server.ts"
+    "dev": "node src/server.js"
   },
-
   "dependencies": {
     "@fastify/cors": "^8.4.0",
     "@fastify/http-proxy": "^9.x.x",
     "fastify": "^4.24.3"
   },
-
   "keywords": ["fastify", "gateway", "pong", "javascript"],
-  "author": "VITE",
+  "author": "Viiiite",
   "license": "MIT"
 }

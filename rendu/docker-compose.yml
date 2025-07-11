@@ -58,6 +58,8 @@ services:
     build: ./backend/matchmaking
     ports:
       - "3005:3005"
+    environment:
+      - HOST_IP=${HOST_IP}
     networks:
       - transcendence-network
 
@@ -72,6 +74,8 @@ services:
     build: ./backend/tournament
     ports:
       - "3007:3007"
+    environment:
+      - HOST_IP=${HOST_IP}
     networks:
       - transcendence-network
 
@@ -79,6 +83,8 @@ services:
     build: ./backend/websocket
     ports:
       - "3008:3008"
+    environment:
+      - HOST_IP=${HOST_IP}
     networks:
       - transcendence-network
 

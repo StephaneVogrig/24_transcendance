@@ -12,6 +12,8 @@ HOST_IP := $(shell hostname -I | tr ' ' '\n' | grep '^10\.' | head -1)
 HOST_IP := $(if $(HOST_IP),$(HOST_IP),$(shell hostname -I | cut -d' ' -f1))
 HOST_IP := $(if $(HOST_IP),$(HOST_IP),localhost)
 
+# *** Rules ********************************************************************
+
 up:
 	@echo "$(GREEN)✅ IP hôte détectée: $(HOST_IP)$(NC)"
 	@HOST_IP=$(HOST_IP) $(DOCKER_COMPOSE) up -d --build
@@ -27,12 +29,15 @@ clean: down
 
 fclean:
 	@echo "$(RED)🔥 Nettoyage complet (volumes et orphelins)...$(NC)"
-	docker system prune -af --volumes --remove-orphans
+	docker system prune -af --volumes
 
 rebuild: down clean up
 
+# ******************************************************************************
+
 .PHONY:	up \
 		down \
+		reboot \
 		clean \
 		fclean \
-		re
+		rebuild

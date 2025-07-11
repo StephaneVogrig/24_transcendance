@@ -4,16 +4,25 @@ import cors from '@fastify/cors';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.11.5.5:5173`;
+
+const HOST_IP = process.env.HOST_IP;
+const HOST_ADRESS = `http://${HOST_IP}:5173`;
+
 fastify.register(cors, {
-    origin: clientOrigin,
+    origin: [
+        HOST_ADRESS,
+        'http://localhost:5173'
+    ],
     methods: ['GET', 'POST'],
     credentials: true
 });
 
 const io = new Server(fastify.server, {
     cors: {
-        origin: clientOrigin,
+        origin: [
+            HOST_ADRESS,
+            'http://localhost:5173'
+        ],
         methods: ['GET', 'POST'],
         credentials: true
     },

@@ -4,18 +4,15 @@
   "description": "Matchmaking service for Transcendance",
   "main": "src/index.js",
   "type": "module",
-
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node src/index.js",
     "dev": "node src/index.js"
   },
-
   "dependencies": {
     "fastify": "^4.24.3",
 	  "@fastify/cors": "^8.4.0"
   },
-
   "keywords": [],
-  "author": "VITE",
+  "author": "Viiiite",
   "license": "ISC"
 }
