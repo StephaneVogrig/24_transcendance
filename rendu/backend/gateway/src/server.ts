@@ -40,56 +40,64 @@ fastify.get('/api/game/info', async (request, reply) => {
   };
 });
 
-// Proxy pour les services
-
-fastify.register(proxy, {
-  upstream: AUTH_SERVICE_BASE_URL,
-  prefix: '/api/auth'
-});
-
-fastify.register(proxy, {
-  upstream: BLOCKCHAIN_SERVICE_BASE_URL,
-  prefix: '/api/blockchain'
-});
-
-fastify.register(proxy, {
-  upstream: DATABASE_SERVICE_BASE_URL,
-  prefix: '/api/database'
-});
-
-fastify.register(proxy, {
-  upstream: GAME_SERVICE_BASE_URL,
-  prefix: '/api/game'
-});
-
-fastify.register(proxy, {
-  upstream: MATCHMAKING_SERVICE_BASE_URL,
-  prefix: '/api/matchmaking'
-});
-
-fastify.register(proxy, {
-  upstream: SCORES_SERVICE_BASE_URL,
-  prefix: '/api/scores'
-});
-
-fastify.register(proxy, {
-  upstream: TOURNAMENT_SERVICE_BASE_URL,
-  prefix: '/api/tournament'
-});
-
-fastify.register(proxy, {
-  upstream: WEBSOCKET_SERVICE_BASE_URL,
-  prefix: '/api/websocket',
-  websocket: true
-});
-
 const start = async (): Promise<void> => {
   try {
+    // Enregistrer les proxies pour les services
+    await fastify.register(proxy, {
+      upstream: AUTH_SERVICE_BASE_URL,
+      prefix: '/api/auth'
+    });
+
+    await fastify.register(proxy, {
+      upstream: BLOCKCHAIN_SERVICE_BASE_URL,
+      prefix: '/api/blockchain'
+    });
+
+    await fastify.register(proxy, {
+      upstream: DATABASE_SERVICE_BASE_URL,
+      prefix: '/api/database'
+    });
+
+    await fastify.register(proxy, {
+      upstream: GAME_SERVICE_BASE_URL,
+      prefix: '/api/game'
+    });
+
+    await fastify.register(proxy, {
+      upstream: MATCHMAKING_SERVICE_BASE_URL,
+      prefix: '/api/matchmaking'
+    });
+
+    await fastify.register(proxy, {
+      upstream: SCORES_SERVICE_BASE_URL,
+      prefix: '/api/scores'
+    });
+
+    await fastify.register(proxy, {
+      upstream: TOURNAMENT_SERVICE_BASE_URL,
+      prefix: '/api/tournament'
+    });
+
+    await fastify.register(proxy, {
+      upstream: WEBSOCKET_SERVICE_BASE_URL,
+      prefix: '/api/websocket',
+      websocket: true
+    });
+
     await fastify.listen({ 
       port: 3000, 
       host: '0.0.0.0' 
     });
     console.log('🚀 Gateway démarré sur http://localhost:3000');
+    console.log('📋 Proxies configurés:');
+    console.log('  - /api/auth -> ' + AUTH_SERVICE_BASE_URL);
+    console.log('  - /api/blockchain -> ' + BLOCKCHAIN_SERVICE_BASE_URL);
+    console.log('  - /api/database -> ' + DATABASE_SERVICE_BASE_URL);
+    console.log('  - /api/game -> ' + GAME_SERVICE_BASE_URL);
+    console.log('  - /api/matchmaking -> ' + MATCHMAKING_SERVICE_BASE_URL);
+    console.log('  - /api/scores -> ' + SCORES_SERVICE_BASE_URL);
+    console.log('  - /api/tournament -> ' + TOURNAMENT_SERVICE_BASE_URL);
+    console.log('  - /api/websocket -> ' + WEBSOCKET_SERVICE_BASE_URL);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

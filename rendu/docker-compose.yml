@@ -83,7 +83,9 @@ services:
       - transcendence-network
 
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
     ports:
       - "8443:443"
       - "8080:80"
