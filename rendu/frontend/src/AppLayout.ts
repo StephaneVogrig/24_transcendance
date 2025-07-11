@@ -40,17 +40,7 @@ export class AppLayout {
 	}
 
 	public updateContent(content: HTMLElement): void {
-		 // Transition fluide
-        // this.contentLayer.style.opacity = '0';
-        // this.contentLayer.style.transition = 'opacity 0.2s ease-in-out';
-		this.contentLayer.innerHTML = '';
-		this.contentLayer.appendChild(content);
+        this.contentLayer.replaceChildren(content);
 		this.contentLayer.style.opacity = '1';
-        // setTimeout(() => {
-        //     // Vider seulement le contenu, pas tout le layout
-        //     this.contentLayer.innerHTML = '';
-        //     this.contentLayer.appendChild(content);
-        //     this.contentLayer.style.opacity = '1';
-        // }, 100);
 	}
 }
