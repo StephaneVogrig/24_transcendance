@@ -38,13 +38,13 @@ fastify.get('/api/websocket', async (request, reply) => {
   return { message: 'Hello from WebSocket Service!' };
 });
 
-async function waitForRedirectAcceptance(playerName, timeout = 15000) {
+async function waitForRedirectAcceptance(playerName, timeout = 60000) {
     return new Promise((resolve, reject) => {
         pendingRedirectAcceptances.set(playerName, { resolve, reject });
 
         const timer = setTimeout(() => {
             if (pendingRedirectAcceptances.has(playerName)) {
-                pendingRedirectAcceptances.delete(playerName); // Nettoie la map
+                pendingRedirectAcceptances.delete(playerName);
                 console.warn(`Redirect acceptance for player ${playerName} timed out.`);
                 reject(new Error('Redirect acceptance timed out.'));
             }

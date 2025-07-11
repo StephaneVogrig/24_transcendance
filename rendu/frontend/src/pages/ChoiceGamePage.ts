@@ -82,7 +82,7 @@ export const ChoiceGamePage = (): HTMLElement => {
     console.log(`redirecting to game with name: ${name}`);
     socket.on('redirect', (data: { gameId: string, playerName: string }) => {
         console.log(`ChoiceGamePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-        startGame();
+        startGame(data.gameId);
     });
 
 
@@ -107,22 +107,22 @@ export const ChoiceGamePage = (): HTMLElement => {
   return contentDiv;
 };
 
-function showGameModal() {
+function showGameModal(gameId: string) {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
     modalOverlay.id = 'gameOverModalOverlay';
     
     const modalContent = document.createElement('div');
-    modalContent.className = 'bg-white p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
-    
+    modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+
     const title = document.createElement('h2');
-    title.className = 'text-5xl font-extrabold text-red-600 mb-4 tracking-wide';
+    title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
     title.textContent = 'game found !';
     modalContent.appendChild(title);
     
     const message = document.createElement('p');
-    message.className = 'text-2xl text-gray-800 font-medium';
-    message.textContent = 'Thanks for waiting! Your game is starting now.';
+    message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
+    message.textContent = 'Thanks for waiting! Find your opponent and start the game between ' + gameId + ' !';
     modalContent.appendChild(message);
 
     const homeLink = document.createElement('a');
@@ -147,11 +147,11 @@ function showGameModal() {
 
 let isGameStarted = false;
 
-export function startGame() {
+export function startGame(gameId: string) {
     if (isGameStarted) {
         console.log('Game already started, skipping modal display.');
         return;
     }
     isGameStarted = true;
-    showGameModal();
+    showGameModal(gameId);
 }
