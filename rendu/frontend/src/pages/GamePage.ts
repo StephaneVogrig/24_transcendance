@@ -1,4 +1,4 @@
-import { startBabylonScene } from '../3d/main3d';
+import { startBabylonGame } from '../3d/main3d';
 import { navigate } from '../router';
 
 export const GamePage = (): HTMLElement => {
@@ -49,7 +49,7 @@ export const GamePage = (): HTMLElement => {
         updateScores(0, 0);
         const canvasElement = document.getElementById('renderCanvas') as HTMLCanvasElement;
         if (canvasElement) {
-            startBabylonScene(canvasElement);
+            startBabylonGame(canvasElement);
         } else {
             console.error("Canvas element not found for Babylon.js initialization.");
         }

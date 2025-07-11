@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
-import { updateBallAndPlatforms } from './scenes/scene1';
+import { updateBallAndPlatforms } from './scenes/sceneGame';
 import { updateScores, gameOver } from '../pages/GamePage';
-import { teamPing } from './scenes/scene1';
+import { teamPing } from './scenes/sceneGame';
 import { getSocket, getPlayerName } from '../websocket/websocket';
 
 

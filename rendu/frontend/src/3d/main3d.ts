@@ -1,11 +1,10 @@
 import { Engine } from '@babylonjs/core';
-import { createScene } from './scenes/scene1';
+import { createSceneGame, resetVariables } from './scenes/sceneGame';
 import { InputManager } from './inputManager';
-import { resetVariables } from './scenes/scene1';
 
 // console.log("Initializing Babylon.js scene...");
 
-export const startBabylonScene = (canvas: HTMLCanvasElement) => {
+export const startBabylonGame = (canvas: HTMLCanvasElement) => {
     if (!canvas) {
         console.error("Canvas element is null or not found.");
         return;
@@ -16,7 +15,7 @@ export const startBabylonScene = (canvas: HTMLCanvasElement) => {
 
     resetVariables();
 
-    createScene(engine, canvas).then(scene => {
+    createSceneGame(engine, canvas).then(scene => {
         engine.runRenderLoop(function () {
             scene.render();
         });

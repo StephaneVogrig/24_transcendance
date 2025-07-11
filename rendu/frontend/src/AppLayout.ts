@@ -1,4 +1,4 @@
-import { createSky } from './3d/skybox';
+import { createSky } from './3d/bakcground';
 
 export class AppLayout {
 	private static instance: AppLayout;
