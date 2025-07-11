@@ -1,7 +1,13 @@
 import { startBabylonGame } from '../3d/main3d';
 import { navigate } from '../router';
 
+let cachedGamePage: HTMLElement | null = null;
+
 export const GamePage = (): HTMLElement => {
+
+	if (cachedGamePage) {
+		return cachedGamePage;
+	}
     const mainDiv = document.createElement('div');
     mainDiv.className = 'min-h-screen flex items-center justify-center';
 
@@ -36,7 +42,7 @@ export const GamePage = (): HTMLElement => {
     gameContainer.appendChild(scoreParagraph);
 
     const canvas = document.createElement('canvas');
-    canvas.id = 'renderCanvas';
+    canvas.id = 'gameCanvas';
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     canvas.style.display = 'block';
@@ -47,7 +53,7 @@ export const GamePage = (): HTMLElement => {
 
     setTimeout(() => {
         updateScores(0, 0);
-        const canvasElement = document.getElementById('renderCanvas') as HTMLCanvasElement;
+        const canvasElement = document.getElementById('gameCanvas') as HTMLCanvasElement;
         if (canvasElement) {
             startBabylonGame(canvasElement);
         } else {
@@ -55,6 +61,7 @@ export const GamePage = (): HTMLElement => {
         }
     }, 0);
     
+	cachedGamePage = mainDiv;
     return mainDiv;
 };
 
@@ -144,4 +151,3 @@ export function updateScores(player1Score: number, player2Score: number) {
         console.error("Score paragraph element not found.");
     }
 }
-
