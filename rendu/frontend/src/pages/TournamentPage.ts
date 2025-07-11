@@ -1,10 +1,11 @@
 import { getSocket, setPlayerName } from '../websocket/websocket';
 import { startGame } from './ChoiceGamePage.ts';
+import { navigate } from '../router'
 
 export const TournamentPage = (): HTMLElement => {
   // Main container
   const mainDiv = document.createElement('div');
-  mainDiv.className = 'min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white';
+  mainDiv.className = 'flex flex-col items-center';
 
   // Title
   const h1 = document.createElement('h1');
@@ -35,6 +36,13 @@ export const TournamentPage = (): HTMLElement => {
   const createBtn = createButton('Créer un tournoi', '/tournament/create', 'bg-blue-600 hover:bg-blue-700');
   const joinBtn = createButton('Rejoindre un tournoi', '/tournament/join', 'bg-green-600 hover:bg-green-700');
 
+  // bouton retour a l'accueil
+  const returnHome = createButton('Retour a l\'accueil', '/', 'bg-yellow-600 hover:bg-green-700');
+  returnHome.addEventListener('click', async () => {
+	navigate('/');
+  })
+
+
   // Initially disable buttons since input is empty
   createBtn.disabled = true;
   joinBtn.disabled = true;
@@ -48,6 +56,7 @@ export const TournamentPage = (): HTMLElement => {
 
   buttonContainer.appendChild(createBtn);
   buttonContainer.appendChild(joinBtn);
+  buttonContainer.appendChild(returnHome);
   mainDiv.appendChild(buttonContainer);
 
    // Handle POST request on "Créer un tournoi"

@@ -3,58 +3,67 @@ import { navigate } from '../router';
 
 export const ChoiceGamePage = (): HTMLElement => {
 
-  const mainDiv = document.createElement('div');
-  mainDiv.className = 'min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white';
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'flex flex-col items-center';
 
-  const h1 = document.createElement('h1');
-  h1.className = 'text-6xl font-bold mb-8 animate-bounce';
-  h1.textContent = 'Matchmaking Pong 🔥';
-  mainDiv.appendChild(h1);
+    // Titre
+    const h1 = document.createElement('h1');
+    h1.className = 'text-6xl font-bold mb-8 animate-bounce';
+    h1.textContent = 'Matchmaking Pong 🔥';
+    contentDiv.appendChild(h1);
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = 'Entrez votre nom...';
-  input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-80 focus:outline-none';
-  mainDiv.appendChild(input);
+    // Champ nom
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Entrez votre nom...';
+    input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-80 focus:outline-none';
+    contentDiv.appendChild(input);
 
-  const buttonContainer = document.createElement('div');
-  buttonContainer.className = 'flex flex-col space-y-4';
+    // Bouton
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'flex flex-col space-y-4';
+    const createButton = (text: string, className: string): HTMLButtonElement => {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.className = `${className} px-6 py-3 rounded-xl text-lg font-semibold shadow-md transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`;
+        return button;
+    };
 
-  const createButton = (text: string, className: string): HTMLButtonElement => {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.className = `${className} px-6 py-3 rounded-xl text-lg font-semibold shadow-md transition-transform transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`;
-    return button;
-  };
+    const createBtn = createButton('Rejoindre une partie', 'bg-blue-600 hover:bg-blue-700');
+    createBtn.disabled = true;
 
-  const createBtn = createButton('Rejoindre une partie', 'bg-blue-600 hover:bg-blue-700');
+    input.addEventListener('input', () => {
+        const isEmpty = input.value.trim().length < 3;
+        createBtn.disabled = isEmpty;
+    });
 
-  createBtn.disabled = true;
+    buttonContainer.appendChild(createBtn);
+    contentDiv.appendChild(buttonContainer);
 
-  input.addEventListener('input', () => {
-    const isEmpty = input.value.trim().length < 3;
-    createBtn.disabled = isEmpty;
-  });
+	// bouton retour a l'accueil
+	const returnHome = createButton('Retour a l\'accueil', '/');
+	returnHome.addEventListener('click', async () => {
+	navigate('/');
+	})
+	contentDiv.appendChild(returnHome);
 
-  buttonContainer.appendChild(createBtn);
-  mainDiv.appendChild(buttonContainer);
-  let name: string;
-  createBtn.addEventListener('click', async () => {
+    let name: string;
+    createBtn.addEventListener('click', async () => {
     if (name) {
-      console.log(`Leaving the game with name: ${name}`);
-      try {
+        console.log(`Leaving the game with name: ${name}`);
+        try {
         const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/leave`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name })
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
         });
         if (!response.ok) {
-          console.error('Erreur lors de la requête de leave:', response.statusText);
+            console.error('Erreur lors de la requête de leave:', response.statusText);
         }
         console.log('Successfully left the game');
-      } catch (error) {
+        } catch (error) {
         console.error('Error leaving game:', error);
-      }
+        }
     }
     isGameStarted = false;
     console.log('isGameStarted set to :', isGameStarted);
@@ -65,36 +74,36 @@ export const ChoiceGamePage = (): HTMLElement => {
     setPlayerName(name);
 
     if (!socket.connected)
-      socket = getSocket();
+        socket = getSocket();
 
     socket.emit('join', { name: name });
 
     console.log(`redirecting to game with name: ${name}`);
     socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-      console.log(`ChoiceGamePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-      startGame();
+        console.log(`ChoiceGamePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+        startGame();
     });
 
 
     try {
-      console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
-      const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name })
-      });
+        console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
+        const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
+        });
 
-      if (!response.ok) {
-        console.error('Erreur lors de la requête de matchmaking:', response.statusText);
-        throw new Error('Failed to join the game');
-      }
+        if (!response.ok) {
+            console.error('Erreur lors de la requête de matchmaking:', response.statusText);
+            throw new Error('Failed to join the game');
+        }
 
     } catch (error) {
       alert(`Erreur lors de la création: ${(error as Error).message}`);
     }
   });
 
-  return mainDiv;
+  return contentDiv;
 };
 
 function showGameModal() {
@@ -114,8 +123,7 @@ function showGameModal() {
     message.className = 'text-2xl text-gray-800 font-medium';
     message.textContent = 'Thanks for waiting! Your game is starting now.';
     modalContent.appendChild(message);
-    
-    
+
     const homeLink = document.createElement('a');
     homeLink.href = '#';
     homeLink.setAttribute('data-route', '/game');
@@ -130,7 +138,6 @@ function showGameModal() {
         navigate('/game');
     });
 
-    
     modalContent.appendChild(homeLink);
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
