@@ -32,10 +32,27 @@ const io = new Server(fastify.server, {
 let playerNameToSocketId = new Map();
 let socketIdToPlayerName = new Map();
 let gameSessions = new Map();
+let pendingRedirectAcceptances = new Map();
 
 fastify.get('/api/websocket', async (request, reply) => { 
   return { message: 'Hello from WebSocket Service!' };
 });
+
+async function waitForRedirectAcceptance(playerName, timeout = 15000) {
+    return new Promise((resolve, reject) => {
+        pendingRedirectAcceptances.set(playerName, { resolve, reject });
+
+        const timer = setTimeout(() => {
+            if (pendingRedirectAcceptances.has(playerName)) {
+                pendingRedirectAcceptances.delete(playerName); // Nettoie la map
+                console.warn(`Redirect acceptance for player ${playerName} timed out.`);
+                reject(new Error('Redirect acceptance timed out.'));
+            }
+        }, timeout);
+
+        pendingRedirectAcceptances.get(playerName).cleanUp = () => clearTimeout(timer);
+    });
+}
 
 fastify.post('/api/websocket/redirect', async (request, reply) => {
     const { name, gameId } = request.body;
@@ -50,7 +67,8 @@ fastify.post('/api/websocket/redirect', async (request, reply) => {
     }
     console.log(`Redirecting player ${name} with socket ID ${socketId} to game ${gameId}`);
     
-    io.to(socketId).emit('redirect', { gameId: gameId, playerName: name }); 
+    io.to(socketId).emit('redirect', { gameId: gameId, playerName: name });
+    await waitForRedirectAcceptance(name);
     return reply.status(200).send({ message: `Player ${name} redirected to game ${gameId}` });
 });
 
@@ -231,6 +249,7 @@ function stopGame(playerName) {
 
 io.on('connection', async (socket) => {
     console.log(`Socket connected: ${socket.id}`);
+    socket.data.status = 'connected';
 
     socket.on('join', async (data) => {
         const name = data.name;
@@ -280,12 +299,38 @@ io.on('connection', async (socket) => {
         sendInput(playerName, data.key, 'keyup');
     });
 
+    socket.on('acceptGame', async () => {
+        const playerName = socket.data.playerName;
+
+        if (!playerName) {
+            console.error(`acceptGame from unidentified socket: ${socket.id}`);
+            return;
+        }
+        console.log(`Player ${playerName} accepted the game`);
+        if (pendingRedirectAcceptances.has(playerName)) {
+            const { resolve, cleanUp } = pendingRedirectAcceptances.get(playerName);
+            pendingRedirectAcceptances.delete(playerName);
+            resolve();
+            if (cleanUp) cleanUp();
+            console.log(`Redirect acceptance for player ${playerName} resolved.`);
+        } else {
+            console.warn(`Player ${playerName} accepted game but no pending redirect acceptance was found.`);
+        }
+        console.log(`Player ${playerName} status set to 'in-game' after accepting game.`);
+    });
+
     socket.on('disconnect', () => {
         const disconnectedPlayerName = socketIdToPlayerName.get(socket.id);
         if (disconnectedPlayerName) {
             console.log(`Player ${disconnectedPlayerName} (socket ID: ${socket.id}) disconnected.`);
             playerNameToSocketId.delete(disconnectedPlayerName);
             socketIdToPlayerName.delete(socket.id);
+            if (pendingRedirectAcceptances.has(disconnectedPlayerName)) {
+                const { reject, cleanUp } = pendingRedirectAcceptances.get(disconnectedPlayerName);
+                pendingRedirectAcceptances.delete(disconnectedPlayerName);
+                if (cleanUp) cleanUp();
+                console.warn(`Redirect acceptance for player ${disconnectedPlayerName} rejected due to disconnect.`);
+            }
             for (const [gameId, session] of gameSessions.entries()) {
                 if (session.player1SocketId === socket.id || session.player2SocketId === socket.id) {
                     console.log(`Player ${disconnectedPlayerName} was in game ${gameId}. Notifying other player.`);

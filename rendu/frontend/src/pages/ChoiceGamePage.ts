@@ -1,6 +1,8 @@
 import { getSocket, setPlayerName } from '../websocket/websocket';
 import { navigate } from '../router';
 
+let socket = getSocket();
+
 export const ChoiceGamePage = (): HTMLElement => {
 
     const contentDiv = document.createElement('div');
@@ -69,7 +71,6 @@ export const ChoiceGamePage = (): HTMLElement => {
     console.log('isGameStarted set to :', isGameStarted);
     name = input.value.trim();
     console.log(`Rejoindre une partie avec le nom: ${name}`);
-    let socket = getSocket();
 
     setPlayerName(name);
 
@@ -135,6 +136,7 @@ function showGameModal() {
         console.log('isGameStarted set to :', isGameStarted);
         event.preventDefault();
         modalOverlay.remove(); 
+        socket.emit('acceptGame');
         navigate('/game');
     });
 

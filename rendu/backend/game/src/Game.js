@@ -7,6 +7,8 @@ export class Game {
     constructor( { player1, player2, gameId }) {
 		this.player1 = new Player(player1, 'left');
         this.player2 = new Player(player2, 'right');
+        this.player1ready = false;
+        this.player2ready = false;
         this.ball = new Ball.Ball([this.player1, this.player2]);
         this.gameId = gameId;
         this.stopBoolean = false;
@@ -65,11 +67,20 @@ export class Game {
     {
         try {
             console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
-            await this.redirectPlayer(this.player1.getName());
+            const [player1RedirectStatus, player2RedirectStatus] = await Promise.all([
+                this.redirectPlayer(this.player1.getName()),
+                this.redirectPlayer(this.player2.getName())
+            ]);
             console.log(`motclefpourlegrep`);
-            await this.redirectPlayer(this.player2.getName());
             console.log(`motclefpourlegrep`);
+
+            let i = 0;
             this.sendStart();
+            while (i < 3) {
+                await new Promise(r => setTimeout(r, 1000));
+                i++;
+                console.log(`Game starting in ${3 - i} seconds...`);
+            }
 
             const loop = () => {
                 if (this.stopBoolean) {
