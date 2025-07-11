@@ -1,4 +1,4 @@
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { updateBallAndPlatforms } from './scenes/sceneGame';
 import { updateScores, gameOver } from '../pages/GamePage';
 import { teamPing } from './scenes/sceneGame';
@@ -19,9 +19,9 @@ export class InputManager {
 	}
 
 	private init() {
-		this.socket.on('message', (data) => {
-			// console.log(`Message from server: ${data}`);
-		});
+		// this.socket.on('message', (data) => {
+		// 	console.log(`Message from server: ${data}`);
+		// });
 
 		this.socket.on('updatePositions', (data: { ball: { x: number, y: number, z: number }, platform1: { x: number, y: number, z: number }, platform2: { x: number, y: number, z: number } }) => {
 			// console.log('Received position update:', data);
@@ -31,8 +31,7 @@ export class InputManager {
 			// console.log('Score update received:', data);
 			updateScores(data.player1Score, data.player2Score);
 		});
-		this.socket.on('gameOver', (data) => {
-			// console.log('Score update received:', data);
+		this.socket.on('gameOver', () => {
 			gameOver();
 		});
 
