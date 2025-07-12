@@ -4,6 +4,7 @@ import { updateScores, gameOver } from '../pages/GamePage';
 import { teamPing } from './scenes/sceneGame';
 import { gameStatusUpdate } from '../pages/GamePage';
 import { getSocket, getPlayerName } from '../websocket/websocket';
+import { navigate } from '../router';
 
 
 export class InputManager {
@@ -17,6 +18,16 @@ export class InputManager {
 		this.socket = getSocket();
 		this.init();
 		console.log("InputManager initialized");
+	}
+
+	public setHomeLink(homeLink: HTMLAnchorElement) {
+		homeLink.addEventListener('click', (event) => {
+			event.preventDefault();
+			if (this.socket) {
+				this.socket.disconnect();
+			}
+			navigate('/choice-game');
+		});
 	}
 
 	private init() {

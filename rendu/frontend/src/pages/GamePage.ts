@@ -1,4 +1,4 @@
-import { startBabylonGame, BabylonGame } from '../3d/main3d';
+import { BabylonGame } from '../3d/main3d';
 import { navigate } from '../router';
 
 let cachedGamePage: HTMLElement | null = null;
@@ -14,14 +14,6 @@ export const GamePage = (): HTMLElement => {
    const cardDiv = document.createElement('div');
     cardDiv.className = ' shadow-xl text-center max-w-full w-full h-[100vh] flex items-center justify-center relative overflow-hidden'; // Exemple: s'adapte à la hauteur de la fenêtre avec overflow hidden
     mainDiv.appendChild(cardDiv);
-
-    const homeLink = document.createElement('a');
-    homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
-    homeLink.textContent = 'Home';
-    homeLink.addEventListener('click', () => {
-        navigate('/choice-game');
-    });
-    mainDiv.appendChild(homeLink);
 
     const gameContainer = document.createElement('div');
     gameContainer.style.width = '100%';
@@ -57,15 +49,21 @@ export const GamePage = (): HTMLElement => {
 
     cardDiv.appendChild(gameContainer);
 
+    const homeLink = document.createElement('a');
+    homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Exit Game';
+
     setTimeout(() => {
         updateScores(0, 0);
         if (canvas) {
             const babylonGame = BabylonGame.getInstance();
             babylonGame.initialize(canvas);
+            babylonGame.setHomeLink(homeLink);
         } else {
             console.error("Canvas element not found for Babylon.js initialization.");
         }
     }, 0);
+    mainDiv.appendChild(homeLink);
     
     cachedGamePage = mainDiv;
     return mainDiv;
