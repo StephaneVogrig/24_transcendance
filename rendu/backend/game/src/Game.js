@@ -1,12 +1,14 @@
 import * as Paddle from './Paddle.js';
 import * as Ball from './Ball.js';
 import { Player } from './Player.js';
+import { stopMatch } from './gameManager.js';
 
 export class Game {
 
     constructor( { player1, player2, gameId }) {
 		this.player1 = new Player(player1, 'left');
         this.player2 = new Player(player2, 'right');
+        this.maxScore = 5;
         this.player1ready = false;
         this.player2ready = false;
         this.ball = new Ball.Ball([this.player1, this.player2]);
@@ -91,10 +93,15 @@ export class Game {
 
             this.gameStatus = 'started';
 
-            const loop = () => {
+            const loop = async () => {
                 if (this.stopBoolean) {
                     console.log('Game loop stopped');
                     return;
+                }
+                if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
+                    this.gameStatus = 'finished';
+                    await new Promise(r => setTimeout(r, 1000));
+                    stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();
                 this.player2.inputManager();

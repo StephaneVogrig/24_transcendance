@@ -75,8 +75,14 @@ export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: numbe
     // console.log("Positions updated:");
 }
 
-export function teamPing() {
-    mirror = -1;
-    platform1.rotation.x = Math.PI / 2;
-    platform2.rotation.x = Math.PI / -2;
+export function teamPing(direction: number) {
+    if (direction === -1) {
+        mirror = -1;
+        platform1.rotation.x = Math.PI / 2;
+        platform2.rotation.x = Math.PI / -2;
+    } else {
+        mirror = 1;
+        platform1.rotation.x = Math.PI / -2;
+        platform2.rotation.x = Math.PI / 2;
+    }
 }

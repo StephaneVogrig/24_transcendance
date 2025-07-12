@@ -193,10 +193,11 @@ async function getstate(gameId, player) {
             }
             if (gameState.player1.name === player) {
                 const player1SocketId = playerNameToSocketId.get(player); 
-                if (player1SocketId) {
-                    console.debug(`state: Emitting teamPing to left team for player: ${player} (socketId: ${player1SocketId})`);
-                    io.to(player1SocketId).emit('teamPing');
-                }
+                if (player1SocketId)
+                    io.to(player1SocketId).emit('teamPing', { team: 'left' });
+                const player2SocketId = playerNameToSocketId.get(gameState.player2.name);
+                if (player2SocketId)
+                    io.to(player2SocketId).emit('teamPing', { team: 'right' });
             }
             if (ballPos && platform1Pos && platform2Pos) {
                 io.to(gameId).emit('updatePositions', {
@@ -217,6 +218,15 @@ async function getstate(gameId, player) {
                 io.to(gameId).emit('gameStatusUpdate', {
                     gameStatus: gameState.gameStatus
                 });
+                if (gameState.gameStatus === 'finished') {
+                    console.log(`Game ${gameId} finished. Stopping game loop.`);
+                    const session = gameSessions.get(gameId);
+                    if (session) {
+                        clearInterval(session.intervalId);
+                        gameSessions.delete(gameId);
+                        console.log(`Game session ${gameId} cleared from memory.`);
+                    }
+                }
             }
             return responseData.gameState;
         } else {

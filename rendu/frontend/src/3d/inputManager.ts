@@ -36,9 +36,13 @@ export class InputManager {
 			gameOver();
 		});
 
-		this.socket.on('teamPing', () => {
-			// console.debug(`Received team ping for team`);
-			teamPing();
+		this.socket.on('teamPing', (data: { team: string }) => {
+			// console.debug(`Received team ping for team: ${data.team}`);
+			if (data.team === 'left') {
+				teamPing(-1);
+			} else if (data.team === 'right') {
+				teamPing(1);
+			}
 		});
 
 		let gameStatus = '';
