@@ -7,7 +7,15 @@ export const AuthCallbackPage = (_pathParams?: Record<string, string>, queryPara
     // Gérer le callback Auth0
     const processCallback = async () => {
         try {
-            const code = queryParams?.code;
+            // Extraire le code depuis l'URL directement pour éviter les problèmes d'encodage
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code') || queryParams?.code;
+
+            console.log("URL complète:", window.location.href);
+            console.log("Query string:", window.location.search);
+            console.log("Code depuis URLSearchParams:", urlParams.get('code'));
+            console.log("Code depuis queryParams:", queryParams?.code);
+            console.log("Code final utilisé:", code);
 
             if (code) {
                 console.log("Code d'authentification reçu :", code);
