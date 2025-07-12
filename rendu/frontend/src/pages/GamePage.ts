@@ -41,6 +41,12 @@ export const GamePage = (): HTMLElement => {
     scoreParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 ';
     gameContainer.appendChild(scoreParagraph);
 
+    const statusParagraph = document.createElement('p');
+    statusParagraph.id = 'gameStatusDisplay';
+    statusParagraph.textContent = 'Game Status: Ready';
+    statusParagraph.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-semibold text-orange-500 z-10';
+    gameContainer.appendChild(statusParagraph);
+
     const canvas = document.createElement('canvas');
     canvas.id = 'gameCanvas';
     canvas.style.width = '100%';
@@ -49,7 +55,6 @@ export const GamePage = (): HTMLElement => {
     gameContainer.appendChild(canvas);
 
     cardDiv.appendChild(gameContainer);
-    // mainDiv.appendChild(gameContainer);
 
     setTimeout(() => {
         updateScores(0, 0);
@@ -149,5 +154,48 @@ export function updateScores(player1Score: number, player2Score: number) {
     }
     else {
         console.error("Score paragraph element not found.");
+    }
+}
+
+export function gameStatusUpdate(status: string) {
+    console.log(`Game status updated: ${status}`);
+    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+
+    if (statusElement) {
+        let displayStatus = '';
+        let baseColor = '#FFFFFF';
+        let glowColor = 'rgba(255, 255, 255, 0.7)';
+
+        if (status === 'ready') {
+            displayStatus = 'Ready ?';
+            baseColor = '#4299E1';
+            glowColor = 'rgba(124, 255, 253, 0.7)';
+        } else if (status === 'started') {
+            displayStatus = '';
+        } else if (status === 'waiting') {
+            displayStatus = 'Waiting for Players';
+            baseColor = '#F6AD55';
+            glowColor = 'rgba(255, 140, 0, 0.7)';
+        } else if (status === '3' || status === '2' || status === '1') {
+            displayStatus = status;
+            baseColor = '#4299E1';
+            glowColor = 'rgba(124, 255, 253, 0.7)';
+        } else if ( status === '0') {
+            displayStatus = 'GO !';
+            baseColor = '#F6AD55';
+            glowColor = 'rgba(255, 140, 0, 0.7)';
+        }
+
+
+        let coloredHtml = '';
+        if (displayStatus) {
+            for (let i = 0; i < displayStatus.length; i++) {
+                const char = displayStatus[i];
+                coloredHtml += `<span style="color: ${baseColor}; text-shadow: 0 0 10px ${glowColor};">${char}</span>`;
+            }
+        }
+        statusElement.innerHTML = coloredHtml;
+    } else {
+        console.error("Status element not found.");
     }
 }

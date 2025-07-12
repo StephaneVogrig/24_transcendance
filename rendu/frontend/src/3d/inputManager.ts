@@ -2,6 +2,7 @@ import { Socket } from "socket.io-client";
 import { updateBallAndPlatforms } from './scenes/sceneGame';
 import { updateScores, gameOver } from '../pages/GamePage';
 import { teamPing } from './scenes/sceneGame';
+import { gameStatusUpdate } from '../pages/GamePage';
 import { getSocket, getPlayerName } from '../websocket/websocket';
 
 
@@ -38,6 +39,15 @@ export class InputManager {
 		this.socket.on('teamPing', () => {
 			// console.debug(`Received team ping for team`);
 			teamPing();
+		});
+
+		let gameStatus = '';
+
+		this.socket.on('gameStatusUpdate', (data: { gameStatus: string }) => {
+			if (gameStatus != data.gameStatus || data.gameStatus === 'waiting') {
+				gameStatus = data.gameStatus;
+				gameStatusUpdate(gameStatus);
+			}
 		});
 
 		window.addEventListener("popstate", (event) => {

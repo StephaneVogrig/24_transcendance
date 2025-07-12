@@ -213,6 +213,11 @@ async function getstate(gameId, player) {
                     player2Score: player2Score
                 });
             }
+            if (gameState.gameStatus) {
+                io.to(gameId).emit('gameStatusUpdate', {
+                    gameStatus: gameState.gameStatus
+                });
+            }
             return responseData.gameState;
         } else {
             return null;

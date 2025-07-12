@@ -12,6 +12,7 @@ export class Game {
         this.ball = new Ball.Ball([this.player1, this.player2]);
         this.gameId = gameId;
         this.stopBoolean = false;
+        this.gameStatus = 'waiting';
         this.start();
     }
 
@@ -55,7 +56,6 @@ export class Game {
             
             if (!response.ok) {
                 console.error('Failed to start the game:', response.statusText);
-                // throw new Error('Failed to start the game');
             }
         } catch (error) {
             console.error('Error starting the game:', error);
@@ -66,21 +66,30 @@ export class Game {
     async start()
     {
         try {
+            this.sendStart();
             console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
             const [player1RedirectStatus, player2RedirectStatus] = await Promise.all([
                 this.redirectPlayer(this.player1.getName()),
                 this.redirectPlayer(this.player2.getName())
             ]);
+            if (!player1RedirectStatus || !player2RedirectStatus) {
+                return console.error('Failed to redirect players');
+            }
+
+            this.gameStatus = 'ready';
+
             console.log(`motclefpourlegrep`);
             console.log(`motclefpourlegrep`);
 
             let i = 0;
-            this.sendStart();
-            while (i < 3) {
+            while (i <= 4) {
                 await new Promise(r => setTimeout(r, 1000));
+                this.gameStatus = `${3 - i}`;
                 i++;
                 console.log(`Game starting in ${3 - i} seconds...`);
             }
+
+            this.gameStatus = 'started';
 
             const loop = () => {
                 if (this.stopBoolean) {
@@ -95,6 +104,7 @@ export class Game {
             loop();
         } catch (error) {
             console.error('Error starting the game:', error);
+            this.gameStatus = 'error';
         }
     }
 

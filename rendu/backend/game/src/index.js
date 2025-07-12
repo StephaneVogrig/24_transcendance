@@ -73,7 +73,8 @@ fastify.get('/api/game/state', async (request, reply) => {
         },
         ball: match.ball.getPosition(),
 		ballspeed: match.ball.getSpeed(),
-        score: [match.player1.getScore(), match.player2.getScore()]
+        score: [match.player1.getScore(), match.player2.getScore()],
+        gameStatus: match.gameStatus
     };
     return reply.status(200).send({state: state});
 });
