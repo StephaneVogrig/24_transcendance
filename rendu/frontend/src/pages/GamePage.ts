@@ -1,13 +1,13 @@
-import { startBabylonGame } from '../3d/main3d';
+import { startBabylonGame, BabylonGame } from '../3d/main3d';
 import { navigate } from '../router';
 
 let cachedGamePage: HTMLElement | null = null;
 
 export const GamePage = (): HTMLElement => {
 
-	if (cachedGamePage) {
-		return cachedGamePage;
-	}
+    if (cachedGamePage) {
+        return cachedGamePage;
+    }
     const mainDiv = document.createElement('div');
     mainDiv.className = 'min-h-screen flex items-center justify-center';
 
@@ -59,15 +59,15 @@ export const GamePage = (): HTMLElement => {
 
     setTimeout(() => {
         updateScores(0, 0);
-        const canvasElement = document.getElementById('gameCanvas') as HTMLCanvasElement;
-        if (canvasElement) {
-            startBabylonGame(canvasElement);
+        if (canvas) {
+            const babylonGame = BabylonGame.getInstance();
+            babylonGame.initialize(canvas);
         } else {
             console.error("Canvas element not found for Babylon.js initialization.");
         }
     }, 0);
     
-	cachedGamePage = mainDiv;
+    cachedGamePage = mainDiv;
     return mainDiv;
 };
 

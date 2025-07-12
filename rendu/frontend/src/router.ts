@@ -1,4 +1,5 @@
 import { AppLayout } from './AppLayout';
+import { BabylonGame } from './3d/main3d';
 
 interface Route {
     path: string;
@@ -41,6 +42,8 @@ export function navigate(path: string, pushState: boolean = true): void {
                 const componentElement = targetRoute.component();
                 appRoot.appendChild(componentElement);
                 addNavigationListeners(componentElement);
+                const babylonGame = BabylonGame.getInstance();
+                babylonGame.update();
             } else {
                 if (!appLayoutInstance) {
                     appRoot.replaceChildren();

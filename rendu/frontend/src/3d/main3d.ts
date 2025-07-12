@@ -2,28 +2,48 @@ import { Engine } from '@babylonjs/core';
 import { createSceneGame, resetVariables } from './scenes/sceneGame';
 import { InputManager } from './inputManager';
 
-// console.log("Initializing Babylon.js scene...");
+export class BabylonGame {
+    private static instance: BabylonGame | null = null;
+    private engine: Engine | null = null;
+    private canvas: HTMLCanvasElement | null = null;
+    private inputManager: InputManager | null = null;
+    private isInitialized: boolean = false;
 
-export const startBabylonGame = (canvas: HTMLCanvasElement) => {
-    if (!canvas) {
-        console.error("Canvas element is null or not found.");
-        return;
+    private constructor() {}
+
+    public static getInstance(): BabylonGame {
+        if (! BabylonGame.instance)
+            BabylonGame.instance = new BabylonGame();
+        return BabylonGame.instance;
     }
 
+    public async initialize(canvas: HTMLCanvasElement) {
+        if (this.isInitialized)
+            return;
 
-    const engine = new Engine(canvas, true);
+        if (!canvas) {
+            throw new Error("canvas element is null or not found.");
+        }
 
-    resetVariables();
+        this.canvas = canvas;
+        this.engine = new Engine(canvas, true);
+        this.inputManager = new InputManager();
+        this.isInitialized = true;
 
-    createSceneGame(engine, canvas).then(scene => {
-        engine.runRenderLoop(function () {
+        resetVariables();
+
+        const scene = await createSceneGame(this.engine, this.canvas);
+
+        this.engine.runRenderLoop(() => {
             scene.render();
         });
-    });
 
-    new InputManager();
+        window.addEventListener('resize', () => {
+            this.engine.resize();
+        });
+    }
 
-    window.addEventListener('resize', function () {
-        engine.resize();
-    });
+    public update() {
+        this.engine.resize();
+    }
 }
