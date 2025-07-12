@@ -55,6 +55,27 @@ fastify.post('/api/game/stop', async (request, reply) => {
     return reply.status(200).send({ message: `Game stopped for player ${player}` });
 });
 
+fastify.get('/api/game/gameOver', async (request, reply) => {
+    const { player } = request.query;
+    if (!player)
+        return reply.status(400).send({ error: 'Player is required' });
+    const match = GameManager.findMatch(player);
+    if (!match)
+        return reply.status(404).send({ error: `No match found for player ${player}` });
+    if (match.gameStatus === 'finished') {
+        const state = {
+            winner: {
+                name: match.player1.getScore() > match.player2.getScore() ? match.player1.getName() : match.player2.getName(),
+                score: Math.max(match.player1.getScore(), match.player2.getScore())
+            },
+            score: [match.player1.getScore(), match.player2.getScore()],
+            gameStatus: match.gameStatus
+        };
+        return reply.status(200).send({ state: state });
+    }
+    return reply.status(400).send({ error: 'Game is not finished yet' });
+});
+
 fastify.get('/api/game/state', async (request, reply) => {
     const { player } = request.query;
     if (!player)

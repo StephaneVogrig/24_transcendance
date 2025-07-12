@@ -2,6 +2,11 @@ import { BabylonGame } from '../3d/main3d';
 import { navigate } from '../router';
 
 let cachedGamePage: HTMLElement | null = null;
+let name: string | null = null;
+
+export function setPlayerName(playerName: string) {
+    name = playerName;
+}
 
 export const GamePage = (): HTMLElement => {
 
@@ -120,11 +125,11 @@ export function updateScores(player1Score: number, player2Score: number) {
         const scoreString = `${player1Score} - ${player2Score}`;
         let coloredHtml = '';
 
-        const player1BaseColor = '#4299E1';
-        const player1GlowColor = 'rgba(124, 255, 253, 0.7)';
+        const player2BaseColor = '#4299E1';
+        const player2GlowColor = 'rgba(124, 255, 253, 0.7)';
 
-        const player2BaseColor = '#F6AD55';
-        const player2GlowColor = 'rgba(255, 140, 0, 0.7)';
+        const player1BaseColor = '#F6AD55';
+        const player1GlowColor = 'rgba(255, 140, 0, 0.7)';
 
         const separatorBaseColor = '#FFFFFF';
         const separatorGlowColor = 'rgb(255, 255, 255)';
@@ -160,7 +165,7 @@ export function gameStatusUpdate(status: string) {
     console.log(`Game status updated: ${status}`);
     const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
 
-    if (statusElement) {
+    if (statusElement && status !== 'finished') {
         let displayStatus = '';
         let baseColor = '#FFFFFF';
         let glowColor = 'rgba(255, 255, 255, 0.7)';
@@ -185,15 +190,40 @@ export function gameStatusUpdate(status: string) {
             glowColor = 'rgba(255, 140, 0, 0.7)';
         }
 
-        if (status === 'finished') {
-            displayStatus = 'Game Over !';
-            baseColor = '#FF0000';
-            glowColor = 'rgba(255, 0, 0, 0.7)';
-            if (!isGameOver) {
-                gameOver();
+        let coloredHtml = '';
+        if (displayStatus) {
+            for (let i = 0; i < displayStatus.length; i++) {
+                const char = displayStatus[i];
+                coloredHtml += `<span style="color: ${baseColor}; text-shadow: 0 0 10px ${glowColor};">${char}</span>`;
             }
         }
+        statusElement.innerHTML = coloredHtml;
+    } else {
+        console.error("Status element not found.");
+    }
+}
 
+export function gameDefeatOver(winner: string, score: [number, number]) {
+    console.log(`Game defeat over: Winner: ${winner}, Score: ${score[0]} - ${score[1]}`);
+    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+    if (statusElement) {
+        let displayStatus = '';
+        let baseColor = '#FFFFFF';
+        let glowColor = 'rgba(255, 255, 255, 0.7)';
+
+        displayStatus = winner + ' wins ! ' + score[0] + ' - ' + score[1];
+        baseColor = '#4299E1';
+        glowColor = 'rgba(124, 255, 253, 0.7)';
+
+        if (winner === name) {
+            displayStatus = 'You win';
+            baseColor = '#48BB78';
+            glowColor = 'rgba(0, 255, 0, 0.7)';
+        } else {
+            displayStatus = 'You lose';
+            baseColor = '#F56565';
+            glowColor = 'rgba(255, 0, 0, 0.7)';
+        }
 
         let coloredHtml = '';
         if (displayStatus) {

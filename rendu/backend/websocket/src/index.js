@@ -150,6 +150,27 @@ async function sendInput(playerName, key, action) {
     }
 }
 
+async function getGameOver(player) {
+    try {
+        const response = await fetch(`http://game:3004/api/game/gameOver?player=${player}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const responseData = await response.json();
+        return responseData.state;
+    } catch (error) {
+        console.error('Error fetching game over state:', error);
+        return null;
+    }
+}
+
 async function getstate(gameId, player) {
     try {
         const response = await fetch(`http://game:3004/api/game/state?player=${player}`, {
@@ -215,6 +236,19 @@ async function getstate(gameId, player) {
                 });
             }
             if (gameState.gameStatus) {
+                if (gameState.gameStatus === 'finished') {
+                    console.log(`Game ${gameId} finished. Fetching game over state for player ${player}.`);
+                    const gameOverState = await getGameOver(player);
+                    if (gameOverState) {
+                        console.log(`Game over state for player ${player}:`, gameOverState);
+                        io.to(gameId).emit('gameDefeatOver', {
+                            winner: gameOverState.winner,
+                            score: gameOverState.score
+                        });
+                    } else {
+                        console.error(`Failed to fetch game over state for game ${gameId}`);
+                    }
+                }
                 io.to(gameId).emit('gameStatusUpdate', {
                     gameStatus: gameState.gameStatus
                 });
@@ -332,6 +366,7 @@ io.on('connection', async (socket) => {
             console.warn(`Player ${playerName} accepted game but no pending redirect acceptance was found.`);
         }
         console.log(`Player ${playerName} status set to 'in-game' after accepting game.`);
+        socket.emit('nameAccepted', { name: playerName });
     });
 
     socket.on('disconnect', () => {

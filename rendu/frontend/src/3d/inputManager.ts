@@ -4,8 +4,9 @@ import { updateScores, gameOver } from '../pages/GamePage';
 import { teamPing } from './scenes/sceneGame';
 import { gameStatusUpdate } from '../pages/GamePage';
 import { getSocket, getPlayerName } from '../websocket/websocket';
+import { gameDefeatOver } from '../pages/GamePage';
+import { setPlayerName } from '../pages/GamePage';
 import { navigate } from '../router';
-
 
 export class InputManager {
 
@@ -47,6 +48,11 @@ export class InputManager {
 			gameOver();
 		});
 
+		this.socket.on('gameDefeatOver', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
+			console.log('Game defeat over received:', data);
+			gameDefeatOver(data.winner.name, data.score);
+		});
+
 		this.socket.on('teamPing', (data: { team: string }) => {
 			// console.debug(`Received team ping for team: ${data.team}`);
 			if (data.team === 'left') {
@@ -54,6 +60,12 @@ export class InputManager {
 			} else if (data.team === 'right') {
 				teamPing(1);
 			}
+			// setPlayerName(data.name);
+		});
+
+		this.socket.on('nameAccepted', (data: { name: string }) => {
+			console.log(`Name accepted: ${data.name}`);
+			setPlayerName(data.name);
 		});
 
 		let gameStatus = '';

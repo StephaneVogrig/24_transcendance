@@ -61,7 +61,7 @@ export class Ball {
         }
 
         if (this.position.x - this.radius <= -53 || this.position.x + this.radius >= 53) {
-			this.players[this.position.x - this.radius <= -53 ? 1 : 0].score++;
+			this.players[this.position.x - this.radius <= -53 ? 0 : 1].score++;
             this.position.x = 0;
             this.position.y = 0;
             this.speed.x = Math.random() < 0.5 ? -0.42 : 0.42;

@@ -101,6 +101,7 @@ export class Game {
                 if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
                     this.gameStatus = 'finished';
                     await new Promise(r => setTimeout(r, 1000));
+                    console.debug(`this.player1.name=${this.player1.getName()}, this.player1.getScore()=${this.player1.getScore()}, this.player2.getName()=${this.player2.getName()}, this.player2.getScore()=${this.player2.getScore()}`);
                     stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();
