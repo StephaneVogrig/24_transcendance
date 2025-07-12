@@ -15,12 +15,13 @@ export const GamePage = (): HTMLElement => {
     cardDiv.className = ' shadow-xl text-center max-w-full w-full h-[100vh] flex items-center justify-center relative overflow-hidden'; // Exemple: s'adapte à la hauteur de la fenêtre avec overflow hidden
     mainDiv.appendChild(cardDiv);
 
-    // const homeLink = document.createElement('a');
-    // homeLink.href = '/';
-    // homeLink.setAttribute('data-route', '/');
-    // homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
-    // homeLink.textContent = 'Home';
-    // mainDiv.appendChild(homeLink);
+    const homeLink = document.createElement('a');
+    homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Home';
+    homeLink.addEventListener('click', () => {
+        navigate('/choice-game');
+    });
+    mainDiv.appendChild(homeLink);
 
     const gameContainer = document.createElement('div');
     gameContainer.style.width = '100%';

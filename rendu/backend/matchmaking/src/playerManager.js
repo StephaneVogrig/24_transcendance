@@ -10,6 +10,7 @@ async function sendstart(player1, player2) {
             body: JSON.stringify({
                 player1: player1,
                 player2: player2,
+                maxScore: 5,
                 timestamp: Date.now()
             })
         });

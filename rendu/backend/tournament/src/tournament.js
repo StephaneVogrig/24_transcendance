@@ -136,7 +136,7 @@ async function startMatches(bracket)
 			const response = await fetch(`http://game:3004/api/game/start`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ player1, player2 })
+				body: JSON.stringify({ player1, player2, maxScore: 5 })
 			});
 
 			if (!response.ok) {

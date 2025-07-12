@@ -5,10 +5,10 @@ import { stopMatch } from './gameManager.js';
 
 export class Game {
 
-    constructor( { player1, player2, gameId }) {
+    constructor( { player1, player2, gameId, maxScore }) {
 		this.player1 = new Player(player1, 'left');
         this.player2 = new Player(player2, 'right');
-        this.maxScore = 5;
+        this.maxScore = maxScore;
         this.player1ready = false;
         this.player2ready = false;
         this.ball = new Ball.Ball([this.player1, this.player2]);

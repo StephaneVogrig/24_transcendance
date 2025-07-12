@@ -18,12 +18,12 @@ const start = async () => {
 };
 
 fastify.post('/api/game/start', async (request, reply) => {
-    const { player1, player2 } = request.body;
-    if (!player1 || !player2) {
+    const { player1, player2, maxScore } = request.body;
+    if (!player1 || !player2 || !maxScore) {
         return reply.status(400).send({ error: 'Both player1 and player2 are required' });
     }
     try {
-        GameManager.addMatch(player1, player2);
+        GameManager.addMatch(player1, player2, maxScore);
     } catch (error) {
         return reply.status(400).send({ error: error.message });
     }
