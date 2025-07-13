@@ -1,105 +1,72 @@
+import { navigate } from '../router';
+
 export const AboutPage = (): HTMLElement => {
-    // Conteneur principal
-    const container = document.createElement('div');
-    container.className = 'container mx-auto px-4 py-12 max-w-4xl';
 
-    // Section "About Viiiite"
-    const aboutSection = document.createElement('section');
-    aboutSection.className = 'text-center mb-12';
-
-    const h1 = document.createElement('h1');
-    h1.className = 'text-5xl font-extrabold text-blue-600 mb-4';
-    h1.textContent = 'About Viiiite';
-    aboutSection.appendChild(h1);
-
-    const pIntro = document.createElement('p');
-    pIntro.className = 'text-xl text-gray-500 leading-relaxed';
-    pIntro.textContent = `
-        Welcome to Viiiiite, a modern take on the classic arcade game, Pong! We've reimagined this timeless favorite for the web, bringing you fast-paced, addictive gameplay right in your browser.
-    `;
-    aboutSection.appendChild(pIntro);
-    container.appendChild(aboutSection);
-
-    // Ligne de séparation
-    const hr1 = document.createElement('hr');
-    hr1.className = 'my-12 border-gray-300';
-    container.appendChild(hr1);
-
-    // Section "Under the Hood"
-    const techSection = document.createElement('section');
-    techSection.className = 'mb-12';
-
-    const h2Tech = document.createElement('h2');
-    h2Tech.className = 'text-3xl font-bold text-gray-500 mb-6 text-center';
-    h2Tech.textContent = 'Under the Hood';
-    techSection.appendChild(h2Tech);
-
-    const techLogosDiv = document.createElement('div');
-    techLogosDiv.className = 'flex flex-wrap justify-center items-center gap-8';
-    // Les images des logos sont à ajouter ici si besoin, ex:
-    // const tsLogoDiv = document.createElement('div');
-    // tsLogoDiv.className = 'flex flex-col items-center p-4 rounded-lg shadow-md bg-white';
-    // const tsImg = document.createElement('img');
-    // tsImg.src = '/path/to/typescript-icon.svg'; // Assurez-vous que le chemin est correct
-    // tsImg.alt = 'TypeScript';
-    // tsImg.className = 'w-16 h-16 mb-2';
-    // tsLogoDiv.appendChild(tsImg);
-    // const tsSpan = document.createElement('span');
-    // tsSpan.className = 'text-lg font-semibold text-gray-800';
-    // tsSpan.textContent = 'TypeScript';
-    // tsLogoDiv.appendChild(tsSpan);
-    // techLogosDiv.appendChild(tsLogoDiv);
-    // ... répéter pour Tailwind, Node.js, Fastify etc.
-    techSection.appendChild(techLogosDiv);
-
-    const pTechDesc = document.createElement('p');
-    pTechDesc.className = 'text-lg text-gray-500 mt-6 text-center';
-    pTechDesc.innerHTML = `
-        Built as a Single-Page Application (SPA) for a smooth user experience, Viiiite leverages <strong>TypeScript</strong> for robust frontend logic and <strong>Tailwind CSS</strong> for a sleek, responsive design. Our backend, powered by <strong>Node.js</strong> and <strong>Fastify</strong>, ensures lightning-fast communication and reliable gameplay.
-    `;
-    techSection.appendChild(pTechDesc);
-    container.appendChild(techSection);
-
-    // Ligne de séparation
-    const hr2 = document.createElement('hr');
-    hr2.className = 'my-12 border-gray-300';
-    container.appendChild(hr2);
-
-    // Section "We'd Love to Hear From You!"
-    const contactSection = document.createElement('section');
-    contactSection.className = 'text-center';
-
-    const h2Contact = document.createElement('h2');
-    h2Contact.className = 'text-3xl font-bold text-gray-500 mb-6';
-    h2Contact.textContent = 'We\'d Love to Hear From You!';
-    contactSection.appendChild(h2Contact);
-
-    const pContact = document.createElement('p');
-    pContact.className = 'text-lg text-gray-500 mb-8';
-    pContact.textContent = `
-        Your feedback helps us make Viiiiite even better! If you have suggestions, found a bug, or just want to say hello, feel free to reach out.
-    `;
-    contactSection.appendChild(pContact);
-
-    // Lien GitHub
-    const githubLink = document.createElement('a');
-    githubLink.href = 'https://github.com/yourusername/yourgamerepo';
-    githubLink.target = '_blank';
-    githubLink.rel = 'noopener noreferrer';
-    githubLink.className = 'ml-4 text-blue-600 hover:text-blue-800 text-lg';
-    githubLink.textContent = 'Check out on GitHub';
-    contactSection.appendChild(githubLink);
-
-    container.appendChild(contactSection);
-
-    // Lien "Retourner à l'Accueil"
-    const homeLink = document.createElement('a');
-    homeLink.href = '/';
-    homeLink.setAttribute('data-route', '/');
-    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-    homeLink.textContent = 'Retourner à l\'Accueil';
-    container.appendChild(homeLink);
+    const content = document.createElement('div');
+    content.className = 'mx-auto max-w-7xl h-full w-full grid grid-rows-[auto_1fr_auto] gap-8';
 
 
-    return container; // Retourne l'élément DOM racine du composant
+    // team section
+    const team = document.createElement('div');
+    team.className = 'text-center pb-16 px-8';
+    const h2 = document.createElement('h2');
+    h2.className = 'text-3xl font-extrabold text-blue-400 mb-8';
+    h2.textContent = 'The team';
+    team.appendChild(h2);
+    content.appendChild(team);
+
+    // team list
+    const teamList = document.createElement('ul');
+    teamList.className = 'grid gap-16 sm:grid-cols-2 md:grid-cols-4 mx-auto max-w-fit mt-16';
+
+    // component for team member
+    const createTeamMember = (firstName: string, lastName: string, imgName: string): HTMLElement => {
+
+        const li = document.createElement('li');
+
+        const div = document.createElement('div');
+        li.appendChild(div);
+
+        div.className = 'flex flex-col items-center';
+        const img = document.createElement('img');
+        img.className = 'w-full sm: max-w-36 md:max-w-48 aspect-square rounded-full object-cover';
+        img.src = `public/assets/${imgName}.jpg`;
+        div.appendChild(img);
+
+
+        const firstNameTxt = document.createElement('h3');
+        firstNameTxt.className = 'text-center font-semibold text-blue-200 mt-4';
+        firstNameTxt.textContent = firstName;
+        div.appendChild(firstNameTxt);
+
+        const lastNametxt = document.createElement('h3');
+        lastNametxt.className = 'text-center font-semibold text-blue-200';
+        lastNametxt.textContent = lastName;
+        div.appendChild(lastNametxt);
+
+        return li;
+    };
+
+    teamList.appendChild(createTeamMember('Stéphanie', 'Mortemousque', 'smortemo'));
+    teamList.appendChild(createTeamMember('Gaël', 'Cannaud', 'gcannaud'));
+    teamList.appendChild(createTeamMember('Sébastien', 'Craeymeersch', 'scraeyme'));
+    teamList.appendChild(createTeamMember('Stephane', 'Vogrig', 'svogrig'));
+
+    team.appendChild(teamList);
+    content.appendChild(team);
+
+    // Retourner à l'Accueil
+    const backHome = document.createElement('div');
+    backHome.className = 'absolute inset-x-0 bottom-5 flex flex-col';
+
+    const backHomeBtn = document.createElement('button');
+    backHomeBtn.textContent = 'back home';
+    backHomeBtn.className = `text-lg font-semibold transition-transform transform hover:scale-110`;
+    backHomeBtn.addEventListener('click', async () => {
+        navigate('/');
+        })
+    backHome.appendChild(backHomeBtn);
+    content.appendChild(backHome);
+
+    return content;
 };
