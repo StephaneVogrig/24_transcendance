@@ -1,8 +1,6 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { ManageTockenGetName, ManageTockenGetEmail, ManageTockenGetUserInfo } from './ManageTocken.js';
-import { exchangeCodeForToken } from './OAuthExchange.js';
 
 
 const fastify = Fastify({ logger: true });
@@ -34,38 +32,41 @@ const start = async () => {
   }
 };
 
-// fonction pour  recuperer le token
-fastify.post('/api/auth', async (request, reply) => {
-  const { tocken_code } = request.body;
-  console.log(`Received authorization code: ${tocken_code}`);
+// Route pour vérifier le statut d'authentification
+fastify.get('/api/auth/status', async (request, reply) => {
+  return { message: 'Authentication service is running', timestamp: new Date().toISOString() };
+});
+
+// Route pour recevoir les informations utilisateur d'Auth0 (optionnel)
+fastify.post('/api/auth/user', async (request, reply) => {
+  const { user } = request.body;
+  console.log('User info received from Auth0:', user);
   
-  if (!tocken_code) {
-    console.log(`No authorization code received`);
-    return reply.status(400).send({ error: 'No authorization code received' });
+  if (!user) {
+    return reply.status(400).send({ error: 'No user information provided' });
   }
   
   try {
-    console.log(`Exchanging authorization code for access token...`);
+    // Ici vous pouvez :
+    // 1. Sauvegarder l'utilisateur en base de données
+    // 2. Créer une session côté serveur
+    // 3. Générer un JWT personnalisé
+    // 4. Etc.
     
-    // Étape 1: Échanger le code d'autorisation contre un access token
-    const accessToken = await exchangeCodeForToken(tocken_code);
-    console.log(`Access token obtained: ${accessToken.substring(0, 10)}...`);
-    
-    // Étape 2: Récupérer les informations utilisateur avec l'access token
-    const userInfo = await ManageTockenGetUserInfo(accessToken);
-    console.log(`User info retrieved:`, userInfo);
-    
-    // Renvoyer une réponse positive avec les informations utilisateur
     return reply.status(200).send({ 
-      message: 'Authentication successful',
-      authorization_code: tocken_code,
-      user: userInfo
+      message: 'User information processed successfully',
+      user: {
+        id: user.sub,
+        email: user.email,
+        name: user.name,
+        picture: user.picture
+      }
     });
     
   } catch (error) {
-    console.error('Error during authentication process:', error);
-    return reply.status(401).send({ 
-      error: 'Authentication failed',
+    console.error('Error processing user information:', error);
+    return reply.status(500).send({ 
+      error: 'Internal server error',
       details: error.message 
     });
   }

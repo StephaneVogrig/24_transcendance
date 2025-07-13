@@ -360,21 +360,27 @@ export const LoginPage = (): HTMLElement => {
     loginForm.appendChild(googleButton);
 
     // Redirection vers OAuth Google au clic
-    googleButton.addEventListener('click', () => {
-        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' +
-            new URLSearchParams({
-                // client_id: 'TON_CLIENT_ID_GOOGLE', 
-                client_id: '316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com', 
-                redirect_uri: 'http://localhost:5173/auth/callback', // L'URL de ton appli qui reçoit la réponse
-                response_type: 'code', // ou 'code' si tu fais un flow complet
-                scope: 'email profile openid',
-            }).toString();
+    googleButton.addEventListener('click', async () => {
+        try {
+            authMessageDiv.textContent = 'Redirection vers Google...';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+            
+            // Utiliser Auth0 pour la connexion Google
+            const auth0Module = await import('../auth/auth0Service');
+            await auth0Module.loginWithGoogle();
+        } catch (error) {
+            console.error('Erreur lors de la connexion Google:', error);
+            authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+        }
     });
 
     const handleAuth0Login = async () => {
     try {
         authMessageDiv.textContent = 'Redirection vers Auth0...';
         authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+        console.log('Tentative de connexion avec Auth0...');
+        // Appel à la fonction de connexion Auth0
         await loginWithAuth0();
     } catch (error) {
         console.error('Erreur lors de la connexion Auth0:', error);

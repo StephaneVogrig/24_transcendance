@@ -2,11 +2,9 @@
 let Auth0Client: any = null;
 
 // Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
-// const AUTH0_DOMAIN = 'dev-transcendance.eu.auth0.com'; // Remplacez par votre domaine Auth0
-const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com'; // Remplacez par votre domaine Auth0
-const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH'; // Remplacez par votre Client ID Auth0
-// const AUTH0_REDIRECT_URI = `${window.location.origin}/auth/callback`;
-const AUTH0_REDIRECT_URI = `http://localhost:5173`;
+const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
+const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
+const AUTH0_REDIRECT_URI = `http://localhost:5173/auth/callback`;
 
 
 let auth0Client: any = null;
@@ -14,6 +12,7 @@ let auth0Client: any = null;
 /**
  * Charge dynamiquement Auth0 avec gestion d'erreur
  */
+//si pb -> npm install @auth0/auth0-spa-js
 const loadAuth0 = async () => {
     try {
         if (!Auth0Client) {
@@ -42,6 +41,7 @@ export const initAuth0 = async (): Promise<any> => {
             },
             cacheLocation: 'localstorage'
         });
+        console.log('Client Auth0 initialisé avec succès');
     }
     return auth0Client;
 };
@@ -85,19 +85,50 @@ export const loginWithAuth0 = async (): Promise<void> => {
 /**
  * Gère le callback après authentification
  */
-export const handleAuthCallback = async (code: string): Promise<void> => {
-    console.log('code: ', code);
-//    try {
-//        const client = await initAuth0();
-//        await client.handleRedirectCallback();
+export const handleAuthCallback = async (_code: string): Promise<void> => {
+    console.log('Gestion du callback Auth0...');
+    try {
+        const client = await initAuth0();
+        await client.handleRedirectCallback();
         
-        // Rediriger vers la page principale après connexion
-//        window.location.replace('/choice-game');
-//    } catch (error) {
-//        console.error('Erreur lors du callback Auth0:', error);
-        // Rediriger vers la page de connexion en cas d'erreur
-//        window.location.replace('/login');
-//    }
+        // Vérifier si l'utilisateur est bien authentifié
+        const isAuth = await client.isAuthenticated();
+        if (isAuth) {
+            console.log('Authentification réussie');
+            const user = await client.getUser();
+            console.log('Utilisateur:', user);
+            
+            // Optionnel : envoyer les informations utilisateur au backend
+            await client.getTokenSilently();
+            console.log('Token Auth0 récupéré');
+            
+            // Envoyer les informations utilisateur au backend pour synchronisation
+            try {
+                const response = await fetch(`http://${window.location.hostname}:3001/api/auth/user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Informations utilisateur synchronisées avec le backend:', result);
+                } else {
+                    console.warn('Échec de la synchronisation avec le backend');
+                }
+            } catch (error) {
+                console.warn('Erreur lors de la synchronisation avec le backend:', error);
+                // Ce n'est pas critique, l'authentification peut continuer
+            }
+            
+        } else {
+            throw new Error('Échec de l\'authentification');
+        }
+        
+    } catch (error) {
+        console.error('Erreur lors du callback Auth0:', error);
+        throw error;
+    }
 };
 
 /**
@@ -121,6 +152,7 @@ export const getUser = async () => {
         const client = await initAuth0();
         const isAuth = await client.isAuthenticated();
         if (isAuth) {
+            console.error('OAuth récupération des info utilisateur');
             return await client.getUser();
         }
         return null;

@@ -1,4 +1,6 @@
 export const AboutPage = (): HTMLElement => {
+    
+    
     // Conteneur principal
     const container = document.createElement('div');
     container.className = 'container mx-auto px-4 py-12 max-w-4xl';
