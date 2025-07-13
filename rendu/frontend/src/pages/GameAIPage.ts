@@ -62,7 +62,7 @@ export const GameAIPage = (): HTMLElement => {
 
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`GameAIPage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			startGame();
+			startGame(data.gameId);
 		});
 
 		try {

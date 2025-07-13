@@ -298,7 +298,7 @@ export async function advanceToNextRound(id)
 			const response = await fetch(`http://blockchain:3002/api/blockchain/register`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ tournament })
+				body: JSON.stringify(Utils.readRound(tournament))
 			});
 
 			if (!response.ok) {
