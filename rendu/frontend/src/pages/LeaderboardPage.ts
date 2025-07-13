@@ -1,13 +1,8 @@
-
 export const LeaderboardPage = (): HTMLElement => {
-    // Conteneur principal
-    const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen flex items-center justify-center bg-gray-100 p-4';
 
     // Carte blanche centrale
     const cardDiv = document.createElement('div');
     cardDiv.className = 'bg-white p-8 rounded-lg shadow-xl text-center max-w-md w-full';
-    mainDiv.appendChild(cardDiv);
 
     // Icône SVG
     const svgDiv = document.createElement('div');
@@ -46,5 +41,5 @@ export const LeaderboardPage = (): HTMLElement => {
     homeLink.textContent = 'Retourner à l\'Accueil';
     cardDiv.appendChild(homeLink);
 
-    return mainDiv;
+    return cardDiv;
 };

@@ -18,12 +18,12 @@ const start = async () => {
 };
 
 fastify.post('/api/game/start', async (request, reply) => {
-    const { player1, player2 } = request.body;
-    if (!player1 || !player2) {
+    const { player1, player2, maxScore } = request.body;
+    if (!player1 || !player2 || !maxScore) {
         return reply.status(400).send({ error: 'Both player1 and player2 are required' });
     }
     try {
-        GameManager.addMatch(player1, player2);
+        GameManager.addMatch(player1, player2, maxScore);
     } catch (error) {
         return reply.status(400).send({ error: error.message });
     }
@@ -42,6 +42,39 @@ fastify.post('/api/game/input', async (request, reply) => {
     match.inputManager(player, key, action);
 });
 
+fastify.post('/api/game/stop', async (request, reply) => {
+    const { player } = request.body;
+    if (!player) {
+        return reply.status(400).send({ error: 'Player is required' });
+    }
+    try {
+        GameManager.stopMatch(player);
+    } catch (error) {
+        return reply.status(404).send({ error: error.message });
+    }
+    return reply.status(200).send({ message: `Game stopped for player ${player}` });
+});
+
+fastify.get('/api/game/gameOver', async (request, reply) => {
+    const { player } = request.query;
+    if (!player)
+        return reply.status(400).send({ error: 'Player is required' });
+    const match = GameManager.findMatch(player);
+    if (!match)
+        return reply.status(404).send({ error: `No match found for player ${player}` });
+    if (match.gameStatus === 'finished') {
+        const state = {
+            winner: {
+                name: match.player1.getScore() > match.player2.getScore() ? match.player1.getName() : match.player2.getName(),
+                score: Math.max(match.player1.getScore(), match.player2.getScore())
+            },
+            score: [match.player1.getScore(), match.player2.getScore()],
+            gameStatus: match.gameStatus
+        };
+        return reply.status(200).send({ state: state });
+    }
+    return reply.status(400).send({ error: 'Game is not finished yet' });
+});
 
 fastify.get('/api/game/state', async (request, reply) => {
     const { player } = request.query;
@@ -61,10 +94,10 @@ fastify.get('/api/game/state', async (request, reply) => {
         },
         ball: match.ball.getPosition(),
 		ballspeed: match.ball.getSpeed(),
-        score: [match.player1.getScore(), match.player2.getScore()]
+        score: [match.player1.getScore(), match.player2.getScore()],
+        gameStatus: match.gameStatus
     };
     return reply.status(200).send({state: state});
-
 });
 
 start();

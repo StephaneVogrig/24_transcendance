@@ -4,19 +4,15 @@
   "description": "AI service for Transcendence",
   "main": "src/routes.js",
   "type": "module",
-
   "scripts": {
     "start": "node src/routes.js",
     "dev": "node src/routes.js"
   },
-
-
   "dependencies": {
 	"@fastify/cors": "^8.4.0",
     "fastify": "^4.24.3"
   },
-
   "keywords": [],
-  "author": "VITE",
+  "author": "Viiiite",
   "license": "ISC"
 }

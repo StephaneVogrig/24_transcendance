@@ -1,19 +1,24 @@
-import { startBabylonScene } from '../3d/main3d';
+import { BabylonGame } from '../3d/main3d';
+import { navigate } from '../router';
+
+let cachedGamePage: HTMLElement | null = null;
+let name: string | null = null;
+
+export function setPlayerName(playerName: string) {
+    name = playerName;
+}
 
 export const GamePage = (): HTMLElement => {
+
+    if (cachedGamePage) {
+        return cachedGamePage;
+    }
     const mainDiv = document.createElement('div');
     mainDiv.className = 'min-h-screen flex items-center justify-center';
 
    const cardDiv = document.createElement('div');
     cardDiv.className = ' shadow-xl text-center max-w-full w-full h-[100vh] flex items-center justify-center relative overflow-hidden'; // Exemple: s'adapte à la hauteur de la fenêtre avec overflow hidden
     mainDiv.appendChild(cardDiv);
-
-    // const homeLink = document.createElement('a');
-    // homeLink.href = '/';
-    // homeLink.setAttribute('data-route', '/');
-    // homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
-    // homeLink.textContent = 'Home';
-    // mainDiv.appendChild(homeLink);
 
     const gameContainer = document.createElement('div');
     gameContainer.style.width = '100%';
@@ -34,26 +39,38 @@ export const GamePage = (): HTMLElement => {
     scoreParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 ';
     gameContainer.appendChild(scoreParagraph);
 
+    const statusParagraph = document.createElement('p');
+    statusParagraph.id = 'gameStatusDisplay';
+    statusParagraph.textContent = 'Game Status: Ready';
+    statusParagraph.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-semibold text-orange-500 z-10';
+    gameContainer.appendChild(statusParagraph);
+
     const canvas = document.createElement('canvas');
-    canvas.id = 'renderCanvas';
+    canvas.id = 'gameCanvas';
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     canvas.style.display = 'block';
     gameContainer.appendChild(canvas);
 
     cardDiv.appendChild(gameContainer);
-    // mainDiv.appendChild(gameContainer);
+
+    const homeLink = document.createElement('a');
+    homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Exit Game';
 
     setTimeout(() => {
         updateScores(0, 0);
-        const canvasElement = document.getElementById('renderCanvas') as HTMLCanvasElement;
-        if (canvasElement) {
-            startBabylonScene(canvasElement);
+        if (canvas) {
+            const babylonGame = BabylonGame.getInstance();
+            babylonGame.initialize(canvas);
+            babylonGame.setHomeLink(homeLink);
         } else {
             console.error("Canvas element not found for Babylon.js initialization.");
         }
     }, 0);
+    mainDiv.appendChild(homeLink);
     
+    cachedGamePage = mainDiv;
     return mainDiv;
 };
 
@@ -77,17 +94,28 @@ function showGameOverModal() {
     
     
     const homeLink = document.createElement('a');
-    homeLink.href = '/';
-    homeLink.setAttribute('data-route', '/');
+    homeLink.href = '#';
+    homeLink.setAttribute('data-route', '/game');
     homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-    homeLink.textContent = 'Return to Home';
+    homeLink.textContent = 'Back to Home';
+    homeLink.addEventListener('click', (event) => {
+        isGameOver = false;
+        event.preventDefault();
+        modalOverlay.remove(); 
+        navigate('/choice-game');
+    });
     
     modalContent.appendChild(homeLink);
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
 }
 
+let isGameOver = false;
+
 export function gameOver() {
+    if (isGameOver)
+        return;
+    isGameOver = true;
     showGameOverModal();
 }
 
@@ -97,11 +125,11 @@ export function updateScores(player1Score: number, player2Score: number) {
         const scoreString = `${player1Score} - ${player2Score}`;
         let coloredHtml = '';
 
-        const player1BaseColor = '#4299E1';
-        const player1GlowColor = 'rgba(124, 255, 253, 0.7)';
+        const player2BaseColor = '#4299E1';
+        const player2GlowColor = 'rgba(124, 255, 253, 0.7)';
 
-        const player2BaseColor = '#F6AD55';
-        const player2GlowColor = 'rgba(255, 140, 0, 0.7)';
+        const player1BaseColor = '#F6AD55';
+        const player1GlowColor = 'rgba(255, 140, 0, 0.7)';
 
         const separatorBaseColor = '#FFFFFF';
         const separatorGlowColor = 'rgb(255, 255, 255)';
@@ -133,3 +161,79 @@ export function updateScores(player1Score: number, player2Score: number) {
     }
 }
 
+export function gameStatusUpdate(status: string) {
+    console.log(`Game status updated: ${status}`);
+    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+
+    if (statusElement && status !== 'finished') {
+        let displayStatus = '';
+        let baseColor = '#FFFFFF';
+        let glowColor = 'rgba(255, 255, 255, 0.7)';
+
+        if (status === 'ready') {
+            displayStatus = 'Your opponent has joined the game !';
+            baseColor = '#4299E1';
+            glowColor = 'rgba(124, 255, 253, 0.7)';
+        } else if (status === 'started') {
+            displayStatus = '';
+        } else if (status === 'waiting') {
+            displayStatus = 'Waiting for Players';
+            baseColor = '#F6AD55';
+            glowColor = 'rgba(255, 140, 0, 0.7)';
+        } else if (status === '3' || status === '2' || status === '1') {
+            displayStatus = status;
+            baseColor = '#4299E1';
+            glowColor = 'rgba(124, 255, 253, 0.7)';
+        } else if ( status === '0') {
+            displayStatus = 'GO !';
+            baseColor = '#F6AD55';
+            glowColor = 'rgba(255, 140, 0, 0.7)';
+        }
+
+        let coloredHtml = '';
+        if (displayStatus) {
+            for (let i = 0; i < displayStatus.length; i++) {
+                const char = displayStatus[i];
+                coloredHtml += `<span style="color: ${baseColor}; text-shadow: 0 0 10px ${glowColor};">${char}</span>`;
+            }
+        }
+        statusElement.innerHTML = coloredHtml;
+    } else {
+        console.error("Status element not found.");
+    }
+}
+
+export function gameDefeatOver(winner: string, score: [number, number]) {
+    console.log(`Game defeat over: Winner: ${winner}, Score: ${score[0]} - ${score[1]}`);
+    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+    if (statusElement) {
+        let displayStatus = '';
+        let baseColor = '#FFFFFF';
+        let glowColor = 'rgba(255, 255, 255, 0.7)';
+
+        displayStatus = winner + ' wins ! ' + score[0] + ' - ' + score[1];
+        baseColor = '#4299E1';
+        glowColor = 'rgba(124, 255, 253, 0.7)';
+
+        if (winner === name) {
+            displayStatus = 'You win';
+            baseColor = '#48BB78';
+            glowColor = 'rgba(0, 255, 0, 0.7)';
+        } else {
+            displayStatus = 'You lose';
+            baseColor = '#F56565';
+            glowColor = 'rgba(255, 0, 0, 0.7)';
+        }
+
+        let coloredHtml = '';
+        if (displayStatus) {
+            for (let i = 0; i < displayStatus.length; i++) {
+                const char = displayStatus[i];
+                coloredHtml += `<span style="color: ${baseColor}; text-shadow: 0 0 10px ${glowColor};">${char}</span>`;
+            }
+        }
+        statusElement.innerHTML = coloredHtml;
+    } else {
+        console.error("Status element not found.");
+    }
+}

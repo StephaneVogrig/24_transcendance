@@ -10,6 +10,7 @@ async function sendstart(player1, player2) {
             body: JSON.stringify({
                 player1: player1,
                 player2: player2,
+                maxScore: 5,
                 timestamp: Date.now()
             })
         });
@@ -59,6 +60,11 @@ async function addPlayerToSession(playerName) {
     if (session.players1 && session.players2) {
         session.status = 'ready';
         await new Promise(r => setTimeout(r, 500));
+        if (!session.players1 || !session.players2) {
+            console.error(`Game session ${session.gameId} is not ready, missing players`);
+            session.status = 'waiting';
+            return;
+        }
         console.log(`Game session ${session.gameId} is ready with players: ${session.players1.name} and ${session.players2.name}`);
         sendstart(session.players1.name, session.players2.name);
         console.log(`Starting game session ${session.gameId} with players: ${session.players1.name} and ${session.players2.name}`);

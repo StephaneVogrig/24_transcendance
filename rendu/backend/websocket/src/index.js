@@ -4,29 +4,55 @@ import cors from '@fastify/cors';
 
 const fastify = Fastify({ logger: true });
 
-const clientOrigin = `http://10.11.5.7:5173`;
+
+const HOST_IP = process.env.HOST_IP;
+const HOST_ADRESS = `http://${HOST_IP}:5173`;
+
 fastify.register(cors, {
-    origin: clientOrigin,
+    origin: [
+        HOST_ADRESS,
+        'http://localhost:5173'
+    ],
     methods: ['GET', 'POST'],
     credentials: true
 });
 
 const io = new Server(fastify.server, {
     cors: {
-        origin: clientOrigin,
+        origin: [
+            HOST_ADRESS,
+            'http://localhost:5173'
+        ],
         methods: ['GET', 'POST'],
         credentials: true
     },
     path: '/my-websocket/'
 });
 
-const playerNameToSocketId = new Map();
-const socketIdToPlayerName = new Map();
-const gameSessions = new Map();
+let playerNameToSocketId = new Map();
+let socketIdToPlayerName = new Map();
+let gameSessions = new Map();
+let pendingRedirectAcceptances = new Map();
 
 fastify.get('/api/websocket', async (request, reply) => { 
   return { message: 'Hello from WebSocket Service!' };
 });
+
+async function waitForRedirectAcceptance(playerName, timeout = 60000) {
+    return new Promise((resolve, reject) => {
+        pendingRedirectAcceptances.set(playerName, { resolve, reject });
+
+        const timer = setTimeout(() => {
+            if (pendingRedirectAcceptances.has(playerName)) {
+                pendingRedirectAcceptances.delete(playerName);
+                console.warn(`Redirect acceptance for player ${playerName} timed out.`);
+                reject(new Error('Redirect acceptance timed out.'));
+            }
+        }, timeout);
+
+        pendingRedirectAcceptances.get(playerName).cleanUp = () => clearTimeout(timer);
+    });
+}
 
 fastify.post('/api/websocket/redirect', async (request, reply) => {
     const { name, gameId } = request.body;
@@ -41,7 +67,8 @@ fastify.post('/api/websocket/redirect', async (request, reply) => {
     }
     console.log(`Redirecting player ${name} with socket ID ${socketId} to game ${gameId}`);
     
-    io.to(socketId).emit('redirect', { gameId: gameId, playerName: name }); 
+    io.to(socketId).emit('redirect', { gameId: gameId, playerName: name });
+    await waitForRedirectAcceptance(name);
     return reply.status(200).send({ message: `Player ${name} redirected to game ${gameId}` });
 });
 
@@ -123,6 +150,27 @@ async function sendInput(playerName, key, action) {
     }
 }
 
+async function getGameOver(player) {
+    try {
+        const response = await fetch(`http://game:3004/api/game/gameOver?player=${player}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const responseData = await response.json();
+        return responseData.state;
+    } catch (error) {
+        console.error('Error fetching game over state:', error);
+        return null;
+    }
+}
+
 async function getstate(gameId, player) {
     try {
         const response = await fetch(`http://game:3004/api/game/state?player=${player}`, {
@@ -166,10 +214,11 @@ async function getstate(gameId, player) {
             }
             if (gameState.player1.name === player) {
                 const player1SocketId = playerNameToSocketId.get(player); 
-                if (player1SocketId) {
-                    console.debug(`state: Emitting teamPing to left team for player: ${player} (socketId: ${player1SocketId})`);
-                    io.to(player1SocketId).emit('teamPing');
-                }
+                if (player1SocketId)
+                    io.to(player1SocketId).emit('teamPing', { team: 'left' });
+                const player2SocketId = playerNameToSocketId.get(gameState.player2.name);
+                if (player2SocketId)
+                    io.to(player2SocketId).emit('teamPing', { team: 'right' });
             }
             if (ballPos && platform1Pos && platform2Pos) {
                 io.to(gameId).emit('updatePositions', {
@@ -186,6 +235,33 @@ async function getstate(gameId, player) {
                     player2Score: player2Score
                 });
             }
+            if (gameState.gameStatus) {
+                if (gameState.gameStatus === 'finished') {
+                    console.log(`Game ${gameId} finished. Fetching game over state for player ${player}.`);
+                    const gameOverState = await getGameOver(player);
+                    if (gameOverState) {
+                        console.log(`Game over state for player ${player}:`, gameOverState);
+                        io.to(gameId).emit('gameDefeatOver', {
+                            winner: gameOverState.winner,
+                            score: gameOverState.score
+                        });
+                    } else {
+                        console.error(`Failed to fetch game over state for game ${gameId}`);
+                    }
+                }
+                io.to(gameId).emit('gameStatusUpdate', {
+                    gameStatus: gameState.gameStatus
+                });
+                if (gameState.gameStatus === 'finished') {
+                    console.log(`Game ${gameId} finished. Stopping game loop.`);
+                    const session = gameSessions.get(gameId);
+                    if (session) {
+                        clearInterval(session.intervalId);
+                        gameSessions.delete(gameId);
+                        console.log(`Game session ${gameId} cleared from memory.`);
+                    }
+                }
+            }
             return responseData.gameState;
         } else {
             return null;
@@ -196,9 +272,33 @@ async function getstate(gameId, player) {
     }
 }
 
+function stopGame(playerName) {
+    try {
+        const reponse = fetch(`http://game:3004/api/game/stop`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                player: playerName,
+                timestamp: Date.now()
+            })
+        });
+        if (!reponse.ok) {
+            console.error('stopGame: Failed to send stop request to game logic:', reponse.status);
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('stopGame: Error communicating with game logic service:', error);
+        return false;
+    }
+}
+
 
 io.on('connection', async (socket) => {
     console.log(`Socket connected: ${socket.id}`);
+    socket.data.status = 'connected';
 
     socket.on('join', async (data) => {
         const name = data.name;
@@ -248,20 +348,48 @@ io.on('connection', async (socket) => {
         sendInput(playerName, data.key, 'keyup');
     });
 
+    socket.on('acceptGame', async () => {
+        const playerName = socket.data.playerName;
+
+        if (!playerName) {
+            console.error(`acceptGame from unidentified socket: ${socket.id}`);
+            return;
+        }
+        console.log(`Player ${playerName} accepted the game`);
+        if (pendingRedirectAcceptances.has(playerName)) {
+            const { resolve, cleanUp } = pendingRedirectAcceptances.get(playerName);
+            pendingRedirectAcceptances.delete(playerName);
+            resolve();
+            if (cleanUp) cleanUp();
+            console.log(`Redirect acceptance for player ${playerName} resolved.`);
+        } else {
+            console.warn(`Player ${playerName} accepted game but no pending redirect acceptance was found.`);
+        }
+        console.log(`Player ${playerName} status set to 'in-game' after accepting game.`);
+        socket.emit('nameAccepted', { name: playerName });
+    });
+
     socket.on('disconnect', () => {
         const disconnectedPlayerName = socketIdToPlayerName.get(socket.id);
         if (disconnectedPlayerName) {
             console.log(`Player ${disconnectedPlayerName} (socket ID: ${socket.id}) disconnected.`);
             playerNameToSocketId.delete(disconnectedPlayerName);
             socketIdToPlayerName.delete(socket.id);
+            if (pendingRedirectAcceptances.has(disconnectedPlayerName)) {
+                const { reject, cleanUp } = pendingRedirectAcceptances.get(disconnectedPlayerName);
+                pendingRedirectAcceptances.delete(disconnectedPlayerName);
+                if (cleanUp) cleanUp();
+                console.warn(`Redirect acceptance for player ${disconnectedPlayerName} rejected due to disconnect.`);
+            }
             for (const [gameId, session] of gameSessions.entries()) {
                 if (session.player1SocketId === socket.id || session.player2SocketId === socket.id) {
                     console.log(`Player ${disconnectedPlayerName} was in game ${gameId}. Notifying other player.`);
                     const otherPlayerSocketId = session.player1SocketId === socket.id ? session.player2SocketId : session.player1SocketId;
                     io.to(otherPlayerSocketId).emit('error', { message: `Your opponent ${disconnectedPlayerName} has disconnected.` });
                     clearInterval(session.intervalId);
-                    gameSessions.delete(gameId);
                     io.to(gameId).emit('gameOver', { message: `Game over. Player ${disconnectedPlayerName} has disconnected.` });
+                    stopGame(disconnectedPlayerName);
+                    gameSessions.delete(gameId);
                 }
             }
         } else {

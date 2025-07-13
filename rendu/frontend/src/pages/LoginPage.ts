@@ -1,14 +1,10 @@
 import { navigate } from '../router';
 
 export const LoginPage = (): HTMLElement => {
-    // Créer le conteneur principal
-    const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen flex items-center justify-center bg-gray-100 px-4 py-12';
 
     // Créer la carte blanche du formulaire
     const cardDiv = document.createElement('div');
     cardDiv.className = 'bg-white p-8 rounded-lg shadow-xl w-full max-w-md';
-    mainDiv.appendChild(cardDiv);
 
     // Titre
     const h2 = document.createElement('h2');
@@ -97,6 +93,14 @@ export const LoginPage = (): HTMLElement => {
     `;
     cardDiv.appendChild(registerPromptDiv);
 
+    // Lien "Retourner à l'Accueil"
+    const homeLink = document.createElement('a');
+    homeLink.href = '/';
+    homeLink.setAttribute('data-route', '/');
+    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Retourner à l\'Accueil';
+    cardDiv.appendChild(homeLink);
+
 
     // --- Logique JavaScript directement ici ---
     const handleSubmit = async (event: Event) => {
@@ -142,10 +146,5 @@ export const LoginPage = (): HTMLElement => {
 
     loginForm.addEventListener('submit', handleSubmit);
 
-    // Pas de fonction de nettoyage à retourner car les écouteurs sont attachés aux éléments créés ici,
-    // qui seront détruits lorsque la page est remplacée.
-    // Si vous aviez des écouteurs globaux (ex: window.addEventListener),
-    // vous devriez les ajouter ici et retourner une fonction pour les supprimer.
-
-    return mainDiv; // Retourne l'élément DOM racine du composant
+    return cardDiv;
 };

@@ -9,23 +9,23 @@
 
 ✅ Minor module: Use a framework or a toolkit to build the frontend.
 
-❌ Minor module: Use a database for the backend. (Sebastien)
+❌ Minor module: Use a database for the backend.
 
-❌ Major module: Implementing a remote authentication. (Stephanie)
+❌ Major module: Implementing a remote authentication.
 
-❌ Major module: Remote players (Stephane)
+✅ Major module: Remote players.
 
-❌ Major: Store the score of a tournament in the Blockchain. (Sebastien)
+✅ Major: Store the score of a tournament in the Blockchain.
 
-❌ Major module: Introduce an AI opponent. (Mathieu)
+❌ Major module: Introduce an AI opponent.
 
-✅ Major: Use advanced 3D techniques. (Gael)
+✅ Major: Use advanced 3D techniques.
 
 ✅ Major module: Designing the backend as microservices. *
 
-❌ Minor module: Multiple language support. (Sebastien)
+❌ Minor module: Multiple language support.
 
-✅ Major module: Replace basic Pong with server-side Pong and implement an API. (Mathieu)
+✅ Major module: Replace basic Pong with server-side Pong and implement an API.
 
 # Microservices
 ```
@@ -42,6 +42,7 @@ websocket
 ```
 transcendence/
 ├── backend/				# Fastify uniquement aucun framwork
+│   ├── ai/
 │   ├── authentification/
 │   ├── blockchain/
 │   ├── database/			# SQLite

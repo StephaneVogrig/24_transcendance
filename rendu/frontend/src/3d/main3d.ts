@@ -1,26 +1,56 @@
 import { Engine } from '@babylonjs/core';
-import { createScene } from './scenes/scene1';
+import { createSceneGame, resetVariables } from './scenes/sceneGame';
 import { InputManager } from './inputManager';
 
-// console.log("Initializing Babylon.js scene...");
+export class BabylonGame {
+    private static instance: BabylonGame | null = null;
+    private engine: Engine | null = null;
+    private canvas: HTMLCanvasElement | null = null;
+    private inputManager: InputManager | null = null;
+    private isInitialized: boolean = false;
 
-export const startBabylonScene = (canvas: HTMLCanvasElement) => {
-    if (!canvas) {
-        console.error("Canvas element is null or not found.");
-        return;
+    private constructor() {}
+
+    public static getInstance(): BabylonGame {
+        if (! BabylonGame.instance)
+            BabylonGame.instance = new BabylonGame();
+        return BabylonGame.instance;
     }
 
-    const engine = new Engine(canvas, true);
+    public setHomeLink(homeLink: HTMLAnchorElement) {
+        if (!this.inputManager) {
+            throw new Error("InputManager is not initialized.");
+        }
+        this.inputManager.setHomeLink(homeLink);
+    }
 
-    createScene(engine, canvas).then(scene => {
-        engine.runRenderLoop(function () {
+    public async initialize(canvas: HTMLCanvasElement) {
+        if (this.isInitialized)
+            return;
+
+        if (!canvas) {
+            throw new Error("canvas element is null or not found.");
+        }
+
+        this.canvas = canvas;
+        this.engine = new Engine(canvas, true);
+        this.inputManager = new InputManager();
+        this.isInitialized = true;
+
+        resetVariables();
+
+        const scene = await createSceneGame(this.engine, this.canvas);
+
+        this.engine.runRenderLoop(() => {
             scene.render();
         });
-    });
 
-    const inputManager = new InputManager();
+        window.addEventListener('resize', () => {
+            this.engine.resize();
+        });
+    }
 
-    window.addEventListener('resize', function () {
-        engine.resize();
-    });
+    public update() {
+        this.engine.resize();
+    }
 }

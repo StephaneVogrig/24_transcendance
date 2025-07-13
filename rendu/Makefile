@@ -1,35 +1,43 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: scraeyme <scraeyme@student.42angouleme.    +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/06/25 23:10:34 by svogrig           #+#    #+#              #
-#    Updated: 2025/07/10 13:13:38 by scraeyme         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+# Couleurs pour les messages
+RED		:= \033[0;31m
+GREEN	:= \033[0;32m
+YELLOW	:= \033[0;33m
+BLUE	:= \033[0;34m
+NC		:= \033[0m # No Color
+
 
 DOCKER_COMPOSE	= docker compose -f docker-compose.yml
 
+HOST_IP := $(shell hostname -I | tr ' ' '\n' | grep '^10\.' | head -1)
+HOST_IP := $(if $(HOST_IP),$(HOST_IP),$(shell hostname -I | cut -d' ' -f1))
+HOST_IP := $(if $(HOST_IP),$(HOST_IP),localhost)
+
+# *** Rules ********************************************************************
+
 up:
-	$(DOCKER_COMPOSE) up -d --build
+	@echo "$(GREEN)✅ IP hôte détectée: $(HOST_IP)$(NC)"
+	@HOST_IP=$(HOST_IP) $(DOCKER_COMPOSE) up -d --build
 
 down:
-	$(DOCKER_COMPOSE) down
+	@HOST_IP=$(HOST_IP) $(DOCKER_COMPOSE) down
 
 reboot: down up
 
 clean: down
+	@echo "$(YELLOW)🧹 Nettoyage...$(NC)"
 	docker system prune -af
 
 fclean:
-	docker system prune -af --volumes --remove-orphans
+	@echo "$(RED)🔥 Nettoyage complet (volumes et orphelins)...$(NC)"
+	docker system prune -af --volumes
 
-re: down clean up
+rebuild: down clean up
+
+# ******************************************************************************
 
 .PHONY:	up \
 		down \
+		reboot \
 		clean \
 		fclean \
-		re
+		rebuild

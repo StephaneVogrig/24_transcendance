@@ -1,106 +1,144 @@
 services:
 
-  gateway:
-    build: ./backend/gateway
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - ./backend/gateway:/app
-      - /app/node_modules
-    command: npm run dev
-    depends_on:
-      - authentification
-      - blockchain
-      - database
-      - game
-      - matchmaking
-      - scores
-      - tournament
-      - websocket
-      - ai
-    networks:
-      - transcendence-network
+    gateway:
+        container_name: gateway
+        build:
+            context: ./backend/gateway
+            dockerfile: Dockerfile
+        ports:
+            - "3000:3000"
+        environment:
+            - NODE_ENV=development
+            - HOST_IP=${HOST_IP}
+        volumes:
+            - ./backend/gateway:/app
+            - /app/node_modules
+        command: npm run dev
+        depends_on:
+            - authentification
+            - blockchain
+            - database
+            - game
+            - matchmaking
+            - scores
+            - tournament
+            - websocket
+            - ai
+        networks:
+            - transcendence-network
 
-  authentification:
-    build: ./backend/authentification
-    ports:
-      - "3001:3001"
-    networks:
-      - transcendence-network
+    authentification:
+        container_name: authentification
+        build:
+            context: ./backend/authentification
+            dockerfile: Dockerfile
+        ports:
+            - "3001:3001"
+        networks:
+            - transcendence-network
 
-  blockchain:
-    build: ./backend/blockchain
-    ports:
-      - "3002:3002"
-    networks:
-      - transcendence-network
-    env_file:
-      - .env
+    blockchain:
+        container_name: blockchain
+        build:
+            context: ./backend/blockchain
+            dockerfile: Dockerfile
+        ports:
+            - "3002:3002"
+        networks:
+            - transcendence-network
+        env_file:
+            - .env
 
-  database:
-    build: ./backend/database
-    ports:
-      - "3003:3003"
-    networks:
-      - transcendence-network
+    database:
+        container_name: database
+        build:
+            context: ./backend/database
+            dockerfile: Dockerfile
+        ports:
+            - "3003:3003"
+        networks:
+            - transcendence-network
 
-  game:
-    build: ./backend/game
-    ports:
-      - "3004:3004"
-    networks:
-      - transcendence-network
+    game:
+        container_name: game
+        build: ./backend/game
+        ports:
+            - "3004:3004"
+        networks:
+            - transcendence-network
 
-  matchmaking:
-    build: ./backend/matchmaking
-    ports:
-      - "3005:3005"
-    networks:
-      - transcendence-network
+    matchmaking:
+        container_name: matchmaking
+        build:
+            context: ./backend/matchmaking
+            dockerfile: Dockerfile
+        ports:
+            - "3005:3005"
+        environment:
+            - HOST_IP=${HOST_IP}
+        networks:
+            - transcendence-network
 
-  scores:
-    build: ./backend/scores
-    ports:
-      - "3006:3006"
-    networks:
-      - transcendence-network
+    scores:
+        container_name: scores
+        build:
+            context: ./backend/scores
+            dockerfile: Dockerfile
+        ports:
+            - "3006:3006"
+        networks:
+            - transcendence-network
 
-  tournament:
-    build: ./backend/tournament
-    ports:
-      - "3007:3007"
-    networks:
-      - transcendence-network
+    tournament:
+        container_name: tournament
+        build:
+            context: ./backend/tournament
+            dockerfile: Dockerfile
+        ports:
+            - "3007:3007"
+        environment:
+            - HOST_IP=${HOST_IP}
+        networks:
+            - transcendence-network
 
-  websocket:
-    build: ./backend/websocket
-    ports:
-      - "3008:3008"
-    networks:
-      - transcendence-network
+    websocket:
+        container_name: websocket
+        build:
+            context: ./backend/websocket
+            dockerfile: Dockerfile
+        ports:
+            - "3008:3008"
+        environment:
+            - HOST_IP=${HOST_IP}
+        networks:
+            - transcendence-network
 
-  ai:
-    build: ./backend/ai
-    ports:
-      - "3009:3009"
-    networks:
-      - transcendence-network
+    ai:
+        container_name: ai
+        build:
+            context: ./backend/ai
+            dockerfile: Dockerfile
+        ports:
+            - "3009:3009"
+        networks:
+            - transcendence-network
 
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev
-    depends_on:
-      - gateway
-    networks:
-      - transcendence-network
+    frontend:
+        container_name: frontend
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        ports:
+            - "5173:5173"
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+        command: npm run dev
+        depends_on:
+            - gateway
+        networks:
+            - transcendence-network
 
 networks:
-  transcendence-network:
-    driver: bridge
+    transcendence-network:
+        driver: bridge

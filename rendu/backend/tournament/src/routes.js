@@ -5,8 +5,12 @@ import cors from '@fastify/cors'
 
 const fastify = Fastify({ logger: true });
 
-await fastify.register(cors, {
-	origin: 'http://10.11.5.7:5173',
+const HOST_IP = process.env.HOST_IP;
+fastify.register(cors, {
+	origin: [
+		`http://${HOST_IP}:5173`,
+		'http://localhost:5173'
+	],
 	methods: ['GET', 'POST'],
 	credentials: true
 });

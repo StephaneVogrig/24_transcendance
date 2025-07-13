@@ -3,17 +3,17 @@ export const AboutPage = (): HTMLElement => {
     const container = document.createElement('div');
     container.className = 'container mx-auto px-4 py-12 max-w-4xl';
 
-    // Section "About Viiiiite"
+    // Section "About Viiiite"
     const aboutSection = document.createElement('section');
     aboutSection.className = 'text-center mb-12';
 
     const h1 = document.createElement('h1');
     h1.className = 'text-5xl font-extrabold text-blue-600 mb-4';
-    h1.textContent = 'About Viiiiite';
+    h1.textContent = 'About Viiiite';
     aboutSection.appendChild(h1);
 
     const pIntro = document.createElement('p');
-    pIntro.className = 'text-xl text-gray-700 leading-relaxed';
+    pIntro.className = 'text-xl text-gray-500 leading-relaxed';
     pIntro.textContent = `
         Welcome to Viiiiite, a modern take on the classic arcade game, Pong! We've reimagined this timeless favorite for the web, bringing you fast-paced, addictive gameplay right in your browser.
     `;
@@ -30,7 +30,7 @@ export const AboutPage = (): HTMLElement => {
     techSection.className = 'mb-12';
 
     const h2Tech = document.createElement('h2');
-    h2Tech.className = 'text-3xl font-bold text-gray-800 mb-6 text-center';
+    h2Tech.className = 'text-3xl font-bold text-gray-500 mb-6 text-center';
     h2Tech.textContent = 'Under the Hood';
     techSection.appendChild(h2Tech);
 
@@ -53,9 +53,9 @@ export const AboutPage = (): HTMLElement => {
     techSection.appendChild(techLogosDiv);
 
     const pTechDesc = document.createElement('p');
-    pTechDesc.className = 'text-lg text-gray-700 mt-6 text-center';
+    pTechDesc.className = 'text-lg text-gray-500 mt-6 text-center';
     pTechDesc.innerHTML = `
-        Built as a Single-Page Application (SPA) for a smooth user experience, Viiiiite leverages <strong>TypeScript</strong> for robust frontend logic and <strong>Tailwind CSS</strong> for a sleek, responsive design. Our backend, powered by <strong>Node.js</strong> and <strong>Fastify</strong>, ensures lightning-fast communication and reliable gameplay.
+        Built as a Single-Page Application (SPA) for a smooth user experience, Viiiite leverages <strong>TypeScript</strong> for robust frontend logic and <strong>Tailwind CSS</strong> for a sleek, responsive design. Our backend, powered by <strong>Node.js</strong> and <strong>Fastify</strong>, ensures lightning-fast communication and reliable gameplay.
     `;
     techSection.appendChild(pTechDesc);
     container.appendChild(techSection);
@@ -70,23 +70,16 @@ export const AboutPage = (): HTMLElement => {
     contactSection.className = 'text-center';
 
     const h2Contact = document.createElement('h2');
-    h2Contact.className = 'text-3xl font-bold text-gray-800 mb-6';
+    h2Contact.className = 'text-3xl font-bold text-gray-500 mb-6';
     h2Contact.textContent = 'We\'d Love to Hear From You!';
     contactSection.appendChild(h2Contact);
 
     const pContact = document.createElement('p');
-    pContact.className = 'text-lg text-gray-700 mb-8';
+    pContact.className = 'text-lg text-gray-500 mb-8';
     pContact.textContent = `
         Your feedback helps us make Viiiiite even better! If you have suggestions, found a bug, or just want to say hello, feel free to reach out.
     `;
     contactSection.appendChild(pContact);
-
-    // Lien Email
-    const emailLink = document.createElement('a');
-    emailLink.href = 'mailto:your.email@example.com';
-    emailLink.className = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full text-lg transition duration-300 ease-in-out';
-    emailLink.textContent = 'Send Us an Email';
-    contactSection.appendChild(emailLink);
 
     // Lien GitHub
     const githubLink = document.createElement('a');
@@ -98,6 +91,15 @@ export const AboutPage = (): HTMLElement => {
     contactSection.appendChild(githubLink);
 
     container.appendChild(contactSection);
+
+    // Lien "Retourner à l'Accueil"
+    const homeLink = document.createElement('a');
+    homeLink.href = '/';
+    homeLink.setAttribute('data-route', '/');
+    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Retourner à l\'Accueil';
+    container.appendChild(homeLink);
+
 
     return container; // Retourne l'élément DOM racine du composant
 };

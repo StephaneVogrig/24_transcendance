@@ -1,14 +1,10 @@
 import { navigate } from '../router';
 
 export const RegisterPage = (): HTMLElement => {
-    // Crée le conteneur principal
-    const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen flex items-center justify-center bg-gray-100 px-4 py-12';
 
     // Crée la carte blanche du formulaire
     const cardDiv = document.createElement('div');
     cardDiv.className = 'bg-white p-8 rounded-lg shadow-xl w-full max-w-md';
-    mainDiv.appendChild(cardDiv);
 
     // Titre
     const h2 = document.createElement('h2');
@@ -117,6 +113,16 @@ export const RegisterPage = (): HTMLElement => {
     `;
     cardDiv.appendChild(loginPromptDiv);
 
+    // Lien "Retourner à l'Accueil"
+    const homeLink = document.createElement('a');
+    homeLink.href = '/';
+    homeLink.setAttribute('data-route', '/');
+    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Retourner à l\'Accueil';
+    cardDiv.appendChild(homeLink);
+
+
+
     // --- Logique JavaScript directement ici ---
     const handleSubmit = async (event: Event) => {
         event.preventDefault();
@@ -169,5 +175,5 @@ export const RegisterPage = (): HTMLElement => {
 
     registerForm.addEventListener('submit', handleSubmit);
 
-    return mainDiv;
+    return cardDiv;
 };

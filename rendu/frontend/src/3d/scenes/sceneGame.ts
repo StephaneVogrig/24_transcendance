@@ -4,9 +4,9 @@ import { createSphere } from '../meshes/sphere';
 import { createPlatform } from '../meshes/playform';
 import { createArena } from '../meshes/arena';
 
-export const ballPosition = new Vector3(0, 0, 0);
-export const platform1Position = new Vector3(19.25, 0, 0);
-export const platform2Position = new Vector3(-19.25, 0, 0);
+export let ballPosition = new Vector3(0, 0, 0);
+export let platform1Position = new Vector3(19.25, 0, 0);
+export let platform2Position = new Vector3(-19.25, 0, 0);
 
 let ball: any = null;
 let platform1: any = null;
@@ -14,7 +14,17 @@ let platform2: any = null;
 
 let mirror = 1;
 
-export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
+export function resetVariables() {
+    ball = null;
+    platform1 = null;
+    platform2 = null;
+    ballPosition = new Vector3(0, 0, 0);
+    platform1Position = new Vector3(19.25, 0, 0);
+    platform2Position = new Vector3(-19.25, 0, 0);
+    mirror = 1;
+}
+
+export const createSceneGame = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);
 
     const camera = new ArcRotateCamera("camera", 2.2*(Math.PI/3), Math.PI/2, 50, Vector3.Zero(), scene);
@@ -31,7 +41,7 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     glow.intensity = 0.6;
 
     createSky(scene);
-    const arena = createArena(scene);
+    createArena(scene);
 
     ball = createSphere(scene);
     ball.position = ballPosition;
@@ -65,8 +75,14 @@ export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: numbe
     // console.log("Positions updated:");
 }
 
-export function teamPing(team: string) {
-    mirror = -1;
-    platform1.rotation.x = Math.PI / 2;
-    platform2.rotation.x = Math.PI / -2;
+export function teamPing(direction: number) {
+    if (direction === -1) {
+        mirror = -1;
+        platform1.rotation.x = Math.PI / 2;
+        platform2.rotation.x = Math.PI / -2;
+    } else {
+        mirror = 1;
+        platform1.rotation.x = Math.PI / -2;
+        platform2.rotation.x = Math.PI / 2;
+    }
 }

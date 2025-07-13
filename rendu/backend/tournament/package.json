@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "fastify": "^4.24.3",
-	"@fastify/cors": "^8.4.0"
+	  "@fastify/cors": "^8.4.0"
   },
   "keywords": [],
-  "author": "VITE",
+  "author": "Viiiite",
   "license": "ISC"
 }

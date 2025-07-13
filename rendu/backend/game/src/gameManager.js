@@ -8,11 +8,11 @@ function createMatchKey(player1, player2) {
     return [player1, player2].sort().join('-');
 }
 
-export function addMatch(player1, player2) {
+export function addMatch(player1, player2, maxScore) {
     const key = createMatchKey(player1, player2);
     if (map.has(key))
         throw new Error(`Match already exists for players ${player1} and ${player2}`);
-    map.set(key, new Game.Game({ player1, player2, gameId: key }));
+    map.set(key, new Game.Game({ player1, player2, gameId: key, maxScore }));
 }
 
 export function deleteMatch(player1, player2) {
@@ -20,6 +20,16 @@ export function deleteMatch(player1, player2) {
     if (!map.has(key))
         throw new Error(`No match found for players ${player1} and ${player2}`);
     map.delete(key);
+}
+
+export function stopMatch(player) {
+    for (const [key, game] of map.entries()) {
+        if (key.includes(player)) {
+            game.stop();
+            map.delete(key);
+            return;
+        }
+    }
 }
 
 export function findMatch(player) {

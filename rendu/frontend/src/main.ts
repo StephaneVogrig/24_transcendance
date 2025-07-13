@@ -25,5 +25,6 @@ addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
 
 document.addEventListener('DOMContentLoaded', () => {
-  startRouter();
+    setTimeout(() => {GamePage();}, 1600);
+    startRouter();
 });
