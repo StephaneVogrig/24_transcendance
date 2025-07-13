@@ -25,5 +25,6 @@ addRoute('/about', AboutPage);
 addRoute('/auth/callback', AuthCallbackPage);
 
 document.addEventListener('DOMContentLoaded', () => {
-  startRouter();
+    setTimeout(() => {GamePage();}, 1600);
+    startRouter();
 });

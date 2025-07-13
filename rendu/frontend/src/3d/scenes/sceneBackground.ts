@@ -1,7 +1,7 @@
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, GlowLayer, Color3 } from '@babylonjs/core';
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, GlowLayer } from '@babylonjs/core';
 import { createSky } from '../meshes/skybox';
 
-export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
+export const createSceneBackground = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);
 
     const camera = new ArcRotateCamera("camera", 2.2*(Math.PI/3), Math.PI/2, 50, Vector3.Zero(), scene);

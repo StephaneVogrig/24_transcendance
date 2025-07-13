@@ -1,9 +1,12 @@
-import { io, Socket } from "socket.io-client";
-import { updateBallAndPlatforms } from './scenes/scene1';
+import { Socket } from "socket.io-client";
+import { updateBallAndPlatforms } from './scenes/sceneGame';
 import { updateScores, gameOver } from '../pages/GamePage';
-import { teamPing } from './scenes/scene1';
+import { teamPing } from './scenes/sceneGame';
+import { gameStatusUpdate } from '../pages/GamePage';
 import { getSocket, getPlayerName } from '../websocket/websocket';
-
+import { gameDefeatOver } from '../pages/GamePage';
+import { setPlayerName } from '../pages/GamePage';
+import { navigate } from '../router';
 
 export class InputManager {
 
@@ -18,10 +21,20 @@ export class InputManager {
 		console.log("InputManager initialized");
 	}
 
-	private init() {
-		this.socket.on('message', (data) => {
-			// console.log(`Message from server: ${data}`);
+	public setHomeLink(homeLink: HTMLAnchorElement) {
+		homeLink.addEventListener('click', (event) => {
+			event.preventDefault();
+			if (this.socket) {
+				this.socket.disconnect();
+			}
+			navigate('/choice-game');
 		});
+	}
+
+	private init() {
+		// this.socket.on('message', (data) => {
+		// 	console.log(`Message from server: ${data}`);
+		// });
 
 		this.socket.on('updatePositions', (data: { ball: { x: number, y: number, z: number }, platform1: { x: number, y: number, z: number }, platform2: { x: number, y: number, z: number } }) => {
 			// console.log('Received position update:', data);
@@ -31,14 +44,37 @@ export class InputManager {
 			// console.log('Score update received:', data);
 			updateScores(data.player1Score, data.player2Score);
 		});
-		this.socket.on('gameOver', (data) => {
-			// console.log('Score update received:', data);
+		this.socket.on('gameOver', () => {
 			gameOver();
 		});
 
-		this.socket.on('teamPing', () => {
-			// console.debug(`Received team ping for team`);
-			teamPing();
+		this.socket.on('gameDefeatOver', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
+			console.log('Game defeat over received:', data);
+			gameDefeatOver(data.winner.name, data.score);
+		});
+
+		this.socket.on('teamPing', (data: { team: string }) => {
+			// console.debug(`Received team ping for team: ${data.team}`);
+			if (data.team === 'left') {
+				teamPing(-1);
+			} else if (data.team === 'right') {
+				teamPing(1);
+			}
+			// setPlayerName(data.name);
+		});
+
+		this.socket.on('nameAccepted', (data: { name: string }) => {
+			console.log(`Name accepted: ${data.name}`);
+			setPlayerName(data.name);
+		});
+
+		let gameStatus = '';
+
+		this.socket.on('gameStatusUpdate', (data: { gameStatus: string }) => {
+			if (gameStatus != data.gameStatus || data.gameStatus === 'waiting') {
+				gameStatus = data.gameStatus;
+				gameStatusUpdate(gameStatus);
+			}
 		});
 
 		window.addEventListener("popstate", (event) => {

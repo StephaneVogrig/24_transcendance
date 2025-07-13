@@ -129,6 +129,71 @@ const start = async () => {
 			}
 		});
 
+		// Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
+		fastify.post('/api/database/user/oauth', async (request, reply) => {
+			const { auth0_id, email, name, picture, provider = 'auth0' } = request.body;
+			
+			if (!auth0_id || !email || !name) {
+				return reply.status(400).send({ error: 'Missing required fields: auth0_id, email, name' });
+			}
+			
+			try {
+				// Vérifier si l'utilisateur existe déjà
+				const existingUser = await db.get('SELECT * FROM `users` WHERE auth0_id = ?', [auth0_id]);
+				
+				if (existingUser) {
+					// Mettre à jour l'utilisateur existant
+					await db.run(
+						'UPDATE `users` SET email = ?, username = ?, picture = ?, updated_at = CURRENT_TIMESTAMP WHERE auth0_id = ?',
+						[email, name, picture, auth0_id]
+					);
+					
+					const updatedUser = await db.get('SELECT * FROM `users` WHERE auth0_id = ?', [auth0_id]);
+					return reply.status(200).send({ 
+						message: 'User updated successfully', 
+						user: updatedUser 
+					});
+				} else {
+					// Créer un nouvel utilisateur
+					await db.run(
+						'INSERT INTO `users` (username, email, auth0_id, picture, provider) VALUES (?, ?, ?, ?, ?)',
+						[name, email, auth0_id, picture, provider]
+					);
+					
+					const newUser = await db.get('SELECT * FROM `users` WHERE auth0_id = ?', [auth0_id]);
+					return reply.status(201).send({ 
+						message: 'User created successfully', 
+						user: newUser 
+					});
+				}
+			} catch (err) {
+				console.error('Database error:', err);
+				return reply.status(500).send({ error: err.message });
+			}
+		});
+
+		// Route pour récupérer un utilisateur par Auth0 ID
+		fastify.get('/api/database/user/oauth/:auth0_id', async (request, reply) => {
+			const { auth0_id } = request.params;
+			
+			if (!auth0_id) {
+				return reply.status(400).send({ error: 'Missing auth0_id parameter' });
+			}
+			
+			try {
+				const user = await db.get('SELECT * FROM `users` WHERE auth0_id = ?', [auth0_id]);
+				
+				if (!user) {
+					return reply.status(404).send({ error: 'User not found' });
+				}
+				
+				return reply.status(200).send({ user });
+			} catch (err) {
+				console.error('Database error:', err);
+				return reply.status(500).send({ error: err.message });
+			}
+		});
+
 		await fastify.listen({ port: 3003, host: '0.0.0.0' });
 		console.log(`Database service listening on port 3003`);
 	} catch (err) {

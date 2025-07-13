@@ -1,7 +1,7 @@
 import { Engine } from '@babylonjs/core';
-import { createScene } from './scenes/scene2';
+import { createSceneBackground } from './scenes/sceneBackground';
 
-const startBabylonScene = (canvas: HTMLCanvasElement) => {
+const startBabylonBackground = (canvas: HTMLCanvasElement) => {
     if (!canvas) {
         console.error("Canvas element is null or not found.");
         return;
@@ -9,7 +9,7 @@ const startBabylonScene = (canvas: HTMLCanvasElement) => {
 
     const engine = new Engine(canvas, true);
 
-    createScene(engine, canvas).then(scene => {
+    createSceneBackground(engine, canvas).then(scene => {
         engine.runRenderLoop(function () {
             scene.render();
         });
@@ -36,18 +36,18 @@ export const createSky = (): HTMLElement => {
     gameContainer.appendChild(scriptConsole);
 
     const canvas = document.createElement('canvas');
-    canvas.id = 'renderCanvas';
+    canvas.id = 'backgroundCanvas';
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     canvas.style.display = 'block';
     gameContainer.appendChild(canvas);
 
     setTimeout(() => {
-        const canvasElement = document.getElementById('renderCanvas') as HTMLCanvasElement;
+        const canvasElement = document.getElementById('backgroundCanvas') as HTMLCanvasElement;
         if (canvasElement) {
-            startBabylonScene(canvasElement);
+            startBabylonBackground(canvasElement);
         } else {
-            console.error("Erreur: L'élément canvas 'renderCanvas' n'a pas été trouvé pour l'initialisation de Babylon.js.");
+            console.error("Erreur: L'élément canvas 'backgroundCanvas' n'a pas été trouvé pour l'initialisation de Babylon.js.");
         }
     }, 0);
 

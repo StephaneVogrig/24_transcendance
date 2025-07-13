@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node src/index.js"
+    "dev": "node src/index.js",
+    "migrate": "node migrate.js",
+    "test": "node src/testUserDatabase.js"
   },
   "dependencies": {
     "fastify": "^4.24.3",

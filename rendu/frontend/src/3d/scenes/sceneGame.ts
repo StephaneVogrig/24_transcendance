@@ -24,7 +24,7 @@ export function resetVariables() {
     mirror = 1;
 }
 
-export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
+export const createSceneGame = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);
 
     const camera = new ArcRotateCamera("camera", 2.2*(Math.PI/3), Math.PI/2, 50, Vector3.Zero(), scene);
@@ -41,7 +41,7 @@ export const createScene = async function (engine: Engine, canvas: HTMLCanvasEle
     glow.intensity = 0.6;
 
     createSky(scene);
-    const arena = createArena(scene);
+    createArena(scene);
 
     ball = createSphere(scene);
     ball.position = ballPosition;
@@ -75,8 +75,14 @@ export function updateBallAndPlatforms(ballPos: { x: number, y: number, z: numbe
     // console.log("Positions updated:");
 }
 
-export function teamPing(team: string) {
-    mirror = -1;
-    platform1.rotation.x = Math.PI / 2;
-    platform2.rotation.x = Math.PI / -2;
+export function teamPing(direction: number) {
+    if (direction === -1) {
+        mirror = -1;
+        platform1.rotation.x = Math.PI / 2;
+        platform2.rotation.x = Math.PI / -2;
+    } else {
+        mirror = 1;
+        platform1.rotation.x = Math.PI / -2;
+        platform2.rotation.x = Math.PI / 2;
+    }
 }
