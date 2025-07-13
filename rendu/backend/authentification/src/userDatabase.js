@@ -2,8 +2,6 @@
  * Module pour gérer les utilisateurs en base de données
  */
 
-const DATABASE_SERVICE_URL = process.env.DATABASE_SERVICE_URL || 'http://localhost:3003';
-
 /**
  * Sauvegarde ou met à jour un utilisateur OAuth en base de données
  * @param {Object} userInfo - Les informations utilisateur d'Auth0
@@ -15,26 +13,26 @@ async function saveUserToDatabase(userInfo) {
         throw new Error('User information is required');
     }
 
-    const { sub: auth0_id, email, name, picture } = userInfo;
+    const { sub: provider_id, email, nickname, picture } = userInfo;
 
-    if (!auth0_id || !email || !name) {
-        throw new Error('Missing required user fields: sub (auth0_id), email, name');
+    if (!provider_id || !email || !nickname) {
+        throw new Error('Missing required user fields: sub (provider_id), email, nickname');
     }
 
     try {
-        console.log('Saving user to database:', { auth0_id, email, name });
+        console.log('Saving user to database:', { provider_id, email, nickname, picture });
 
-        const response = await fetch(`${DATABASE_SERVICE_URL}/api/database/user/oauth`, {
+        const response = await fetch(`http://database:3003/api/database/user/oauth`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                auth0_id,
                 email,
-                name,
+                nickname,
                 picture,
-                provider: 'auth0'
+                provider: 'auth0',
+                provider_id
             })
         });
 
@@ -68,7 +66,7 @@ async function getUserFromDatabase(auth0_id) {
     try {
         console.log('Fetching user from database:', auth0_id);
 
-        const response = await fetch(`${DATABASE_SERVICE_URL}/api/database/user/oauth/${encodeURIComponent(auth0_id)}`, {
+        const response = await fetch(`http://database:3003/api/database/user/oauth/${encodeURIComponent(auth0_id)}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -85,7 +83,7 @@ async function getUserFromDatabase(auth0_id) {
         }
 
         const result = await response.json();
-        console.log('User found in database:', result.user.username);
+        console.log('User found in database:', result.user.nickname);
         
         return result.user;
 
