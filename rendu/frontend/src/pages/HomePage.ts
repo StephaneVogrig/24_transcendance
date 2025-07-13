@@ -3,12 +3,6 @@ export const HomePage = (): HTMLElement => {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'flex flex-col items-center';
 
-    // Titre
-    const h1 = document.createElement('h1');
-    h1.className = 'text-6xl font-bold mb-8 animate-bounce';
-    h1.textContent = 'Viiiiite, un Pong vite fait !';
-    contentDiv.appendChild(h1);
-
     // Navigation
     const nav = document.createElement('nav');
     nav.className = 'flex flex-col space-y-4';
