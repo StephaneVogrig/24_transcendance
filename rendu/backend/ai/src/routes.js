@@ -3,9 +3,13 @@ import * as AI from './ai.js';
 import cors from '@fastify/cors'
 
 const fastify = Fastify({ logger: true });
+const HOST_IP = process.env.HOST_IP;
 
-await fastify.register(cors, {
-	origin: 'http://10.11.5.7:5173',
+fastify.register(cors, {
+	origin: [
+		`http://${HOST_IP}:5173`,
+		'http://localhost:5173'
+	],
 	methods: ['GET', 'POST'],
 	credentials: true
 });

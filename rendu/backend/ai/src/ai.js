@@ -5,7 +5,7 @@ export async function createAI(name)
 	if (!name)
 		throw new Error("Player needed for call to createAI");
 	if (GAMES.has(name + "AI"))
-		throw new Error("Name already has a game.");
+		throw new Error("Player is already in a game.");
 	GAMES.set(name + "AI", {player: name, leftPressed: false, rightPressed: false});
 	try {
 		const player1 = name;
@@ -13,7 +13,7 @@ export async function createAI(name)
 		const response = await fetch(`http://game:3004/api/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ player1, player2 })
+			body: JSON.stringify({ player1, player2, maxScore: 5 })
 		});
 
 		if (!response.ok) {
