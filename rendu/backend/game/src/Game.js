@@ -1,4 +1,3 @@
-import * as Paddle from './Paddle.js';
 import * as Ball from './Ball.js';
 import { Player } from './Player.js';
 import { stopMatch } from './gameManager.js';

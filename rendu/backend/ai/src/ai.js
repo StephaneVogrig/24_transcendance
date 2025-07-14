@@ -1,3 +1,5 @@
+import { redirectPlayer } from './Game.js';
+
 let GAMES = new Map();
 
 export async function createAI(name)
@@ -9,7 +11,7 @@ export async function createAI(name)
 	GAMES.set(name + "AI", {player: name, leftPressed: false, rightPressed: false});
 	try {
 		const player1 = name;
-		const player2 = "AI";
+		const player2 = name + "AI";
 		const response = await fetch(`http://game:3004/api/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -20,6 +22,8 @@ export async function createAI(name)
 			const err = await response.text();
 			throw new Error(err);
 		}
+
+		redirectPlayer(player2);
 
 		console.log(`Starting match between ${player1} and ${player2}`);
 	} catch (error) {

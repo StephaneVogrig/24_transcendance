@@ -243,7 +243,6 @@ export const HomePage = (): HTMLElement => {
 	playAlone.addEventListener('click', async () => {
     const name = input.value.trim();
     try {
-		let socket = getSocket();
 		setPlayerName(name);
 
 		if (!socket.connected) {
