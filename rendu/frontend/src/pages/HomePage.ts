@@ -13,6 +13,14 @@ function disableJoining(playAlone: HTMLButtonElement, playOnline: HTMLButtonElem
 	playTournament.disabled = true;
 }
 
+function enableJoining(playAlone: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
+{
+	isWaitingForGame = false;
+	playOnline.disabled = false;
+	playAlone.disabled = false;
+	playTournament.disabled = false;
+}
+
 function startGame(gameId: string) {
 	if (isGameStarted) {
 		console.log('Game already started, skipping modal display.');
@@ -186,6 +194,7 @@ export const HomePage = (): HTMLElement => {
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			startGame(data.gameId);
+			enableJoining(playAlone, playOnline, playTournament);
 		});
 
 
@@ -223,6 +232,7 @@ export const HomePage = (): HTMLElement => {
 			socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 				console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 				startGame(data.gameId);
+				enableJoining(playAlone, playOnline, playTournament);
 			});
 
 			const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
