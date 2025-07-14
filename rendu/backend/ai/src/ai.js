@@ -1,6 +1,7 @@
-import { redirectPlayer } from './Game.js';
+import io from 'socket.io-client';
 
 let GAMES = new Map();
+let socketAddress = null;
 
 export async function createAI(name)
 {
@@ -12,6 +13,7 @@ export async function createAI(name)
 	try {
 		const player1 = name;
 		const player2 = name + "AI";
+
 		const response = await fetch(`http://game:3004/api/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -22,8 +24,6 @@ export async function createAI(name)
 			const err = await response.text();
 			throw new Error(err);
 		}
-
-		redirectPlayer(player2);
 
 		console.log(`Starting match between ${player1} and ${player2}`);
 	} catch (error) {
