@@ -136,6 +136,37 @@ export const LoginPage = (): HTMLElement => {
 //     googleButton.addEventListener('click', handleGoogleLogin);
     auth0Button.addEventListener('click', handleAuth0Login);
 
+
+    // Bouton Deconnexion
+    const deconnexion = document.createElement('button');
+    deconnexion.id = 'deconnexion-btn';
+    deconnexion.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200';
+    deconnexion.innerHTML = `
+        Deconnexion
+    `;
+    loginForm.appendChild(deconnexion);
+    // Écouteur d'événement pour la déconnexion
+    // Note: Assurez-vous que le module auth0Service a une méthode logout
+    deconnexion.addEventListener('click', async () => {
+    
+    //     try {
+    //         authMessageDiv.textContent = 'Déconnexion en cours...';
+    //         authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+            
+    //         // Utiliser Auth0 pour la déconnexion
+    //         const auth0Module = await import('../auth/auth0Service');
+    //         await auth0Module.logout();
+    //         navigate('/'); // Rediriger vers la page d'accueil après déconnexion
+    //     } catch (error) {
+    //         console.error('Erreur lors de la déconnexion:', error);
+    //         authMessageDiv.textContent = 'Erreur lors de la déconnexion. Veuillez réessayer.';
+    //         authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+    //     }
+    });
+    // --- Fin de la section Auth0 ---
+    auth0Button.addEventListener('click', handleAuth0Login);
+
+
     // Section "Don't have an account?"
     // const registerPromptDiv = document.createElement('div');
     // registerPromptDiv.className = 'mt-6 text-center';
