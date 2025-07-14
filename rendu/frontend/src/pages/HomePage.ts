@@ -239,6 +239,46 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
+	// AI button
+	playAlone.addEventListener('click', async () => {
+    const name = input.value.trim();
+    try {
+		let socket = getSocket();
+		setPlayerName(name);
+
+		if (!socket.connected) {
+			console.log("Socket not yet connected, waiting for 'connect' event...");
+			socket = getSocket();
+		}
+
+		socket.emit('join', { name: name });
+
+		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+			console.log(`GameAIPage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			startGame(data.gameId);
+		});
+
+		try {
+			const response = await fetch(`http://${window.location.hostname}:3009/api/ai/create`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({name})
+			});
+
+			if (!response.ok) {
+				const err = await response.text();
+				throw new Error(err);
+			}
+		} catch (err) {
+			console.log(`Error while starting match between AI and ${name}: ${(err as Error).message}.`);
+		}
+
+		console.log(`Partie IA créée avec ${name}`);
+		} catch (error) {
+			alert(`Erreur lors de la création: ${(error as Error).message}`);
+		}
+  	});
+
 	// Tournament button
 	playTournament.addEventListener('click', async () => {
 		const name = input.value.trim();
