@@ -163,23 +163,67 @@ export const getUser = async () => {
 };
 
 /**
+ * Nettoie les données d'authentification locales
+ */
+export const clearLocalAuth = (): void => {
+    try {
+        // Nettoyer le localStorage
+        localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::dev-yo45rdk5nhctgvu2.eu.auth0.com::openid profile email');
+        localStorage.removeItem('a0.spajs.txs');
+        localStorage.clear(); // Nettoyer tout le localStorage en dernier recours
+        
+        // Nettoyer le sessionStorage
+        sessionStorage.clear();
+        
+        console.log('Données d\'authentification locales nettoyées');
+    } catch (error) {
+        console.error('Erreur lors du nettoyage des données locales:', error);
+    }
+};
+
+/**
  * Déconnexion
  */
 export const logout = async (): Promise<void> => {
     try {
+        console.log('Début de la déconnexion...');
         const client = await initAuth0();
+        
+        // Nettoyer les données locales avant la déconnexion Auth0
+        clearLocalAuth();
+        
+        // Déconnexion Auth0 (redirige automatiquement)
         await client.logout({
             logoutParams: {
                 returnTo: window.location.origin
             }
         });
+        
     } catch (error) {
         console.error('Erreur lors de la déconnexion:', error);
-        // Fallback : nettoyer le localStorage et rediriger
-        localStorage.clear();
-        window.location.replace('/login');
+        
+        // Fallback : nettoyer les données et rediriger manuellement
+        clearLocalAuth();
+        
+        // Essayer de rediriger vers Auth0 logout manuellement
+        try {
+            const logoutUrl = `https://dev-yo45rdk5nhctgvu2.eu.auth0.com/v2/logout?returnTo=${encodeURIComponent(window.location.origin)}&client_id=VksN5p5Q9jbXcBAOw72RLLogClp44FVH`;
+            window.location.replace(logoutUrl);
+        } catch (redirectError) {
+            console.error('Erreur lors de la redirection manuelle:', redirectError);
+            // Dernier recours : redirection locale
+            window.location.replace('/login');
+        }
     }
 };
+
+//  export const logout = () => {
+//         auth0Client.logout({
+//             logoutParams: {
+//             returnTo: window.location.origin
+//             }
+//         });
+//         }
 
 /**
  * Récupère le token d'accès
@@ -197,3 +241,6 @@ export const getAccessToken = async (): Promise<string | null> => {
         return null;
     }
 };
+
+
+

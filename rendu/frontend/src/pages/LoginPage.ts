@@ -1,5 +1,5 @@
 
-import { loginWithAuth0 } from '../auth/auth0Service';
+import { loginWithAuth0, loginWithGoogle, logout } from '../auth/auth0Service';
 import { navigate } from '../router';
 
 export const LoginPage = (): HTMLElement => {
@@ -110,8 +110,7 @@ export const LoginPage = (): HTMLElement => {
             authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
             
             // Utiliser Auth0 pour la connexion Google
-            const auth0Module = await import('../auth/auth0Service');
-            await auth0Module.loginWithGoogle();
+            await loginWithGoogle();
         } catch (error) {
             console.error('Erreur lors de la connexion Google:', error);
             authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
@@ -145,24 +144,37 @@ export const LoginPage = (): HTMLElement => {
         Deconnexion
     `;
     loginForm.appendChild(deconnexion);
+
+
+
+       
     // Écouteur d'événement pour la déconnexion
-    // Note: Assurez-vous que le module auth0Service a une méthode logout
     deconnexion.addEventListener('click', async () => {
-    
-    //     try {
-    //         authMessageDiv.textContent = 'Déconnexion en cours...';
-    //         authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+        try {
+            authMessageDiv.textContent = 'Déconnexion en cours...';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+            console.log('Tentative de déconnexion...');
             
-    //         // Utiliser Auth0 pour la déconnexion
-    //         const auth0Module = await import('../auth/auth0Service');
-    //         await auth0Module.logout();
-    //         navigate('/'); // Rediriger vers la page d'accueil après déconnexion
-    //     } catch (error) {
-    //         console.error('Erreur lors de la déconnexion:', error);
-    //         authMessageDiv.textContent = 'Erreur lors de la déconnexion. Veuillez réessayer.';
-    //         authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
-    //     }
-    });
+            // Utiliser Auth0 pour la déconnexion
+            await logout();
+            
+            // La fonction logout() d'Auth0 redirige automatiquement,
+            // donc ce code ne s'exécutera que si la déconnexion échoue
+            authMessageDiv.textContent = 'Déconnexion réussie. Redirection...';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-green-600';
+            
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Erreur lors de la déconnexion:', error);
+            authMessageDiv.textContent = 'Erreur lors de la déconnexion. Veuillez réessayer.';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+        }
+    }); 
+    
+
     // --- Fin de la section Auth0 ---
     auth0Button.addEventListener('click', handleAuth0Login);
 

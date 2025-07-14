@@ -40,6 +40,21 @@ export const ChoiceGamePage = (): HTMLElement => {
     });
 
     buttonContainer.appendChild(createBtn);
+    
+    // Bouton pour voir les matchs en cours
+    const viewMatchesBtn = createButton('Voir les matchs en cours', 'bg-green-600 hover:bg-green-700');
+    viewMatchesBtn.addEventListener('click', () => {
+        navigate('/matches');
+    });
+    buttonContainer.appendChild(viewMatchesBtn);
+    
+    // Bouton pour voir le statut utilisateur
+    const userStatusBtn = createButton('Mon Profil & Statut', 'bg-purple-600 hover:bg-purple-700');
+    userStatusBtn.addEventListener('click', () => {
+        navigate('/user-status');
+    });
+    buttonContainer.appendChild(userStatusBtn);
+    
     contentDiv.appendChild(buttonContainer);
 
 	// bouton retour a l'accueil
