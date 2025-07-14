@@ -1,6 +1,7 @@
 services:
 
     gateway:
+        image: gateway
         container_name: gateway
         build:
             context: ./backend/gateway
@@ -28,6 +29,7 @@ services:
             - transcendence-network
 
     authentification:
+        image: authentification
         container_name: authentification
         build:
             context: ./backend/authentification
@@ -38,6 +40,7 @@ services:
             - transcendence-network
 
     blockchain:
+        image: blockchain
         container_name: blockchain
         build:
             context: ./backend/blockchain
@@ -50,6 +53,7 @@ services:
             - .env
 
     database:
+        image: database
         container_name: database
         build:
             context: ./backend/database
@@ -60,6 +64,7 @@ services:
             - transcendence-network
 
     game:
+        image: game
         container_name: game
         build: ./backend/game
         ports:
@@ -68,6 +73,7 @@ services:
             - transcendence-network
 
     matchmaking:
+        image: matchmaking
         container_name: matchmaking
         build:
             context: ./backend/matchmaking
@@ -80,6 +86,7 @@ services:
             - transcendence-network
 
     scores:
+        image: scores
         container_name: scores
         build:
             context: ./backend/scores
@@ -90,6 +97,7 @@ services:
             - transcendence-network
 
     tournament:
+        image: tournament
         container_name: tournament
         build:
             context: ./backend/tournament
@@ -102,6 +110,7 @@ services:
             - transcendence-network
 
     websocket:
+        image: websocket
         container_name: websocket
         build:
             context: ./backend/websocket
@@ -114,6 +123,7 @@ services:
             - transcendence-network
 
     ai:
+        image: ai
         container_name: ai
         build:
             context: ./backend/ai
@@ -124,6 +134,7 @@ services:
             - transcendence-network
 
     frontend:
+        image: frontend
         container_name: frontend
         build:
             context: ./frontend
