@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "fastify": "^4.24.3",
-	  "@fastify/cors": "^8.4.0",
 	  "web3": "^1.10.0"
   },
   "keywords": [],

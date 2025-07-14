@@ -43,7 +43,7 @@ export class AppLayout {
 
 		// Content layer
 		this.contentLayer = document.createElement('div');
-		this.contentLayer.className = 'relative z-10 flex flex-col items-center justify-center p-4 flex-grow';
+		this.contentLayer.className = 'relative z-10 flex flex-col items-center justify-center p-4 flex-grow min-h-0';
 		this.contentLayer.id = 'main-content';
 
 		this.layoutElement.appendChild(this.contentLayer);
