@@ -42,6 +42,20 @@ function playerExistsInAnyTournament(name)
 	return (false);
 }
 
+function findTournamentWithPlayer(name)
+{
+	for (const tournament of Object.values(TOURNAMENT_LIST))
+	{
+		if (tournament.players)
+		{
+			for (const player of tournament.players)
+				if (player.name && player.name === name)
+					return (tournament);
+		}
+	}
+	return (undefined);
+}
+
 async function deleteTournamentFromDb(id)
 {
 	try
@@ -146,7 +160,7 @@ async function startMatches(bracket)
 
 			console.log(`Starting match between ${player1} and ${player2}`);
 		} catch (error) {
-			console.log(`Error while starting match between ${player1} and ${player2}: ${error.message}.`);
+			console.log(`Error while starting match: ${error.message}.`);
 		}
 	}
 }
@@ -194,11 +208,7 @@ export async function joinTournament(id, name)
 	tournament.playerCount++;
 	if (tournament.playerCount === 4)
 		await startTournament(tournament);
-	else
-	{
-		TOURNAMENT_LIST[tournament.id] = tournament;
-		await modifyTournamentInDb(tournament);
-	}
+	await modifyTournamentInDb(tournament);
 }
 
 export function getCurrentRound(id)
@@ -214,31 +224,29 @@ export function getOngoingTournaments()
 	return Object.values(TOURNAMENT_LIST).filter(t => t.status === 'ongoing');
 }
 
-export async function updatePlayerScore(id, name, score)
+export async function updatePlayerScores(players)
 {
-	const tournament = TOURNAMENT_LIST[id];
+	const tournament = findTournamentWithPlayer(players[0].name);
 	if (!tournament)
-		throw new Error(`ID ${id} is invalid in updatePlayerScore call.`);
+		return false;
 	for (const match of tournament.rounds[tournament.roundIndex])
 	{
 		if (match.length !== 2)
 			continue;
-		if (match[0].name === name)
-		{
-			match[0].score = score;
-			TOURNAMENT_LIST[tournament.id] = tournament;
+		const namesInMatch = match.map(p => p.name);
+		const namesToUpdate = players.map(p => p.name);
+		if (namesToUpdate.every(name => namesInMatch.includes(name))) {
+			for (const player of match) {
+				const updated = players.find(p => p.name === player.name);
+				if (updated)
+					player.score = updated.score;
+			}
+			await advanceToNextRound(tournament.id);
 			await modifyTournamentInDb(tournament);
-			return;
-		}
-		else if (match[1].name === name)
-		{
-			match[1].score = score;
-			TOURNAMENT_LIST[tournament.id] = tournament;
-			await modifyTournamentInDb(tournament);
-			return;
+			return true;
 		}
 	}
-	throw new Error(`Player "${name}" not found in current round.`);
+	return false;
 }
 
 export function getTournament(id) {
@@ -250,6 +258,8 @@ export function getTournament(id) {
 
 function generateNextRound(pairedPlayers)
 {
+	if (pairedPlayers.length === 1)
+		return [pairedPlayers[0][0]];
 	if (pairedPlayers.length % 2 === 1)
 		throw new Error("There must be an even number of players!");
 	let winners = [];
@@ -310,7 +320,6 @@ export async function advanceToNextRound(id)
 		tournament.roundIndex++;
 		await startMatches(tournament.rounds[tournament.roundIndex]);
 	}
-	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
 }
 

@@ -93,22 +93,6 @@ fastify.post('/api/tournament/advance', async (request, reply) => {
 	reply.status(200).send(Utils.readRound(newTournament));
 });
 
-// fastify.post('/api/tournament/start', async (request, reply) => {
-// 	if (!request.body || typeof request.body.id !== 'number')
-// 	{
-// 		reply.status(400).send({ error: 'Missing or invalid id.' });
-// 		return;
-// 	}
-// 	const tournament = Tournament.TOURNAMENT_LIST[request.body.id];
-// 	if (!tournament)
-// 	{
-// 		reply.status(400).send({error: `ID ${request.body.id} is invalid.`});
-// 		return;
-// 	}
-// 	const startedTournament = Tournament.startTournament(tournament);
-// 	reply.status(200).send(Utils.readRound(startedTournament));
-// });
-
 fastify.get('/api/tournament/winner', async (request, reply) => {
 	const { id } = request.query;
 	if (typeof id === 'undefined' || isNaN(Number(id)))
@@ -125,24 +109,15 @@ fastify.get('/api/tournament/round', async (request, reply) => {
 	reply.status(200).send(Utils.readRound(round));
 });
 
-fastify.post('/api/tournament/playerscore', async (request, reply) => {
-	if (!request.body || typeof request.body.id !== 'number')
-	{
-		reply.status(400).send({ error: 'Missing or invalid id.' });
-		return;
-	}
-	else if (!request.body.name || typeof request.body.name !== 'string')
-	{
-		reply.status(400).send({ error: 'Missing or Invalid player name.' });
-		return;
-	}
-	else if (typeof request.body.score !== 'number')
-	{
-		reply.status(400).send({ error: 'Missing or Invalid player score.' });
-		return;
-	}
-	Tournament.updatePlayerScore(request.body.id, request.body.name, request.body.score);
-	reply.status(200).send({ message: 'Score updated successfully!' });
+fastify.post('/api/tournament/playerscores', async (request, reply) => {
+	const { players } = request.body;
+	if (!players)
+		return reply.status(400).send({ error: 'Missing or invalid players.' });
+	const success = Tournament.updatePlayerScores(players);
+	if (!success)
+		reply.status(404).send();
+	else
+		reply.status(200).send({ message: 'Score updated successfully!' });
 });
 
 start();

@@ -102,7 +102,19 @@ export class Game {
                     this.gameStatus = 'finished';
                     await new Promise(r => setTimeout(r, 1000));
                     console.debug(`this.player1.name=${this.player1.getName()}, this.player1.getScore()=${this.player1.getScore()}, this.player2.getName()=${this.player2.getName()}, this.player2.getScore()=${this.player2.getScore()}`);
-                    stopMatch(this.player1.getName());
+					try {
+						const response = await fetch(`http://tournament:3007/api/tournament/playerscores`, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({
+								players: [{name: this.player1.getName(), score: this.player1.getScore()}, 
+									{name: this.player2.getName(), score: this.player2.getScore()}]
+							})
+						});
+					} catch (error) {}
+					stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();
                 this.player2.inputManager();
