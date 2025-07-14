@@ -17,6 +17,31 @@ export interface Match {
     updatedAt: Date;
 }
 
+
+// //recuperer les informations du tournoi
+// export async function getTournamentInfo(tournamentId: string): Promise<any> {
+//     try {
+//         const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/getAll`, {
+//             method: 'GET',
+//             headers: { 'Content-Type': 'application/json' },
+//         });
+        
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+//         // Assumer que la réponse est un tableau de tournois
+//         // et trouver celui qui correspond à tournamentId
+
+//         const data = await response.json();
+//         console.log('Liste des tournois:', data);
+//         return data.find((tournament: any) => tournament.id === tournamentId);
+//     } catch (error) {
+//         console.error('Erreur lors de la récupération des informations du tournoi:', error);
+//         throw error;
+//     }
+// }
+
+
 /**
  * Récupère la liste des matchs en cours
  */
