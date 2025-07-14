@@ -84,15 +84,14 @@ function showGameOverModal() {
     
     const title = document.createElement('h2');
     title.className = 'text-5xl font-extrabold text-red-600 mb-4 tracking-wide';
-    title.textContent = 'Game Over !';
+    title.textContent = 'Game Over!';
     modalContent.appendChild(title);
     
     const message = document.createElement('p');
     message.className = 'text-2xl text-gray-800 font-medium';
     message.textContent = 'Thanks for playing! Your game has ended.';
     modalContent.appendChild(message);
-    
-    
+
     const homeLink = document.createElement('a');
     homeLink.href = '#';
     homeLink.setAttribute('data-route', '/game');
@@ -156,9 +155,6 @@ export function updateScores(player1Score: number, player2Score: number) {
         }
         scoreParagraph.innerHTML = coloredHtml;
     }
-    else {
-        console.error("Score paragraph element not found.");
-    }
 }
 
 export function gameStatusUpdate(status: string) {
@@ -171,7 +167,7 @@ export function gameStatusUpdate(status: string) {
         let glowColor = 'rgba(255, 255, 255, 0.7)';
 
         if (status === 'ready') {
-            displayStatus = 'Your opponent has joined the game !';
+            displayStatus = 'Your opponent has joined the game!';
             baseColor = '#4299E1';
             glowColor = 'rgba(124, 255, 253, 0.7)';
         } else if (status === 'started') {
@@ -198,8 +194,6 @@ export function gameStatusUpdate(status: string) {
             }
         }
         statusElement.innerHTML = coloredHtml;
-    } else {
-        console.error("Status element not found.");
     }
 }
 

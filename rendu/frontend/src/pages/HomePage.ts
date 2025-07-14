@@ -40,12 +40,12 @@ function showGameModal(gameId: string) {
 
 	const title = document.createElement('h2');
 	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'game found !';
+	title.textContent = 'Game found!';
 	modalContent.appendChild(title);
 	
 	const message = document.createElement('p');
 	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Thanks for waiting! Find your opponent and start the game between ' + gameId + ' !';
+	message.textContent = 'Thanks for waiting! Find your opponent and start the game between ' + gameId + '!';
 	modalContent.appendChild(message);
 
 	const homeLink = document.createElement('a');
@@ -86,17 +86,31 @@ function showTournamentModal(id: number) {
 	message.textContent = 'Tournament joined ! ID: ' + id + ". Please wait for other players to join.";
 	modalContent.appendChild(message);
 
-	const closeBtn = document.createElement('button');
-	closeBtn.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-	closeBtn.textContent = 'Close';
-	closeBtn.addEventListener('click', (event) => {
-		event.preventDefault();
-		modalOverlay.remove(); 
-	});
-
-	modalContent.appendChild(closeBtn);
 	modalOverlay.appendChild(modalContent);
 	document.body.appendChild(modalOverlay);
+}
+
+const showWaitingGameModal = (): HTMLDivElement => {
+	const modalOverlay = document.createElement('div');
+	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+	modalOverlay.id = 'waitingGameModalOverlay';
+	
+	const modalContent = document.createElement('div');
+	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+
+	const title = document.createElement('h2');
+	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
+	title.textContent = 'Game';
+	modalContent.appendChild(title);
+	
+	const message = document.createElement('p');
+	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
+	message.textContent = 'Waiting for opponent...';
+	modalContent.appendChild(message);
+
+	modalOverlay.appendChild(modalContent);
+	document.body.appendChild(modalOverlay);
+	return modalOverlay;
 }
 
 export const HomePage = (): HTMLElement => {
@@ -122,13 +136,20 @@ export const HomePage = (): HTMLElement => {
 	const input = document.createElement('input');
 	input.type = 'text';
 	input.placeholder = 'Entrez votre nom...';
+	input.maxLength = 20;
 	input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-50 focus:outline-none';
 	input.addEventListener('input', () => {
-        const isEmpty = input.value.trim().length < 3 || isWaitingForGame;
+        const isEmpty = (input.value.trim().length < 3 || input.value.length > 20) || isWaitingForGame;
         playOnline.disabled = isEmpty;
         playAlone.disabled = isEmpty;
         playTournament.disabled = isEmpty;
     });
+	input.addEventListener('keydown', (e) => {
+		if (e.key === ' ' || e.key === 'Tab') {
+			e.preventDefault();
+		}
+	});
+
 	contentDiv.appendChild(input);
 
 	// Play online button
@@ -178,6 +199,7 @@ export const HomePage = (): HTMLElement => {
 			console.error('Error leaving game:', error);
 			}
 		}
+		const button = showWaitingGameModal();
 		isGameStarted = false;
 		console.log('isGameStarted set to :', isGameStarted);
 		name = input.value.trim();
@@ -193,10 +215,10 @@ export const HomePage = (): HTMLElement => {
 		console.log(`redirecting to game with name: ${name}`);
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			button.remove();
 			startGame(data.gameId);
 			enableJoining(playAlone, playOnline, playTournament);
 		});
-
 
 		try {
 			console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
@@ -213,6 +235,7 @@ export const HomePage = (): HTMLElement => {
 			disableJoining(playAlone, playOnline, playTournament);
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
+			button.remove();
 		}
 	});
 

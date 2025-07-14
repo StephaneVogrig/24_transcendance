@@ -27,7 +27,7 @@ export class InputManager {
 			if (this.socket) {
 				this.socket.disconnect();
 			}
-			navigate('/choice-game');
+			navigate('/');
 		});
 	}
 
