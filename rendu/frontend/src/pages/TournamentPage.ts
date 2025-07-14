@@ -1,37 +1,5 @@
-import { getSocket, setPlayerName } from '../websocket/websocket';
-import { startGame } from './ChoiceGamePage.ts';
+
 import { navigate } from '../router'
-
-function showTournamentModal(id: number) {
-	const modalOverlay = document.createElement('div');
-	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-	modalOverlay.id = 'tournamentFoundModalOverlay';
-	
-	const modalContent = document.createElement('div');
-	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
-
-	const title = document.createElement('h2');
-	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'Tournament';
-	modalContent.appendChild(title);
-	
-	const message = document.createElement('p');
-	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Tournament joined ! ID: ' + id + ". Please wait for other players to join.";
-	modalContent.appendChild(message);
-
-	const closeBtn = document.createElement('button');
-	closeBtn.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-	closeBtn.textContent = 'Close';
-	closeBtn.addEventListener('click', (event) => {
-		event.preventDefault();
-		modalOverlay.remove(); 
-	});
-
-	modalContent.appendChild(closeBtn);
-	modalOverlay.appendChild(modalContent);
-	document.body.appendChild(modalOverlay);
-}
 
 export const TournamentPage = (): HTMLElement => {
   // Main container
@@ -86,44 +54,7 @@ export const TournamentPage = (): HTMLElement => {
   buttonContainer.appendChild(returnHome);
   mainDiv.appendChild(buttonContainer);
 
-  joinBtn.addEventListener('click', async () => {
-    const name = input.value.trim();
-    try {
-		let socket = getSocket();
-		setPlayerName(name);
-		
-		if (!socket.connected) {
-			console.log("Socket not yet connected, waiting for 'connect' event...");
-			socket = getSocket();
-		}
-
-		socket.emit('join', { name: name });
-
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`TournamentPage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			startGame(data.gameId);
-		});
-
-		const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name })
-		});
-
-		if (!response.ok) {
-			const err = await response.text();
-			throw new Error(err);
-		}
-
-		const data = await response.json();
-		console.log('Tournoi rejoins:', data);
-
-		if (data.playerCount < 4)
-			showTournamentModal(data.id);
-	} catch (error) {
-		alert(`Erreur lors de la création: ${(error as Error).message}`);
-	}
-  });
+  
 
   return mainDiv;
 };
