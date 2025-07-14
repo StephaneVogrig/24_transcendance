@@ -102,7 +102,7 @@ function showGameOverModal() {
         isGameOver = false;
         event.preventDefault();
         modalOverlay.remove(); 
-        navigate('/choice-game');
+        navigate('/');
     });
     
     modalContent.appendChild(homeLink);

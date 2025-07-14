@@ -15,7 +15,7 @@
   }
 
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white text-left; /* Exemple de couleur primaire */
+    @apply bg-blue-600 hover:bg-blue-700 text-white text-left disabled:opacity-50 disabled:cursor-not-allowed; /* Exemple de couleur primaire */
   }
   
   .btn-secondary {
