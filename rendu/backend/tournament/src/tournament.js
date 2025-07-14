@@ -118,12 +118,6 @@ async function registerTournamentToDb(tournament)
 
 export async function createTournament(name)
 {
-	const tmp = name;
-	name = name.trim();
-	if (playerExistsInAnyTournament(name))
-		throw new Error(`Couldn't create tournament: name '${name}' is already in a tournament.`);
-	if (name.length < 3)
-		throw new Error(`Couldn't create tournament: name '${tmp}' is invalid.`);
 	const tournament = {
 		id: TOTAL_TOURNAMENTS,
 		players: [{name: name, score: 0}],
@@ -188,11 +182,11 @@ export function findTournament()
 		.filter(t => t.status === 'open' && t.playerCount < 4)
 		.sort((a, b) => b.players.length - a.players.length);
 	if (tournaments.length < 1)
-		throw new Error("No tournaments available right now.");
+		return undefined;
 	return tournaments[0];
 }
 
-export async function joinTournament(id, name)
+export async function joinTournament(name)
 {
 	const tmp = name;
 	name = name.trim();
@@ -200,7 +194,9 @@ export async function joinTournament(id, name)
 		throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
 	if (name.length < 3)
 		throw new Error(`Couldn't create tournament: name '${tmp}' is invalid.`);
-	const tournament = getTournament(id);
+	const tournament = findTournament();
+	if (!tournament)
+		return createTournament(name);
 	if (tournament.status !== 'open')
 		throw new Error(`Tournament ${id} is full, ongoing or finished.`);
 	tournament.players.push({name: name, score: 0});
@@ -208,6 +204,7 @@ export async function joinTournament(id, name)
 	if (tournament.playerCount === 4)
 		await startTournament(tournament);
 	await modifyTournamentInDb(tournament);
+	return tournament;
 }
 
 export function getCurrentRound(id)

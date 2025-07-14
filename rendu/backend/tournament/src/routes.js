@@ -57,8 +57,7 @@ fastify.post('/api/tournament/join', async (request, reply) => {
 	const name = request.body.name;
 	try
 	{
-		const tournament = Tournament.findTournament();
-		await Tournament.joinTournament(tournament.id, name);
+		const tournament = await Tournament.joinTournament(name);
 		return reply.send(tournament);
 	} catch (err)
 	{
