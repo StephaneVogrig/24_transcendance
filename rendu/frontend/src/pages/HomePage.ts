@@ -3,8 +3,17 @@ import { navigate } from '../router';
 
 let socket = getSocket();
 let isGameStarted = false;
+let isWaitingForGame = false;
 
-export function startGame(gameId: string) {
+function disableJoining(playAlone: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
+{
+	isWaitingForGame = true;
+	playOnline.disabled = true;
+	playAlone.disabled = true;
+	playTournament.disabled = true;
+}
+
+function startGame(gameId: string) {
 	if (isGameStarted) {
 		console.log('Game already started, skipping modal display.');
 		return;
@@ -107,7 +116,7 @@ export const HomePage = (): HTMLElement => {
 	input.placeholder = 'Entrez votre nom...';
 	input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-50 focus:outline-none';
 	input.addEventListener('input', () => {
-        const isEmpty = input.value.trim().length < 3;
+        const isEmpty = input.value.trim().length < 3 || isWaitingForGame;
         playOnline.disabled = isEmpty;
         playAlone.disabled = isEmpty;
         playTournament.disabled = isEmpty;
@@ -192,9 +201,9 @@ export const HomePage = (): HTMLElement => {
 				console.error('Erreur lors de la requête de matchmaking:', response.statusText);
 				throw new Error('Failed to join the game');
 			}
-
+			disableJoining(playAlone, playOnline, playTournament);
 		} catch (error) {
-		alert(`Erreur lors de la création: ${(error as Error).message}`);
+			alert(`Erreur lors de la création: ${(error as Error).message}`);
 		}
 	});
 
@@ -232,6 +241,7 @@ export const HomePage = (): HTMLElement => {
 
 			if (data.playerCount < 4)
 				showTournamentModal(data.id);
+			disableJoining(playAlone, playOnline, playTournament);
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 		}
