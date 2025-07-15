@@ -19,8 +19,8 @@ export const AuthCallbackPage = (_pathParams?: Record<string, string>, _queryPar
             // Utiliser Auth0 pour gérer le callback
             await handleAuthCallback('');
             
-            // Redirection vers la page principale
-            window.location.replace('/choice-game');
+            // Redirection 
+            window.location.replace('/profile');
             
         } catch (error) {
             console.error('Erreur lors du callback Auth0:', error);
