@@ -193,6 +193,12 @@ async function getstate(gameId, player) {
 				z: gameState.ball._y / 2.5
 			};
 
+			const ballSpeed = {
+				x: gameState.ballspeed._x,
+				y: 0,
+				z: gameState.ballspeed._z
+			};
+
 			let platform1Pos = null;
 			if (gameState.player1 && gameState.player1.paddle){
 				platform1Pos = {
@@ -223,6 +229,11 @@ async function getstate(gameId, player) {
 					ball: ballPos,
 					platform1: platform1Pos,
 					platform2: platform2Pos
+				});
+				io.to(gameId).emit('IAState', {
+					ball: ballPos,
+					ballspeed: ballSpeed,
+					platform: platform1Pos
 				});
 			}
 			if (gameState.score) {
