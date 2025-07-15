@@ -9,7 +9,9 @@
     "dev": "node src/index.js"
   },
   "dependencies": {
-    "fastify": "^4.24.3"
+    "fastify": "^4.24.3",
+	  "@fastify/cors": "^8.4.0",
+    "dotenv": "^16.3.1"
   },
   "keywords": [],
   "author": "Viiiite",
