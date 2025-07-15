@@ -93,12 +93,13 @@ async function registerToBlockchain(tournament)
 			winner
 		).estimateGas({ from: account.address });
 
-		return await contract.methods.registerTournament(
+		const receipt = await contract.methods.registerTournament(
 			tournament.id,
 			tournament.players.map(player => player.name),
 			tournament.players.map(player => player.score),
 			tournament.createdAt,
 			winner).send({from: account.address, gas});
+		return receipt.transactionHash;
 	} catch (err)
 	{
 		console.log(err);
