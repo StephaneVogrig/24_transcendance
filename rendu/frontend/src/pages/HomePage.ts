@@ -1,5 +1,6 @@
 import { getSocket, setPlayerName } from '../websocket/websocket';
 import { navigate } from '../router';
+import { bottomBtn } from './components/bottomBtn';
 
 let socket = getSocket();
 let isGameStarted = false;
@@ -7,317 +8,324 @@ let isWaitingForGame = false;
 
 function disableJoining(playAlone: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
 {
-	isWaitingForGame = true;
-	playOnline.disabled = true;
-	playAlone.disabled = true;
-	playTournament.disabled = true;
+    isWaitingForGame = true;
+    playOnline.disabled = true;
+    playAlone.disabled = true;
+    playTournament.disabled = true;
 }
 
 function enableJoining(playAlone: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
 {
-	isWaitingForGame = false;
-	playOnline.disabled = false;
-	playAlone.disabled = false;
-	playTournament.disabled = false;
+    isWaitingForGame = false;
+    playOnline.disabled = false;
+    playAlone.disabled = false;
+    playTournament.disabled = false;
 }
 
 function startGame(gameId: string) {
-	if (isGameStarted) {
-		console.log('Game already started, skipping modal display.');
-		return;
-	}
-	isGameStarted = true;
-	showGameModal(gameId);
+    if (isGameStarted) {
+        console.log('Game already started, skipping modal display.');
+        return;
+    }
+    isGameStarted = true;
+    showGameModal(gameId);
 }
 
 function showGameModal(gameId: string) {
-	const modalOverlay = document.createElement('div');
-	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-	modalOverlay.id = 'gameOverModalOverlay';
-	
-	const modalContent = document.createElement('div');
-	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+    modalOverlay.id = 'gameOverModalOverlay';
 
-	const title = document.createElement('h2');
-	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'Game found!';
-	modalContent.appendChild(title);
-	
-	const message = document.createElement('p');
-	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Thanks for waiting! Find your opponent and start the game between ' + gameId + '!';
-	modalContent.appendChild(message);
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
 
-	const homeLink = document.createElement('a');
-	homeLink.href = '#';
-	homeLink.setAttribute('data-route', '/game');
-	homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-	homeLink.textContent = 'Join the game';
-	homeLink.addEventListener('click', (event) => {
-		console.log('Game started, navigating to game page.');
-		isGameStarted = false;
-		console.log('isGameStarted set to :', isGameStarted);
-		event.preventDefault();
-		modalOverlay.remove(); 
-		socket.emit('acceptGame');
-		navigate('/game');
-	});
+    const title = document.createElement('h2');
+    title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
+    title.textContent = 'Game found!';
+    modalContent.appendChild(title);
 
-	modalContent.appendChild(homeLink);
-	modalOverlay.appendChild(modalContent);
-	document.body.appendChild(modalOverlay);
+    const message = document.createElement('p');
+    message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
+    message.textContent = 'Thanks for waiting! Find your opponent and start the game between ' + gameId + '!';
+    modalContent.appendChild(message);
+
+    const homeLink = document.createElement('a');
+    homeLink.href = '#';
+    homeLink.setAttribute('data-route', '/game');
+    homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+    homeLink.textContent = 'Join the game';
+    homeLink.addEventListener('click', (event) => {
+        console.log('Game started, navigating to game page.');
+        isGameStarted = false;
+        console.log('isGameStarted set to :', isGameStarted);
+        event.preventDefault();
+        modalOverlay.remove();
+        socket.emit('acceptGame');
+        navigate('/game');
+    });
+
+    modalContent.appendChild(homeLink);
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
 }
 
-function showTournamentModal(id: number) {
-	const modalOverlay = document.createElement('div');
-	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-	modalOverlay.id = 'tournamentFoundModalOverlay';
-	
-	const modalContent = document.createElement('div');
-	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+function showTournamentModal(id: number): HTMLDivElement {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+    modalOverlay.id = 'tournamentFoundModalOverlay';
 
-	const title = document.createElement('h2');
-	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'Tournament';
-	modalContent.appendChild(title);
-	
-	const message = document.createElement('p');
-	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Tournament joined ! ID: ' + id + ". Please wait for other players to join.";
-	modalContent.appendChild(message);
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
 
-	modalOverlay.appendChild(modalContent);
-	document.body.appendChild(modalOverlay);
+    const title = document.createElement('h2');
+    title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
+    title.textContent = 'Tournament';
+    modalContent.appendChild(title);
+
+    const message = document.createElement('p');
+    message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
+    message.textContent = 'Tournament joined ! ID: ' + id + ". Please wait for other players to join.";
+    modalContent.appendChild(message);
+
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+    return modalOverlay;
 }
 
-const showWaitingGameModal = (): HTMLDivElement => {
-	const modalOverlay = document.createElement('div');
-	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-	modalOverlay.id = 'waitingGameModalOverlay';
-	
-	const modalContent = document.createElement('div');
-	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+function showWaitingGameModal(): HTMLDivElement {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+    modalOverlay.id = 'waitingGameModalOverlay';
 
-	const title = document.createElement('h2');
-	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'Game';
-	modalContent.appendChild(title);
-	
-	const message = document.createElement('p');
-	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Waiting for opponent...';
-	modalContent.appendChild(message);
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
 
-	modalOverlay.appendChild(modalContent);
-	document.body.appendChild(modalOverlay);
-	return modalOverlay;
+    const title = document.createElement('h2');
+    title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
+    title.textContent = 'Game';
+    modalContent.appendChild(title);
+
+    const message = document.createElement('p');
+    message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
+    message.textContent = 'Waiting for opponent...';
+    modalContent.appendChild(message);
+
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+    return modalOverlay;
 }
 
 export const HomePage = (): HTMLElement => {
 
-	const contentDiv = document.createElement('div');
-	contentDiv.className = 'flex flex-col items-center';
+    const content = document.createElement('div');
+    content.className = 'mx-auto max-w-7xl h-full grid grid-rows-[auto_1fr_auto] gap-8';
 
-	// Navigation
-	const nav = document.createElement('nav');
-	nav.className = 'flex flex-col space-y-4';
+    // Navigation
+    const nav = document.createElement('nav');
+    nav.className = 'flex flex-col space-y-4';
 
-	// Fonction utilitaire pour créer un lien de navigation
-	const createNavLink = (text: string, route: string, className: string): HTMLAnchorElement => {
-		const link = document.createElement('a');
-		link.href = '#'; // Le href est souvent un '#' ou le chemin réel pour l'accessibilité
-		link.setAttribute('data-route', route);
-		link.className = className;
-		link.textContent = text;
-		return link;
-	};
+    // Fonction utilitaire pour créer un lien de navigation
+    const createNavLink = (text: string, route: string): HTMLAnchorElement => {
+        const link = document.createElement('a');
+        link.href = '#'; // Le href est souvent un '#' ou le chemin réel pour l'accessibilité
+        link.setAttribute('data-route', route);
+        link.className = 'btn btn-secondary text-center';
+        link.textContent = text;
+        return link;
+    };
 
-	// Champ nom
-	const input = document.createElement('input');
-	input.type = 'text';
-	input.placeholder = 'Entrez votre nom...';
-	input.maxLength = 20;
-	input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-50 focus:outline-none';
-	input.addEventListener('input', () => {
+    nav.appendChild(createNavLink('Se connecter', '/login'));
+
+    // Champ nom
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Pseudo...';
+    input.maxLength = 20;
+    input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-50 border-4 border-cyan-400 text-white bg-transparent focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-[0_0_10px_#00ffff]';
+    input.addEventListener('input', () => {
         const isEmpty = (input.value.trim().length < 3 || input.value.length > 20) || isWaitingForGame;
         playOnline.disabled = isEmpty;
         playAlone.disabled = isEmpty;
         playTournament.disabled = isEmpty;
+        playLocal.disabled = isEmpty;
     });
-	input.addEventListener('keydown', (e) => {
-		if (e.key === ' ' || e.key === 'Tab') {
-			e.preventDefault();
-		}
-	});
+    input.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Tab') {
+            e.preventDefault();
+        }
+    });
 
-	contentDiv.appendChild(input);
+    nav.appendChild(input);
 
-	// Play online button
-	const playOnline = document.createElement('button');
-	playOnline.textContent = 'Jouer en ligne';
-	playOnline.className = 'btn btn-primary';
-	playOnline.disabled = true;
-	nav.appendChild(playOnline);
+    const createJoinButton = (title: string): HTMLButtonElement => {
+        const button = document.createElement('button');
+        button.textContent = title;
+        button.className = 'btn btn-primary text-center';
+        button.disabled = true;
+        return button;
+    }
 
-	const playAlone = document.createElement('button');
-	playAlone.textContent = 'Jouer solo';
-	playAlone.className = 'btn btn-primary';
-	playAlone.disabled = true;
-	nav.appendChild(playAlone);
+    const playOnline = createJoinButton('Play online');
+    nav.appendChild(playOnline);
 
-	// Play tournament button
-	const playTournament = document.createElement('button');
-	playTournament.textContent = 'Tournoi';
-	playTournament.className = 'btn btn-primary';
-	playTournament.disabled = true;
-	nav.appendChild(playTournament);
+    const playLocal = createJoinButton('Play local');
+    nav.appendChild(playLocal);
 
-	nav.appendChild(createNavLink('Profil', '/profile', 'btn btn-secondary'));
-	nav.appendChild(createNavLink('Classement', '/leaderboard', 'btn btn-secondary'));
-	nav.appendChild(createNavLink('À propos', '/about', 'btn btn-secondary'));
-	nav.appendChild(createNavLink('Se connecter', '/login', 'btn btn-outline'));
-	nav.appendChild(createNavLink('S\'inscrire', '/register', 'btn btn-outline'));
+    const playAlone = createJoinButton('Play solo');
+    nav.appendChild(playAlone);
 
-	contentDiv.appendChild(nav);
+    const playTournament = createJoinButton('Join next tournament');
+    nav.appendChild(playTournament);
 
-	// Join game button
-	let name: string;
-	playOnline.addEventListener('click', async () => {
-		if (name) {
-			console.log(`Leaving the game with name: ${name}`);
-			try {
-			const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/leave`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: name })
-			});
-			if (!response.ok) {
-				console.error('Erreur lors de la requête de leave:', response.statusText);
-			}
-			console.log('Successfully left the game');
-			} catch (error) {
-			console.error('Error leaving game:', error);
-			}
-		}
-		const button = showWaitingGameModal();
-		isGameStarted = false;
-		console.log('isGameStarted set to :', isGameStarted);
-		name = input.value.trim();
-		console.log(`Rejoindre une partie avec le nom: ${name}`);
+    nav.appendChild(createNavLink('Classement', '/leaderboard'));
+    nav.appendChild(createNavLink('langage', '/'));
 
-		setPlayerName(name);
+    content.appendChild(nav);
 
-		if (!socket.connected)
-			socket = getSocket();
+     // about
+    content.appendChild(bottomBtn('about', '/about'));
 
-		socket.emit('join', { name: name });
+    // Join game button
+    let name: string;
+    playOnline.addEventListener('click', async () => {
+        if (name) {
+            console.log(`Leaving the game with name: ${name}`);
+            try {
+            const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/leave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name })
+            });
+            if (!response.ok) {
+                console.error('Erreur lors de la requête de leave:', response.statusText);
+            }
+            console.log('Successfully left the game');
+            } catch (error) {
+            console.error('Error leaving game:', error);
+            }
+        }
+        const button = showWaitingGameModal();
+        isGameStarted = false;
+        console.log('isGameStarted set to :', isGameStarted);
+        name = input.value.trim();
+        console.log(`Rejoindre une partie avec le nom: ${name}`);
 
-		console.log(`redirecting to game with name: ${name}`);
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			button.remove();
-			startGame(data.gameId);
-			enableJoining(playAlone, playOnline, playTournament);
-		});
+        setPlayerName(name);
 
-		try {
-			console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
-			const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: name })
-			});
+        if (!socket.connected)
+            socket = getSocket();
 
-			if (!response.ok) {
-				console.error('Erreur lors de la requête de matchmaking:', response.statusText);
-				throw new Error('Failed to join the game');
-			}
-			disableJoining(playAlone, playOnline, playTournament);
-		} catch (error) {
-			alert(`Erreur lors de la création: ${(error as Error).message}`);
-			button.remove();
-		}
-	});
+        socket.emit('join', { name: name });
 
-	// AI button
-	playAlone.addEventListener('click', async () => {
+        console.log(`redirecting to game with name: ${name}`);
+        socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+            console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+            button.remove();
+            startGame(data.gameId);
+            enableJoining(playAlone, playOnline, playTournament);
+        });
+
+        try {
+            console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
+            const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name })
+            });
+
+            if (!response.ok) {
+                console.error('Erreur lors de la requête de matchmaking:', response.statusText);
+                throw new Error('Failed to join the game');
+            }
+            disableJoining(playAlone, playOnline, playTournament);
+        } catch (error) {
+            alert(`Erreur lors de la création: ${(error as Error).message}`);
+            button.remove();
+        }
+    });
+
+    // AI button
+    playAlone.addEventListener('click', async () => {
     const name = input.value.trim();
     try {
-		setPlayerName(name);
+        setPlayerName(name);
 
-		if (!socket.connected) {
-			console.log("Socket not yet connected, waiting for 'connect' event...");
-			socket = getSocket();
-		}
+        if (!socket.connected) {
+            console.log("Socket not yet connected, waiting for 'connect' event...");
+            socket = getSocket();
+        }
 
-		socket.emit('join', { name: name });
+        socket.emit('join', { name: name });
 
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`GameAIPage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			startGame(data.gameId);
-		});
+        socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+            console.log(`GameAIPage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+            startGame(data.gameId);
+        });
 
-		try {
-			const response = await fetch(`http://${window.location.hostname}:3009/api/ai/create`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({name})
-			});
+        try {
+            const response = await fetch(`http://${window.location.hostname}:3009/api/ai/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({name})
+            });
 
-			if (!response.ok) {
-				const err = await response.text();
-				throw new Error(err);
-			}
-		} catch (err) {
-			console.log(`Error while starting match between AI and ${name}: ${(err as Error).message}.`);
-		}
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
+        } catch (err) {
+            console.log(`Error while starting match between AI and ${name}: ${(err as Error).message}.`);
+        }
 
-		console.log(`Partie IA créée avec ${name}`);
-		} catch (error) {
-			alert(`Erreur lors de la création: ${(error as Error).message}`);
-		}
-  	});
+        console.log(`Partie IA créée avec ${name}`);
+        } catch (error) {
+            alert(`Erreur lors de la création: ${(error as Error).message}`);
+        }
+      });
 
-	// Tournament button
-	playTournament.addEventListener('click', async () => {
-		const name = input.value.trim();
-		try {
-			setPlayerName(name);
-			
-			if (!socket.connected) {
-				console.log("Socket not yet connected, waiting for 'connect' event...");
-				socket = getSocket();
-			}
+    // Tournament button
+    playTournament.addEventListener('click', async () => {
+        const name = input.value.trim();
+        try {
+            setPlayerName(name);
 
-			socket.emit('join', { name: name });
+            if (!socket.connected) {
+                console.log("Socket not yet connected, waiting for 'connect' event...");
+                socket = getSocket();
+            }
 
-			socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-				console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-				startGame(data.gameId);
-				enableJoining(playAlone, playOnline, playTournament);
-			});
+            socket.emit('join', { name: name });
 
-			const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name })
-			});
+            socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+                console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+                if (modal)
+                    modal.remove();
+                startGame(data.gameId);
+                enableJoining(playAlone, playOnline, playTournament);
+            });
 
-			if (!response.ok) {
-				const err = await response.text();
-				throw new Error(err);
-			}
+            let modal: HTMLDivElement;
+            const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
 
-			const data = await response.json();
-			console.log('Tournoi rejoins:', data);
+            if (!response.ok) {
+                const err = await response.text();
+                throw new Error(err);
+            }
 
-			if (data.playerCount < 4)
-				showTournamentModal(data.id);
-			disableJoining(playAlone, playOnline, playTournament);
-		} catch (error) {
-			alert(`Erreur lors de la création: ${(error as Error).message}`);
-		}
-	});
+            const data = await response.json();
+            console.log('Tournoi rejoins:', data);
 
-	return contentDiv;
+            if (data.playerCount < 4)
+                modal = showTournamentModal(data.id);
+            disableJoining(playAlone, playOnline, playTournament);
+        } catch (error) {
+            alert(`Erreur lors de la création: ${(error as Error).message}`);
+        }
+    });
+
+    return content;
 }
