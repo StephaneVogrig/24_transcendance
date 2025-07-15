@@ -1,5 +1,6 @@
 import { navigate } from '../router';
 
+
 export const AboutPage = (): HTMLElement => {
 
     const content = document.createElement('div');
@@ -67,6 +68,67 @@ export const AboutPage = (): HTMLElement => {
         })
     backHome.appendChild(backHomeBtn);
     content.appendChild(backHome);
+
+
+    //recuperer les informations du tournoi
+    async function getTournamentInfo(tournamentId: number): Promise<any> {
+        try {
+            const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/get?id=${tournamentId}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Informations du tournoi:', data);
+            return data;
+        } catch (error) {
+            console.error('Erreur lors de la récupération des informations du tournoi:', error);
+            throw error;
+        }
+    }
+
+    //recuperer tous les tournois
+    async function getAllTournaments(): Promise<any> {
+        try {
+            const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/getAll`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Liste des tournois:', data);
+            return data;
+        } catch (error) {
+            console.error('Erreur lors de la récupération des tournois:', error);
+            throw error;
+        }
+    }
+
+    // Test des APIs de tournoi au chargement de la page
+    // testTournamentAPI();
+
+    // Appel de la fonction pour récupérer les informations du tournoi
+    getTournamentInfo(1).then(tournament => {
+        console.log('Informations du tournoi spécifique:', tournament);
+    }).catch(error => {
+        console.error('Erreur lors de la récupération des informations du tournoi:', error);
+    });
+
+    // Appel de la fonction pour récupérer tous les tournois
+    getAllTournaments().then(tournaments => {
+        console.log('Tous les tournois:', tournaments);
+    }).catch(error => {
+        console.error('Erreur lors de la récupération des tournois:', error);
+    });
+
 
     return content;
 };
