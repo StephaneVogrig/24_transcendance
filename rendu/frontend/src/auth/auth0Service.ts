@@ -1,60 +1,36 @@
-import 'dotenv/config';
-
-// Importation des variables d'environnement
-dotenv.config();  // Load environment variables from .env file
-
+import { createAuth0Client } from '@auth0/auth0-spa-js';
 
 // Service Auth0 avec gestion d'erreur et fallback
-let Auth0Client: any = null;
-
-// Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
-// const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
-// const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
-// const AUTH0_REDIRECT_URI = `http://localhost:5173/auth/callback`;
-
-// Chargement des variables d'environnement
-const AUTH0_DOMAIN = process.env.DOMAIN;  // Retrieve the environment variable 
-const AUTH0_CLIENT_ID = process.env.CLIENT_ID;  // Retrieve the environment variable 
-const AUTH0_REDIRECT_URI = process.env.REDIRECT_URI;  // Retrieve the environment variable
-
-
 let auth0Client: any = null;
 
-/**
- * Charge dynamiquement Auth0 avec gestion d'erreur
- */
-//si pb -> npm install @auth0/auth0-spa-js
-const loadAuth0 = async () => {
+export const initAuth0 = async () => {
     try {
-        if (!Auth0Client) {
-            const auth0Module = await import('@auth0/auth0-spa-js');
-            Auth0Client = auth0Module.Auth0Client;
+        // Vérifier que les variables sont définies
+        const domain = import.meta.env.VITE_AUTH0_DOMAIN;
+        const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
+        const redirectUri = import.meta.env.VITE_AUTH0_REDIRECT_URI || window.location.origin + '/auth/callback';
+        
+        if (!domain || !clientId) {
+            console.error('Variables d\'environnement manquantes:', { domain, clientId });
+            throw new Error('Variables d\'environnement Auth0 manquantes');
         }
-        return Auth0Client;
-    } catch (error) {
-        console.error('Erreur lors du chargement d\'Auth0:', error);
-        throw new Error('Module Auth0 non disponible');
-    }
-};
-
-/**
- * Initialise le client Auth0
- */
-export const initAuth0 = async (): Promise<any> => {
-    if (!auth0Client) {
-        const Auth0ClientClass = await loadAuth0();
-        auth0Client = new Auth0ClientClass({
-            domain: AUTH0_DOMAIN,
-            clientId: AUTH0_CLIENT_ID,
+        
+        console.log('Initialisation Auth0 avec:', { domain, clientId, redirectUri });
+        
+        auth0Client = await createAuth0Client({
+            domain: domain,
+            clientId: clientId,
             authorizationParams: {
-                redirect_uri: AUTH0_REDIRECT_URI,
-                scope: 'openid profile email'
-            },
-            cacheLocation: 'localstorage'
+                redirect_uri: redirectUri,
+                audience: `https://${domain}/api/v2/`
+            }
         });
-        console.log('Client Auth0 initialisé avec succès');
+        
+        return auth0Client;
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation d\'Auth0:', error);
+        return null;
     }
-    return auth0Client;
 };
 
 /**
@@ -66,7 +42,7 @@ export const loginWithGoogle = async (): Promise<void> => {
         await client.loginWithRedirect({
             authorizationParams: {
                 connection: 'google-oauth2',
-                redirect_uri: AUTH0_REDIRECT_URI
+                redirect_uri: 'http://localhost:5173/auth/callback'
             }
         });
     } catch (error) {
@@ -84,7 +60,7 @@ export const loginWithAuth0 = async (): Promise<void> => {
         const client = await initAuth0();
         await client.loginWithRedirect({
             authorizationParams: {
-                redirect_uri: AUTH0_REDIRECT_URI
+                redirect_uri: 'http://localhost:5173/auth/callback'
             }
         });
     } catch (error) {
