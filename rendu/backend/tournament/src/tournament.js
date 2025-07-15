@@ -226,6 +226,17 @@ export async function updatePlayerScores(players)
 	const tournament = findTournamentWithPlayer(players[0].name);
 	if (!tournament)
 		return false;
+	let hasWinner = false;
+	for (const match of tournament.rounds[tournament.roundIndex]) {
+		for (const player of match) {
+			if (player.score === 5) {
+				hasWinner = true;
+				break;
+			}
+		}
+		if (hasWinner)
+			break;
+	}
 	for (const match of tournament.rounds[tournament.roundIndex])
 	{
 		if (match.length !== 2)
@@ -238,7 +249,8 @@ export async function updatePlayerScores(players)
 				if (updated)
 					player.score = updated.score;
 			}
-			await advanceToNextRound(tournament.id);
+			if (hasWinner)
+				await advanceToNextRound(tournament.id);
 			await modifyTournamentInDb(tournament);
 			return true;
 		}
@@ -298,7 +310,7 @@ export async function advanceToNextRound(id)
 			const response = await fetch(`http://blockchain:3002/api/blockchain/register`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(Utils.readRound(tournament))
+				body: JSON.stringify({tournament})
 			});
 
 			if (!response.ok) {
@@ -306,7 +318,10 @@ export async function advanceToNextRound(id)
 				throw new Error(err);
 			}
 
+			const hash = await response.text();
+
 			console.log('Registered tournament to blockchain.');
+			console.log(`Transaction link: https://subnets-test.avax.network/c-chain/tx/${hash}`);
 		} catch (error) {
 			console.log(`Error while registering tournament to blockchain: ${error.message}.`);
 		}

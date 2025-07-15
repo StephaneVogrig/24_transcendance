@@ -16,9 +16,18 @@ export function checkDuplicates(players) {
 	return new Set(playerNames).size != playerNames.length;
 }
 
+export function exportTournamentToBlockchain(tournament)
+{
+	return {
+		id: tournament.id,
+		players: tournament.players,
+		createdAt: tournament.createdAt
+	};
+}
+
 export function readTournament(tournament)
 {
-	const bracket = tournament.rounds[tournament.currentRound];
+	const bracket = tournament.rounds[tournament.roundIndex];
 	if (tournament.status === 'open')
 	{
 		return {
@@ -26,7 +35,7 @@ export function readTournament(tournament)
 			playerNames: tournament.players.map(p => p.name),
 			playerScores: tournament.players.map(p => p.score),
 			totalPlayers: tournament.players.length,
-			currentRound: tournament.currentRound,
+			currentRound: tournament.roundIndex,
 			createdAt: tournament.createdAt
 		}
 	}
@@ -35,7 +44,7 @@ export function readTournament(tournament)
 		playerNames: tournament.players.map(p => p.name),
 		playerScores: tournament.players.map(p => p.score),
 		totalPlayers: tournament.players.length,
-		currentRound: tournament.currentRound,
+		currentRound: tournament.roundIndex,
 		bracket: bracket,
 		matchups: bracket.map(match => ({
 			player1: match[0].name,
