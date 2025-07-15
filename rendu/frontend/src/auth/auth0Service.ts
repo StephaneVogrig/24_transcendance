@@ -1,10 +1,21 @@
+import 'dotenv/config';
+
+// Importation des variables d'environnement
+dotenv.config();  // Load environment variables from .env file
+
+
 // Service Auth0 avec gestion d'erreur et fallback
 let Auth0Client: any = null;
 
 // Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
-const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
-const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
-const AUTH0_REDIRECT_URI = `http://localhost:5173/auth/callback`;
+// const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
+// const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
+// const AUTH0_REDIRECT_URI = `http://localhost:5173/auth/callback`;
+
+// Chargement des variables d'environnement
+const AUTH0_DOMAIN = process.env.DOMAIN;  // Retrieve the environment variable 
+const AUTH0_CLIENT_ID = process.env.CLIENT_ID;  // Retrieve the environment variable 
+const AUTH0_REDIRECT_URI = process.env.REDIRECT_URI;  // Retrieve the environment variable
 
 
 let auth0Client: any = null;
