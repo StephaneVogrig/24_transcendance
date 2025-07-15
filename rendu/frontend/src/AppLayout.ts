@@ -29,7 +29,7 @@ export class AppLayout {
 
 		// Titre
 		const titreDiv = document.createElement('div');
-		titreDiv.className = 'flex flex-col items-center mt-24 animate-bounce';
+		titreDiv.className = 'flex flex-col items-center mt-20 animate-bounce';
 		const h1 = document.createElement('h1');
 		h1.className = 'text-7xl font-bold';
 		h1.textContent = 'VIIIITE';
