@@ -1,6 +1,6 @@
 # 24_transcendence
 
-*Réalisé par [Stéphanie Mortemousque](https://github.com/Stephmo1984), [Sébastien Craeymeersch](), [Mathieu](), [Gaël Cannaud](https://github.com/Helco18) et [Stéphane Vogrig](https://github.com/StephaneVogrig).*
+*Réalisé par [Stéphanie Mortemousque](https://github.com/Stephmo1984), [Sébastien Craeymeersch](http://github.com/AgarOther), [Gaël Cannaud](https://github.com/Helco18) et [Stéphane Vogrig](https://github.com/StephaneVogrig).*
 
 
 # Modules
@@ -9,7 +9,7 @@
 
 ✅ Minor module: Use a framework or a toolkit to build the frontend.
 
-❌ Minor module: Use a database for the backend.
+✅ Minor module: Use a database for the backend.
 
 ❌ Major module: Implementing a remote authentication.
 
