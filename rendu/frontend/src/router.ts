@@ -88,24 +88,23 @@ export function navigate(path: string, pushState: boolean = true): void {
         }
 
         if (appRoot) {
-            const componentElement = matchedRoute.component(pathParams, queryParams); // Passer les paramètres de chemin et de requête
+            const componentElement = matchedRoute.component(pathParams, queryParams);
 
-            // Logique de gestion de la mise en page spécifique au jeu (maintenant basée sur cleanPath)
             if (cleanPath === '/game') {
-                appRoot.replaceChildren(); // Supprime tous les enfants existants
-                appLayoutInstance = null; // Assure qu'aucun layout n'est utilisé pour le jeu
-                appRoot.appendChild(componentElement); // Ajoute directement le composant du jeu
-                const babylonGame = BabylonGame.getInstance(); // Obtenir l'instance du jeu
-                babylonGame.update(); // Appeler update sur l'instance du jeu
+                appRoot.replaceChildren();
+                appLayoutInstance = null;
+                appRoot.appendChild(componentElement);
+                const babylonGame = BabylonGame.getInstance();
+                babylonGame.update();
             } else {
                 if (!appLayoutInstance) {
-                    appRoot.replaceChildren(); // Nettoie le root pour la mise en page
-                    appLayoutInstance = AppLayout.getInstance(); // Obtenir l'instance singleton de AppLayout
-                    appRoot.appendChild(appLayoutInstance.getLayout()); // Ajouter le conteneur de mise en page principal
+                    appRoot.replaceChildren();
+                    appLayoutInstance = AppLayout.getInstance();
+                    appRoot.appendChild(appLayoutInstance.getLayout());
                 }
-                appLayoutInstance.updateContent(componentElement); // Mettre à jour le contenu dans la mise en page existante
+                appLayoutInstance.updateContent(componentElement);
             }
-            addNavigationListeners(componentElement); // Ajouter des écouteurs de navigation au nouveau contenu
+            addNavigationListeners(componentElement);
         }
     } else {
         console.warn(`Route non trouvée: ${path}. Redirection vers l'accueil.`);
