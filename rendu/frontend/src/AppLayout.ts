@@ -1,4 +1,5 @@
 import { createSky } from './3d/background';
+import { locale } from './i18n';
 
 export class AppLayout {
 	private static instance: AppLayout;
@@ -36,7 +37,7 @@ export class AppLayout {
 		titreDiv.appendChild(h1);
 		const h2 = document.createElement('h2');
 		h2.className = 'text-2xl font-bold';
-		h2.textContent = 'a quick-build pong';
+		h2.textContent = locale.subtitle;
 		titreDiv.appendChild(h2);
 
 		this.layoutElement.appendChild(titreDiv);
