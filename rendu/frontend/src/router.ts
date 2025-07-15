@@ -1,9 +1,15 @@
 import { AppLayout } from './AppLayout';
-import { BabylonGame } from './3d/main3d';
+import { BabylonGame } from './3d/main3d'; // Ensure this import is present
 
+/**
+ * Interface définissant le contrat pour une route.
+ */
 interface Route {
     path: string;
-    component: () => HTMLElement;
+    // Le composant accepte les paramètres de chemin ET les paramètres de requête (query).
+    component: (params?: Record<string, string>, queryParams?: Record<string, string>) => HTMLElement;
+    regex?: RegExp;
+    paramNames?: string[];
 }
 
 const appRoot = document.getElementById('app') as HTMLElement;
@@ -14,46 +20,92 @@ let appLayoutInstance: AppLayout | null = null;
 
 /**
  * Ajoute une nouvelle route au routeur.
- * @param path Le chemin de l'URL (ex: '/', '/login').
+ * Gère les segments de chemin dynamiques (ex: '/users/:id').
+ * @param path Le chemin de l'URL (ex: '/', '/login', '/users/:id').
  * @param component La fonction qui retourne l'élément DOM (HTMLElement) de la page.
  */
-export function addRoute(path: string, component: () => HTMLElement): void {
-    routes.push({ path, component });
+export function addRoute(path: string, component: (params?: Record<string, string>, queryParams?: Record<string, string>) => HTMLElement): void {
+    const route: Route = { path, component };
+
+    // Logique pour gérer les segments de chemin dynamiques (ex: /users/:id)
+    const paramNames: string[] = [];
+    const regexPath = path.replace(/:([a-zA-Z0-9_]+)/g, (_, paramName) => {
+        paramNames.push(paramName);
+        return '([^/]+)'; // Capture tout sauf '/'
+    });
+
+    route.regex = new RegExp(`^${regexPath}$`);
+    route.paramNames = paramNames;
+
+    routes.push(route);
 }
 
 /**
  * Navigue vers un nouveau chemin.
  * Met à jour l'URL et affiche le contenu de la page correspondante.
- * @param path Le chemin vers lequel naviguer.
+ * @param path Le chemin vers lequel naviguer (peut inclure query params et hash).
  * @param pushState Si vrai, ajoute une nouvelle entrée à l'historique du navigateur.
  * Utile pour la navigation interne (true) vs. retour/avant du navigateur (false).
  */
 export function navigate(path: string, pushState: boolean = true): void {
-    const targetRoute = routes.find(route => route.path === path);
+    let matchedRoute: Route | undefined;
+    let pathParams: Record<string, string> = {};
+    let queryParams: Record<string, string> = {};
 
-    if (targetRoute) {
+    // Sépare le chemin des paramètres de requête et des fragments (hash)
+    const [basePath, queryStringWithHash] = path.split('?');
+    const [cleanPath, hashString] = basePath.split('#'); // CleanPath will be 'basePath' if no hash, otherwise part before '#'
+
+    // Parse les paramètres de requête
+    if (queryStringWithHash) {
+        // We need to parse queryString before splitting off the hash
+        const [queryStringOnly] = queryStringWithHash.split('#');
+        new URLSearchParams(queryStringOnly).forEach((value, key) => {
+            queryParams[key] = value;
+        });
+    }
+
+    // Recherche une correspondance parmi les routes en utilisant le cleanPath
+    for (const route of routes) {
+        if (route.regex) {
+            const match = cleanPath.match(route.regex);
+            if (match) {
+                matchedRoute = route;
+                route.paramNames?.forEach((paramName, index) => {
+                    pathParams[paramName] = match[index + 1];
+                });
+                break;
+            }
+        } else if (route.path === cleanPath) { // Correspondance exacte pour les chemins sans paramètres dynamiques
+            matchedRoute = route;
+            break;
+        }
+    }
+
+    if (matchedRoute) {
         if (pushState) {
             window.history.pushState(null, '', path);
         }
+
         if (appRoot) {
-            if (path == '/game') {
-                appRoot.replaceChildren();
-                appLayoutInstance = null;
-                const componentElement = targetRoute.component();
-                appRoot.appendChild(componentElement);
-                addNavigationListeners(componentElement);
-                const babylonGame = BabylonGame.getInstance();
-                babylonGame.update();
+            const componentElement = matchedRoute.component(pathParams, queryParams); // Passer les paramètres de chemin et de requête
+
+            // Logique de gestion de la mise en page spécifique au jeu (maintenant basée sur cleanPath)
+            if (cleanPath === '/game') {
+                appRoot.replaceChildren(); // Supprime tous les enfants existants
+                appLayoutInstance = null; // Assure qu'aucun layout n'est utilisé pour le jeu
+                appRoot.appendChild(componentElement); // Ajoute directement le composant du jeu
+                const babylonGame = BabylonGame.getInstance(); // Obtenir l'instance du jeu
+                babylonGame.update(); // Appeler update sur l'instance du jeu
             } else {
                 if (!appLayoutInstance) {
-                    appRoot.replaceChildren();
-                    appLayoutInstance = AppLayout.getInstance();
-                    appRoot.appendChild(appLayoutInstance.getLayout());
+                    appRoot.replaceChildren(); // Nettoie le root pour la mise en page
+                    appLayoutInstance = AppLayout.getInstance(); // Obtenir l'instance singleton de AppLayout
+                    appRoot.appendChild(appLayoutInstance.getLayout()); // Ajouter le conteneur de mise en page principal
                 }
-                const newContent = targetRoute.component();
-                appLayoutInstance.updateContent(newContent);
-                addNavigationListeners(newContent);
+                appLayoutInstance.updateContent(componentElement); // Mettre à jour le contenu dans la mise en page existante
             }
+            addNavigationListeners(componentElement); // Ajouter des écouteurs de navigation au nouveau contenu
         }
     } else {
         console.warn(`Route non trouvée: ${path}. Redirection vers l'accueil.`);
@@ -64,7 +116,7 @@ export function navigate(path: string, pushState: boolean = true): void {
 /**
  * Gère les clics sur les liens avec l'attribut 'data-route'.
  * Empêche le comportement par défaut du navigateur et utilise notre fonction navigate.
- * @param event
+ * @param event L'événement de clic.
  */
 function handleLinkClick(event: MouseEvent): void {
     const link = event.currentTarget as HTMLAnchorElement;
@@ -82,20 +134,22 @@ function handleLinkClick(event: MouseEvent): void {
  */
 function addNavigationListeners(element: HTMLElement): void {
     element.querySelectorAll('a[data-route]').forEach(link => {
-        link.removeEventListener('click', handleLinkClick as EventListener);
+        link.removeEventListener('click', handleLinkClick as EventListener); // Empêche les écouteurs dupliqués
         link.addEventListener('click', handleLinkClick as EventListener);
     });
 }
 
 /**
  * Démarre le routeur.
- * Gère la navigation initiale (quand la page est chargée pour la première fois)
- * et les boutons avant/arrière du navigateur (`popstate`).
+ * Gère la navigation initiale et les boutons avant/arrière du navigateur (`popstate`).
  */
 export function startRouter(): void {
     window.addEventListener('popstate', () => {
-        navigate(window.location.pathname, false);
+        // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
+        // y compris query params et hash. On ne push pas une nouvelle entrée.
+        navigate(window.location.pathname + window.location.search + window.location.hash, false);
     });
 
-    navigate(window.location.pathname);
+    // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
+    navigate(window.location.pathname + window.location.search + window.location.hash);
 }

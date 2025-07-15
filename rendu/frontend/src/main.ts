@@ -9,6 +9,8 @@ import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AboutPage } from './pages/AboutPage';
+import { AuthCallbackPage } from './pages/AuthCallbackPage';
+
 
 addRoute('/', HomePage);
 addRoute('/login', LoginPage);
@@ -17,6 +19,7 @@ addRoute('/game', GamePage);
 addRoute('/profile', ProfilePage);
 addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
+addRoute('/auth/callback', AuthCallbackPage);
 
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {GamePage();}, 1600);
