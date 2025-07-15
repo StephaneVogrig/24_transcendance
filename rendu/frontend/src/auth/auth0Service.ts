@@ -152,7 +152,7 @@ export const getUser = async () => {
         const client = await initAuth0();
         const isAuth = await client.isAuthenticated();
         if (isAuth) {
-            console.error('OAuth récupération des info utilisateur');
+            console.log('OAuth récupération des info utilisateur');
             return await client.getUser();
         }
         return null;

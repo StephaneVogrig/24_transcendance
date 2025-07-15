@@ -134,6 +134,12 @@ export async function createTournament(name)
 	return tournament;
 }
 
+
+export async function getAllTournaments()
+{
+	return Object.values(TOURNAMENT_LIST);
+}
+
 async function startMatches(bracket)
 {
 	for (const players of bracket)
