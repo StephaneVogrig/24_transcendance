@@ -1,5 +1,6 @@
 import { bottomBtn } from './components/bottomBtn';
 import { teamMember } from './components/teamMember';
+import { locale } from '../i18n';
 
 
 export const AboutPage = (): HTMLElement => {
@@ -13,7 +14,7 @@ export const AboutPage = (): HTMLElement => {
 
     const h2 = document.createElement('h2');
     h2.className = 'text-3xl font-extrabold text-blue-400 mb-8';
-    h2.textContent = 'The team';
+    h2.textContent = locale.team;
     team.appendChild(h2);
 
     const teamList = document.createElement('ul');
@@ -24,7 +25,7 @@ export const AboutPage = (): HTMLElement => {
     teamList.appendChild(teamMember('Stephane', 'Vogrig', 'svogrig'));
     team.appendChild(teamList);
 
-    content.appendChild(bottomBtn('back home', '/'));
+    content.appendChild(bottomBtn(locale.back_home, '/'));
 
 
     //recuperer les informations du tournoi

@@ -1,0 +1,18 @@
+export const en = {
+	"subtitle": "a quick-build pong",
+	"back_home": "back home",
+
+	"play": "Play",
+	"online": "Online",
+	"local": "Local",
+	"solo": "Solo",
+	"join_tournament": "Join next tournament",
+	"leaderboard": "Leaderboard",
+	"language": "English",
+	"about": "about",
+
+	"team": "The team",
+
+	"exit_game": "Exit Game",
+
+};

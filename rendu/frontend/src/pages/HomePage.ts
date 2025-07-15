@@ -1,6 +1,7 @@
 import { getSocket, setPlayerName } from '../websocket/websocket';
 import { navigate } from '../router';
 import { bottomBtn } from './components/bottomBtn';
+import { locale } from '../i18n';
 
 let socket = getSocket();
 let isGameStarted = false;
@@ -163,7 +164,6 @@ export const HomePage = (): HTMLElement => {
         return button;
     }
 
-
     nav.appendChild(input);
 
     const playDiv = document.createElement('div');
@@ -172,32 +172,32 @@ export const HomePage = (): HTMLElement => {
 
     const playTitle = document.createElement('h2');
     playTitle.className = ' text-center text-3xl font-extrabold text-blue-400 mb-4 mt-8';
-    playTitle.textContent = 'Play';
+    playTitle.textContent = locale.play;
     playDiv.appendChild(playTitle);
 
     const playNav = document.createElement('div');
     playNav.className = 'grid gap-4 sm:grid-cols-3';
     playDiv.appendChild(playNav);
 
-    const playOnline = createJoinButton('Online');
+    const playOnline = createJoinButton(locale.online);
     playNav.appendChild(playOnline);
 
-    const playLocal = createJoinButton('Local');
+    const playLocal = createJoinButton(locale.local);
     playNav.appendChild(playLocal);
 
-    const playAlone = createJoinButton('Solo');
+    const playAlone = createJoinButton(locale.solo);
     playNav.appendChild(playAlone);
 
-    const playTournament = createJoinButton('Join next tournament');
+    const playTournament = createJoinButton(locale.join_tournament);
     nav.appendChild(playTournament);
 
-    nav.appendChild(createNavLink('Classement', '/leaderboard'));
-    nav.appendChild(createNavLink('langage', '/'));
+    nav.appendChild(createNavLink(locale.leaderboard, '/leaderboard'));
+    nav.appendChild(createNavLink(locale.language, '/'));
 
     content.appendChild(nav);
 
      // about
-    content.appendChild(bottomBtn('about', '/about'));
+    content.appendChild(bottomBtn(locale.about, '/about'));
 
     // Join game button
     let name: string;

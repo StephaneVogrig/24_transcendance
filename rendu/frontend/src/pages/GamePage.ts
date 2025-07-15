@@ -1,5 +1,6 @@
 import { BabylonGame } from '../3d/main3d';
 import { navigate } from '../router';
+import { locale } from '../i18n';
 
 let cachedGamePage: HTMLElement | null = null;
 let name: string | null = null;
@@ -56,7 +57,7 @@ export const GamePage = (): HTMLElement => {
 
     const homeLink = document.createElement('a');
     homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
-    homeLink.textContent = 'Exit Game';
+    homeLink.textContent = locale.exit_game;
 
     setTimeout(() => {
         updateScores(0, 0);
