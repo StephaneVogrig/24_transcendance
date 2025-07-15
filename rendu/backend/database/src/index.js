@@ -24,6 +24,7 @@ const start = async () => {
 		const sql = fs.readFileSync('./init.sql').toString();
 		await db.exec(sql);
 
+		
 		fastify.post('/api/database/login', async (request, reply) => {
 			const { username, password } = request.body;
 			if (!username || !password)
@@ -76,6 +77,7 @@ const start = async () => {
 			}
 		});
 
+		// Route pour récupérer les tournois ouverts
 		fastify.get('/api/database/tournament/getOpened', async (request, reply) => {
 			try
 			{
@@ -87,6 +89,7 @@ const start = async () => {
 			}
 		});
 
+		//	 Route pour récupérer un tournoi par ID
 		fastify.get('/api/database/tournament/get', async (request, reply) => {
 			const { id } = request.query;
 			if (typeof id === 'undefined' || isNaN(Number(id)))
@@ -101,6 +104,7 @@ const start = async () => {
 			}
 		});
 		
+		// Route pour supprimer un tournoi
 		fastify.post('/api/database/tournament/delete', async (request, reply) => {
 			const { id } = request.body;
 			if (typeof id === 'undefined' || isNaN(Number(id)))
@@ -115,6 +119,7 @@ const start = async () => {
 			}
 		});
 
+		//	Route pour modifier un tournoi
 		fastify.post('/api/database/tournament/modify', async (request, reply) => {
 			const { tournament } = request.body;
 			if (typeof tournament.id === 'undefined' || isNaN(Number(tournament.id)))
@@ -126,6 +131,58 @@ const start = async () => {
 			} catch (err)
 			{
 				reply.status(500).send({error: err.message});
+			}
+		});
+
+		// Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
+		fastify.post('/api/database/user/oauth', async (request, reply) => {
+			const { provider_id, email, nickname, picture, provider } = request.body;
+			
+			if (!provider_id || !email || !nickname || !provider) {
+				return reply.status(400).send({ error: 'Missing required fields: provider_id, email, name' });
+			}
+			
+			try {
+				// Vérifier si l'utilisateur existe déjà
+				const existingUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+				
+				if (!existingUser) {
+					await db.run(
+						'INSERT INTO `users` (nickname, email, provider_id, picture, provider) VALUES (?, ?, ?, ?, ?)',
+						[nickname, email, provider_id, picture, provider]
+					);
+					
+					const newUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+					return reply.status(201).send({ 
+						message: 'User created successfully', 
+						user: newUser 
+					});
+				}
+			} catch (err) {
+				console.error('Database error:', err);
+				return reply.status(500).send({ error: err.message });
+			}
+		});
+
+		// Route pour récupérer un utilisateur par Auth0 ID
+		fastify.get('/api/database/user/oauth/:provider_id', async (request, reply) => {
+			const { provider_id } = request.params;
+			
+			if (!provider_id) {
+				return reply.status(400).send({ error: 'Missing provider_id parameter' });
+			}
+			
+			try {
+				const user = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+				
+				if (!user) {
+					return reply.status(404).send({ error: 'User not found' });
+				}
+				
+				return reply.status(200).send({ user });
+			} catch (err) {
+				console.error('Database error:', err);
+				return reply.status(500).send({ error: err.message });
 			}
 		});
 
