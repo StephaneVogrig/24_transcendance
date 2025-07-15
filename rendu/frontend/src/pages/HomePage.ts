@@ -155,8 +155,6 @@ export const HomePage = (): HTMLElement => {
         }
     });
 
-    nav.appendChild(input);
-
     const createJoinButton = (title: string): HTMLButtonElement => {
         const button = document.createElement('button');
         button.textContent = title;
@@ -165,14 +163,30 @@ export const HomePage = (): HTMLElement => {
         return button;
     }
 
-    const playOnline = createJoinButton('Play online');
-    nav.appendChild(playOnline);
 
-    const playLocal = createJoinButton('Play local');
-    nav.appendChild(playLocal);
+    nav.appendChild(input);
 
-    const playAlone = createJoinButton('Play solo');
-    nav.appendChild(playAlone);
+    const playDiv = document.createElement('div');
+    playDiv.className = 'mt-16';
+    nav.appendChild(playDiv);
+
+    const playTitle = document.createElement('h2');
+    playTitle.className = ' text-center text-3xl font-extrabold text-blue-400 mb-4 mt-8';
+    playTitle.textContent = 'Play';
+    playDiv.appendChild(playTitle);
+
+    const playNav = document.createElement('div');
+    playNav.className = 'grid gap-4 sm:grid-cols-3';
+    playDiv.appendChild(playNav);
+
+    const playOnline = createJoinButton('Online');
+    playNav.appendChild(playOnline);
+
+    const playLocal = createJoinButton('Local');
+    playNav.appendChild(playLocal);
+
+    const playAlone = createJoinButton('Solo');
+    playNav.appendChild(playAlone);
 
     const playTournament = createJoinButton('Join next tournament');
     nav.appendChild(playTournament);
