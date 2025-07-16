@@ -7,7 +7,7 @@ export function bottomBtn(title: string, route: string): HTMLElement {
 
     const button = document.createElement('button');
     button.textContent = title;
-    button.className = `text-lg font-semibold transition-transform transform hover:scale-110`;
+    button.className = 'text-lg font-semibold transition-transform transform hover:scale-110';
     button.addEventListener('click', async () => {
         navigate(route);
     });

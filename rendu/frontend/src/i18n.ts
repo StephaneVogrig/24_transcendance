@@ -42,4 +42,8 @@ export function getCurrentLanguage(): supportedLanguage {
     return currentLanguage;
 }
 
+export function getLaguangeName(lang: string): string {
+	return translations[lang]['language'];
+}
+
 setLanguage(currentLanguage);

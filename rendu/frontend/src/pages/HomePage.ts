@@ -1,6 +1,7 @@
 import { getSocket, setPlayerName } from '../websocket/websocket';
 import { navigate } from '../router';
 import { bottomBtn } from './components/bottomBtn';
+import { langBtn } from './components/langBtn';
 import { locale } from '../i18n';
 
 let socket = getSocket();
@@ -192,7 +193,7 @@ export const HomePage = (): HTMLElement => {
     nav.appendChild(playTournament);
 
     nav.appendChild(createNavLink(locale.leaderboard, '/leaderboard'));
-	const languageButton = createNavLink(locale.language, '/');
+    const languageButton = createNavLink(locale.language, '/');
     nav.appendChild(languageButton);
 
     content.appendChild(nav);
@@ -344,25 +345,35 @@ export const HomePage = (): HTMLElement => {
     });
 
 
-	// Language button
-	languageButton.addEventListener('click', async () => {
-		const modalOverlay = document.createElement('div');
-		modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+    // Language button
+    languageButton.addEventListener('click', async () => {
+        const modalOverlay = document.createElement('div');
+        modalOverlay.id = 'languageModal';
+        modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
 
-		const modalContent = document.createElement('div');
-		modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
-		modalOverlay.appendChild(modalContent);
+        const modalContent = document.createElement('div');
+        modalContent.className = 'bg-gray-800 p-6 rounded-lg shadow-2xl text-center flex flex-col items-center gap-4';
+        modalOverlay.appendChild(modalContent);
 
-		const title = document.createElement('h2');
-		title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-		title.textContent = 'Language';
-		modalContent.appendChild(title);
+        modalContent.appendChild(langBtn('en'));
+        modalContent.appendChild(langBtn('fr'));
+        modalContent.appendChild(langBtn('es'));
 
-		const exitBtn = document.createElement('button');
-		exitBtn.textContent = 'exit';
+        const exitBtn = document.createElement('button');
+        exitBtn.className = `text-blue-600 text-lg font-semibold transition-transform transform hover:scale-110`;
+        exitBtn.textContent = 'exit';
+        modalContent.appendChild(exitBtn);
 
-		document.body.appendChild(modalOverlay);
-		
-	});
+        exitBtn.addEventListener('click', async () => {
+            modalOverlay.remove();
+        });
+
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                modalOverlay.remove();
+            }
+        });
+        document.body.appendChild(modalOverlay);
+    });
     return content;
 }
