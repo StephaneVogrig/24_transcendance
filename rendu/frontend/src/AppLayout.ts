@@ -6,6 +6,7 @@ export class AppLayout {
 	private layoutElement: HTMLElement;
 	private backgroundLayer: HTMLElement;
 	private contentLayer: HTMLElement;
+	private subtitle: HTMLElement;
 
 	private constructor() {
 		this.initializeLayout();
@@ -28,17 +29,19 @@ export class AppLayout {
 		this.backgroundLayer.appendChild(createSky());
 		this.layoutElement.appendChild(this.backgroundLayer);
 
-		// Titre
+		// Title
 		const titreDiv = document.createElement('div');
 		titreDiv.className = 'flex flex-col items-center mt-20 animate-bounce';
 		const h1 = document.createElement('h1');
 		h1.className = 'text-7xl font-bold';
 		h1.textContent = 'VIIIITE';
+
+		// Subtitle
 		titreDiv.appendChild(h1);
-		const h2 = document.createElement('h2');
-		h2.className = 'text-2xl font-bold';
-		h2.textContent = locale.subtitle;
-		titreDiv.appendChild(h2);
+		this.subtitle = document.createElement('h2');
+		this.subtitle.className = 'text-2xl font-bold';
+		this.subtitle.textContent = locale.subtitle;
+		titreDiv.appendChild(this.subtitle);
 
 		this.layoutElement.appendChild(titreDiv);
 
@@ -48,6 +51,10 @@ export class AppLayout {
 		this.contentLayer.id = 'main-content';
 
 		this.layoutElement.appendChild(this.contentLayer);
+
+		window.addEventListener('languageChanged', () => {
+			this.subtitle.textContent = locale.subtitle;
+		});
 	}
 
 	public getLayout(): HTMLElement {
