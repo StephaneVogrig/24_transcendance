@@ -255,6 +255,7 @@ export const HomePage = (): HTMLElement => {
             disableJoining(playAlone, playOnline, playTournament);
         } catch (error) {
             alert(`Erreur lors de la création: ${(error as Error).message}`);
+            name = '';
             button.remove();
         }
     });

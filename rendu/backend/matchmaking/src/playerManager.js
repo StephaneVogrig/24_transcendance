@@ -68,6 +68,8 @@ async function addPlayerToSession(playerName) {
         console.log(`Game session ${session.gameId} is ready with players: ${session.players1.name} and ${session.players2.name}`);
         sendstart(session.players1.name, session.players2.name);
         console.log(`Starting game session ${session.gameId} with players: ${session.players1.name} and ${session.players2.name}`);
+        removePlayer(session.players1.name);
+        removePlayer(session.players2.name);
     }
 }
 
