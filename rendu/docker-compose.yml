@@ -130,6 +130,8 @@ services:
             dockerfile: Dockerfile
         ports:
             - "3009:3009"
+        environment:
+            - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
 
