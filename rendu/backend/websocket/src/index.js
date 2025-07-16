@@ -316,6 +316,11 @@ io.on('connection', async (socket) => {
 			socket.emit('error', { message: 'Player name must be a string between 3 and 20 characters.' });
 			return;
 		}
+		if (playerNameToSocketId.has(name)) {
+			console.error(`Player name ${name} is already in use.`);
+			socket.emit('error', { message: `Player name ${name} is already in use.` });
+			return;
+		}
 		console.log(`Player ${name} joined (matchmaking) with socket ID: ${socket.id}`);
 		playerNameToSocketId.set(name, socket.id);
 		socketIdToPlayerName.set(socket.id, name);
@@ -327,6 +332,11 @@ io.on('connection', async (socket) => {
 		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 20) {
 			console.error(`Invalid player name for identify_player: ${name}`);
 			socket.emit('error', { message: 'Player name must be a string between 3 and 20 characters.' });
+			return;
+		}
+		if (playerNameToSocketId.has(name)) {
+			console.error(`Player name ${name} is already in use.`);
+			socket.emit('error', { message: `Player name ${name} is already in use.` });
 			return;
 		}
 		console.log(`Player ${name} identified (in-game) with new socket ID: ${socket.id}`);
@@ -384,6 +394,20 @@ io.on('connection', async (socket) => {
 			console.log(`Player ${disconnectedPlayerName} (socket ID: ${socket.id}) disconnected.`);
 			playerNameToSocketId.delete(disconnectedPlayerName);
 			socketIdToPlayerName.delete(socket.id);
+			try {
+				const reponse  = fetch(`http://matchmaking:3005/api/matchmaking/leave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: disconnectedPlayerName })
+			});
+				if (!reponse.ok) {
+					console.log(`Failed to notify matchmaking service of player ${disconnectedPlayerName} disconnection:`, reponse.status);
+				} else {
+					console.log(`Matchmaking service notified of player ${disconnectedPlayerName} disconnection.`);
+				}
+			} catch (error) {
+				console.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
+			}
 			if (pendingRedirectAcceptances.has(disconnectedPlayerName)) {
 				const { reject, cleanUp } = pendingRedirectAcceptances.get(disconnectedPlayerName);
 				pendingRedirectAcceptances.delete(disconnectedPlayerName);
