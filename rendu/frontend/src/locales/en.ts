@@ -14,5 +14,8 @@ export const en = {
 	"team": "The team",
 
 	"exit_game": "Exit Game",
+    
+    "game_over": "Game Over",
+    "game_status": "Game Status: Ready",
 
 };

@@ -14,4 +14,8 @@ export const fr = {
     "team": "L'équipe",
 
     "exit_game": "Quitter le jeu",
+
+    "game_over": "Jeu Terminé",
+    "game_status": "Statut du Jeu : Prêt",
+
 };

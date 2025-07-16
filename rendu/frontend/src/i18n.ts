@@ -6,7 +6,6 @@ type Dictionary = {
 	[key: string]: string;
 };
 
-export type supportedLanguage = 'en' | 'fr' | 'es';
 
 const translations: { [key: string]: Dictionary } = {
     en: en,
@@ -14,7 +13,19 @@ const translations: { [key: string]: Dictionary } = {
 	es: es,
 };
 
-let currentLanguage: supportedLanguage = 'es';
+export type supportedLanguage = keyof typeof translations;
+
+function getUserLanguage(): supportedLanguage {
+	const userLanguage: string = navigator.language;
+	const userLanguageCode: string = userLanguage.substring(0,2);
+	let lang: supportedLanguage = 'en';
+	if (userLanguageCode in translations) {
+        lang = userLanguageCode as supportedLanguage;
+    }
+	return lang;
+}
+
+let currentLanguage: supportedLanguage = getUserLanguage();
 
 export let locale: {[key: string]: string } = {};
 
@@ -42,7 +53,7 @@ export function getCurrentLanguage(): supportedLanguage {
     return currentLanguage;
 }
 
-export function getLaguangeName(lang: string): string {
+export function getLaguangeName(lang: supportedLanguage): string {
 	return translations[lang]['language'];
 }
 

@@ -42,7 +42,7 @@ export const GamePage = (): HTMLElement => {
 
     const statusParagraph = document.createElement('p');
     statusParagraph.id = 'gameStatusDisplay';
-    statusParagraph.textContent = 'Game Status: Ready';
+    statusParagraph.textContent = locale.game_status;
     statusParagraph.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-semibold text-orange-500 z-10';
     gameContainer.appendChild(statusParagraph);
 
@@ -72,6 +72,11 @@ export const GamePage = (): HTMLElement => {
     mainDiv.appendChild(homeLink);
     
     cachedGamePage = mainDiv;
+
+    window.addEventListener('languageChanged', () => {
+        homeLink.textContent = locale.exit_game;
+    });
+
     return mainDiv;
 };
 
@@ -85,7 +90,7 @@ function showGameOverModal() {
     
     const title = document.createElement('h2');
     title.className = 'text-5xl font-extrabold text-red-600 mb-4 tracking-wide';
-    title.textContent = 'Game Over!';
+    title.textContent = locale.game_over;
     modalContent.appendChild(title);
     
     const message = document.createElement('p');
@@ -97,7 +102,7 @@ function showGameOverModal() {
     homeLink.href = '#';
     homeLink.setAttribute('data-route', '/game');
     homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-    homeLink.textContent = 'Back to Home';
+    homeLink.textContent = locale.back_home;
     homeLink.addEventListener('click', (event) => {
         isGameOver = false;
         event.preventDefault();
