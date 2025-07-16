@@ -192,7 +192,8 @@ export const HomePage = (): HTMLElement => {
     nav.appendChild(playTournament);
 
     nav.appendChild(createNavLink(locale.leaderboard, '/leaderboard'));
-    nav.appendChild(createNavLink(locale.language, '/'));
+	const languageButton = createNavLink(locale.language, '/');
+    nav.appendChild(languageButton);
 
     content.appendChild(nav);
 
@@ -341,5 +342,26 @@ export const HomePage = (): HTMLElement => {
         }
     });
 
+
+	// Language button
+	languageButton.addEventListener('click', async () => {
+		const modalOverlay = document.createElement('div');
+		modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
+
+		const modalContent = document.createElement('div');
+		modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+		modalOverlay.appendChild(modalContent);
+
+		const title = document.createElement('h2');
+		title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
+		title.textContent = 'Language';
+		modalContent.appendChild(title);
+
+		const exitBtn = document.createElement('button');
+		exitBtn.textContent = 'exit';
+
+		document.body.appendChild(modalOverlay);
+		
+	});
     return content;
 }
