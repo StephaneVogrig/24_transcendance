@@ -1,6 +1,5 @@
 import { getLaguangeName, setLanguage, supportedLanguage } from '../../i18n'
 import { navigate } from '../../router';
-import { AppLayout } from '../../AppLayout';
 
 export function langBtn(lang: supportedLanguage) {
 
@@ -9,19 +8,21 @@ export function langBtn(lang: supportedLanguage) {
     button.className = 'w-full mx-4 text-lg font-semibold bg-gray-700 hover:bg-gray-600 rounded-lg';
 
     button.addEventListener('click', async () => {
-		setLanguage(lang);
 
-    	window.dispatchEvent(new CustomEvent('languageChanged'));
+        setLanguage(lang);
 
-		// close lang modal
-		const languageModal = document.getElementById('languageModal');
-		if (languageModal) {
-			languageModal.remove();
-		}
+        window.dispatchEvent(new CustomEvent('languageChanged'));
 
-    	navigate('/');
+        // close lang modal
+        const languageModal = document.getElementById('languageModal');
+        if (languageModal) {
+            languageModal.remove();
+        }
+
+        navigate('/');
 
     });
-    
+
     return button;
+
 }
