@@ -78,6 +78,18 @@ const start = async () => {
 		});
 
 		// Route pour récupérer les tournois ouverts
+		fastify.get('/api/database/tournament/getAll', async (request, reply) => {
+			try
+			{
+				const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
+				reply.status(200).send(tournaments);
+			} catch (err)
+			{
+				reply.status(500).send({error: err.message});
+			}
+		});
+
+		// Route pour récupérer les tournois ouverts
 		fastify.get('/api/database/tournament/getOpened', async (request, reply) => {
 			try
 			{

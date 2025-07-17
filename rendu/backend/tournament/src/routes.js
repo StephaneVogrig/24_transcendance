@@ -65,6 +65,20 @@ fastify.post('/api/tournament/join', async (request, reply) => {
 	}
 });
 
+fastify.post('/api/tournament/start', async (request, reply) => {
+	const { id } = request.body;
+	if (typeof id === 'undefined' || isNaN(Number(id)))
+		return reply.status(400).send({ error: 'Missing or invalid id.' });
+	try
+	{
+		const tournament = await Tournament.startTournament(id);
+		return reply.send(tournament);
+	} catch (err)
+	{
+		return reply.status(400).send({ error: err.message });
+	}
+});
+
 fastify.post('/api/tournament/raw', async (request, reply) => {
 	try
 	{
@@ -114,7 +128,7 @@ fastify.post('/api/tournament/playerscores', async (request, reply) => {
 		return reply.status(400).send({ error: 'Missing or invalid players.' });
 	const success = Tournament.updatePlayerScores(players);
 	if (!success)
-		reply.status(404).send();
+		reply.status(404).send({ message: 'Players not found in any tournament.' });
 	else
 		reply.status(200).send({ message: 'Score updated successfully!' });
 });

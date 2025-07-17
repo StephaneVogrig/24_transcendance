@@ -168,11 +168,13 @@ export async function deleteTournament(id)
 	delete TOURNAMENT_LIST[id];
 }
 
-export async function startTournament(tournament)
+export async function startTournament(id)
 {
+	const tournament = TOURNAMENT_LIST[id];
+	if (!tournament)
+		throw new Error(`Couldn't start tournament: ID '${id}' is invalid.`);
 	tournament.status = 'ongoing';
 	tournament.rounds = [generateBracket(tournament.players)];
-	TOURNAMENT_LIST[tournament.id] = tournament;
 	await modifyTournamentInDb(tournament);
 	await startMatches(tournament.rounds[tournament.roundIndex]);
 }
@@ -202,8 +204,6 @@ export async function joinTournament(name)
 		throw new Error(`Tournament ${id} is full, ongoing or finished.`);
 	tournament.players.push({name: name, score: 0});
 	tournament.playerCount++;
-	if (tournament.playerCount === 4)
-		await startTournament(tournament);
 	await modifyTournamentInDb(tournament);
 	return tournament;
 }
@@ -216,27 +216,11 @@ export function getCurrentRound(id)
 	return tournament.rounds[tournament.roundIndex];
 }
 
-export function getOngoingTournaments()
-{
-	return Object.values(TOURNAMENT_LIST).filter(t => t.status === 'ongoing');
-}
-
 export async function updatePlayerScores(players)
 {
 	const tournament = findTournamentWithPlayer(players[0].name);
 	if (!tournament)
 		return false;
-	let hasWinner = false;
-	for (const match of tournament.rounds[tournament.roundIndex]) {
-		for (const player of match) {
-			if (player.score === 5) {
-				hasWinner = true;
-				break;
-			}
-		}
-		if (hasWinner)
-			break;
-	}
 	for (const match of tournament.rounds[tournament.roundIndex])
 	{
 		if (match.length !== 2)
@@ -249,8 +233,6 @@ export async function updatePlayerScores(players)
 				if (updated)
 					player.score = updated.score;
 			}
-			if (hasWinner)
-				await advanceToNextRound(tournament.id);
 			await modifyTournamentInDb(tournament);
 			return true;
 		}
