@@ -196,7 +196,7 @@ async function getstate(gameId, player) {
 			const ballSpeed = {
 				x: gameState.ballspeed._x,
 				y: 0,
-				z: gameState.ballspeed._z
+				z: gameState.ballspeed._y
 			};
 
 			let platform1Pos = null;
@@ -233,7 +233,7 @@ async function getstate(gameId, player) {
 				io.to(gameId).emit('IAState', {
 					ball: ballPos,
 					ballspeed: ballSpeed,
-					platform: platform1Pos
+					platform: platform2Pos
 				});
 			}
 			if (gameState.score) {

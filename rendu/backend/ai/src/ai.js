@@ -57,28 +57,33 @@ export async function createAI(name)
 		}
 
 		socket.emit('join', { name: playerAI });
+		const offset = 2.1;
 
 		await new Promise(r => setTimeout(r, 1000));
 		socket.emit('acceptGame');
-
 		while (gameOn)
 		{
-			if (1)
-			{
+			const goalZ = ballPos.z;
+			let timeoutOffset = 0;
+			if (paddlePos.z < goalZ - offset) {
 				socket.emit('keydown', { playerName: playerAI, key: 'ArrowLeft' });
-				socket.emit('keyup', { playerName: playerAI, key: 'ArrowRight' });
-			}
-			else if (2)
-			{
+				while (paddlePos.z < goalZ - offset && timeoutOffset < 1000)
+				{
+					timeoutOffset += 10;
+					await new Promise(r => setTimeout(r, 10));
+				}
 				socket.emit('keyup', { playerName: playerAI, key: 'ArrowLeft' });
+			}
+			else if (paddlePos.z > goalZ + offset) {
 				socket.emit('keydown', { playerName: playerAI, key: 'ArrowRight' });
-			}
-			else
-			{
-				socket.emit('keyup', { playerName: playerAI, key: 'ArrowLeft' });
+				while (paddlePos.z > goalZ + offset && timeoutOffset < 1000)
+				{
+					timeoutOffset += 10;
+					await new Promise(r => setTimeout(r, 10));
+				}
 				socket.emit('keyup', { playerName: playerAI, key: 'ArrowRight' });
 			}
-			await new Promise(r => setTimeout(r, 1000));
+			await new Promise(r => setTimeout(r, 1000 - timeoutOffset));
 		}
 	} catch (error) {
 		console.log(`Error while starting match between AI and ${player}: ${error.message}.`);
