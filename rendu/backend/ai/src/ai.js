@@ -63,6 +63,8 @@ export async function createAI(name)
 		socket.emit('acceptGame');
 		while (gameOn)
 		{
+			// Formules :
+			// https://excalidraw.com/#json=44_acJyyg9ykHndHnPRSU,8rOWdDnFok8XBINI3cBOTA
 			const goalZ = ballPos.z;
 			let timeoutOffset = 0;
 			if (paddlePos.z < goalZ - offset) {
