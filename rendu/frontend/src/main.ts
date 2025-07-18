@@ -11,6 +11,8 @@ import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AboutPage } from './pages/AboutPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { MatchListPage } from './pages/matchList';
+import { TestPage } from './pages/TestPage';
+
 
 
 addRoute('/', HomePage);
@@ -22,6 +24,8 @@ addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
 addRoute('/auth/callback', AuthCallbackPage);
 addRoute('/matches', MatchListPage);
+addRoute('/test', TestPage);
+
 
 
 document.addEventListener('DOMContentLoaded', () => {

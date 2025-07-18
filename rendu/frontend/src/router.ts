@@ -90,12 +90,14 @@ export function navigate(path: string, pushState: boolean = true): void {
         if (appRoot) {
             const componentElement = matchedRoute.component(pathParams, queryParams);
 
-            if (cleanPath === '/game') {
+            if (cleanPath === '/game' || cleanPath === '/auth/callback') {
                 appRoot.replaceChildren();
                 appLayoutInstance = null;
                 appRoot.appendChild(componentElement);
-                const babylonGame = BabylonGame.getInstance();
-                babylonGame.update();
+                if (cleanPath === '/game') {
+                    const babylonGame = BabylonGame.getInstance();
+                    babylonGame.update();
+                }
             } else {
                 if (!appLayoutInstance) {
                     appRoot.replaceChildren();

@@ -135,7 +135,7 @@ export async function createTournament(name)
 }
 
 
-export async function getAllTournaments()
+export async function getActiveMatches()
 {
 	return Object.values(TOURNAMENT_LIST);
 }
@@ -150,7 +150,8 @@ async function startMatches(bracket)
 			const response = await fetch(`http://game:3004/api/game/start`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ player1, player2, maxScore: 5 })
+				// body: JSON.stringify({ player1, player2, maxScore: 5 })
+				body: JSON.stringify({ player1, player2, maxScore: 50 }) // pour test affichage match -> Stephanie
 			});
 
 			if (!response.ok) {

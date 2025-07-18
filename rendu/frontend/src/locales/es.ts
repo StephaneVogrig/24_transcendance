@@ -10,6 +10,8 @@ export const es = {
     "leaderboard": "Clasificación",
     "language": "Español",
     "about": "acerca de",
+    "connection": "conexión",
+
 
     "team": "El equipo",
 

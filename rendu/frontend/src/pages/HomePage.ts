@@ -136,8 +136,6 @@ export const HomePage = (): HTMLElement => {
         return link;
     };
 
-    nav.appendChild(createNavLink('Se connecter', '/login'));
-
     // Champ nom
     const input = document.createElement('input');
     input.type = 'text';
@@ -344,6 +342,23 @@ export const HomePage = (): HTMLElement => {
         }
     });
 
+
+        // si l'utilisateur est connecté, afficher le bouton de déconnexion
+    if (localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@')) {
+        nav.appendChild(createNavLink('user profile', '/profile'));
+        // const logoutLink = createNavLink(locale.logout, '/');
+        // logoutLink.addEventListener('click', (event) => {
+        //     event.preventDefault();
+        //     localStorage.removeItem('user');
+        //     localStorage.removeItem('token');
+        //     socket.emit('logout');
+        //     navigate('/login');
+        // });
+        // nav.appendChild(logoutLink);
+    } else {
+        // Si l'utilisateur n'est pas connecté, afficher le bouton de connexion
+            nav.appendChild(createNavLink(locale.connection, '/login'));
+    }
 
     // Language button
     languageButton.addEventListener('click', async () => {

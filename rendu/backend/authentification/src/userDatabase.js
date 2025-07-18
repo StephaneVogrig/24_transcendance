@@ -37,11 +37,24 @@ async function saveUserToDatabase(userInfo) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (parseError) {
+                console.error('Could not parse error response:', parseError);
+                throw new Error(`Database error: ${response.status} ${response.statusText}`);
+            }
             throw new Error(`Database error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
         }
 
-        const result = await response.json();
+        let result;
+        try {
+            result = await response.json();
+        } catch (parseError) {
+            console.error('Could not parse response:', parseError);
+            throw new Error('Invalid JSON response from database service');
+        }
+        
         console.log('User saved successfully:', result.message);
         
         return result.user;
@@ -78,11 +91,24 @@ async function getUserFromDatabase(auth0_id) {
         }
 
         if (!response.ok) {
-            const errorData = await response.json();
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (parseError) {
+                console.error('Could not parse error response:', parseError);
+                throw new Error(`Database error: ${response.status} ${response.statusText}`);
+            }
             throw new Error(`Database error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
         }
 
-        const result = await response.json();
+        let result;
+        try {
+            result = await response.json();
+        } catch (parseError) {
+            console.error('Could not parse response:', parseError);
+            throw new Error('Invalid JSON response from database service');
+        }
+        
         console.log('User found in database:', result.user.nickname);
         
         return result.user;

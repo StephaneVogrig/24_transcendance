@@ -44,7 +44,9 @@ export async function createAI(name)
 		const response = await fetch(`http://game:3004/api/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ player1: player, player2: playerAI, maxScore: 5 })
+			// body: JSON.stringify({ player1: player, player2: playerAI, maxScore: 5 })
+			body: JSON.stringify({ player1: player, player2: playerAI, maxScore: 50 }) // pour test affichage match -> Stephanie
+
 		});
 
 		socket.on('gameDefeatOver', () => {

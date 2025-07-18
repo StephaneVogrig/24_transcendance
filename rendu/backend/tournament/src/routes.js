@@ -121,7 +121,7 @@ fastify.post('/api/tournament/playerscores', async (request, reply) => {
 
 fastify.get('/api/tournament/getAll', async (request, reply) => {
 	try {
-		const tournaments = await Tournament.getAllTournaments();
+		const tournaments = await Tournament.getActiveMatches();
 		console.log('tournaments:', tournaments);
 		console.log('tournaments type:', typeof tournaments);
 		console.log('tournaments is array:', Array.isArray(tournaments));
@@ -138,5 +138,6 @@ fastify.get('/api/tournament/getAll', async (request, reply) => {
 		reply.status(500).send({ error: 'Internal server error', details: error.message });
 	}
 });
+
 
 start();

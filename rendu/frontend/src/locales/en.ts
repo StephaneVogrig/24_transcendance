@@ -10,6 +10,7 @@ export const en = {
 	"leaderboard": "Leaderboard",
 	"language": "English",
 	"about": "about",
+    "connection": "connection",
 
 	"team": "The team",
 
