@@ -5,7 +5,7 @@ export function langBtn(lang: supportedLanguage) {
 
     const button = document.createElement('button');
     button.textContent = getLaguangeName(lang);
-    button.className = 'w-full mx-4 text-lg font-semibold bg-gray-700 hover:bg-gray-600 rounded-lg';
+    button.className = 'w-full mx-4 text-lg font-semibold text-white bg-gray-700 hover:bg-gray-600 rounded-lg';
 
     button.addEventListener('click', async () => {
 

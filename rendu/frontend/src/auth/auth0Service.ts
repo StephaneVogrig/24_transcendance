@@ -15,10 +15,10 @@ let auth0Client: any = null;
 //si pb -> npm install @auth0/auth0-spa-js
 const loadAuth0 = async () => {
     try {
-        if (!Auth0Client) {
-            const auth0Module = await import('@auth0/auth0-spa-js');
-            Auth0Client = auth0Module.Auth0Client;
-        }
+        // if (!Auth0Client) {
+        //     const auth0Module = await import('@auth0/auth0-spa-js');
+        //     Auth0Client = auth0Module.Auth0Client;
+        // }
         return Auth0Client;
     } catch (error) {
         console.error('Erreur lors du chargement d\'Auth0:', error);
