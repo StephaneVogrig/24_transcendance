@@ -11,7 +11,8 @@ import {
 
 
 
-
+// definir maxScore pour la logique de fin de match
+const maxScore = 15; // Exemple de score maximum pour terminer un match
 
 
     const extractMatchesFromTournament = (tournament: any[], state: string, Matchs: Match[], playerNbr: number) => {
@@ -31,11 +32,12 @@ import {
                     id: `match-${i}`,
                     player1: round[0].name,
                     player2: round[1].name,
-                    status: state,
+                    // status: state,
                     score: {
                         player1: round[0].score,
                         player2: round[1].score
-                    }
+                    },
+                    status: (round[0].score === maxScore || round[1].score === maxScore) ? 'finished' : state
                 };
                 j++;
                 console.log('///////// MATCH:', match);
@@ -49,7 +51,7 @@ import {
                         id: `match-${i}`,
                         player1: `?`,
                         player2: '?',
-                        status: state,
+                        status: 'waiting',
                         score: {
                             player1: 0,
                             player2: 0
@@ -103,7 +105,7 @@ import {
   // const createMatchElement = (match: Match): HTMLElement => {
     const createCompactMatchElement = (match: Match): HTMLElement => {
         const matchDiv = document.createElement('div');
-        matchDiv.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200';
+        matchDiv.className = 'bg-gray-400 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200';
 
         const matchHeader = document.createElement('div');
         matchHeader.className = 'flex justify-between items-center mb-2';
@@ -122,31 +124,31 @@ import {
         matchDiv.appendChild(matchHeader);
 
         const playersDiv = document.createElement('div');
-        playersDiv.className = 'flex items-center justify-between text-sm';
+        playersDiv.className = 'flex items-center justify-around text-sm';
         
-        const player1 = document.createElement('span');
-        player1.className = 'font-medium text-blue-600';
-        player1.textContent = match.player1;
+        const player1Wrapper = document.createElement('div');
+        player1Wrapper.className = 'bg-blue-100 text-blue-600 rounded-full px-3 py-1 font-bold';
+        player1Wrapper.textContent = match.player1;
         
         const vs = document.createElement('span');
-        vs.className = 'text-gray-400 font-bold';
+        vs.className = 'text-gray-40 font-bold';
         vs.textContent = 'VS';
         
-        const player2 = document.createElement('span');
-        player2.className = 'font-medium text-red-600';
-        player2.textContent = match.player2;
+        const player2Wrapper = document.createElement('div');
+        player2Wrapper.className = 'bg-green-100 text-green-600 rounded-full px-3 py-1 font-bold';
+        player2Wrapper.textContent = match.player2;
         
-        playersDiv.appendChild(player1);
+        playersDiv.appendChild(player1Wrapper);
         playersDiv.appendChild(vs);
-        playersDiv.appendChild(player2);
+        playersDiv.appendChild(player2Wrapper);
         matchDiv.appendChild(playersDiv);
 
-        if (match.score && (match.status === 'playing' || match.status === 'finished')) {
+        if (match.score && ( match.status === 'finished')) {
             const scoreDiv = document.createElement('div');
-            scoreDiv.className = 'flex justify-center mt-2 text-lg font-bold';
+            scoreDiv.className = 'flex justify-center mt-2 text-lg font';
             scoreDiv.innerHTML = `
                 <span class="text-blue-600">${match.score.player1}</span>
-                <span class="mx-2 text-gray-400">-</span>
+                <span class="mx-2 text-gray-40">-</span>
                 <span class="text-red-600">${match.score.player2}</span>
             `;
             matchDiv.appendChild(scoreDiv);
@@ -488,6 +490,45 @@ import {
         return card;
     };
 
+    const createOngoingTournamentCard = (title: string, matches: Match[], statusColor: string, emptyMessage: string): HTMLElement => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-lg p-6 min-h-[600px]';
+
+        // Header de la carte
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'flex items-center justify-between mb-4 pb-3 border-b';
+        
+        const cardTitle = document.createElement('h2');
+        cardTitle.className = 'text-xl font-bold text-gray-800';
+        cardTitle.textContent = title;
+        
+        cardHeader.appendChild(cardTitle);
+        card.appendChild(cardHeader);
+
+        // Conteneur des matchs
+        const matchList = document.createElement('div');
+        matchList.className = 'space-y-3 max-h-[500px] overflow-y-auto';
+
+        if (matches.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'text-center py-8 text-gray-500';
+            emptyDiv.innerHTML = `
+                <div class="text-4xl mb-2">🎮</div>
+                <p>${emptyMessage}</p>
+            `;
+            matchList.appendChild(emptyDiv);}
+        else {
+            console.log('createOngoingTournamentCard -> MATCHS récupérés  ', matches);
+            matches.forEach(match => {
+                const matchItem = createCompactMatchElement(match);
+                matchList.appendChild(matchItem);
+            });
+        }
+
+        card.appendChild(matchList);
+        return card;
+    };
+
     const loadMatches = async (cardsContainer : HTMLElement ) => {
         try {
             // Afficher un indicateur de chargement
@@ -537,16 +578,24 @@ import {
             const waitingCard = createOpenTournamentCard('Tournois en Attente', Matchs_tournament_open,
                 'bg-yellow-100 text-yellow-800','Aucun tournoi en attente');
 
-            const ongoingCard = createTournamentCard('Tournois en Cours', Matchs_tournament_ongoing,
+            const ongoingCard = createOngoingTournamentCard('Tournois en Cours', Matchs_tournament_ongoing,
                 'bg-green-100 text-green-800', 'Aucun tournoi en cours');
 
             const finishedCard = createEndedTournamentCard('Tournois Terminés', Matchs_tournament_ended,
                 'bg-gray-100 text-gray-800','Aucun tournoi terminé');
 
-            // Ajouter les cartes au conteneur
-            cardsContainer.appendChild(waitingCard);
+            // Ajouter la carte ongoing au-dessus
             cardsContainer.appendChild(ongoingCard);
-            cardsContainer.appendChild(finishedCard);
+
+            // Créer un conteneur pour les deux cartes du bas
+            const bottomCardsContainer = document.createElement('div');
+            bottomCardsContainer.className = 'grid grid-cols-1 lg:grid-cols-2 gap-6';
+            
+            // Ajouter les cartes waiting et finished côte à côte
+            bottomCardsContainer.appendChild(waitingCard);
+            bottomCardsContainer.appendChild(finishedCard);
+            
+            cardsContainer.appendChild(bottomCardsContainer);
 
         } catch (error) {
             console.error('Erreur lors du chargement des matchs:', error);
@@ -564,6 +613,7 @@ import {
 export const TestPage = (): HTMLElement => {
     // Conteneur principal (remplace mainDiv)
     const container = document.createElement('div');
+    container.className = 'max-w-none mx-auto min-h-screen p-6';
     // container.className = 'max-w-4xl mx-auto min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6';
 
     // Titre de la page
@@ -596,7 +646,7 @@ export const TestPage = (): HTMLElement => {
 
     // Conteneur des cartes de tournois
     const cardsContainer = document.createElement('div');
-    cardsContainer.className = 'grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8';
+    cardsContainer.className = 'space-y-6 mb-8';
     container.appendChild(cardsContainer);
 
     // Charger les matchs au chargement de la page
