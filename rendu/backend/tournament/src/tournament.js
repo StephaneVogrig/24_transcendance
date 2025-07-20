@@ -151,7 +151,7 @@ async function startMatches(bracket)
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				// body: JSON.stringify({ player1, player2, maxScore: 5 })
-				body: JSON.stringify({ player1, player2, : 15 }) // pour test affichage match -> Stephanie
+				body: JSON.stringify({ player1, player2, maxScore: 15 }) // pour test affichage match -> Stephanie
 			});
 
 			if (!response.ok) {
