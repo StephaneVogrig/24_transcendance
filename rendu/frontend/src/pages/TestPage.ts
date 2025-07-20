@@ -4,23 +4,543 @@ import { navigate } from '../router';
 // import { locale } from '../i18n';
 
 import { 
-    getActiveMatches, 
-    subscribeToMatchUpdates, 
-    formatTimeElapsed, 
-    getStatusColor, 
-    getStatusText,
+    getTournamentsType,
+    // subscribeToMatchUpdates,
     Match 
 } from '../services/matchService';
 
 
-export const TestPage = (): HTMLElement => {
-    const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6';
 
-    // Conteneur principal
+
+
+
+    const extractMatchesFromTournament = (tournament: any[], state: string, Matchs: Match[]) => {
+        let i = 0;
+        for (const element of tournament) {
+            // console.log('///////// ELEMENT DES TOURNOIS EN COURS :', element);
+            // console.log('///////// ROUNDS TERMINES:', element.rounds);
+            // convertir les round en Match
+            for (const round of element.rounds) {
+                // console.log('///////// ROUND:', round);
+                let match;
+                match = {
+                    id: `match-${i}`,
+                    player1: round[i][0].name,
+                    player2: round[i][1].name,
+                    status: state,
+                    score: {
+                        player1: round[i][0].score,
+                        player2: round[i][1].score
+                    }
+                };
+                Matchs.push(match);
+            }
+        }
+    };
+
+
+    // const createEndedTournamentElement = (match: Match): HTMLElement =>{
+    //     const matchDiv = document.createElement('div');
+    //     matchDiv.className = 'bg-gray-100 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200';
+
+    //     // Header du match
+    //     const matchHeader = document.createElement('div');
+    //     matchHeader.className = 'flex justify-between items-center mb-4';
+        
+    //     const matchIdSpan = document.createElement('span');
+    //     matchIdSpan.className = 'text-sm font-medium text-gray-500';
+    //     matchIdSpan.textContent = `Match #${match.id}`;
+        
+    //     const statusSpan = document.createElement('span');
+    //     statusSpan.className = 'px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-600';
+    //     statusSpan.textContent = 'Terminé';
+        
+    //     matchHeader.appendChild(matchIdSpan);
+    //     matchHeader.appendChild(statusSpan);
+    //     matchDiv.appendChild(matchHeader);
+    //     return matchDiv;
+
+    // }
+
+    const getStatusInfo = (status: string) => {
+        switch (status) {
+            case 'waiting':
+                return { color: 'bg-yellow-100 text-yellow-800', text: 'En attente' };
+            case 'playing':
+                return { color: 'bg-green-100 text-green-800', text: 'En cours' };
+            case 'finished':
+                return { color: 'bg-gray-100 text-gray-800', text: 'Terminé' };
+            default:
+                return { color: 'bg-gray-100 text-gray-800', text: 'Inconnu' };
+        }
+    };
+
+
+  // const createMatchElement = (match: Match): HTMLElement => {
+    const createCompactMatchElement = (match: Match): HTMLElement => {
+        const matchDiv = document.createElement('div');
+        matchDiv.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200';
+
+        const matchHeader = document.createElement('div');
+        matchHeader.className = 'flex justify-between items-center mb-2';
+        
+        const matchId = document.createElement('span');
+        matchId.className = 'text-xs font-medium text-gray-500';
+        matchId.textContent = `Match #${match.id}`;
+        
+        const statusSpan = document.createElement('span');
+        const statusInfo = getStatusInfo(match.status);
+        statusSpan.className = `px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`;
+        statusSpan.textContent = statusInfo.text;
+        
+        matchHeader.appendChild(matchId);
+        matchHeader.appendChild(statusSpan);
+        matchDiv.appendChild(matchHeader);
+
+        const playersDiv = document.createElement('div');
+        playersDiv.className = 'flex items-center justify-between text-sm';
+        
+        const player1 = document.createElement('span');
+        player1.className = 'font-medium text-blue-600';
+        player1.textContent = match.player1;
+        
+        const vs = document.createElement('span');
+        vs.className = 'text-gray-400 font-bold';
+        vs.textContent = 'VS';
+        
+        const player2 = document.createElement('span');
+        player2.className = 'font-medium text-red-600';
+        player2.textContent = match.player2;
+        
+        playersDiv.appendChild(player1);
+        playersDiv.appendChild(vs);
+        playersDiv.appendChild(player2);
+        matchDiv.appendChild(playersDiv);
+
+        if (match.score && (match.status === 'playing' || match.status === 'finished')) {
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = 'flex justify-center mt-2 text-lg font-bold';
+            scoreDiv.innerHTML = `
+                <span class="text-blue-600">${match.score.player1}</span>
+                <span class="mx-2 text-gray-400">-</span>
+                <span class="text-red-600">${match.score.player2}</span>
+            `;
+            matchDiv.appendChild(scoreDiv);
+        }
+
+        // Bouton de détails
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'w-full mt-3 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
+        detailsBtn.textContent = 'Détails';
+        detailsBtn.onclick = () => {
+            alert(`Détails du match:\n\nID: ${match.id}\nJoueur 1: ${match.player1}${match.score ? ` - Score: ${match.score.player1}` : ''}\nJoueur 2: ${match.player2}${match.score ? ` - Score: ${match.score.player2}` : ''}\nStatut: ${getStatusInfo(match.status).text}`);
+        };
+        matchDiv.appendChild(detailsBtn);
+
+        return matchDiv;
+    };
+    
+    // const createElement = (match: Match): HTMLElement => {
+    //     const matchDiv = document.createElement('div');
+    //     matchDiv.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200';
+
+    //     const matchHeader = document.createElement('div');
+    //     matchHeader.className = 'flex justify-between items-center mb-2';
+        
+    //     const matchId = document.createElement('span');
+    //     matchId.className = 'text-xs font-medium text-gray-500';
+    //     matchId.textContent = `Match #${match.id}`;
+        
+    //     const statusSpan = document.createElement('span');
+    //     const statusInfo = getStatusInfo(match.status);
+    //     statusSpan.className = `px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`;
+    //     statusSpan.textContent = statusInfo.text;
+        
+    //     matchHeader.appendChild(matchId);
+    //     matchHeader.appendChild(statusSpan);
+    //     matchDiv.appendChild(matchHeader);
+
+    //     const playersDiv = document.createElement('div');
+    //     playersDiv.className = 'flex items-center justify-between text-sm';
+        
+    //     const player1 = document.createElement('span');
+    //     player1.className = 'font-medium text-blue-600';
+    //     player1.textContent = match.player1;
+        
+    //     const vs = document.createElement('span');
+    //     vs.className = 'text-gray-400 font-bold';
+    //     vs.textContent = 'VS';
+        
+    //     const player2 = document.createElement('span');
+    //     player2.className = 'font-medium text-red-600';
+    //     player2.textContent = match.player2;
+        
+    //     playersDiv.appendChild(player1);
+    //     playersDiv.appendChild(vs);
+    //     playersDiv.appendChild(player2);
+    //     matchDiv.appendChild(playersDiv);
+
+    //     if (match.score && (match.status === 'playing' || match.status === 'finished')) {
+    //         const scoreDiv = document.createElement('div');
+    //         scoreDiv.className = 'flex justify-center mt-2 text-lg font-bold';
+    //         scoreDiv.innerHTML = `
+    //             <span class="text-blue-600">${match.score.player1}</span>
+    //             <span class="mx-2 text-gray-400">-</span>
+    //             <span class="text-red-600">${match.score.player2}</span>
+    //         `;
+    //         matchDiv.appendChild(scoreDiv);
+    //     }
+
+    //     // Bouton de détails
+    //     const detailsBtn = document.createElement('button');
+    //     detailsBtn.className = 'w-full mt-3 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
+    //     detailsBtn.textContent = 'Détails';
+    //     detailsBtn.onclick = () => {
+    //         alert(`Détails du match:\n\nID: ${match.id}\nJoueur 1: ${match.player1}${match.score ? ` - Score: ${match.score.player1}` : ''}\nJoueur 2: ${match.player2}${match.score ? ` - Score: ${match.score.player2}` : ''}\nStatut: ${getStatusInfo(match.status).text}`);
+    //     };
+    //     matchDiv.appendChild(detailsBtn);
+
+    //     return matchDiv;
+    // };
+    
+     // const createMatchElement = (match: Match): HTMLElement => {
+    const createEndedTournamentElement = (match: Match): HTMLElement => {
+        const matchDiv = document.createElement('div');
+        matchDiv.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200';
+
+        const matchHeader = document.createElement('div');
+        matchHeader.className = 'flex justify-between items-center mb-2';
+        
+        const matchId = document.createElement('span');
+        matchId.className = 'text-xs font-medium text-gray-500';
+        matchId.textContent = `Match #${match.id}`;
+        
+        const statusSpan = document.createElement('span');
+        const statusInfo = getStatusInfo(match.status);
+        statusSpan.className = `px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`;
+        statusSpan.textContent = statusInfo.text;
+        
+        matchHeader.appendChild(matchId);
+        matchHeader.appendChild(statusSpan);
+        matchDiv.appendChild(matchHeader);
+
+        const playersDiv = document.createElement('div');
+        playersDiv.className = 'flex items-center justify-between text-sm';
+        
+        const player1 = document.createElement('span');
+        player1.className = 'font-medium text-blue-600';
+        player1.textContent = match.player1;
+        
+        const vs = document.createElement('span');
+        vs.className = 'text-gray-400 font-bold';
+        vs.textContent = 'VS';
+        
+        const player2 = document.createElement('span');
+        player2.className = 'font-medium text-red-600';
+        player2.textContent = match.player2;
+        
+        playersDiv.appendChild(player1);
+        playersDiv.appendChild(vs);
+        playersDiv.appendChild(player2);
+        matchDiv.appendChild(playersDiv);
+
+        if (match.score && (match.status === 'playing' || match.status === 'finished')) {
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = 'flex justify-center mt-2 text-lg font-bold';
+            scoreDiv.innerHTML = `
+                <span class="text-blue-600">${match.score.player1}</span>
+                <span class="mx-2 text-gray-400">-</span>
+                <span class="text-red-600">${match.score.player2}</span>
+            `;
+            matchDiv.appendChild(scoreDiv);
+        }
+
+        // Bouton de détails
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'w-full mt-3 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
+        detailsBtn.textContent = 'Détails';
+        detailsBtn.onclick = () => {
+            alert(`Détails du match:\n\nID: ${match.id}\nJoueur 1: ${match.player1}${match.score ? ` - Score: ${match.score.player1}` : ''}\nJoueur 2: ${match.player2}${match.score ? ` - Score: ${match.score.player2}` : ''}\nStatut: ${getStatusInfo(match.status).text}`);
+        };
+        matchDiv.appendChild(detailsBtn);
+
+        return matchDiv;
+    };
+
+    //     const createOpenTournamentCard = (title: string, matches: Match[], statusColor: string, emptyMessage: string): HTMLElement => {
+    //     const card = document.createElement('div');
+    //     card.className = 'bg-white rounded-lg shadow-lg p-6';
+
+    //     // Header de la carte
+    //     const cardHeader = document.createElement('div');
+    //     cardHeader.className = 'flex items-center justify-between mb-4 pb-3 border-b';
+        
+    //     const cardTitle = document.createElement('h2');
+    //     cardTitle.className = 'text-xl font-bold text-gray-800';
+    //     cardTitle.textContent = title;
+        
+    //     const matchCount = document.createElement('span');
+    //     matchCount.className = `px-3 py-1 rounded-full text-sm font-medium ${statusColor}`;
+    //     matchCount.textContent = `${matches.length} match${matches.length > 1 ? 's' : ''}`;
+        
+    //     cardHeader.appendChild(cardTitle);
+    //     cardHeader.appendChild(matchCount);
+    //     card.appendChild(cardHeader);
+
+    //     // Conteneur des matchs
+    //     const matchList = document.createElement('div');
+    //     matchList.className = 'space-y-3 max-h-96 overflow-y-auto';
+
+    //     if (matches.length === 0) {
+    //         const emptyDiv = document.createElement('div');
+    //         emptyDiv.className = 'text-center py-8 text-gray-500';
+    //         emptyDiv.innerHTML = `
+    //             <div class="text-4xl mb-2">🎮</div>
+    //             <p>${emptyMessage}</p>
+    //         `;
+    //         matchList.appendChild(emptyDiv);
+    //     } else {
+    //         matches.forEach(match => {
+    //             const matchItem = createOpenTournamentElement(match);
+    //             matchList.appendChild(matchItem);
+    //         });
+    //     }
+
+    //     card.appendChild(matchList);
+    //     return card;
+    // };
+
+    //   // const createMatchElement = (match: Match): HTMLElement => {
+    // const createOpenTournamentElement = (match: Match): HTMLElement => {
+    //     const matchDiv = document.createElement('div');
+    //     matchDiv.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200';
+
+    //     const matchHeader = document.createElement('div');
+    //     matchHeader.className = 'flex justify-between items-center mb-2';
+        
+    //     const matchId = document.createElement('span');
+    //     matchId.className = 'text-xs font-medium text-gray-500';
+    //     matchId.textContent = `Match #${match.id}`;
+        
+    //     const statusSpan = document.createElement('span');
+    //     const statusInfo = getStatusInfo(match.status);
+    //     statusSpan.className = `px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`;
+    //     statusSpan.textContent = statusInfo.text;
+        
+    //     matchHeader.appendChild(matchId);
+    //     matchHeader.appendChild(statusSpan);
+    //     matchDiv.appendChild(matchHeader);
+
+    //     const playersDiv = document.createElement('div');
+    //     playersDiv.className = 'flex items-center justify-between text-sm';
+        
+    //     const player1 = document.createElement('span');
+    //     player1.className = 'font-medium text-blue-600';
+    //     player1.textContent = match.player1;
+        
+    //     const vs = document.createElement('span');
+    //     vs.className = 'text-gray-400 font-bold';
+    //     vs.textContent = 'VS';
+        
+    //     const player2 = document.createElement('span');
+    //     player2.className = 'font-medium text-red-600';
+    //     player2.textContent = match.player2;
+        
+    //     playersDiv.appendChild(player1);
+    //     playersDiv.appendChild(vs);
+    //     playersDiv.appendChild(player2);
+    //     matchDiv.appendChild(playersDiv);
+
+    //     if (match.score && (match.status === 'playing' || match.status === 'finished')) {
+    //         const scoreDiv = document.createElement('div');
+    //         scoreDiv.className = 'flex justify-center mt-2 text-lg font-bold';
+    //         scoreDiv.innerHTML = `
+    //             <span class="text-blue-600">${match.score.player1}</span>
+    //             <span class="mx-2 text-gray-400">-</span>
+    //             <span class="text-red-600">${match.score.player2}</span>
+    //         `;
+    //         matchDiv.appendChild(scoreDiv);
+    //     }
+
+    //     // Bouton de détails
+    //     const detailsBtn = document.createElement('button');
+    //     detailsBtn.className = 'w-full mt-3 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
+    //     detailsBtn.textContent = 'Détails';
+    //     detailsBtn.onclick = () => {
+    //         alert(`Détails du match:\n\nID: ${match.id}\nJoueur 1: ${match.player1}${match.score ? ` - Score: ${match.score.player1}` : ''}\nJoueur 2: ${match.player2}${match.score ? ` - Score: ${match.score.player2}` : ''}\nStatut: ${getStatusInfo(match.status).text}`);
+    //     };
+    //     matchDiv.appendChild(detailsBtn);
+
+    //     return matchDiv;
+    // };
+
+        const createEndedTournamentCard = (title: string, matches: Match[], statusColor: string, emptyMessage: string): HTMLElement => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-lg p-6';
+
+        // Header de la carte
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'flex items-center justify-between mb-4 pb-3 border-b';
+        
+        const cardTitle = document.createElement('h2');
+        cardTitle.className = 'text-xl font-bold text-gray-800';
+        cardTitle.textContent = title;
+        
+        const matchCount = document.createElement('span');
+        matchCount.className = `px-3 py-1 rounded-full text-sm font-medium ${statusColor}`;
+        matchCount.textContent = `${matches.length} match${matches.length > 1 ? 's' : ''}`;
+        
+        cardHeader.appendChild(cardTitle);
+        cardHeader.appendChild(matchCount);
+        card.appendChild(cardHeader);
+
+        // Conteneur des matchs
+        const matchList = document.createElement('div');
+        matchList.className = 'space-y-3 max-h-96 overflow-y-auto';
+
+        if (matches.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'text-center py-8 text-gray-500';
+            emptyDiv.innerHTML = `
+                <div class="text-4xl mb-2">🎮</div>
+                <p>${emptyMessage}</p>
+            `;
+            matchList.appendChild(emptyDiv);
+        } else {
+            matches.forEach(match => {
+                const matchItem = createEndedTournamentElement(match);
+                matchList.appendChild(matchItem);
+            });
+        }
+
+        card.appendChild(matchList);
+        return card;
+    };
+
+    const createTournamentCard = (title: string, matches: Match[], statusColor: string, emptyMessage: string): HTMLElement => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-lg p-6';
+
+        // Header de la carte
+        const cardHeader = document.createElement('div');
+        cardHeader.className = 'flex items-center justify-between mb-4 pb-3 border-b';
+        
+        const cardTitle = document.createElement('h2');
+        cardTitle.className = 'text-xl font-bold text-gray-800';
+        cardTitle.textContent = title;
+        
+        const matchCount = document.createElement('span');
+        matchCount.className = `px-3 py-1 rounded-full text-sm font-medium ${statusColor}`;
+        matchCount.textContent = `${matches.length} match${matches.length > 1 ? 's' : ''}`;
+        
+        cardHeader.appendChild(cardTitle);
+        cardHeader.appendChild(matchCount);
+        card.appendChild(cardHeader);
+
+        // Conteneur des matchs
+        const matchList = document.createElement('div');
+        matchList.className = 'space-y-3 max-h-96 overflow-y-auto';
+
+        if (matches.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'text-center py-8 text-gray-500';
+            emptyDiv.innerHTML = `
+                <div class="text-4xl mb-2">🎮</div>
+                <p>${emptyMessage}</p>
+            `;
+            matchList.appendChild(emptyDiv);
+        } else {
+            matches.forEach(match => {
+                const matchItem = createCompactMatchElement(match);
+                matchList.appendChild(matchItem);
+            });
+        }
+
+        card.appendChild(matchList);
+        return card;
+    };
+
+    const loadMatches = async (cardsContainer : HTMLElement ) => {
+        try {
+            // Afficher un indicateur de chargement
+            cardsContainer.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p class="text-gray-600">Chargement des matchs...</p>
+                </div>
+            `;
+
+            // Récupérer les matchs depuis le service
+            const open = await getTournamentsType('open');
+            const ongoing = await getTournamentsType('ongoing');
+            const ended = await getTournamentsType('ended');
+            
+    
+
+            // Convertir les tournois en matchs
+            const Matchs_tournament_ended: Match[] = [];
+            extractMatchesFromTournament(ended, 'finished', Matchs_tournament_ended);
+            
+            const Matchs_tournament_open: Match[] = [];
+            extractMatchesFromTournament(open, 'waiting', Matchs_tournament_open);
+            
+            const Matchs_tournament_ongoing: Match[] = [];
+            extractMatchesFromTournament(ongoing, 'playing', Matchs_tournament_ongoing);
+
+
+            // DEBUG ------------
+            if (open.length != 0 ) {
+                console.log('+++ open TOURNAMENT récupérés +++ ', open);
+                console.log('+++ LISTE DES MATCHS ouverts récupérés +++ ', Matchs_tournament_open);
+
+            }
+            if (ongoing.length != 0) { 
+                console.log('??? ongoing TOURNAMENT récupérés ??? ', ongoing);
+                console.log('*** LISTE DES MATCHS en cours récupérés *** ', Matchs_tournament_ongoing);
+
+            }
+            if (ended.length != 0) {   
+                console.log('*** ended TOURNAMENT récupérés *** ', ended);
+                console.log('=== LISTE DES MATCHS terminés récupérés === ', Matchs_tournament_ended);
+            }
+
+            // Vider le conteneur et créer les cartes
+            cardsContainer.innerHTML = '';
+
+            // Créer les 3 cartes
+            // const waitingCard = createOpenTournamentCard('Tournois en Attente', Matchs_tournament_open,
+            //     'bg-yellow-100 text-yellow-800','Aucun tournoi en attente');
+            const waitingCard = createTournamentCard('Tournois en Attente', Matchs_tournament_open,
+                'bg-yellow-100 text-yellow-800','Aucun tournoi en attente');
+
+            const ongoingCard = createTournamentCard('Tournois en Cours', Matchs_tournament_ongoing,
+                'bg-green-100 text-green-800', 'Aucun tournoi en cours');
+
+            const finishedCard = createEndedTournamentCard('Tournois Terminés', Matchs_tournament_ended,
+                'bg-gray-100 text-gray-800','Aucun tournoi terminé');
+
+            // Ajouter les cartes au conteneur
+            cardsContainer.appendChild(waitingCard);
+            cardsContainer.appendChild(ongoingCard);
+            cardsContainer.appendChild(finishedCard);
+
+        } catch (error) {
+            console.error('Erreur lors du chargement des matchs:', error);
+            cardsContainer.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <div class="text-red-400 text-6xl mb-4">⚠️</div>
+                    <h3 class="text-xl font-semibold text-red-600 mb-2">Erreur de chargement</h3>
+                    <p class="text-gray-500">Impossible de charger les matchs. Veuillez réessayer.</p>
+                </div>
+            `;
+        }
+    };
+
+// Fonction pour créer la page de test
+export const TestPage = (): HTMLElement => {
+    // Conteneur principal (remplace mainDiv)
     const container = document.createElement('div');
-    container.className = 'max-w-4xl mx-auto';
-    mainDiv.appendChild(container);
+    // container.className = 'max-w-4xl mx-auto min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6';
 
     // Titre de la page
     const titleContainer = document.createElement('div');
@@ -38,8 +558,8 @@ export const TestPage = (): HTMLElement => {
     backButton.onclick = () => navigate('/choice-game');
 
     const title = document.createElement('h1');
-    title.className = 'text-4xl font-bold text-gray-800 flex-1 text-center';
-    title.textContent = 'Matchs en Cours';
+    title.className = 'text-4xl font-bold text-Blue-800 flex-1 text-center';
+    title.textContent = 'Matchs';
 
     // Espace pour équilibrer
     const spacer = document.createElement('div');
@@ -50,241 +570,13 @@ export const TestPage = (): HTMLElement => {
     titleContainer.appendChild(spacer);
     container.appendChild(titleContainer);
 
+    // Conteneur des cartes de tournois
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8';
+    container.appendChild(cardsContainer);
 
-    // //recuperer tous les tournois
-    // async function getAllTournaments(): Promise<any> {
-    //     try {
-    //         const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/getAll`, {
-    //             method: 'GET',
-    //             headers: { 'Content-Type': 'application/json' },
-    //         });
-            
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! status: ${response.status}`);
-    //         }
-            
-    //         const tournaments = await response.json();
-    //         console.log('Liste des tournois:', tournaments);
-    //         return tournaments;
-    //     } catch (error) {
-    //         console.error('Erreur lors de la récupération des tournois:', error);
-    //         throw error;
-    //     }
-    // }
-
-    // // Test des APIs de tournoi au chargement de la page
-    // // testTournamentAPI();
-
-    // // Appel de la fonction pour récupérer les informations du tournoi
-    // // getTournamentInfo(1).then(tournament => {
-    // //     console.log('Informations du tournoi spécifique:', tournament);
-    // // }).catch(error => {
-    // //     console.error('Erreur lors de la récupération des informations du tournoi:', error);
-    // // });
-
-    // // Appel de la fonction pour récupérer tous les tournois
-    // getAllTournaments().then(tournaments => {
-    //     console.log('Tous les tournois:', tournaments);
-    // }).catch(error => {
-    //     console.error('Erreur lors de la récupération des tournois:', error);
-    // });
-
-    // Conteneur des matchs
-    const matchesContainer = document.createElement('div');
-    matchesContainer.className = 'space-y-6';
-    container.appendChild(matchesContainer);
-
-    // Fonction pour créer un match
-    const createMatchElement = (match: Match) => {
-        const matchDiv = document.createElement('div');
-        matchDiv.className = 'bg-white rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200';
-
-        // Header du match
-        const matchHeader = document.createElement('div');
-        matchHeader.className = 'flex justify-between items-center mb-4';
-        
-        const matchIdSpan = document.createElement('span');
-        matchIdSpan.className = 'text-sm font-medium text-gray-500';
-        // matchIdSpan.textContent = `Match #${match.id.split('_')[1] || 'N/A'}`;
-        matchIdSpan.textContent = `Match #${match.id}`; 
-        
-        const matchTimeSpan = document.createElement('span');
-        matchTimeSpan.className = 'text-xs text-gray-400';
-        matchTimeSpan.textContent = formatTimeElapsed(match.createdAt);
-        
-        const statusSpan = document.createElement('span');
-        statusSpan.className = `px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(match.status)}`;
-        statusSpan.textContent = getStatusText(match.status);
-        
-        const headerLeft = document.createElement('div');
-        headerLeft.className = 'flex flex-col';
-        headerLeft.appendChild(matchIdSpan);
-        headerLeft.appendChild(matchTimeSpan);
-        
-        matchHeader.appendChild(headerLeft);
-        matchHeader.appendChild(statusSpan);
-        matchDiv.appendChild(matchHeader);
-
-        // Conteneur des joueurs
-        const playersContainer = document.createElement('div');
-        playersContainer.className = 'flex items-center justify-center space-x-4';
-
-        // Joueur 1
-        const player1Box = document.createElement('div');
-        player1Box.className = 'flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4 text-center transform hover:scale-105 transition-transform duration-200';
-        
-        const player1Name = document.createElement('h3');
-        player1Name.className = 'text-lg font-bold mb-2';
-        player1Name.textContent = match.player1;
-        
-        const player1Avatar = document.createElement('div');
-        player1Avatar.className = 'w-12 h-12 bg-white bg-opacity-20 rounded-full mx-auto mb-2 flex items-center justify-center';
-        player1Avatar.innerHTML = `<span class="text-xl font-bold">${match.player1.charAt(0).toUpperCase()}</span>`;
-        
-        // Score du joueur 1 si disponible
-        if (match.score && match.status === 'playing') {
-            const player1Score = document.createElement('div');
-            player1Score.className = 'text-2xl font-bold';
-            player1Score.textContent = match.score.player1.toString();
-            player1Box.appendChild(player1Avatar);
-            player1Box.appendChild(player1Name);
-            player1Box.appendChild(player1Score);
-        } else {
-            player1Box.appendChild(player1Avatar);
-            player1Box.appendChild(player1Name);
-        }
-
-        // VS separator
-        const vsDiv = document.createElement('div');
-        vsDiv.className = 'flex items-center justify-center';
-        
-        const vsText = document.createElement('span');
-        vsText.className = 'text-3xl font-bold text-gray-700 bg-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg';
-        vsText.textContent = 'VS';
-        
-        vsDiv.appendChild(vsText);
-
-        // Joueur 2
-        const player2Box = document.createElement('div');
-        player2Box.className = 'flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg p-4 text-center transform hover:scale-105 transition-transform duration-200';
-        
-        const player2Name = document.createElement('h3');
-        player2Name.className = 'text-lg font-bold mb-2';
-        player2Name.textContent = match.player2;
-        
-        const player2Avatar = document.createElement('div');
-        player2Avatar.className = 'w-12 h-12 bg-white bg-opacity-20 rounded-full mx-auto mb-2 flex items-center justify-center';
-        player2Avatar.innerHTML = `<span class="text-xl font-bold">${match.player2.charAt(0).toUpperCase()}</span>`;
-        
-        // Score du joueur 2 si disponible
-        if (match.score && match.status === 'playing') {
-            const player2Score = document.createElement('div');
-            player2Score.className = 'text-2xl font-bold';
-            player2Score.textContent = match.score.player2.toString();
-            player2Box.appendChild(player2Avatar);
-            player2Box.appendChild(player2Name);
-            player2Box.appendChild(player2Score);
-        } else {
-            player2Box.appendChild(player2Avatar);
-            player2Box.appendChild(player2Name);
-        }
-
-        // Assembler les joueurs
-        playersContainer.appendChild(player1Box);
-        playersContainer.appendChild(vsDiv);
-        playersContainer.appendChild(player2Box);
-        matchDiv.appendChild(playersContainer);
-
-        // Actions du match
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'flex justify-center space-x-4 mt-6';
-        
-        if (match.status === 'playing') {
-            const watchButton = document.createElement('button');
-            watchButton.className = 'px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium';
-            watchButton.textContent = 'Regarder';
-            watchButton.onclick = () => {
-                console.log(`Regarder le match ${match.id}`);
-                // Rediriger vers la page de jeu en mode spectateur
-                window.location.href = `/game?watch=${match.id}`;
-            };
-            actionsDiv.appendChild(watchButton);
-        }
-        
-        const detailsButton = document.createElement('button');
-        detailsButton.className = 'px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 font-medium';
-        detailsButton.textContent = 'Détails';
-        detailsButton.onclick = () => {
-            console.log(`Détails du match ${match.id}`);
-            // Ici vous pouvez ajouter la logique pour afficher les détails
-            alert(`Détails du match:\n\nID: ${match.id}\nJoueur 1: ${match.player1}\nJoueur 2: ${match.player2}\nStatut: ${getStatusText(match.status)}\nCréé: ${match.createdAt.toLocaleString()}`);
-        };
-        
-        actionsDiv.appendChild(detailsButton);
-        matchDiv.appendChild(actionsDiv);
-
-        return matchDiv;
-    };
-
-    // Fonction pour charger les matchs
-    const loadMatches = async () => {
-        try {
-            // Afficher un indicateur de chargement
-            matchesContainer.innerHTML = `
-                <div class="text-center py-12">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p class="text-gray-600">Chargement des matchs...</p>
-                </div>
-            `;
-
-            // Récupérer les matchs depuis le service
-            const matches = await getActiveMatches();
-
-            // Vider le conteneur
-            matchesContainer.innerHTML = '';
-
-            if (matches.length === 0) {
-                // Afficher un message si aucun match
-                const noMatchDiv = document.createElement('div');
-                noMatchDiv.className = 'text-center py-12';
-                noMatchDiv.innerHTML = `
-                    <div class="text-gray-400 text-6xl mb-4">🎮</div>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Aucun match en cours</h3>
-                    <p class="text-gray-500">Revenez plus tard pour voir les matchs actifs</p>
-                `;
-                matchesContainer.appendChild(noMatchDiv);
-            } else {
-                // Créer les éléments de match
-                matches.forEach((match: Match) => {
-                    const matchElement = createMatchElement(match);
-                    matchesContainer.appendChild(matchElement);
-                });
-
-                // Afficher un résumé
-                const summaryDiv = document.createElement('div');
-                summaryDiv.className = 'mt-6 text-center text-gray-600';
-                const playingCount = matches.filter(m => m.status === 'playing').length;
-                const waitingCount = matches.filter(m => m.status === 'waiting').length;
-                summaryDiv.innerHTML = `
-                    <p class="text-sm">
-                        <span class="font-semibold">${matches.length}</span> match(s) total • 
-                        <span class="text-green-600 font-semibold">${playingCount}</span> en cours • 
-                        <span class="text-yellow-600 font-semibold">${waitingCount}</span> en attente
-                    </p>
-                `;
-                container.appendChild(summaryDiv);
-            }
-        } catch (error) {
-            console.error('Erreur lors du chargement des matchs:', error);
-            matchesContainer.innerHTML = `
-                <div class="text-center py-12">
-                    <div class="text-red-400 text-6xl mb-4">⚠️</div>
-                    <h3 class="text-xl font-semibold text-red-600 mb-2">Erreur de chargement</h3>
-                    <p class="text-gray-500">Impossible de charger les matchs. Veuillez réessayer.</p>
-                </div>
-            `;
-        }
-    };
+    // Charger les matchs au chargement de la page
+    loadMatches(cardsContainer);
 
     // Bouton de rafraîchissement
     const refreshButton = document.createElement('button');
@@ -297,59 +589,14 @@ export const TestPage = (): HTMLElement => {
     refreshButton.title = 'Rafraîchir les matchs';
     refreshButton.onclick = () => {
         console.log('Rafraîchissement des matchs...');
-        loadMatches();
+        loadMatches(cardsContainer);
     };
-    mainDiv.appendChild(refreshButton);
+    container.appendChild(refreshButton);
 
     // Variables pour gérer les mises à jour
     let unsubscribeFromUpdates: (() => void) | null = null;
 
     // Fonction pour démarrer les mises à jour en temps réel
-    const startRealTimeUpdates = () => {
-        unsubscribeFromUpdates = subscribeToMatchUpdates((matches) => {
-            console.log('Mise à jour des matchs reçue:', matches.length, 'matchs');
-            
-            // Vider le conteneur
-            matchesContainer.innerHTML = '';
-
-            if (matches.length === 0) {
-                // Afficher un message si aucun match
-                const noMatchDiv = document.createElement('div');
-                noMatchDiv.className = 'text-center py-12';
-                noMatchDiv.innerHTML = `
-                    <div class="text-gray-400 text-6xl mb-4">🎮</div>
-                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Aucun match en cours</h3>
-                    <p class="text-gray-500">Revenez plus tard pour voir les matchs actifs</p>
-                `;
-                matchesContainer.appendChild(noMatchDiv);
-            } else {
-                // Créer les éléments de match
-                matches.forEach(match => {
-                    const matchElement = createMatchElement(match);
-                    matchesContainer.appendChild(matchElement);
-                });
-
-                // Mettre à jour le résumé
-                const existingSummary = container.querySelector('.match-summary');
-                if (existingSummary) {
-                    existingSummary.remove();
-                }
-
-                const summaryDiv = document.createElement('div');
-                summaryDiv.className = 'mt-6 text-center text-gray-600 match-summary';
-                const playingCount = matches.filter(m => m.status === 'playing').length;
-                const waitingCount = matches.filter(m => m.status === 'waiting').length;
-                summaryDiv.innerHTML = `
-                    <p class="text-sm">
-                        <span class="font-semibold">${matches.length}</span> match(s) total • 
-                        <span class="text-green-600 font-semibold">${playingCount}</span> en cours • 
-                        <span class="text-yellow-600 font-semibold">${waitingCount}</span> en attente
-                    </p>
-                `;
-                container.appendChild(summaryDiv);
-            }
-        });
-    };
 
     // Nettoyer lors de la destruction de la page
     const cleanup = () => {
@@ -364,7 +611,7 @@ export const TestPage = (): HTMLElement => {
     
     // Nettoyer si l'utilisateur change de page
     const observer = new MutationObserver(() => {
-        if (!document.contains(mainDiv)) {
+        if (!document.contains(container)) {
             cleanup();
             observer.disconnect();
         }
@@ -372,95 +619,11 @@ export const TestPage = (): HTMLElement => {
     observer.observe(document.body, { childList: true, subtree: true });
 
     // Charger les matchs au démarrage
-    loadMatches();
+    loadMatches(cardsContainer);
     
     // Démarrer les mises à jour en temps réel
-    startRealTimeUpdates();
+    // startRealTimeUpdates();
 
-    return mainDiv;
+    return container;
 };
 
-// export const TestPage = (): HTMLElement => {
-
-//     const content = document.createElement('div');
-//     content.className = 'mx-auto max-w-7xl h-full w-full grid grid-rows-[auto_1fr_auto] gap-8';
-
-//     const team = document.createElement('div');
-//     team.className = 'text-center pb-16 px-8';
-//     content.appendChild(team);
-
-//     const h2 = document.createElement('h2');
-//     h2.className = 'text-3xl font-extrabold text-blue-400 mb-8';
-//     h2.textContent = ' Page de test  ';
-//     team.appendChild(h2);
-
-//     const p = document.createElement('p');
-//     p.className = 'text-lg text-gray-700';
-//     p.textContent = ' Page de test pour les fonctionnalités de tournoi et autres tests d\'API. ';
-//     team.appendChild(p);
-
-//     content.appendChild(bottomBtn(locale.back_home, '/'));
-
-
-//     //recuperer les informations du tournoi
-//     // async function getTournamentInfo(tournamentId: number): Promise<any> {
-//     //     try {
-//     //         const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/get?id=${tournamentId}`, {
-//     //             method: 'GET',
-//     //             headers: { 'Content-Type': 'application/json' },
-//     //         });
-            
-//     //         if (!response.ok) {
-//     //             throw new Error(`HTTP error! status: ${response.status}`);
-//     //         }
-            
-//     //         const data = await response.json();
-//     //         console.log('Informations du tournoi:', data);
-//     //         return data;
-//     //     } catch (error) {
-//     //         console.error('Erreur lors de la récupération des informations du tournoi:', error);
-//     //         throw error;
-//     //     }
-//     // }
-
-//     //recuperer tous les tournois
-//     async function getAllTournaments(): Promise<any> {
-//         try {
-//             const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/getAll`, {
-//                 method: 'GET',
-//                 headers: { 'Content-Type': 'application/json' },
-//             });
-            
-//             if (!response.ok) {
-//                 throw new Error(`HTTP error! status: ${response.status}`);
-//             }
-            
-//             const tournaments = await response.json();
-//             console.log('Liste des tournois:', tournaments);
-//             return tournaments;
-//         } catch (error) {
-//             console.error('Erreur lors de la récupération des tournois:', error);
-//             throw error;
-//         }
-//     }
-
-//     // Test des APIs de tournoi au chargement de la page
-//     // testTournamentAPI();
-
-//     // Appel de la fonction pour récupérer les informations du tournoi
-//     // getTournamentInfo(1).then(tournament => {
-//     //     console.log('Informations du tournoi spécifique:', tournament);
-//     // }).catch(error => {
-//     //     console.error('Erreur lors de la récupération des informations du tournoi:', error);
-//     // });
-
-//     // Appel de la fonction pour récupérer tous les tournois
-//     getAllTournaments().then(tournaments => {
-//         console.log('Tous les tournois:', tournaments);
-//     }).catch(error => {
-//         console.error('Erreur lors de la récupération des tournois:', error);
-//     });
-
-
-//     return content;
-// };

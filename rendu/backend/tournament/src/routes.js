@@ -121,7 +121,7 @@ fastify.post('/api/tournament/playerscores', async (request, reply) => {
 
 fastify.get('/api/tournament/getAll', async (request, reply) => {
 	try {
-		const tournaments = await Tournament.getActiveMatches();
+		const tournaments = await Tournament.getTournament();
 		console.log('tournaments:', tournaments);
 		console.log('tournaments type:', typeof tournaments);
 		console.log('tournaments is array:', Array.isArray(tournaments));

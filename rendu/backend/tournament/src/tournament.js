@@ -135,7 +135,7 @@ export async function createTournament(name)
 }
 
 
-export async function getActiveMatches()
+export async function getMatches()
 {
 	return Object.values(TOURNAMENT_LIST);
 }
@@ -151,7 +151,7 @@ async function startMatches(bracket)
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				// body: JSON.stringify({ player1, player2, maxScore: 5 })
-				body: JSON.stringify({ player1, player2, maxScore: 50 }) // pour test affichage match -> Stephanie
+				body: JSON.stringify({ player1, player2, : 15 }) // pour test affichage match -> Stephanie
 			});
 
 			if (!response.ok) {

@@ -10,7 +10,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AboutPage } from './pages/AboutPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
-import { MatchListPage } from './pages/matchList';
+// import { MatchListPage } from './pages/matchList';
 import { TestPage } from './pages/TestPage';
 
 
@@ -23,7 +23,7 @@ addRoute('/profile', ProfilePage);
 addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
 addRoute('/auth/callback', AuthCallbackPage);
-addRoute('/matches', MatchListPage);
+// addRoute('/matches', MatchListPage);
 addRoute('/test', TestPage);
 
 
