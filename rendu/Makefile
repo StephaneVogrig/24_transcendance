@@ -15,8 +15,8 @@ HOST_IP := $(if $(HOST_IP),$(HOST_IP),localhost)
 # *** Rules ********************************************************************
 
 up:
-	@echo "$(GREEN)✅ IP hôte détectée: $(HOST_IP)$(NC)"
 	@HOST_IP=$(HOST_IP) $(DOCKER_COMPOSE) up -d --build
+	@echo "\n$(GREEN)✅ IP hôte détectée: $(HOST_IP)$(NC)"
 
 down:
 	@HOST_IP=$(HOST_IP) $(DOCKER_COMPOSE) down

@@ -1,3 +1,4 @@
+import { Socket } from "socket.io-client";
 import { Engine } from '@babylonjs/core';
 import { createSceneGame, resetVariables } from './scenes/sceneGame';
 import { InputManager } from './inputManager';
@@ -53,4 +54,8 @@ export class BabylonGame {
     public update() {
         this.engine.resize();
     }
+
+	public setSocket2(socket: Socket) {
+		this.inputManager?.setSocket2(socket);
+	}
 }

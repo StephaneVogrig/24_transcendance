@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import * as GameManager from './gameManager.js';
+import cors from '@fastify/cors'
 
 const fastify = Fastify({ logger: true });
 
@@ -16,6 +17,17 @@ const start = async () => {
     process.exit(1);
   }
 };
+
+const HOST_IP = process.env.HOST_IP;
+
+fastify.register(cors, {
+	origin: [
+		`http://${HOST_IP}:5173`,
+		'http://localhost:5173'
+	],
+	methods: ['GET', 'POST'],
+	credentials: true
+});
 
 fastify.post('/api/game/start', async (request, reply) => {
     const { player1, player2, maxScore } = request.body;

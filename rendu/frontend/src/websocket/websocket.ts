@@ -2,6 +2,7 @@ import { io, Socket } from "socket.io-client";
 
 let socketInstance: Socket | null = null;
 let playerName: string | null = null;
+let playerSocket2: Socket | null = null;
 
 export const getSocket = (): Socket => {
     if (!socketInstance || !socketInstance.connected) {
@@ -27,11 +28,20 @@ export const getSocket = (): Socket => {
     return socketInstance;
 };
 
+export const setSocket2 = (Socket: Socket) => {
+    playerSocket2 = Socket;
+};
+
 export const setPlayerName = (name: string) => {
     playerName = name;
     if (socketInstance && socketInstance.connected)
         socketInstance.emit('identify_player', { name: playerName });
 };
+
+export const getSocket2 = (): Socket | null => {
+    return playerSocket2;
+};
+
 
 export const getPlayerName = (): string | null => {
     return playerName;
