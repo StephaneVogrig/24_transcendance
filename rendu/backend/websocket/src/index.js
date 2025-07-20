@@ -196,8 +196,23 @@ async function getstate(gameId, player) {
 			const ballSpeed = {
 				x: gameState.ballspeed._x,
 				y: 0,
-				z: gameState.ballspeed._z
+				z: gameState.ballspeed._y
 			};
+
+            const ballSpeedIA = {
+				x: gameState.ballspeed._x,
+				y: gameState.ballspeed._y
+            };
+
+            const paddleIA = {
+                x: gameState.player2.paddle._x,
+                y: gameState.player2.paddle._y,
+            };
+
+            const ballPosIA = {
+                x: gameState.ball._x,
+                y: gameState.ball._y,
+            }
 
 			let platform1Pos = null;
 			if (gameState.player1 && gameState.player1.paddle){
@@ -231,9 +246,9 @@ async function getstate(gameId, player) {
 					platform2: platform2Pos
 				});
 				io.to(gameId).emit('IAState', {
-					ball: ballPos,
-					ballspeed: ballSpeed,
-					platform: platform1Pos
+					ball: ballPosIA,
+					ballspeed: ballSpeedIA,
+					paddle: paddleIA
 				});
 			}
 			if (gameState.score) {
@@ -303,7 +318,6 @@ function stopGame(playerName) {
 		return false;
 	}
 }
-
 
 io.on('connection', async (socket) => {
 	console.log(`Socket connected: ${socket.id}`);

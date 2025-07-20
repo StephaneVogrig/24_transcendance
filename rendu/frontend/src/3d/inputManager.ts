@@ -3,7 +3,7 @@ import { updateBallAndPlatforms } from './scenes/sceneGame';
 import { updateScores, gameOver } from '../pages/GamePage';
 import { teamPing } from './scenes/sceneGame';
 import { gameStatusUpdate } from '../pages/GamePage';
-import { getSocket, getPlayerName } from '../websocket/websocket';
+import { getSocket, getPlayerName, setSocket2 } from '../websocket/websocket';
 import { gameDefeatOver } from '../pages/GamePage';
 import { setPlayerName } from '../pages/GamePage';
 import { navigate } from '../router';
@@ -12,7 +12,10 @@ export class InputManager {
 
 	private isLeftPressed = false;
 	private isRightPressed = false;
+	private isLeftPressed2 = false;
+	private isRightPressed2 = false;
     private socket: Socket;
+    private socket2: Socket;
 
 	constructor() {
 		console.log(`Restoring socket for getPlayerName(): ${getPlayerName()}`);
@@ -29,6 +32,33 @@ export class InputManager {
 			}
 			navigate('/');
 		});
+	}
+
+	public setSocket2(socket: Socket) {
+		this.socket2 = socket;
+		if (this.socket2)
+		{
+			window.addEventListener("keydown", (event) => {
+				if ((event.code === "KeyA" || event.code === "KeyW") && !this.isLeftPressed2) {
+					this.isLeftPressed2 = true;
+					this.socket2.emit('keydown', { key: 'ArrowLeft' });
+				}
+				if ((event.code === "KeyD" || event.code === "KeyS") && !this.isRightPressed2) {
+					this.isRightPressed2 = true;
+					this.socket2.emit('keydown', { key: 'ArrowRight' });
+				}
+			});
+			window.addEventListener("keyup", (event) => {
+				if (event.code === "KeyA" || event.code === "KeyW") {
+					this.socket2.emit('keyup', { key: 'ArrowLeft' });
+					this.isLeftPressed2 = false;
+				}
+				if (event.code === "KeyD" || event.code === "KeyS") {
+					this.socket2.emit('keyup', { key: 'ArrowRight' });
+					this.isRightPressed2 = false;
+			}
+			});
+		}
 	}
 
 	private init() {
@@ -83,26 +113,24 @@ export class InputManager {
 				// console.log("Popstate event triggered:", event);
 			}
 		});
+
+		// Player 1
 		window.addEventListener("keydown", (event) => {
-			if (event.code === "ArrowLeft" && !this.isLeftPressed) {
-				// console.log("Left arrow key pressed");
+			if ((event.code === "ArrowLeft" || event.code === "ArrowUp") && !this.isLeftPressed) {
 				this.isLeftPressed = true;
 				this.socket.emit('keydown', { key: 'ArrowLeft' });
 			}
-			if (event.code === "ArrowRight" && !this.isRightPressed) {
-				// console.log("Right arrow key pressed");
+			if ((event.code === "ArrowRight" || event.code === "ArrowDown") && !this.isRightPressed) {
 				this.isRightPressed = true;
 				this.socket.emit('keydown', { key: 'ArrowRight' });
 			}
 		});
 		window.addEventListener("keyup", (event) => {
-			if (event.code === "ArrowLeft") {
-				// console.log("Left arrow key released");
+			if (event.code === "ArrowLeft" || event.code === "ArrowUp") {
 				this.socket.emit('keyup', { key: 'ArrowLeft' });
 				this.isLeftPressed = false;
 			}
-			if (event.code === "ArrowRight") {
-				// console.log("Right arrow key released");
+			if (event.code === "ArrowRight" || event.code === "ArrowDown") {
 				this.socket.emit('keyup', { key: 'ArrowRight' });
 				this.isRightPressed = false;
 		  }

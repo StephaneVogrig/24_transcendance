@@ -2,7 +2,6 @@ import { bottomBtn } from './components/bottomBtn';
 import { teamMember } from './components/teamMember';
 import { locale } from '../i18n';
 
-
 export const AboutPage = (): HTMLElement => {
 
     const content = document.createElement('div');
