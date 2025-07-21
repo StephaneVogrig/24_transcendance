@@ -17,7 +17,11 @@ const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 const AI_SERVICE_BASE_URL = 'http://ai:3009';
 
 const fastify = Fastify({ 
-  logger: true 
+    logger: true,
+    // https: {
+    //     key: '/app/ssl/key.pem',
+    //     cert: '/app/ssl/cert.pem',
+    // }
 });
 
 await fastify.register(cors, {
@@ -98,7 +102,7 @@ fastify.register(proxy, {
 const start = async () => {
   try {
     await fastify.listen({ 
-      port: 3000, 
+      port: 3000,
       host: '0.0.0.0' 
     });
     console.log('🚀 Gateway démarré sur http://localhost:3000');

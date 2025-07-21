@@ -8,13 +8,10 @@ services:
             dockerfile: Dockerfile
         ports:
             - "3000:3000"
+            # - "3443:3443"
         environment:
             - NODE_ENV=development
             - HOST_IP=${HOST_IP}
-        volumes:
-            - ./backend/gateway:/app
-            - /app/node_modules
-        command: npm run dev
         depends_on:
             - authentification
             - blockchain
@@ -148,7 +145,6 @@ services:
         volumes:
             - ./frontend:/app
             - /app/node_modules
-        command: npm run dev
         depends_on:
             - gateway
         networks:
