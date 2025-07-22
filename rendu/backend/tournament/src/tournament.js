@@ -24,7 +24,7 @@ import * as Utils from './utils.js';
  */
 
 let TOTAL_TOURNAMENTS = 0;
-const MAX_SCORE = 5;
+const MAX_SCORE = 10;
 
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};

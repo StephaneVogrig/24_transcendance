@@ -14,6 +14,28 @@ export interface Match {
     };
 }
 
+
+export async function getWinner(id: string): Promise<string | null> {
+    try {
+        const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/winner/${id}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return result.winner || null;
+    } catch (error) {
+        console.error('Erreur lors de la récupération du gagnant:', error);
+        throw error;
+    }
+}
+
+
+
 //recuperer tous les matchs actifs
 export async function getTournament(): Promise<any> {
     try {
@@ -40,8 +62,7 @@ export async function getTournament(): Promise<any> {
         console.log('*Tournament createdBy:', parsedTournament.createdBy);
         console.log('*Tournament status:', parsedTournament.status);
         }
-
-
+        
         return tournaments;
     } catch (error) {
         console.error('Erreur lors de la récupération des tournois:', error);
