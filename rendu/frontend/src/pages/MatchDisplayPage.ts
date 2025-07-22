@@ -77,23 +77,27 @@ const maxScore = 10;
 
     const createMatchElement = (match: Match): HTMLElement => {
         const matchDiv = document.createElement('div');
-        matchDiv.className = 'bg-gray-400 rounded-lg p-4 ';
+        matchDiv.className = 'bg-gray-400 rounded-lg p-4 flex items-center space-x-4';
 
-        const matchHeader = document.createElement('div');
-        matchHeader.className = 'flex justify-between items-center mb-2';
+        // Conteneur gauche pour le numéro et le statut
+        const leftContainer = document.createElement('div');
+        leftContainer.className = 'flex flex-col items-start space-y-1 min-w-[120px]';
         
         const matchId = document.createElement('span');
-        matchId.className = 'text-xs font-medium text-gray-500';
-        matchId.textContent = `${match.id}`;
+        matchId.className = 'text-sm font-bold text-gray-800';
+        matchId.textContent = match.id;
         
         const statusSpan = document.createElement('span');
         const statusInfo = getStatusInfo(match.status);
-        statusSpan.className = `px-2 py-1 rou nded text-xs font-medium ${statusInfo.color}`;
+        statusSpan.className = `px-2 py-1 rounded text-xs font-medium ${statusInfo.color}`;
         statusSpan.textContent = statusInfo.text;
         
-        matchHeader.appendChild(matchId);
-        matchHeader.appendChild(statusSpan);
-        matchDiv.appendChild(matchHeader);
+        leftContainer.appendChild(matchId);
+        leftContainer.appendChild(statusSpan);
+
+        // Conteneur droit pour les joueurs et le score
+        const rightContainer = document.createElement('div');
+        rightContainer.className = 'flex-1';
 
         const playersDiv = document.createElement('div');
         playersDiv.className = 'flex items-center justify-around text-sm';
@@ -113,7 +117,7 @@ const maxScore = 10;
         playersDiv.appendChild(player1Wrapper);
         playersDiv.appendChild(vs);
         playersDiv.appendChild(player2Wrapper);
-        matchDiv.appendChild(playersDiv);
+        rightContainer.appendChild(playersDiv);
 
         if (match.score && ( match.status === 'finished')) {
             const scoreDiv = document.createElement('div');
@@ -123,8 +127,12 @@ const maxScore = 10;
                 <span class="mx-2 text-gray-40">-</span>
                 <span class="text-red-600">${match.score.player2}</span>
             `;
-            matchDiv.appendChild(scoreDiv);
+            rightContainer.appendChild(scoreDiv);
         }
+
+        matchDiv.appendChild(leftContainer);
+        matchDiv.appendChild(rightContainer);
+        
         return matchDiv;
     };
 
@@ -140,7 +148,6 @@ const maxScore = 10;
         };
 
         const createEndedTournamentElement = (tournament: any): HTMLElement => {
-            
             const matchDiv = document.createElement('div');
             matchDiv.className = 'bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200';
 
@@ -172,7 +179,7 @@ const maxScore = 10;
                 const winner = winnerName(round);
                 if (winner) {
                     const name = winner.name;
-                    console.log('createEndedTournamentElement -> name', name);
+                    // console.log('winner -> name', name);
                     const winnerElement = document.createElement('div');
                     winnerElement.className = 'text-lg font-bold text-green-600';
                     winnerElement.textContent = `🏆 Vainqueur: ${name}`;
@@ -297,10 +304,16 @@ const maxScore = 10;
             `;
             tournamentList.appendChild(emptyDiv);
         } else {
-            tournament.forEach(async singleTournament => {
-            const tournamentItem = createEndedTournamentElement(singleTournament);
-            tournamentList.appendChild(tournamentItem);
-            });
+            // tournament.forEach( singleTournament => {
+            // const tournamentItem = createEndedTournamentElement(singleTournament);
+            // tournamentList.appendChild(tournamentItem);
+            // });
+            // autre méthode pour parcourir le tableau
+            for (const element of tournament) 
+            {
+                const tournamentItem = createEndedTournamentElement(element);
+                tournamentList.appendChild(tournamentItem);
+            }
         }
         card.appendChild(tournamentList);
         return card;
@@ -340,13 +353,15 @@ const maxScore = 10;
             matches.forEach(match => {
                 const matchItem = createMatchElement(match);
                 matchList.appendChild(matchItem);
-            });
+            }); 
         }
 
         card.appendChild(matchList);
         return card;
     };
 
+
+    
     const loadMatches = async (cardsContainer : HTMLElement ) => {
         try {
             // Afficher un indicateur de chargement
