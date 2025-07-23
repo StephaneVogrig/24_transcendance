@@ -24,6 +24,7 @@ import * as Utils from './utils.js';
  */
 
 let TOTAL_TOURNAMENTS = 0;
+const MAX_SCORE = 10;
 
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};
@@ -134,6 +135,12 @@ export async function createTournament(name)
 	return tournament;
 }
 
+
+export async function getMatches()
+{
+	return Object.values(TOURNAMENT_LIST);
+}
+
 async function startMatches(bracket)
 {
 	for (const players of bracket)
@@ -144,7 +151,8 @@ async function startMatches(bracket)
 			const response = await fetch(`http://game:3004/api/game/start`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ player1, player2, maxScore: 5 })
+				// body: JSON.stringify({ player1, player2, maxScore: MAX_SCORE })
+				body: JSON.stringify({ player1, player2, maxScore: MAX_SCORE }) // pour test affichage match -> Stephanie
 			});
 
 			if (!response.ok) {
@@ -229,7 +237,7 @@ export async function updatePlayerScores(players)
 	let hasWinner = false;
 	for (const match of tournament.rounds[tournament.roundIndex]) {
 		for (const player of match) {
-			if (player.score === 5) {
+			if (player.score === MAX_SCORE) {
 				hasWinner = true;
 				break;
 			}

@@ -42,3 +42,52 @@ export const withAuthGuard = (pageComponent: () => HTMLElement) => {
         }
     };
 };
+
+
+// const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
+// const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
+
+
+// // --- Add this block to AuthGuard.ts ---
+// // Listener for cross-tab logout using BroadcastChannel
+// try {
+//     const logoutChannel = new BroadcastChannel('auth_logout_channel');
+//     logoutChannel.onmessage = (event) => {
+//         if (event.data === 'logout') {
+//             console.log('Received logout message from another tab. Forcing logout/refresh on this tab.');
+//             // Clear local storage and navigate to login
+//             // You might want to call clearLocalAuth() here too,
+//             // though Auth0's logout (which triggered the broadcast) should have done it.
+//             localStorage.clear(); // Ensure all local state is gone
+//             sessionStorage.clear();
+//             navigate('/login');
+//             // Optionally, force a full reload: window.location.reload();
+//         }
+//     };
+// } catch (error) {
+//     console.warn('BroadcastChannel not supported or error:', error);
+// }
+
+// // Listener for cross-tab logout using window.onstorage
+// window.addEventListener('storage', (event) => {
+//     // Check for Auth0's local storage keys. The exact key might vary slightly,
+//     // but usually contains the client ID and domain.
+//     // Example: @@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::dev-yo45rdk5nhctgvu2.eu.auth0.com::openid profile email
+//     const auth0LocalStorageKey = `@@auth0spajs@@::${AUTH0_CLIENT_ID}::${AUTH0_DOMAIN}::openid profile email`; // You'll need to import AUTH0_CLIENT_ID and AUTH0_DOMAIN from auth0Service.ts
+    
+//     // If Auth0's main token/state key is removed or changed in another tab
+//     if (event.key && event.key === auth0LocalStorageKey && !event.newValue) {
+//         console.log('Auth0 state cleared in another tab via localStorage event. Forcing logout/refresh.');
+//         // Clear anything else just in case and navigate
+//         localStorage.clear();
+//         sessionStorage.clear();
+//         navigate('/login');
+//     }
+//     // A broader check: if any Auth0-related key is removed
+//     if (event.key && event.key.startsWith('@@auth0spajs@@') && !event.newValue) {
+//         console.log('An Auth0 key was removed in another tab. Forcing logout/refresh.');
+//         localStorage.clear();
+//         sessionStorage.clear();
+//         navigate('/login');
+//     }
+// });

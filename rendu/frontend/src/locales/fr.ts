@@ -10,6 +10,8 @@ export const fr = {
     "leaderboard": "Classement",
     "language": "Français",
     "about": "à propos",
+    "connection": "connexion",
+
 
     "team": "L'équipe",
 

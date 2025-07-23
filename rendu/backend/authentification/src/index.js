@@ -48,18 +48,28 @@ fastify.post('/api/auth/user', async (request, reply) => {
   }
   
   try {
+    // Mapping des données Auth0 vers notre format
+    const mappedUser = {
+      sub: user.sub,
+      email: user.email,
+      nickname: user.nickname || user.name || user.given_name || 'Unknown',
+      picture: user.picture
+    };
+    
+    console.log('Mapped user data:', mappedUser);
+    
     // Sauvegarder l'utilisateur en base de données
-    const savedUser = await saveUserToDatabase(user);
+    const savedUser = await saveUserToDatabase(mappedUser);
     console.log('User saved to database:', savedUser);
     
     return reply.status(200).send({ 
       message: 'User information processed and saved successfully',
       user: {
         id: savedUser.id,
-        username: savedUser.username,
+        nickname: savedUser.nickname,
         email: savedUser.email,
         picture: savedUser.picture,
-        auth0_id: savedUser.auth0_id,
+        provider_id: savedUser.provider_id,
         provider: savedUser.provider,
         created_at: savedUser.created_at,
         updated_at: savedUser.updated_at
@@ -94,10 +104,10 @@ fastify.get('/api/auth/user/:auth0_id', async (request, reply) => {
       message: 'User found',
       user: {
         id: user.id,
-        username: user.username,
+        nickname: user.nickname,
         email: user.email,
         picture: user.picture,
-        auth0_id: user.auth0_id,
+        provider_id: user.provider_id,
         provider: user.provider,
         created_at: user.created_at,
         updated_at: user.updated_at

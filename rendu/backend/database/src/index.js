@@ -139,14 +139,27 @@ const start = async () => {
 			const { provider_id, email, nickname, picture, provider } = request.body;
 			
 			if (!provider_id || !email || !nickname || !provider) {
-				return reply.status(400).send({ error: 'Missing required fields: provider_id, email, name' });
+				return reply.status(400).send({ error: 'Missing required fields: provider_id, email, nickname, provider' });
 			}
 			
 			try {
 				// Vérifier si l'utilisateur existe déjà
 				const existingUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
 				
-				if (!existingUser) {
+				if (existingUser) {
+					// Utilisateur existe déjà, mettre à jour ses informations
+					await db.run(
+						'UPDATE `users` SET nickname = ?, email = ?, picture = ? WHERE provider_id = ?',
+						[nickname, email, picture, provider_id]
+					);
+					
+					const updatedUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+					return reply.status(200).send({ 
+						message: 'User updated successfully', 
+						user: updatedUser 
+					});
+				} else {
+					// Créer un nouvel utilisateur
 					await db.run(
 						'INSERT INTO `users` (nickname, email, provider_id, picture, provider) VALUES (?, ?, ?, ?, ?)',
 						[nickname, email, provider_id, picture, provider]
@@ -185,6 +198,18 @@ const start = async () => {
 				return reply.status(500).send({ error: err.message });
 			}
 		});
+
+
+		// Route pour récupérer les tournois ouverts
+        fastify.get('/api/database/tournament/getAll', async (request, reply) => {
+            try {
+				const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
+				reply.status(200).send(tournaments);
+			} catch (err)
+			{
+				reply.status(500).send({error: err.message});
+			}
+        });
 
 		await fastify.listen({ port: 3003, host: '0.0.0.0' });
 		console.log(`Database service listening on port 3003`);

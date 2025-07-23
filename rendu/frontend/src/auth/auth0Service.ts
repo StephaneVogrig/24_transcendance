@@ -1,3 +1,5 @@
+// import { navigate } from '../router'; // Assuming navigate is available or pass it as a param
+
 // Service Auth0 avec gestion d'erreur et fallback
 let Auth0Client: any = null;
 
@@ -98,7 +100,7 @@ export const handleAuthCallback = async (_code: string): Promise<void> => {
             const user = await client.getUser();
             console.log('Utilisateur:', user);
             
-            // Optionnel : envoyer les informations utilisateur au backend
+            //   envoyer les informations utilisateur au backend
             await client.getTokenSilently();
             console.log('Token Auth0 récupéré');
             
@@ -152,7 +154,7 @@ export const getUser = async () => {
         const client = await initAuth0();
         const isAuth = await client.isAuthenticated();
         if (isAuth) {
-            console.error('OAuth récupération des info utilisateur');
+            console.log('OAuth récupération des info utilisateur');
             return await client.getUser();
         }
         return null;
@@ -168,8 +170,9 @@ export const getUser = async () => {
 export const clearLocalAuth = (): void => {
     try {
         // Nettoyer le localStorage
-        localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::dev-yo45rdk5nhctgvu2.eu.auth0.com::openid profile email');
-        localStorage.removeItem('a0.spajs.txs');
+        // localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::dev-yo45rdk5nhctgvu2.eu.auth0.com::openid profile email');
+        // localStorage.removeItem('a0.spajs.txs');
+
         localStorage.clear(); // Nettoyer tout le localStorage en dernier recours
         
         // Nettoyer le sessionStorage
@@ -181,6 +184,16 @@ export const clearLocalAuth = (): void => {
     }
 };
 
+
+//  export const logout = () => {
+//         auth0Client.logout({
+//             logoutParams: {
+//             returnTo: window.location.origin
+//             }
+//         });
+//         }
+
+
 /**
  * Déconnexion
  */
@@ -191,6 +204,19 @@ export const logout = async (): Promise<void> => {
         
         // Nettoyer les données locales avant la déconnexion Auth0
         clearLocalAuth();
+
+
+        // --- Add this block to auth0Service.ts within the logout function ---
+        // Notify other tabs about logout using BroadcastChannel
+        // try {
+        //     const logoutChannel = new BroadcastChannel('auth_logout_channel');
+        //     logoutChannel.postMessage('logout');
+        //     logoutChannel.close();
+        //     console.log('Logout message broadcasted to other tabs.');
+        // } catch (broadcastError) {
+        //     console.warn('Could not broadcast logout message:', broadcastError);
+        // }
+        // --- End of BroadcastChannel addition ---
         
         // Déconnexion Auth0 (redirige automatiquement)
         await client.logout({
@@ -217,13 +243,6 @@ export const logout = async (): Promise<void> => {
     }
 };
 
-//  export const logout = () => {
-//         auth0Client.logout({
-//             logoutParams: {
-//             returnTo: window.location.origin
-//             }
-//         });
-//         }
 
 /**
  * Récupère le token d'accès

@@ -119,4 +119,25 @@ fastify.post('/api/tournament/playerscores', async (request, reply) => {
 		reply.status(200).send({ message: 'Score updated successfully!' });
 });
 
+fastify.get('/api/tournament/getAll', async (request, reply) => {
+	try {
+		const tournaments = await Tournament.getTournament();
+		console.log('tournaments:', tournaments);
+		console.log('tournaments type:', typeof tournaments);
+		console.log('tournaments is array:', Array.isArray(tournaments));
+		
+		if (!Array.isArray(tournaments)) {
+			return reply.status(500).send({ error: 'getAllTournaments did not return an array' });
+		}
+		
+		const result = tournaments.map(Utils.readTournament);
+		console.log('result:', result);
+		reply.status(200).send(result);
+	} catch (error) {
+		console.error('Error in /api/tournament/getAll:', error);
+		reply.status(500).send({ error: 'Internal server error', details: error.message });
+	}
+});
+
+
 start();

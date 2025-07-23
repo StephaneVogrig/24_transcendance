@@ -92,6 +92,8 @@ async function ManageTockenGetEmail(token) {
     }
 }
 
+
+
 /**
  * Récupère les informations complètes de l'utilisateur (nom et email)
  * @param {string} token - Le token Google OAuth
