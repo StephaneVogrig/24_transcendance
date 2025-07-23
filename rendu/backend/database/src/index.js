@@ -1,20 +1,47 @@
 import Fastify from 'fastify';
 import { initDatabase } from './db.js';
-import cors from '@fastify/cors'
+
+const serviceName = 'database';
+const serviceport = 3003;
+
+/* https server *****************************************************************************/
+
 import fs from 'fs';
+const cert = fs.readFileSync('/app/ssl/cert.pem', 'utf8');
+const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({
+    logger: true,
+    https: {
+        key: key,
+        cert: cert,
+    }
+});
+
+/* cors protection *****************************************************************************/
+
+import cors from '@fastify/cors';
 const HOST_IP = process.env.HOST_IP;
-
+const HOST_ADDRESS = `https://${HOST_IP}:5173`;
 await fastify.register(cors, {
-	origin: ['http://localhost:5173',
-			`http://${HOST_IP}:5173`],
+	origin: [
+	HOST_ADDRESS,
+	'https://localhost:5173',
+	],
 	methods: ['GET', 'POST'],
 	credentials: true
 });
 
-fastify.get('/api/database', async (request, reply) => { 
-	return { message: 'Hello from Database Service!' };
+/*  *****************************************************************************/
+
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/api/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {

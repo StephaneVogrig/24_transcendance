@@ -1,21 +1,47 @@
 import Fastify from 'fastify';
 import * as PlayerManager from './playerManager.js';
-import cors from '@fastify/cors';
 
-const fastify = Fastify({ logger: true });
+const serviceName = 'matchmaking';
+const serviceport = 3005;
 
-const HOST_IP = process.env.HOST_IP;
-fastify.register(cors, {
-    origin: [
-        `http://${HOST_IP}:5173`,
-        'http://localhost:5173'
-    ],
-    methods: ['GET', 'POST'],
-    credentials: true
+/* https server *****************************************************************************/
+
+import fs from 'fs';
+const cert = fs.readFileSync('/app/ssl/cert.pem', 'utf8');
+const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
+
+const fastify = Fastify({
+    logger: true,
+    https: {
+        key: key,
+        cert: cert,
+    }
 });
 
-fastify.get('/api/matchmaking', async (request, reply) => { 
-  return { message: 'Hello from Matchmaking Service!' };
+/* cors protection *****************************************************************************/
+
+import cors from '@fastify/cors';
+const HOST_IP = process.env.HOST_IP;
+const HOST_ADDRESS = `https://${HOST_IP}:5173`;
+await fastify.register(cors, {
+	origin: [
+	HOST_ADDRESS,
+	'https://localhost:5173',
+	],
+	methods: ['GET', 'POST'],
+	credentials: true
+});
+
+/*  *****************************************************************************/
+
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/api/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {

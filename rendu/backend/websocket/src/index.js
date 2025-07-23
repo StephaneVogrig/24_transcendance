@@ -1,26 +1,44 @@
 import Fastify from 'fastify';
 import { Server } from 'socket.io';
+
+const serviceName = 'websocket';
+const serviceport = 3008;
+
+/* https server *****************************************************************************/
+
+import fs from 'fs';
+const cert = fs.readFileSync('/app/ssl/cert.pem', 'utf8');
+const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
+
+const fastify = Fastify({
+    logger: true,
+    https: {
+        key: key,
+        cert: cert,
+    }
+});
+
+/* cors protection *****************************************************************************/
+
 import cors from '@fastify/cors';
-
-const fastify = Fastify({ logger: true });
-
 const HOST_IP = process.env.HOST_IP;
-const HOST_ADDRESS = `http://${HOST_IP}:5173`;
-
-fastify.register(cors, {
+const HOST_ADDRESS = `https://${HOST_IP}:5173`;
+await fastify.register(cors, {
 	origin: [
-		HOST_ADDRESS,
-		'http://localhost:5173'
+	HOST_ADDRESS,
+	'https://localhost:5173',
 	],
 	methods: ['GET', 'POST'],
 	credentials: true
 });
 
+/*  *****************************************************************************/
+
 const io = new Server(fastify.server, {
 	cors: {
 		origin: [
 			HOST_ADDRESS,
-			'http://localhost:5173'
+			'https://localhost:5173'
 		],
 		methods: ['GET', 'POST'],
 		credentials: true
@@ -33,8 +51,14 @@ let socketIdToPlayerName = new Map();
 let gameSessions = new Map();
 let pendingRedirectAcceptances = new Map();
 
-fastify.get('/api/websocket', async (request, reply) => { 
-  return { message: 'Hello from WebSocket Service!' };
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/api/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 async function waitForRedirectAcceptance(playerName, timeout = 60000) {
@@ -123,7 +147,7 @@ fastify.post('/api/websocket/startGame', async (request, reply) => {
 
 async function sendInput(playerName, key, action) {
 	try {
-		const response = await fetch(`http://game:3004/api/game/input`, {
+		const response = await fetch(`https://game:3004/api/game/input`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -150,7 +174,7 @@ async function sendInput(playerName, key, action) {
 
 async function getGameOver(player) {
 	try {
-		const response = await fetch(`http://game:3004/api/game/gameOver?player=${player}`, {
+		const response = await fetch(`https://game:3004/api/game/gameOver?player=${player}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -171,7 +195,7 @@ async function getGameOver(player) {
 
 async function getstate(gameId, player) {
 	try {
-		const response = await fetch(`http://game:3004/api/game/state?player=${player}`, {
+		const response = await fetch(`https://game:3004/api/game/state?player=${player}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -298,7 +322,7 @@ async function getstate(gameId, player) {
 
 function stopGame(playerName) {
 	try {
-		const reponse = fetch(`http://game:3004/api/game/stop`, {
+		const reponse = fetch(`https://game:3004/api/game/stop`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -409,7 +433,7 @@ io.on('connection', async (socket) => {
 			playerNameToSocketId.delete(disconnectedPlayerName);
 			socketIdToPlayerName.delete(socket.id);
 			try {
-				const reponse  = fetch(`http://matchmaking:3005/api/matchmaking/leave`, {
+				const reponse  = fetch(`https://matchmaking:3005/api/matchmaking/leave`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: disconnectedPlayerName })
@@ -448,7 +472,7 @@ io.on('connection', async (socket) => {
 const start = async () => {
 	try {
 		await fastify.listen({ port: 3008, host: '0.0.0.0' });
-		console.log(`Server listening at http://0.0.0.0:3008`);
+		console.log(`Server listening at https://0.0.0.0:3008`);
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);

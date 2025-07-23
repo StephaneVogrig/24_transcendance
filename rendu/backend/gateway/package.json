@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@fastify/cors": "^8.4.0",
-    "@fastify/http-proxy": "^9.x.x",
-    "fastify": "^4.24.3"
+    "fastify": "^4.24.3",
+    "@fastify/http-proxy": "^9.x.x"
   },
   "keywords": ["fastify", "gateway", "pong", "javascript"],
   "author": "Viiiite",

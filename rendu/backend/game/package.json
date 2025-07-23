@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "fastify": "^4.24.3",
-	"@fastify/cors": "^8.4.0"
+	  "@fastify/cors": "^8.4.0",
+    "vector2d":"3.0.0"
   },
   "keywords": [],
   "author": "Viiiite",

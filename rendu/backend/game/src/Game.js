@@ -20,7 +20,7 @@ export class Game {
     async redirectPlayer( playerName )
     {
         try {
-            const response = await fetch(`http://websocket:3008/api/websocket/redirect`, {
+            const response = await fetch(`https://websocket:3008/api/websocket/redirect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ export class Game {
     async sendStart()
     {
         try {
-            const response = await fetch(`http://websocket:3008/api/websocket/startGame`, {
+            const response = await fetch(`https://websocket:3008/api/websocket/startGame`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -102,7 +102,7 @@ export class Game {
                     await new Promise(r => setTimeout(r, 1000));
                     console.debug(`this.player1.name=${this.player1.getName()}, this.player1.getScore()=${this.player1.getScore()}, this.player2.getName()=${this.player2.getName()}, this.player2.getScore()=${this.player2.getScore()}`);
 					try {
-						const response = await fetch(`http://tournament:3007/api/tournament/playerscores`, {
+						const response = await fetch(`https://tournament:3007/api/tournament/playerscores`, {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/json'

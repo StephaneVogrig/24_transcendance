@@ -7,8 +7,7 @@ services:
             context: ./backend/gateway
             dockerfile: Dockerfile
         ports:
-            - "3000:3000"
-            # - "3443:3443"
+            - "3443:3443"
         environment:
             - NODE_ENV=development
             - HOST_IP=${HOST_IP}
@@ -24,6 +23,8 @@ services:
             - ai
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     authentification:
         image: authentification
@@ -33,8 +34,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - "3001:3001"
+        environment:
+            - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     blockchain:
         image: blockchain
@@ -46,8 +51,12 @@ services:
             - "3002:3002"
         networks:
             - transcendence-network
+        environment:
+            - HOST_IP=${HOST_IP}
         env_file:
             - .env
+        volumes:
+            - ./ssl:/app/ssl
 
     database:
         image: database
@@ -57,10 +66,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - "3003:3003"
-        networks:
-            - transcendence-network
         environment:
             - HOST_IP=${HOST_IP}
+        networks:
+            - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     game:
         image: game
@@ -72,6 +83,8 @@ services:
             - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     matchmaking:
         image: matchmaking
@@ -85,6 +98,8 @@ services:
             - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     scores:
         image: scores
@@ -94,8 +109,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - "3006:3006"
+        environment:
+            - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     tournament:
         image: tournament
@@ -109,6 +128,8 @@ services:
             - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     websocket:
         image: websocket
@@ -122,6 +143,8 @@ services:
             - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     ai:
         image: ai
@@ -135,6 +158,8 @@ services:
             - HOST_IP=${HOST_IP}
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     frontend:
         image: frontend
@@ -144,9 +169,12 @@ services:
             dockerfile: Dockerfile
         ports:
             - "5173:5173"
+        environment:
+            - HOST_IP=${HOST_IP}
         volumes:
             - ./frontend:/app
             - /app/node_modules
+            - ./ssl:/app/ssl
         depends_on:
             - gateway
         networks:

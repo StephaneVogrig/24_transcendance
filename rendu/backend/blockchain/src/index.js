@@ -2,10 +2,47 @@ import Web3 from 'web3';
 import Fastify from 'fastify';
 import fetch from 'node-fetch';
 
-const fastify = Fastify({ logger: true });
+const serviceName = 'blockchain';
+const serviceport = 3002;
 
-fastify.get('/api/blockchain', async (request, reply) => {
-  return { message: 'Hello from Blockchain Service!' };
+/* https server *****************************************************************************/
+
+import fs from 'fs';
+const cert = fs.readFileSync('/app/ssl/cert.pem', 'utf8');
+const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
+
+const fastify = Fastify({
+    logger: true,
+    https: {
+        key: key,
+        cert: cert,
+    }
+});
+
+/* cors protection *****************************************************************************/
+
+import cors from '@fastify/cors';
+const HOST_IP = process.env.HOST_IP;
+const HOST_ADDRESS = `https://${HOST_IP}:5173`;
+await fastify.register(cors, {
+	origin: [
+	HOST_ADDRESS,
+	'https://localhost:5173',
+	],
+	methods: ['GET', 'POST'],
+	credentials: true
+});
+
+/*  *****************************************************************************/
+
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/api/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {
@@ -79,7 +116,7 @@ async function registerToBlockchain(tournament)
 	const contract = new web3.eth.Contract(ABI, "0x0AFb54862056e3283d4E6C728e73e943F349aDc4")
 	try
 	{
-		const response = await fetch(`http://tournament:3007/api/tournament/winner?id=${tournament.id}`);
+		const response = await fetch(`https://tournament:3007/api/tournament/winner?id=${tournament.id}`);
 		if (!response.ok)
 			throw new Error(await response.text());
 

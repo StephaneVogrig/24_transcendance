@@ -9,6 +9,7 @@
     "dev": "node src/index.js"
   },
   "dependencies": {
+    "@fastify/cors": "^8.4.0",
     "fastify": "^4.24.3",
 	  "web3": "^1.10.0"
   },

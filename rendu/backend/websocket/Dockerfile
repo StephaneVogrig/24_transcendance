@@ -1,16 +1,13 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package.json ./
-
-RUN npm install socket.io --save
-RUN npm install @fastify/cors@^8 --save
+COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY src/ ./src/
 
 EXPOSE 3008
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "src/index.js"]
