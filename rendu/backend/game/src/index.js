@@ -32,6 +32,7 @@ fastify.register(cors, {
 fastify.post('/api/game/start', async (request, reply) => {
     const { player1, player2, maxScore } = request.body;
     if (!player1 || !player2 || !maxScore) {
+		console.log(`${player1} and ${player2} " | " ${maxScore}`);
         return reply.status(400).send({ error: 'Both player1 and player2 are required' });
     }
     try {

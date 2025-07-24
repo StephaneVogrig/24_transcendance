@@ -1,13 +1,14 @@
 import Fastify from 'fastify';
-import bcrypt from 'bcrypt';
 import { initDatabase } from './db.js';
 import cors from '@fastify/cors'
 import fs from 'fs';
 
 const fastify = Fastify({ logger: true });
+const HOST_IP = process.env.HOST_IP;
 
 await fastify.register(cors, {
-	origin: 'http://localhost:5173',
+	origin: ['http://localhost:5173',
+			`http://${HOST_IP}:5173`],
 	methods: ['GET', 'POST'],
 	credentials: true
 });
@@ -24,42 +25,47 @@ const start = async () => {
 		const sql = fs.readFileSync('./init.sql').toString();
 		await db.exec(sql);
 
-		
-		fastify.post('/api/database/login', async (request, reply) => {
-			const { username, password } = request.body;
-			if (!username || !password)
-				return reply.status(400).send({error: 'Missing username and/or password.'});
+		fastify.post('/api/database/addUser', async (request, reply) => {
+			const { username } = request.body;
+			if (!username || typeof username !== 'string')
+				return reply.status(400).send({error: 'Missing or invalid username.'});
 			try
 			{
-				const user = await db.get('SELECT * FROM `users` WHERE username = ?', [username]);
-				if (!user)
-					return reply.status(401).send({error: `Username doesn't exist.`});
-				const checkPassword = await bcrypt.compare(password, user.password);
-				if (!checkPassword)
-					return reply.status(401).send({error: `Password is invalid.`});
-				return reply.status(200).send({message: 'Login successful!', username: user.username});
+				await db.run('INSERT INTO `players` (username) VALUES (?)', [username]);
+				reply.status(201).send({message: 'Player registered.'});
 			} catch (err)
 			{
-				return reply.status(500).send({error: err.message});
+				reply.status(500).send({error: err.message});
 			}
 		});
 
-		fastify.post('/api/database/register', async (request, reply) => {
-			const { username, password } = request.body;
-			if (!username || !password)
-				return reply.status(400).send({error: 'Missing username and/or password.'});
+		fastify.get('/api/database/getUser', async (request, reply) => {
+			const { username } = request.query;
+			if (!username || typeof username !== 'string')
+				return reply.status(400).send({error: 'Missing or invalid username.'});
 			try
 			{
-				const cryptedPass = await bcrypt.hash(password, 10);
-				await db.run('INSERT INTO `users` (username, password) VALUES (?, ?)', [username, cryptedPass]);
-				reply.status(201).send({message: 'User registered.'});
-			}
-			catch (err)
+				const player = await db.get('SELECT * FROM `players` WHERE `username` = ?', [username]);
+				if (!player)
+					return reply.code(204).send();
+				reply.status(200).send({player});
+			} catch (err)
 			{
-				if (err.message.includes('UNIQUE constraint failed: users.username'))
-      				reply.status(400).send({error: 'Username already exists.'});
-				else
-					reply.status(500).send({error: err.message});
+				reply.status(500).send({error: err.message});
+			}
+		});
+
+		fastify.post('/api/database/removeUser', async (request, reply) => {
+			const { username } = request.body;
+			if (!username || typeof username !== 'string')
+				return reply.status(400).send({error: 'Missing or invalid username.'});
+			try
+			{
+				await db.run('DELETE FROM `players` WHERE `username` = ?', [username]);
+				reply.status(200).send({message: "Player removed."});
+			} catch (err)
+			{
+				reply.status(500).send({error: err.message});
 			}
 		});
 
@@ -70,7 +76,7 @@ const start = async () => {
 			try
 			{
 				await db.run('INSERT INTO `tournaments` (id, data) VALUES (?, ?)', [tournament.id, JSON.stringify(tournament)]);
-				reply.status(201).send({message: 'Tournament registered.'});
+				reply.status(200).send({message: 'Tournament registered.'});
 			} catch (err)
 			{
 				reply.status(500).send({error: err.message});
@@ -133,6 +139,17 @@ const start = async () => {
 				reply.status(500).send({error: err.message});
 			}
 		});
+
+		// Route pour récupérer les tournois ouverts
+        fastify.get('/api/database/tournament/getAll', async (request, reply) => {
+            try {
+				const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
+				reply.status(200).send(tournaments);
+			} catch (err)
+			{
+				reply.status(500).send({error: err.message});
+			}
+        });
 
 		// Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
 		fastify.post('/api/database/user/oauth', async (request, reply) => {
@@ -198,18 +215,6 @@ const start = async () => {
 				return reply.status(500).send({ error: err.message });
 			}
 		});
-
-
-		// Route pour récupérer les tournois ouverts
-        fastify.get('/api/database/tournament/getAll', async (request, reply) => {
-            try {
-				const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
-				reply.status(200).send(tournaments);
-			} catch (err)
-			{
-				reply.status(500).send({error: err.message});
-			}
-        });
 
 		await fastify.listen({ port: 3003, host: '0.0.0.0' });
 		console.log(`Database service listening on port 3003`);

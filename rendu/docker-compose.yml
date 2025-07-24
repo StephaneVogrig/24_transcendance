@@ -59,6 +59,8 @@ services:
             - "3003:3003"
         networks:
             - transcendence-network
+        environment:
+            - HOST_IP=${HOST_IP}
 
     game:
         image: game

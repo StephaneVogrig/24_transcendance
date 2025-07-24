@@ -13,6 +13,11 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`provider_id` TEXT UNIQUE -- ID Auth0 unique
 );
 
+CREATE TABLE IF NOT EXISTS `players` (
+	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+	`username` TEXT UNIQUE NOT NULL
+);
+
 
 CREATE TABLE IF NOT EXISTS `tournaments` (
 	`id` INTEGER PRIMARY KEY,

@@ -34,7 +34,7 @@ fastify.post('/api/matchmaking/join', async (request, reply) => {
   if (!name) {
     return reply.status(400).send({ error: 'Player name is required and must be a string' });
   }
-  if (name.length < 3 || name.length > 20)
+  if (name.length < 3 || name.length > 25)
     return reply.status(400).send({ error: 'Player name must be between 3 and 20 characters' });
   try {
     PlayerManager.addPlayer(name);

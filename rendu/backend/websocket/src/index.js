@@ -72,7 +72,7 @@ fastify.post('/api/websocket/redirect', async (request, reply) => {
 });
 
 fastify.post('/api/websocket/startGame', async (request, reply) => {
-	const { player1Name, player2Name, gameId } = request.body; 
+	const { player1Name, player2Name, gameId } = request.body;
 
 	if (!player1Name || !player2Name || !gameId) {
 		return reply.status(400).send({ error: 'player1Name, player2Name, and gameId are required' });
@@ -325,9 +325,9 @@ io.on('connection', async (socket) => {
 
 	socket.on('join', async (data) => {
 		const name = data.name;
-		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 20) {
+		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 25) {
 			console.error(`Invalid player name: ${name}`);
-			socket.emit('error', { message: 'Player name must be a string between 3 and 20 characters.' });
+			socket.emit('error', { message: 'Player name must be a string between 3 and 25 characters.' });
 			return;
 		}
 		if (playerNameToSocketId.has(name)) {
@@ -343,9 +343,9 @@ io.on('connection', async (socket) => {
 
 	socket.on('identify_player', (data) => {
 		const name = data.name;
-		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 20) {
+		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 25) {
 			console.error(`Invalid player name for identify_player: ${name}`);
-			socket.emit('error', { message: 'Player name must be a string between 3 and 20 characters.' });
+			socket.emit('error', { message: 'Player name must be a string between 3 and 25 characters.' });
 			return;
 		}
 		if (playerNameToSocketId.has(name)) {

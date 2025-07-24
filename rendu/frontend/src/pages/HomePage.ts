@@ -3,12 +3,69 @@ import { navigate } from '../router';
 import { bottomBtn } from './components/bottomBtn';
 import { langBtn } from './components/langBtn';
 import { locale } from '../i18n';
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
 let socket = getSocket();
+let socket2 = io(`http://${window.location.hostname}:3000`, {
+				path: '/api/websocket/my-websocket/'
+			});
 let isGameStarted = false;
 let isWaitingForGame = false;
+
+async function registerUsernameToDb(username: string)
+{
+	try {
+		const response = await fetch(`http://${window.location.hostname}:3003/api/database/addUser`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ username })
+		});
+		if (!response.ok) {
+			console.error('Erreur lors de la requête de register db:', response.statusText);
+		}
+		console.log(`Successfully added user ${username} to db`);
+	} catch (error) {
+		console.error('Error adding user to db:', error);
+	}
+}
+
+async function usernameExistsInDb(username: string) : Promise<Boolean>
+{
+	try {
+		const response = await fetch(`http://${window.location.hostname}:3003/api/database/getUser?username=${username}`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' }
+		});
+		if (!response.ok) {
+			console.error('Erreur lors de la requête de check username in db:', response.statusText);
+			return false;
+		}
+		if (response.status === 204)
+			return false;
+		return true;
+	} catch (error) {
+		console.error('Error checking user to db:', error);
+	}
+	return false;
+}
+
+async function deleteUsernameFromDb(username: string)
+{
+	try {
+		const response = await fetch(`http://${window.location.hostname}:3003/api/database/removeUser`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ username })
+		});
+		if (!response.ok) {
+			console.error('Erreur lors de la requête de register db:', response.statusText);
+		}
+		console.log(`Successfully added user ${username} to db`);
+	} catch (error) {
+		console.error('Error adding user to db:', error);
+	}
+}
 
 function disableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
 {
@@ -146,12 +203,11 @@ export const HomePage = (): HTMLElement => {
 	const input = document.createElement('input');
 	input.type = 'text';
 	input.placeholder = 'Pseudo...';
-	input.maxLength = 20;
+	input.maxLength = 25;
 	input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-50 border-4 border-cyan-400 text-white bg-transparent focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-[0_0_10px_#00ffff]';
 	input.addEventListener('input', () => {
-		const isEmpty = (input.value.trim().length < 3 || input.value.length > 20) || isWaitingForGame;
+		const isEmpty = (input.value.trim().length < 3 || input.value.length > 25) || isWaitingForGame;
 		playOnline.disabled = isEmpty;
-		playAI.disabled = isEmpty;
 		playTournament.disabled = isEmpty;
 	});
 	input.addEventListener('keydown', (e) => {
@@ -191,6 +247,7 @@ export const HomePage = (): HTMLElement => {
 	playNav.appendChild(playLocal);
 
 	const playAI = createJoinButton(locale.solo);
+	playAI.disabled = false;
 	playNav.appendChild(playAI);
 
 	const playTournament = createJoinButton(locale.join_tournament);
@@ -208,26 +265,16 @@ export const HomePage = (): HTMLElement => {
 	// Join game button
 	let name: string;
 	playOnline.addEventListener('click', async () => {
-		if (name) {
-			console.log(`Leaving the game with name: ${name}`);
-			try {
-			const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/leave`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: name })
-			});
-			if (!response.ok) {
-				console.error('Erreur lors de la requête de leave:', response.statusText);
-			}
-			console.log('Successfully left the game');
-			} catch (error) {
-			console.error('Error leaving game:', error);
-			}
+		name = input.value.trim();
+		if (await usernameExistsInDb(name))
+		{
+			alert("Username already in game");
+			return;
 		}
+		await registerUsernameToDb(name);
 		const button = showWaitingGameModal();
 		isGameStarted = false;
 		console.log('isGameStarted set to :', isGameStarted);
-		name = input.value.trim();
 		console.log(`Rejoindre une partie avec le nom: ${name}`);
 
 		setPlayerName(name);
@@ -238,6 +285,7 @@ export const HomePage = (): HTMLElement => {
 		socket.emit('join', { name: name });
 
 		console.log(`redirecting to game with name: ${name}`);
+		socket.off('redirect');
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			button.remove();
@@ -262,30 +310,23 @@ export const HomePage = (): HTMLElement => {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 			name = '';
 			button.remove();
+			await deleteUsernameFromDb(name);
 		}
 	});
 
 	// Local button
 	playLocal.addEventListener('click', async () => {
 	try {
-		let socket2: Socket;
-		if (!socket2) {
-			socket2 = io(`http://${window.location.hostname}:3000`, {
-				path: '/api/websocket/my-websocket/'
-			});
-		}
-
-		await new Promise<void>((resolve, reject) => {
-			socket2.connect();
-
-			socket2.on('connect', () => {
-				console.log('Central Socket: Connecté au serveur Socket.IO !');
-				resolve();
-			});
+		setPlayerName(socket.id);
+		
+		await new Promise<void>((resolve) => {
+			if (!socket2.connected)
+				socket2.connect();
+			resolve();
 		});
 
-		setPlayerName(socket.id);
 		socket2.emit('identify_player', { name: socket2.id });
+
 		BabylonGame.getInstance().setSocket2(socket2);
 		const response = await fetch(`http://${window.location.hostname}:3004/api/game/start`, {
             method: 'POST',
@@ -298,6 +339,7 @@ export const HomePage = (): HTMLElement => {
             throw new Error(err);
         }
 
+		socket.off('redirect');
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			startGame("you and your friend");
@@ -312,21 +354,21 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
-	// AI button
+	// Play AI
 	playAI.addEventListener('click', async () => {
-	const name = input.value.trim();
 	try {
-		setPlayerName(name);
 
 		if (!socket.connected) {
 			console.log("Socket not yet connected, waiting for 'connect' event...");
 			socket = getSocket();
 		}
+		const name = socket.id;
+		setPlayerName(name);
 
 		socket.emit('join', { name: name });
 
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			console.log(`HomePage-AI: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			startGame("you and AI");
 		});
 
@@ -354,9 +396,14 @@ export const HomePage = (): HTMLElement => {
 	// Tournament button
 	playTournament.addEventListener('click', async () => {
 		const name = input.value.trim();
+		if (await usernameExistsInDb(name))
+		{
+			alert("Username already in use");
+			return;
+		}
 		try {
 			setPlayerName(name);
-
+			await registerUsernameToDb(name);
 			if (!socket.connected) {
 				console.log("Socket not yet connected, waiting for 'connect' event...");
 				socket = getSocket();
@@ -364,6 +411,7 @@ export const HomePage = (): HTMLElement => {
 
 			socket.emit('join', { name: name });
 
+			socket.off('redirect');
 			socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 				console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 				if (modal)

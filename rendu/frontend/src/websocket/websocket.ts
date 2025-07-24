@@ -11,7 +11,6 @@ export const getSocket = (): Socket => {
                 path: '/api/websocket/my-websocket/'
             });
         }
-
         if (!socketInstance.connected) {
             socketInstance.connect();
             socketInstance.on('connect', () => {

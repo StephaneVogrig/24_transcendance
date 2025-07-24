@@ -76,11 +76,15 @@ export class InputManager {
 		});
 		this.socket.on('gameOver', () => {
 			gameOver();
+			this.socket2.disconnect();
+			this.socket2 = null;
 		});
 
 		this.socket.on('gameDefeatOver', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
 			console.log('Game defeat over received:', data);
 			gameDefeatOver(data.winner.name, data.score);
+			this.socket2.disconnect();
+			this.socket2 = null;
 		});
 
 		this.socket.on('teamPing', (data: { team: string }) => {
