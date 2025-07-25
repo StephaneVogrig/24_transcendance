@@ -199,20 +199,20 @@ async function getstate(gameId, player) {
 				z: gameState.ballspeed._y
 			};
 
-            const ballSpeedIA = {
+			const ballSpeedIA = {
 				x: gameState.ballspeed._x,
 				y: gameState.ballspeed._y
-            };
+			};
 
-            const paddleIA = {
-                x: gameState.player2.paddle._x,
-                y: gameState.player2.paddle._y,
-            };
+			const paddleIA = {
+				x: gameState.player2.paddle._x,
+				y: gameState.player2.paddle._y,
+			};
 
-            const ballPosIA = {
-                x: gameState.ball._x,
-                y: gameState.ball._y,
-            }
+			const ballPosIA = {
+				x: gameState.ball._x,
+				y: gameState.ball._y,
+			}
 
 			let platform1Pos = null;
 			if (gameState.player1 && gameState.player1.paddle){
@@ -312,6 +312,25 @@ function stopGame(playerName) {
 			console.error('stopGame: Failed to send stop request to game logic:', reponse.status);
 			return false;
 		}
+		if (playerName)
+		{
+			try
+			{
+				const response = fetch(`http://database:3003/api/database/removeUser`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ username: playerName })
+				});
+				if (!response.ok)
+					console.log(`Failed to delete user ${playerName} from db: ${response.status}`);
+				else
+					console.log(`Deleted ${playerName} from db.`);
+			}
+			catch (error)
+			{
+				console.error(`Error removing ${playerName} in database:`, error);
+			}
+		}
 		return true;
 	} catch (error) {
 		console.error('stopGame: Error communicating with game logic service:', error);
@@ -330,10 +349,29 @@ io.on('connection', async (socket) => {
 			socket.emit('error', { message: 'Player name must be a string between 3 and 25 characters.' });
 			return;
 		}
-		if (playerNameToSocketId.has(name)) {
-			console.error(`Player name ${name} is already in use.`);
-			socket.emit('error', { message: `Player name ${name} is already in use.` });
-			return;
+		// if (playerNameToSocketId.has(name)) {
+		// 	console.error(`Player name ${name} is already in use.`);
+		// 	socket.emit('error', { message: `Player name ${name} is already in use.` });
+		// 	return;
+		// }
+		try
+		{
+			const response = await fetch(`http://database:3003/api/database/getUser?username=${name}`, {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json' }
+			});
+			if (!response.ok)
+				console.log(`Error calling getUser in db for user ${name}`);
+			else if (response.status === 204)
+			{
+				console.error(`Player name ${name} is already in use.`);
+				socket.emit('error', { message: `Player name ${name} is already in use.` });
+				return;
+			}
+		}
+		catch (error)
+		{
+			console.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
 		}
 		console.log(`Player ${name} joined (matchmaking) with socket ID: ${socket.id}`);
 		playerNameToSocketId.set(name, socket.id);
@@ -404,22 +442,25 @@ io.on('connection', async (socket) => {
 
 	socket.on('disconnect', () => {
 		const disconnectedPlayerName = socketIdToPlayerName.get(socket.id);
-		if (disconnectedPlayerName) {
+		if (disconnectedPlayerName)
+		{
 			console.log(`Player ${disconnectedPlayerName} (socket ID: ${socket.id}) disconnected.`);
 			playerNameToSocketId.delete(disconnectedPlayerName);
 			socketIdToPlayerName.delete(socket.id);
-			try {
-				const reponse  = fetch(`http://matchmaking:3005/api/matchmaking/leave`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: disconnectedPlayerName })
+			try
+			{
+				const reponse = fetch(`http://matchmaking:3005/api/matchmaking/leave`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name: disconnectedPlayerName })
 			});
-				if (!reponse.ok) {
+				if (!reponse.ok)
 					console.log(`Failed to notify matchmaking service of player ${disconnectedPlayerName} disconnection:`, reponse.status);
-				} else {
+				else
 					console.log(`Matchmaking service notified of player ${disconnectedPlayerName} disconnection.`);
-				}
-			} catch (error) {
+			}
+			catch (error)
+			{
 				console.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
 			}
 			if (pendingRedirectAcceptances.has(disconnectedPlayerName)) {
@@ -439,9 +480,28 @@ io.on('connection', async (socket) => {
 					gameSessions.delete(gameId);
 				}
 			}
-		} else {
-			console.log(`Unidentified socket disconnected: ${socket.id}`);
+			if (disconnectedPlayerName)
+			{
+				try
+				{
+					const response = fetch(`http://database:3003/api/database/removeUser`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ username: disconnectedPlayerName })
+					});
+					if (!response.ok)
+						console.log(`Failed to delete user ${disconnectedPlayerName} from db: ${response.status}`);
+					else
+						console.log(`Deleted ${disconnectedPlayerName} from db.`);
+				}
+				catch (error)
+				{
+					console.error(`Error deleting user ${disconnectedPlayerName} from db:`, error);
+				}
+			}
 		}
+		else
+			console.log(`Unidentified socket disconnected: ${socket.id}`);
 	});
 });
 

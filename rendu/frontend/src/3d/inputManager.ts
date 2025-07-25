@@ -82,6 +82,7 @@ export class InputManager {
 			gameOver();
 			if (this.socket2)
 				this.socket2.disconnect();
+			this.socket.disconnect();
 		});
 
 		this.socket.on('gameDefeatOver', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
@@ -89,6 +90,7 @@ export class InputManager {
 			gameDefeatOver(data.winner.name, data.score);
 			if (this.socket2)
 				this.socket2.disconnect();
+			this.socket.disconnect();
 		});
 
 		this.socket.on('teamPing', (data: { team: string }) => {

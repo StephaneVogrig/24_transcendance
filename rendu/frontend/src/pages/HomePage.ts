@@ -188,7 +188,6 @@ function showWaitingGameModal(): HTMLDivElement {
 }
 
 export const HomePage = (): HTMLElement => {
-
 	const content = document.createElement('div');
 	content.className = 'mx-auto max-w-7xl h-full grid grid-rows-[auto_1fr_auto] gap-8';
 
