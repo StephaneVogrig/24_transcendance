@@ -3,7 +3,7 @@ import { updateBallAndPlatforms } from './scenes/sceneGame';
 import { updateScores, gameOver } from '../pages/GamePage';
 import { teamPing } from './scenes/sceneGame';
 import { gameStatusUpdate } from '../pages/GamePage';
-import { getSocket, getPlayerName, setSocket2 } from '../websocket/websocket';
+import { getSocket, getPlayerName } from '../websocket/websocket';
 import { gameDefeatOver } from '../pages/GamePage';
 import { setPlayerName } from '../pages/GamePage';
 import { navigate } from '../router';
@@ -15,7 +15,7 @@ export class InputManager {
 	private isLeftPressed2 = false;
 	private isRightPressed2 = false;
     private socket: Socket;
-    private socket2: Socket;
+    private socket2: Socket | undefined;
 
 	constructor() {
 		console.log(`Restoring socket for getPlayerName(): ${getPlayerName()}`);
@@ -41,20 +41,24 @@ export class InputManager {
 			window.addEventListener("keydown", (event) => {
 				if ((event.code === "KeyA" || event.code === "KeyW") && !this.isLeftPressed2) {
 					this.isLeftPressed2 = true;
-					this.socket2.emit('keydown', { key: 'ArrowLeft' });
+					if (this.socket2)
+						this.socket2.emit('keydown', { key: 'ArrowLeft' });
 				}
 				if ((event.code === "KeyD" || event.code === "KeyS") && !this.isRightPressed2) {
 					this.isRightPressed2 = true;
-					this.socket2.emit('keydown', { key: 'ArrowRight' });
+					if (this.socket2)
+						this.socket2.emit('keydown', { key: 'ArrowRight' });
 				}
 			});
 			window.addEventListener("keyup", (event) => {
 				if (event.code === "KeyA" || event.code === "KeyW") {
-					this.socket2.emit('keyup', { key: 'ArrowLeft' });
+					if (this.socket2)
+						this.socket2.emit('keyup', { key: 'ArrowLeft' });
 					this.isLeftPressed2 = false;
 				}
 				if (event.code === "KeyD" || event.code === "KeyS") {
-					this.socket2.emit('keyup', { key: 'ArrowRight' });
+					if (this.socket2)
+						this.socket2.emit('keyup', { key: 'ArrowRight' });
 					this.isRightPressed2 = false;
 			}
 			});
@@ -76,15 +80,15 @@ export class InputManager {
 		});
 		this.socket.on('gameOver', () => {
 			gameOver();
-			this.socket2.disconnect();
-			this.socket2 = null;
+			if (this.socket2)
+				this.socket2.disconnect();
 		});
 
 		this.socket.on('gameDefeatOver', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
 			console.log('Game defeat over received:', data);
 			gameDefeatOver(data.winner.name, data.score);
-			this.socket2.disconnect();
-			this.socket2 = null;
+			if (this.socket2)
+				this.socket2.disconnect();
 		});
 
 		this.socket.on('teamPing', (data: { team: string }) => {
@@ -111,7 +115,7 @@ export class InputManager {
 			}
 		});
 
-		window.addEventListener("popstate", (event) => {
+		window.addEventListener("popstate", () => {
 			if (this.socket) {
 				this.socket.disconnect();
 				// console.log("Popstate event triggered:", event);

@@ -3,12 +3,24 @@ import { navigate } from '../router';
 import { bottomBtn } from './components/bottomBtn';
 import { langBtn } from './components/langBtn';
 import { locale } from '../i18n';
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
 let socket = getSocket();
+let socket2: Socket | undefined;
 let isGameStarted = false;
 let isWaitingForGame = false;
+
+function cleanupSockets() {
+    socket.off('redirect');
+    socket.off('connect');
+    if (socket2)
+	{
+        socket2.off('connect');
+        socket2.disconnect();
+        socket2 = undefined;
+    }
+}
 
 async function registerUsernameToDb(username: string)
 {
@@ -318,8 +330,7 @@ export const HomePage = (): HTMLElement => {
 		socket.off('connect');
 		
 		let socket2 = io(`http://${window.location.hostname}:3000`, {
-			path: '/api/websocket/my-websocket/',
-			forceNew: true
+			path: '/api/websocket/my-websocket/'
 		});
 		
 		await Promise.all([
@@ -383,12 +394,18 @@ export const HomePage = (): HTMLElement => {
 		socket.off('redirect');
 		socket.off('connect');
 
+		if (socket2 && socket2.connected) {
+            socket2.disconnect();
+            socket2 = undefined;
+        }
+
 		if (!socket.connected) {
 			await new Promise<void>((resolve) => {
 				socket = getSocket();
-				if (socket.connected) {
+				if (socket.connected)
 					resolve();
-				} else {
+				else
+				{
 					socket.on('connect', () => {
 						socket.off('connect');
 						resolve();
@@ -425,6 +442,7 @@ export const HomePage = (): HTMLElement => {
 		}
 
 		console.log(`Partie IA créée avec ${name}`);
+		cleanupSockets();
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 			socket.off('redirect');
