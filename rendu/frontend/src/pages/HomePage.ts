@@ -7,9 +7,6 @@ import { io } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
 let socket = getSocket();
-let socket2 = io(`http://${window.location.hostname}:3000`, {
-				path: '/api/websocket/my-websocket/'
-			});
 let isGameStarted = false;
 let isWaitingForGame = false;
 
@@ -317,60 +314,100 @@ export const HomePage = (): HTMLElement => {
 	// Local button
 	playLocal.addEventListener('click', async () => {
 	try {
-		setPlayerName(socket.id);
+		socket.off('redirect');
+		socket.off('connect');
 		
-		await new Promise<void>((resolve) => {
-			if (!socket2.connected)
-				socket2.connect();
-			resolve();
+		let socket2 = io(`http://${window.location.hostname}:3000`, {
+			path: '/api/websocket/my-websocket/',
+			forceNew: true
+		});
+		
+		await Promise.all([
+			new Promise<void>((resolve) => {
+				if (socket.connected)
+					resolve();
+				else
+				{
+					socket.on('connect', () => {
+						console.log('Player 1 socket connected for local play');
+						socket.off('connect');
+						resolve();
+					});
+					socket.connect();
+				}
+			}),
+			new Promise<void>((resolve) => {
+				socket2.on('connect', () => {
+					console.log('Player 2 socket connected for local play');
+					socket2.off('connect');
+					
+					socket2.emit('identify_player', { name: socket2.id });
+					BabylonGame.getInstance().setSocket2(socket2);
+					resolve();
+				});
+			})
+		]);
+
+		if (socket.id)
+			setPlayerName(socket.id);
+
+		const response = await fetch(`http://${window.location.hostname}:3004/api/game/start`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ player1: socket.id, player2: socket2.id, maxScore: 5 })
 		});
 
-		socket2.emit('identify_player', { name: socket2.id });
+		if (!response.ok) {
+			const err = await response.text();
+			throw new Error(err);
+		}
 
-		BabylonGame.getInstance().setSocket2(socket2);
-		const response = await fetch(`http://${window.location.hostname}:3004/api/game/start`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ player1: socket.id, player2: socket2.id, maxScore: 5 })
-        });
-
-        if (!response.ok) {
-            const err = await response.text();
-            throw new Error(err);
-        }
-
-		socket.off('redirect');
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			socket.off('redirect');
 			startGame("you and your friend");
-        	socket2.emit('join', { name: socket2.id });
+			socket2.emit('join', { name: socket2.id });
 			socket2.emit('acceptGame');
 		});
 
-		console.log(socket.id + " | " + socket2.id);
-
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
+			socket.off('redirect');
+			socket.off('connect');
 		}
 	});
 
 	// Play AI
 	playAI.addEventListener('click', async () => {
 	try {
+		socket.off('redirect');
+		socket.off('connect');
 
 		if (!socket.connected) {
-			console.log("Socket not yet connected, waiting for 'connect' event...");
-			socket = getSocket();
+			await new Promise<void>((resolve) => {
+				socket = getSocket();
+				if (socket.connected) {
+					resolve();
+				} else {
+					socket.on('connect', () => {
+						socket.off('connect');
+						resolve();
+					});
+					socket.connect();
+				}
+			});
 		}
 		const name = socket.id;
-		setPlayerName(name);
-
-		socket.emit('join', { name: name });
+		if (name)
+			setPlayerName(name);
 
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage-AI: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			socket.off('redirect');
 			startGame("you and AI");
 		});
+
+		socket.emit('join', { name });
 
 		try {
 			const response = await fetch(`http://${window.location.hostname}:3009/api/ai/create`, {
@@ -390,6 +427,8 @@ export const HomePage = (): HTMLElement => {
 		console.log(`Partie IA créée avec ${name}`);
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
+			socket.off('redirect');
+			socket.off('connect');
 		}
 	});
 

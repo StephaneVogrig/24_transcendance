@@ -8,7 +8,8 @@ export const getSocket = (): Socket => {
     if (!socketInstance || !socketInstance.connected) {
         if (!socketInstance) {
             socketInstance = io(`http://${window.location.hostname}:3000`, {
-                path: '/api/websocket/my-websocket/'
+                path: '/api/websocket/my-websocket/',
+				forceNew: true
             });
         }
         if (!socketInstance.connected) {
