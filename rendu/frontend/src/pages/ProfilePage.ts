@@ -1,6 +1,28 @@
 import { isAuthenticated, getUser, logout } from '../auth/auth0Service';
 import { navigate } from '../router';
 
+import { notConnected, Connected } from '../utils/ProfileUtils';
+
+
+// Fonction utilitaire 
+const createErrorMessage = (message: string, type: 'error' | 'warning' | 'info' = 'warning'): HTMLElement => {
+    const container = document.createElement('div');
+    const colorClass = {
+        error: 'text-red-600',
+        warning: 'text-yellow-600',
+        info: 'text-blue-600'
+    }[type];
+    
+    container.className = `text-center ${colorClass}`;
+    
+    const paragraph = document.createElement('p');
+    paragraph.textContent = message;
+    container.appendChild(paragraph);
+    
+    return container;
+};
+
+
 export const ProfilePage = (): HTMLElement => {
     const mainDiv = document.createElement('div');
     mainDiv.className = 'min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6';
@@ -54,57 +76,26 @@ export const ProfilePage = (): HTMLElement => {
                     <div class="text-center">
                         <div class="text-green-600 text-6xl mb-4">✅</div>
                         <h3 class="text-xl font-semibold text-green-600 mb-2">Utilisateur Connecté</h3>
-                        <p class="text-gray-600">Vous êtes authentifié avec succès</p>
                     </div>
                 `;
 
                 // Récupérer les informations utilisateur
-                try {
+                try 
+                {
                     const user = await getUser();
-                    if (user) {
-                        userInfoDiv.innerHTML = `
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Informations Utilisateur</h3>
-                            <div class="space-y-3">
-                                <div class="flex items-center space-x-4">
-                                    <img 
-                                        src="${user.picture || '/assets/default-avatar.png'}" 
-                                        alt="Avatar" 
-                                        class="w-16 h-16 rounded-full border-2 border-gray-200"
-                                        onerror="this.src='/assets/default-avatar.png'"
-                                    />
-                                    <div>
-                                        <p class="font-semibold text-gray-800">${user.name || 'N/A'}</p>
-                                        <p class="text-gray-600">${user.email || 'N/A'}</p>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                    <div class="bg-gray-50 p-3 rounded-lg">
-                                        <p class="text-sm font-medium text-gray-500">ID Auth0</p>
-                                        <p class="text-sm text-gray-800 break-all">${user.sub || 'N/A'}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-3 rounded-lg">
-                                        <p class="text-sm font-medium text-gray-500">Email Vérifié</p>
-                                        <p class="text-sm text-gray-800">${user.email_verified ? 'Oui' : 'Non'}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-3 rounded-lg">
-                                        <p class="text-sm font-medium text-gray-500">Dernière Mise à Jour</p>
-                                        <p class="text-sm text-gray-800">${user.updated_at ? new Date(user.updated_at).toLocaleString() : 'N/A'}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-3 rounded-lg">
-                                        <p class="text-sm font-medium text-gray-500">Nickname</p>
-                                        <p class="text-sm text-gray-800">${user.nickname || 'N/A'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        userInfoDiv.innerHTML = `
-                            <div class="text-center text-yellow-600">
-                                <p>Impossible de récupérer les informations utilisateur</p>
-                            </div>
-                        `;
+                    if (user)  // utilisateur connecté
+                    {
+                        userInfoDiv.innerHTML = '';    // Clear previous content
+                        Connected(user, userInfoDiv);
+                    } 
+                    else // si erreur lors de la récupération des informations utilisateur 
+                    {
+                        userInfoDiv.innerHTML =  '';
+                        userInfoDiv.appendChild(createErrorMessage('Impossible de récupérer les informations utilisateur', 'warning'));
                     }
-                } catch (error) {
+                } 
+                catch (error) 
+                {
                     console.error('Erreur lors de la récupération des informations utilisateur:', error);
                     userInfoDiv.innerHTML = `
                         <div class="text-center text-red-600">
@@ -120,9 +111,6 @@ export const ProfilePage = (): HTMLElement => {
                         <button id="logout-btn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
                             Se Déconnecter
                         </button>
-                        <button id="refresh-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                            Actualiser
-                        </button>
                         <button id="choice-game-btn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
                             Aller au Jeu
                         </button>
@@ -131,7 +119,7 @@ export const ProfilePage = (): HTMLElement => {
 
                 // Ajouter les événements
                 const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
-                const refreshBtn = actionsDiv.querySelector('#refresh-btn') as HTMLButtonElement;
+    
                 const choiceGameBtn = actionsDiv.querySelector('#choice-game-btn') as HTMLButtonElement;
 
                 logoutBtn?.addEventListener('click', async () => {
@@ -147,39 +135,14 @@ export const ProfilePage = (): HTMLElement => {
                     }
                 });
 
-                refreshBtn?.addEventListener('click', () => updateStatus());
+
                 choiceGameBtn?.addEventListener('click', () => navigate('/choice-game'));
 
-            } else {
-                // Utilisateur non connecté
-                statusDiv.innerHTML = `
-                    <div class="text-center">
-                        <div class="text-red-600 text-6xl mb-4">❌</div>
-                        <h3 class="text-xl font-semibold text-red-600 mb-2">Utilisateur Non Connecté</h3>
-                        <p class="text-gray-600">Vous n'êtes pas authentifié</p>
-                    </div>
-                `;
-
-                userInfoDiv.innerHTML = `
-                    <div class="text-center text-gray-500">
-                        <p>Connectez-vous pour voir vos informations</p>
-                    </div>
-                `;
-
-                // Actions pour utilisateur non connecté
-                actionsDiv.innerHTML = `
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Actions</h3>
-                    <div class="flex flex-wrap gap-4">
-                        <button id="login-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                            Se Connecter
-                        </button>
-                        <button id="refresh-btn" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200">
-                            Actualiser
-                        </button>
-                    </div>
-                `;
-
-                // Ajouter les événements
+            } 
+            else // Utilisateur non connecté
+            {
+                notConnected(statusDiv, userInfoDiv, actionsDiv);
+                
                 const loginBtn = actionsDiv.querySelector('#login-btn') as HTMLButtonElement;
                 const refreshBtn = actionsDiv.querySelector('#refresh-btn') as HTMLButtonElement;
 
