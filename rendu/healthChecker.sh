@@ -28,7 +28,7 @@ for service_port in "${SERVICES_PORTS[@]}"; do
     service=$(echo "$service_port" | cut -d':' -f1)
     port=$(echo "$service_port" | cut -d':' -f2)
 
-    adress="http://${HOST_IP}:3000/api/${service}/health"
+    adress="https://${HOST_IP}:3000/api/${service}/health"
     curl_output=$(curl -k --fail -s ${adress})
     curl_exitcode=$?
     max_length=25

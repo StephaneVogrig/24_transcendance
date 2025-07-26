@@ -17,7 +17,7 @@ export interface Match {
 
 export async function getWinner(id: string): Promise<string | null> {
     try {
-        const response = await fetch(`http://${window.location.hostname}:3000/api/tournament/winner/${id}`, {
+        const response = await fetch(`https://${window.location.hostname}:3000/api/tournament/winner/${id}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
         });
@@ -39,7 +39,7 @@ export async function getWinner(id: string): Promise<string | null> {
 //recuperer tous les matchs actifs
 export async function getTournament(): Promise<any> {
     try {
-        const response = await fetch(`http://${window.location.hostname}:3000/api/database/tournament/getAll`, {
+        const response = await fetch(`https://${window.location.hostname}:3000/api/database/tournament/getAll`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
         });

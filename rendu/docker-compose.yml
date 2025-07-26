@@ -8,7 +8,6 @@ services:
             dockerfile: Dockerfile
         ports:
             - "3000:3000"
-            # - "3443:3443"
         environment:
             - NODE_ENV=development
             - HOST_IP=${HOST_IP}
@@ -24,6 +23,8 @@ services:
             - ai
         networks:
             - transcendence-network
+        volumes:
+            - ./ssl:/app/ssl
 
     authentification:
         image: authentification
@@ -147,6 +148,7 @@ services:
         volumes:
             - ./frontend:/app
             - /app/node_modules
+            - ./ssl:/app/ssl
         depends_on:
             - gateway
         networks:

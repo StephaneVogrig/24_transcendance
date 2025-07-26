@@ -7,7 +7,7 @@ let playerSocket2: Socket | null = null;
 export const getSocket = (): Socket => {
     if (!socketInstance || !socketInstance.connected) {
         if (!socketInstance) {
-            socketInstance = io(`http://${window.location.hostname}:3000`, {
+            socketInstance = io(`https://${window.location.hostname}:3000`, {
                 path: '/api/websocket/my-websocket/',
 				forceNew: true
             });

@@ -6,7 +6,7 @@ let Auth0Client: any = null;
 // Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
 const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
-const AUTH0_REDIRECT_URI = `http://localhost:5173/auth/callback`;
+const AUTH0_REDIRECT_URI = `https://localhost:5173/auth/callback`;
 
 
 let auth0Client: any = null;
@@ -106,7 +106,7 @@ export const handleAuthCallback = async (_code: string): Promise<void> => {
             
             // Envoyer les informations utilisateur au backend pour synchronisation
             try {
-                const response = await fetch(`http://${window.location.hostname}:3000/api/authentification/user`, {
+                const response = await fetch(`https://${window.location.hostname}:3000/api/authentification/user`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user })
@@ -242,7 +242,6 @@ export const logout = async (): Promise<void> => {
         }
     }
 };
-
 
 /**
  * Récupère le token d'accès
