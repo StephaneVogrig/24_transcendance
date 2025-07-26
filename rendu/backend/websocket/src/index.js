@@ -8,12 +8,12 @@ const serviceport = 3008;
 const fastify = Fastify({ logger: true });
 
 const HOST_IP = process.env.HOST_IP;
-const HOST_ADDRESS = `http://${HOST_IP}:5173`;
+const HOST_ADDRESS = `https://${HOST_IP}:5173`;
 
 fastify.register(cors, {
 	origin: [
 		HOST_ADDRESS,
-		'http://localhost:5173'
+		'https://localhost:5173'
 	],
 	methods: ['GET', 'POST'],
 	credentials: true
@@ -23,7 +23,7 @@ const io = new Server(fastify.server, {
 	cors: {
 		origin: [
 			HOST_ADDRESS,
-			'http://localhost:5173'
+			'https://localhost:5173'
 		],
 		methods: ['GET', 'POST'],
 		credentials: true
