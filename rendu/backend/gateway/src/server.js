@@ -68,48 +68,57 @@ fastify.get('/api/game/info', async (request, reply) => {
 
 fastify.register(proxy, {
   upstream: AUTH_SERVICE_BASE_URL,
-  prefix: '/api/auth'
+  prefix: '/api/auth',
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: BLOCKCHAIN_SERVICE_BASE_URL,
-  prefix: '/api/blockchain'
+  prefix: '/api/blockchain',
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: DATABASE_SERVICE_BASE_URL,
-  prefix: '/api/database'
+  prefix: '/api/database',
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: GAME_SERVICE_BASE_URL,
-  prefix: '/api/game'
+  prefix: '/api/game',
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: MATCHMAKING_SERVICE_BASE_URL,
-  prefix: '/api/matchmaking'
+  prefix: '/api/matchmaking',
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: SCORES_SERVICE_BASE_URL,
-  prefix: '/api/scores'
+  prefix: '/api/scores',
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: TOURNAMENT_SERVICE_BASE_URL,
-  prefix: '/api/tournament'
+  prefix: '/api/tournament',
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: WEBSOCKET_SERVICE_BASE_URL,
   prefix: '/api/websocket',
-  websocket: true
+  websocket: true,
+  rejectUnauthorized: false
 });
 
 fastify.register(proxy, {
   upstream: AI_SERVICE_BASE_URL,
   prefix: '/api/ai',
+  rejectUnauthorized: false
 });
 
 const start = async () => {

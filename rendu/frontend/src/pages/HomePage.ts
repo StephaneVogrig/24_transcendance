@@ -25,7 +25,7 @@ function cleanupSockets() {
 async function registerUsernameToDb(username: string)
 {
 	try {
-		const response = await fetch(`http://${window.location.hostname}:3003/api/database/addUser`, {
+		const response = await fetch(`https://${window.location.hostname}:3443/api/database/addUser`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ username })
@@ -42,7 +42,7 @@ async function registerUsernameToDb(username: string)
 async function usernameExistsInDb(username: string) : Promise<Boolean>
 {
 	try {
-		const response = await fetch(`http://${window.location.hostname}:3003/api/database/getUser?username=${username}`, {
+		const response = await fetch(`https://${window.location.hostname}:3443/api/database/getUser?username=${username}`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' }
 		});
@@ -62,7 +62,7 @@ async function usernameExistsInDb(username: string) : Promise<Boolean>
 async function deleteUsernameFromDb(username: string)
 {
 	try {
-		const response = await fetch(`http://${window.location.hostname}:3003/api/database/removeUser`, {
+		const response = await fetch(`https://${window.location.hostname}:3443/api/database/removeUser`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ username })
@@ -76,20 +76,20 @@ async function deleteUsernameFromDb(username: string)
 	}
 }
 
-function disableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
+function disableJoining(playLocal: HTMLButtonElement, playSolo: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
 {
 	isWaitingForGame = true;
 	playOnline.disabled = true;
-	playAI.disabled = true;
+	playSolo.disabled = true;
 	playTournament.disabled = true;
 	playLocal.disabled = true;
 }
 
-function enableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
+function enableJoining(playLocal: HTMLButtonElement, playSolo: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
 {
 	isWaitingForGame = false;
 	playOnline.disabled = false;
-	playAI.disabled = false;
+	playSolo.disabled = false;
 	playTournament.disabled = false;
 	playLocal.disabled = false;
 }
@@ -255,9 +255,9 @@ export const HomePage = (): HTMLElement => {
 	playLocal.disabled = false;
 	playNav.appendChild(playLocal);
 
-	const playAI = createJoinButton(locale.solo);
-	playAI.disabled = false;
-	playNav.appendChild(playAI);
+	const playSolo = createJoinButton(locale.solo);
+	playSolo.disabled = false;
+	playNav.appendChild(playSolo);
 
 	const playTournament = createJoinButton(locale.join_tournament);
 	nav.appendChild(playTournament);
@@ -299,12 +299,12 @@ export const HomePage = (): HTMLElement => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			button.remove();
 			startGame(data.gameId);
-			enableJoining(playLocal, playAI, playOnline, playTournament);
+			enableJoining(playLocal, playSolo, playOnline, playTournament);
 		});
 
 		try {
 			console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
-			const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
+			const response = await fetch(`https://${window.location.hostname}:3443/api/matchmaking/join`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name: name })
@@ -314,7 +314,7 @@ export const HomePage = (): HTMLElement => {
 				console.error('Erreur lors de la requête de matchmaking:', response.statusText);
 				throw new Error('Failed to join the game');
 			}
-			disableJoining(playLocal, playAI, playOnline, playTournament);
+			disableJoining(playLocal, playSolo, playOnline, playTournament);
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 			name = '';
@@ -329,7 +329,7 @@ export const HomePage = (): HTMLElement => {
 		socket.off('redirect');
 		socket.off('connect');
 		
-		let socket2 = io(`http://${window.location.hostname}:3000`, {
+		let socket2 = io(`https://${window.location.hostname}:3443`, {
 			path: '/api/websocket/my-websocket/'
 		});
 		
@@ -362,7 +362,7 @@ export const HomePage = (): HTMLElement => {
 		if (socket.id)
 			setPlayerName(socket.id);
 
-		const response = await fetch(`http://${window.location.hostname}:3004/api/game/start`, {
+		const response = await fetch(`https://${window.location.hostname}:3443/api/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ player1: socket.id, player2: socket2.id, maxScore: 5 })
@@ -388,61 +388,80 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
-	// Play AI
-	playAI.addEventListener('click', async () => {
-	try {
-		socket.off('redirect');
-		socket.off('connect');
-
-		if (socket2 && socket2.connected) {
-            socket2.disconnect();
-            socket2 = undefined;
-        }
-
-		if (!socket.connected) {
-			await new Promise<void>((resolve) => {
-				socket = getSocket();
-				if (socket.connected)
-					resolve();
-				else
-				{
-					socket.on('connect', () => {
-						socket.off('connect');
-						resolve();
-					});
-					socket.connect();
-				}
-			});
-		}
-		const name = socket.id;
-		if (name)
-			setPlayerName(name);
-
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`HomePage-AI: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			socket.off('redirect');
-			startGame("you and AI");
-		});
-
-		socket.emit('join', { name });
-
+	// Play vs AI
+	playSolo.addEventListener('click', async () => {
+		console.log('playsolo button clicked');
 		try {
-			const response = await fetch(`http://${window.location.hostname}:3009/api/ai/create`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({name})
+
+			console.log('playsolo: cleanup listeners');
+			socket.off('redirect');
+			socket.off('connect');
+
+			console.log('playsolo: check socket2');
+			if (socket2 && socket2.connected) {
+				socket2.disconnect();
+				socket2 = undefined;
+				console.log('playsolo: socket2 disconnected.');
+			}
+
+			if (!socket.connected) {
+				console.log('playsolo: socket not connected, connecting');
+				await new Promise<void>((resolve, reject) => {
+					socket = getSocket();
+
+					if (socket.connected){
+						console.log('playsolo: socket already connected');
+						resolve();
+					}
+					else
+					{
+						console.log('playsolo: socket not connected, connecting...');
+
+						socket.on('connect', () => {
+							socket.off('connect');
+							resolve();
+						});
+						socket.connect();
+					}
+				});
+				console.log('playsolo: socket connected');
+			}
+			else {
+				console.log('playsolo: socket already connected');
+			}
+
+			console.log('playsolo: check socket status');
+			const name = socket.id;
+			if (name) {
+				setPlayerName(name);
+				console.log(`playsolo: Player name set to socket.id: ${name}`);
+			}
+			
+			socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+				console.log(`HomePage-AI: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+				socket.off('redirect');
+				startGame("you and AI");
 			});
 
-			if (!response.ok) {
-				const err = await response.text();
-				throw new Error(err);
-			}
-		} catch (err) {
-			console.log(`Error while starting match between AI and ${name}: ${(err as Error).message}.`);
-		}
+			socket.emit('join', { name });
 
-		console.log(`Partie IA créée avec ${name}`);
-		cleanupSockets();
+			try {
+				const response = await fetch(`https://${window.location.hostname}:3443/api/ai/create`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({name})
+				});
+
+				if (!response.ok) {
+					const err = await response.text();
+					throw new Error(err);
+				}
+			} catch (err) {
+				console.log(`Error while starting match between AI and ${name}: ${(err as Error).message}.`);
+			}
+
+			console.log(`Partie IA créée avec ${name}`);
+			cleanupSockets();
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 			socket.off('redirect');
@@ -474,11 +493,11 @@ export const HomePage = (): HTMLElement => {
 				if (modal)
 					modal.remove();
 				startGame(data.gameId);
-				enableJoining(playLocal, playAI, playOnline, playTournament);
+				enableJoining(playLocal, playSolo, playOnline, playTournament);
 			});
 
 			let modal: HTMLDivElement;
-			const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
+			const response = await fetch(`https://${window.location.hostname}:3443/api/tournament/join`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name })
@@ -494,7 +513,7 @@ export const HomePage = (): HTMLElement => {
 
 			if (data.playerCount < 4)
 				modal = showTournamentModal(data.id);
-			disableJoining(playLocal, playAI, playOnline, playTournament);
+			disableJoining(playLocal, playSolo, playOnline, playTournament);
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 		}

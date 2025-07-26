@@ -6,24 +6,38 @@ let playerSocket2: Socket | null = null;
 
 export const getSocket = (): Socket => {
     if (!socketInstance || !socketInstance.connected) {
+
         if (!socketInstance) {
-            socketInstance = io(`http://${window.location.hostname}:3000`, {
+            console.log('getSocket: no socketInstance, creating...');
+            socketInstance = io(`https://${window.location.hostname}:3443`, {
                 path: '/api/websocket/my-websocket/',
-				forceNew: true
+                forceNew: true,
+                transports: ['websocket'],
+                rejectUnauthorized: false
             });
+            console.log('getSocket: socketInstance created');
+        } else {
+            console.log('getSocket: socketInstance already created');
         }
+
         if (!socketInstance.connected) {
+            console.log('getSocket: socket not connected, connecting...');
             socketInstance.connect();
             socketInstance.on('connect', () => {
                 console.log('Central Socket: Connecté au serveur Socket.IO !');
                 if (playerName)
                     socketInstance!.emit('identify_player', { name: playerName });
             });
+            console.log('getSocket: socketInstance connected');
+        } else {
+            console.log('getSocket: socketInstance already connected');
         }
 
         socketInstance.on('disconnect', () => {
             console.log('Central Socket: Déconnecté du serveur Socket.IO !');
         });
+    } else {
+        console.log('getSocket: socket already exist and connected');
     }
     return socketInstance;
 };
