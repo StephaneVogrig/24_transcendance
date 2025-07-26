@@ -285,15 +285,13 @@ async function getstate(gameId, player) {
 					const gameOverState = await getGameOver(player);
 					if (gameOverState) {
 						console.log(`Game over state for player ${player}:`, gameOverState);
-							io.to(gameId).emit('gameOver', {
-								type: isInTournament(player) ? 'tournament' : 'default',
-								winner: gameOverState.winner,
-								score: gameOverState.score
-							});
-						}
-					} else {
-						console.error(`Failed to fetch game over state for game ${gameId}`);
+						io.to(gameId).emit('gameOver', {
+							type: isInTournament(player) ? 'tournament' : 'default',
+							winner: gameOverState.winner,
+							score: gameOverState.score
+						});
 					}
+				}
 				io.to(gameId).emit('gameStatusUpdate', {
 					gameStatus: gameState.gameStatus
 				});

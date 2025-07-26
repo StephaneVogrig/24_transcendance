@@ -251,11 +251,11 @@ export function gameOverTournament(winner: string, score: [number, number]) {
         glowColor = 'rgba(124, 255, 253, 0.7)';
 
         if (winner === name) {
-            displayStatus = 'You win';
+            displayStatus = 'You won your match';
             baseColor = '#48BB78';
             glowColor = 'rgba(0, 255, 0, 0.7)';
         } else {
-            displayStatus = 'You lose';
+            displayStatus = 'You lost the match';
             baseColor = '#F56565';
             glowColor = 'rgba(255, 0, 0, 0.7)';
         }

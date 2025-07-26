@@ -82,9 +82,12 @@ export class InputManager {
 				gameOver();
 			if (data.type === 'tournament')
 				gameOverTournament(data.winner.name, data.score);
-			if (this.socket2)
-				this.socket2.disconnect();
-			this.socket.disconnect();
+			if (data.type !== 'tournament')
+			{
+				if (this.socket2)
+					this.socket2.disconnect();
+				this.socket.disconnect();
+			}
 		});
 
 

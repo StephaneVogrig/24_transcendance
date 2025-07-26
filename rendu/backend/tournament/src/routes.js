@@ -42,7 +42,6 @@ fastify.get('/api/tournament/playerInTournament', async (request, reply) => {
 	if (!player || typeof player !== 'string')
 		return reply.status(400).send({ error: 'Missing or invalid player.' });
 	const exists = Tournament.playerExistsInAnyTournament(player);
-	console.log(`boolean: ${exists}`);
 	return reply.status(200).send({ exists });
 });
 
