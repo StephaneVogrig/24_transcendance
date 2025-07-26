@@ -1,35 +1,32 @@
 import Fastify from 'fastify';
 import * as GameManager from './gameManager.js';
-import cors from '@fastify/cors'
+
+const serviceName = 'game';
+const serviceport = 3004;
 
 const fastify = Fastify({ logger: true });
 
-fastify.get('/api/auth', async (request, reply) => { 
-  return { message: 'Hello from Game Service!' };
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {
   try {
-    await fastify.listen({ port: 3004, host: '0.0.0.0' });
-    console.log(`Game service listening on port 3004`);
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+    console.log(serviceName, `service listening on port`, serviceport);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
   }
 };
 
-const HOST_IP = process.env.HOST_IP;
-
-fastify.register(cors, {
-	origin: [
-		`http://${HOST_IP}:5173`,
-		'http://localhost:5173'
-	],
-	methods: ['GET', 'POST'],
-	credentials: true
-});
-
-fastify.post('/api/game/start', async (request, reply) => {
+fastify.post('/start', async (request, reply) => {
     const { player1, player2, maxScore } = request.body;
     if (!player1 || !player2 || !maxScore) {
 		console.log(`${player1} and ${player2} " | " ${maxScore}`);
@@ -44,7 +41,7 @@ fastify.post('/api/game/start', async (request, reply) => {
     return reply.status(200).send({ message: `Game started between ${player1} and ${player2}` });
 });
 
-fastify.post('/api/game/input', async (request, reply) => {
+fastify.post('/input', async (request, reply) => {
     const { player, key, action } = request.body;
     console.log(`Received input from player ${player}: key=${key}, action=${action}`);
     if (!player || !key || !action)
@@ -55,7 +52,7 @@ fastify.post('/api/game/input', async (request, reply) => {
     match.inputManager(player, key, action);
 });
 
-fastify.post('/api/game/stop', async (request, reply) => {
+fastify.post('/stop', async (request, reply) => {
     const { player } = request.body;
     if (!player) {
         return reply.status(400).send({ error: 'Player is required' });
@@ -68,7 +65,7 @@ fastify.post('/api/game/stop', async (request, reply) => {
     return reply.status(200).send({ message: `Game stopped for player ${player}` });
 });
 
-fastify.get('/api/game/gameOver', async (request, reply) => {
+fastify.get('/gameOver', async (request, reply) => {
     const { player } = request.query;
     if (!player)
         return reply.status(400).send({ error: 'Player is required' });
@@ -89,7 +86,7 @@ fastify.get('/api/game/gameOver', async (request, reply) => {
     return reply.status(400).send({ error: 'Game is not finished yet' });
 });
 
-fastify.get('/api/game/state', async (request, reply) => {
+fastify.get('/state', async (request, reply) => {
     const { player } = request.query;
     if (!player)
         return reply.status(400).send({ error: 'Player is required' });

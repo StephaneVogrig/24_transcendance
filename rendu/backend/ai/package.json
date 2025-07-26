@@ -9,7 +9,6 @@
     "dev": "node src/routes.js"
   },
   "dependencies": {
-	"@fastify/cors": "^8.4.0",
     "socket.io-client": "^4.8.1",
     "fastify": "^4.24.3"
   },

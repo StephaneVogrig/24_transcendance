@@ -150,7 +150,7 @@ export const RegisterPage = (): HTMLElement => {
         // Ajoutez ici d'autres validations côté client (ex: format email, force du mot de passe)
 
         try {
-            const response = await fetch('/api/auth/register', { // Votre endpoint d'enregistrement Fastify
+            const response = await fetch('http://${window.location.hostname}:3000/api/authentification/register', { // Votre endpoint d'enregistrement Fastify
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password }),

@@ -28,7 +28,8 @@ for service_port in "${SERVICES_PORTS[@]}"; do
     service=$(echo "$service_port" | cut -d':' -f1)
     port=$(echo "$service_port" | cut -d':' -f2)
 
-    curl_output=$(curl -k --fail -s "http://${HOST_IP}:${port}/api/health")
+    adress="http://${HOST_IP}:3000/api/${service}/health"
+    curl_output=$(curl -k --fail -s ${adress})
     curl_exitcode=$?
     max_length=25
     printf "${BLUE}%-17s | %-4s | ${DEFAULT}" "$service" "$port"
@@ -45,7 +46,7 @@ for service_port in "${SERVICES_PORTS[@]}"; do
             echo -e "${RED}HTTP error${DEFAULT}"
             echo "Receive: $curl_output"
         else
-            echo -e "${RED}connection error to${DEFAULT} http://${HOST_IP}:${port}/api/health"
+            echo -e "${RED}connection error to${DEFAULT} ${adress}"
         fi
     fi
 done

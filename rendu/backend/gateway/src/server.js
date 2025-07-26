@@ -2,6 +2,8 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import proxy from '@fastify/http-proxy';
 
+const serviceName = 'gateway';
+const serviceport = 3000;
 
 const HOST_IP = process.env.HOST_IP;
 const FRONTEND_ORIGIN = `http://${HOST_IP}:5173`;
@@ -32,30 +34,20 @@ await fastify.register(cors, {
   credentials: true
 });
 
-// Route API de base
-fastify.get('/api/health', async (request, reply) => {
-  return { 
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/api/gateway/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
     status: 'healthy',
-    service: 'gateway',
     uptime: process.uptime()
   };
 });
 
-// Route pour obtenir des informations sur le jeu (pour plus tard)
-fastify.get('/api/game/info', async (request, reply) => {
-  return {
-    name: 'Transcendence Pong',
-    version: '1.0.0',
-    players: 0, // Sera dynamique plus tard
-    activeGames: 0
-  };
-});
-
 // Proxy pour les services
-
 fastify.register(proxy, {
   upstream: AUTH_SERVICE_BASE_URL,
-  prefix: '/api/auth'
+  prefix: '/api/authentification'
 });
 
 fastify.register(proxy, {
@@ -102,11 +94,11 @@ fastify.register(proxy, {
 const start = async () => {
   try {
     await fastify.listen({ 
-      port: 3000,
+      port: serviceport,
       host: '0.0.0.0' 
     });
-    console.log('🚀 Gateway démarré sur http://localhost:3000');
-    console.log(`CORS autorisé pour l'origine frontend : ${FRONTEND_ORIGIN}`);
+    console.log(serviceName, `service listening on port`, serviceport);
+    console.log(`CORS autorisé pour l'origine : ${FRONTEND_ORIGIN}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

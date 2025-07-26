@@ -2,15 +2,24 @@ import Web3 from 'web3';
 import Fastify from 'fastify';
 import fetch from 'node-fetch';
 
+const serviceName = 'blockchain';
+const serviceport = 3002;
+
 const fastify = Fastify({ logger: true });
 
-fastify.get('/api/blockchain', async (request, reply) => {
-  return { message: 'Hello from Blockchain Service!' };
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {
   try {
-	fastify.post('/api/blockchain/register', async (request, reply) => {
+	fastify.post('/register', async (request, reply) => {
 		const { tournament } = request.body;
 		if (!tournament)
 			return reply.status(400).send({ error: "Tournament needed to register to blockchain." });
@@ -29,7 +38,7 @@ const start = async () => {
 		return reply.status(200).send(receipt);
 	});
 
-	fastify.get('/api/blockchain/get', async (request, reply) => {
+	fastify.get('/get', async (request, reply) => {
 		const { id } = request.query;
 		if (typeof id === 'undefined' || isNaN(Number(id)))
 			return reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -44,8 +53,8 @@ const start = async () => {
 			return reply.status(500).send(err.message);
 		}
 	});
-	await fastify.listen({ port: 3002, host: '0.0.0.0' });
-	console.log(`Blockchain service listening on port 3002`);
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+    console.log(serviceName, `service listening on port`, serviceport);
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);
@@ -79,7 +88,7 @@ async function registerToBlockchain(tournament)
 	const contract = new web3.eth.Contract(ABI, "0x0AFb54862056e3283d4E6C728e73e943F349aDc4")
 	try
 	{
-		const response = await fetch(`http://tournament:3007/api/tournament/winner?id=${tournament.id}`);
+		const response = await fetch(`http://tournament:3007/winner?id=${tournament.id}`);
 		if (!response.ok)
 			throw new Error(await response.text());
 

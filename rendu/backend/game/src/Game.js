@@ -20,7 +20,7 @@ export class Game {
     async redirectPlayer( playerName )
     {
         try {
-            const response = await fetch(`http://websocket:3008/api/websocket/redirect`, {
+            const response = await fetch(`http://websocket:3008/redirect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ export class Game {
     async sendStart()
     {
         try {
-            const response = await fetch(`http://websocket:3008/api/websocket/startGame`, {
+            const response = await fetch(`http://websocket:3008/startGame`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -68,7 +68,7 @@ export class Game {
     {
         try
         {
-            await fetch(`http://tournament:3007/api/tournament/playerscores`, {
+            await fetch(`http://tournament:3007/playerscores`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

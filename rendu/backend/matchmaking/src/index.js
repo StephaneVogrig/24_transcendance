@@ -1,34 +1,32 @@
 import Fastify from 'fastify';
 import * as PlayerManager from './playerManager.js';
-import cors from '@fastify/cors';
+
+const serviceName = 'matchmaking';
+const serviceport = 3005;
 
 const fastify = Fastify({ logger: true });
 
-const HOST_IP = process.env.HOST_IP;
-fastify.register(cors, {
-    origin: [
-        `http://${HOST_IP}:5173`,
-        'http://localhost:5173'
-    ],
-    methods: ['GET', 'POST'],
-    credentials: true
-});
-
-fastify.get('/api/matchmaking', async (request, reply) => { 
-  return { message: 'Hello from Matchmaking Service!' };
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {
   try {
-    await fastify.listen({ port: 3005, host: '0.0.0.0' });
-    console.log(`Matchmaking service listening on port 3005`);
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+    console.log(serviceName, `service listening on port`, serviceport);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
   }
 };
 
-fastify.post('/api/matchmaking/join', async (request, reply) => {
+fastify.post('/join', async (request, reply) => {
   const { name } = request.body;
   console.log(`Received request to join with name: ${name}`);
   if (!name) {
@@ -44,7 +42,7 @@ fastify.post('/api/matchmaking/join', async (request, reply) => {
   }
 });
 
-fastify.post('/api/matchmaking/leave', async (request, reply) => {
+fastify.post('/leave', async (request, reply) => {
   const { name } = request.body;
   console.log(`Received request to leave with name: ${name}`);
   if (!name) {

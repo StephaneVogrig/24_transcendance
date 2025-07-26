@@ -25,7 +25,7 @@ function cleanupSockets() {
 async function registerUsernameToDb(username: string)
 {
 	try {
-		const response = await fetch(`http://${window.location.hostname}:3003/api/database/addUser`, {
+		const response = await fetch(`http://${window.location.hostname}:3000/api/database/addUser`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ username })
@@ -42,7 +42,7 @@ async function registerUsernameToDb(username: string)
 async function usernameExistsInDb(username: string) : Promise<Boolean>
 {
 	try {
-		const response = await fetch(`http://${window.location.hostname}:3003/api/database/getUser?username=${username}`, {
+		const response = await fetch(`http://${window.location.hostname}:3000/api/database/getUser?username=${username}`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' }
 		});
@@ -62,7 +62,7 @@ async function usernameExistsInDb(username: string) : Promise<Boolean>
 async function deleteUsernameFromDb(username: string)
 {
 	try {
-		const response = await fetch(`http://${window.location.hostname}:3003/api/database/removeUser`, {
+		const response = await fetch(`http://${window.location.hostname}:3000/api/database/removeUser`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ username })
@@ -303,7 +303,7 @@ export const HomePage = (): HTMLElement => {
 
 		try {
 			console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
-			const response = await fetch(`http://${window.location.hostname}:3005/api/matchmaking/join`, {
+			const response = await fetch(`http://${window.location.hostname}:3000/api/matchmaking/join`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name: name })
@@ -361,7 +361,7 @@ export const HomePage = (): HTMLElement => {
 		if (socket.id)
 			setPlayerName(socket.id);
 
-		const response = await fetch(`http://${window.location.hostname}:3004/api/game/start`, {
+		const response = await fetch(`http://${window.location.hostname}:3000/api/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ player1: socket.id, player2: socket2.id, maxScore: 5 })
@@ -426,7 +426,7 @@ export const HomePage = (): HTMLElement => {
 		socket.emit('join', { name });
 
 		try {
-			const response = await fetch(`http://${window.location.hostname}:3009/api/ai/create`, {
+			const response = await fetch(`http://${window.location.hostname}:3000/api/ai/create`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({name})
@@ -477,7 +477,7 @@ export const HomePage = (): HTMLElement => {
 			});
 
 			let modal: HTMLDivElement;
-			const response = await fetch(`http://${window.location.hostname}:3007/api/tournament/join`, {
+			const response = await fetch(`http://${window.location.hostname}:3000/api/tournament/join`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name })

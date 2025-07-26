@@ -2,6 +2,9 @@ import Fastify from 'fastify';
 import { Server } from 'socket.io';
 import cors from '@fastify/cors';
 
+const serviceName = 'websocket';
+const serviceport = 3008;
+
 const fastify = Fastify({ logger: true });
 
 const HOST_IP = process.env.HOST_IP;
@@ -28,14 +31,20 @@ const io = new Server(fastify.server, {
 	path: '/my-websocket/'
 });
 
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
+});
+
 let playerNameToSocketId = new Map();
 let socketIdToPlayerName = new Map();
 let gameSessions = new Map();
 let pendingRedirectAcceptances = new Map();
-
-fastify.get('/api/websocket', async (request, reply) => { 
-  return { message: 'Hello from WebSocket Service!' };
-});
 
 async function waitForRedirectAcceptance(playerName, timeout = 60000) {
 	return new Promise((resolve, reject) => {
@@ -53,7 +62,7 @@ async function waitForRedirectAcceptance(playerName, timeout = 60000) {
 	});
 }
 
-fastify.post('/api/websocket/redirect', async (request, reply) => {
+fastify.post('/redirect', async (request, reply) => {
 	const { name, gameId } = request.body;
 	console.log(`Received request to redirect player ${name} to game ${gameId}`);
 	if (!name || !gameId) {
@@ -71,7 +80,7 @@ fastify.post('/api/websocket/redirect', async (request, reply) => {
 	return reply.status(200).send({ message: `Player ${name} redirected to game ${gameId}` });
 });
 
-fastify.post('/api/websocket/startGame', async (request, reply) => {
+fastify.post('/startGame', async (request, reply) => {
 	const { player1Name, player2Name, gameId } = request.body;
 
 	if (!player1Name || !player2Name || !gameId) {
@@ -123,7 +132,7 @@ fastify.post('/api/websocket/startGame', async (request, reply) => {
 
 async function sendInput(playerName, key, action) {
 	try {
-		const response = await fetch(`http://game:3004/api/game/input`, {
+		const response = await fetch(`http://game:3004/input`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -150,7 +159,7 @@ async function sendInput(playerName, key, action) {
 
 async function getGameOver(player) {
 	try {
-		const response = await fetch(`http://game:3004/api/game/gameOver?player=${player}`, {
+		const response = await fetch(`http://game:3004/gameOver?player=${player}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -190,7 +199,7 @@ async function isInTournament(playerName) {
 
 async function getstate(gameId, player) {
 	try {
-		const response = await fetch(`http://game:3004/api/game/state?player=${player}`, {
+		const response = await fetch(`http://game:3004/state?player=${player}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -316,7 +325,7 @@ async function getstate(gameId, player) {
 
 function stopGame(playerName) {
 	try {
-		const reponse = fetch(`http://game:3004/api/game/stop`, {
+		const reponse = fetch(`http://game:3004/stop`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -334,7 +343,7 @@ function stopGame(playerName) {
 		{
 			try
 			{
-				const response = fetch(`http://database:3003/api/database/removeUser`, {
+				const response = fetch(`http://database:3003/removeUser`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ username: playerName })
@@ -374,7 +383,7 @@ io.on('connection', async (socket) => {
 		// }
 		try
 		{
-			const response = await fetch(`http://database:3003/api/database/getUser?username=${name}`, {
+			const response = await fetch(`http://database:3003/getUser?username=${name}`, {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json' }
 			});
@@ -467,7 +476,7 @@ io.on('connection', async (socket) => {
 			socketIdToPlayerName.delete(socket.id);
 			try
 			{
-				const reponse = fetch(`http://matchmaking:3005/api/matchmaking/leave`, {
+				const reponse = fetch(`http://matchmaking:3005/leave`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name: disconnectedPlayerName })
@@ -504,7 +513,7 @@ io.on('connection', async (socket) => {
 			{
 				try
 				{
-					const response = fetch(`http://database:3003/api/database/removeUser`, {
+					const response = fetch(`http://database:3003/removeUser`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ username: disconnectedPlayerName })
@@ -526,13 +535,13 @@ io.on('connection', async (socket) => {
 });
 
 const start = async () => {
-	try {
-		await fastify.listen({ port: 3008, host: '0.0.0.0' });
-		console.log(`Server listening at http://0.0.0.0:3008`);
-	} catch (err) {
-		fastify.log.error(err);
-		process.exit(1);
-	}
+  try {
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+    console.log(serviceName, `service listening on port`, serviceport);
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
 };
 
 start();

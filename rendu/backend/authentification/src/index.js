@@ -1,32 +1,26 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
-import cors from '@fastify/cors';
 import { saveUserToDatabase, getUserFromDatabase } from './userDatabase.js';
 
+const serviceName = 'authentification';
+const serviceport = 3001;
 
 const fastify = Fastify({ logger: true });
 
-
-const HOST_IP = process.env.HOST_IP;
-fastify.register(cors, {
-   origin: [
-       `http://${HOST_IP}:5173`,
-       'http://localhost:5173'
-   ],
-   methods: ['GET', 'POST'],
-   credentials: true
-});
-
-
-
-fastify.get('/api/auth', async (request, reply) => { 
-  return { message: 'Hello from Authentification Service!' };
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {
   try {
-    await fastify.listen({ port: 3001, host: '0.0.0.0' });
-    console.log(`Authentification service listening on port 3001`);
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+    console.log(serviceName, `service listening on port`, serviceport);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
@@ -34,12 +28,12 @@ const start = async () => {
 };
 
 // Route pour vérifier le statut d'authentification
-fastify.get('/api/auth/status', async (request, reply) => {
+fastify.get('/status', async (request, reply) => {
   return { message: 'Authentication service is running', timestamp: new Date().toISOString() };
 });
 
 // Route pour recevoir les informations utilisateur d'Auth0
-fastify.post('/api/auth/user', async (request, reply) => {
+fastify.post('/user', async (request, reply) => {
   const { user } = request.body;
   console.log('User info received from Auth0:', user);
   
@@ -86,7 +80,7 @@ fastify.post('/api/auth/user', async (request, reply) => {
 });
 
 // Route pour récupérer un utilisateur par Auth0 ID
-fastify.get('/api/auth/user/:auth0_id', async (request, reply) => {
+fastify.get('/user/:auth0_id', async (request, reply) => {
   const { auth0_id } = request.params;
   
   if (!auth0_id) {

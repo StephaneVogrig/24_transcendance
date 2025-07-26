@@ -22,7 +22,7 @@ async function saveUserToDatabase(userInfo) {
     try {
         console.log('Saving user to database:', { provider_id, email, nickname, picture });
 
-        const response = await fetch(`http://database:3003/api/database/user/oauth`, {
+        const response = await fetch(`http://database:3003/user/oauth`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ async function getUserFromDatabase(auth0_id) {
     try {
         console.log('Fetching user from database:', auth0_id);
 
-        const response = await fetch(`http://database:3003/api/database/user/oauth/${encodeURIComponent(auth0_id)}`, {
+        const response = await fetch(`http://database:3003/user/oauth/${encodeURIComponent(auth0_id)}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',

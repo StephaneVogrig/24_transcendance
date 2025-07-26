@@ -1,20 +1,20 @@
 import Fastify from 'fastify';
 import { initDatabase } from './db.js';
-import cors from '@fastify/cors'
 import fs from 'fs';
 
+const serviceName = 'database';
+const serviceport = 3003;
+
 const fastify = Fastify({ logger: true });
-const HOST_IP = process.env.HOST_IP;
 
-await fastify.register(cors, {
-	origin: ['http://localhost:5173',
-			`http://${HOST_IP}:5173`],
-	methods: ['GET', 'POST'],
-	credentials: true
-});
-
-fastify.get('/api/database', async (request, reply) => { 
-	return { message: 'Hello from Database Service!' };
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {
@@ -25,7 +25,7 @@ const start = async () => {
 		const sql = fs.readFileSync('./init.sql').toString();
 		await db.exec(sql);
 
-		fastify.post('/api/database/addUser', async (request, reply) => {
+		fastify.post('/addUser', async (request, reply) => {
 			const { username } = request.body;
 			if (!username || typeof username !== 'string')
 				return reply.status(400).send({error: 'Missing or invalid username.'});
@@ -39,7 +39,7 @@ const start = async () => {
 			}
 		});
 
-		fastify.get('/api/database/getUser', async (request, reply) => {
+		fastify.get('/getUser', async (request, reply) => {
 			const { username } = request.query;
 			if (!username || typeof username !== 'string')
 				return reply.status(400).send({error: 'Missing or invalid username.'});
@@ -55,7 +55,7 @@ const start = async () => {
 			}
 		});
 
-		fastify.post('/api/database/removeUser', async (request, reply) => {
+		fastify.post('/removeUser', async (request, reply) => {
 			const { username } = request.body;
 			if (!username || typeof username !== 'string')
 				return reply.status(400).send({error: 'Missing or invalid username.'});
@@ -69,7 +69,7 @@ const start = async () => {
 			}
 		});
 
-		fastify.post('/api/database/tournament/create', async (request, reply) => {
+		fastify.post('/tournament/create', async (request, reply) => {
 			const { tournament } = request.body;
 			if (!tournament)
 				return reply.status(400).send({error: 'Missing tournament data.'});
@@ -84,7 +84,7 @@ const start = async () => {
 		});
 
 		// Route pour récupérer les tournois ouverts
-		fastify.get('/api/database/tournament/getOpened', async (request, reply) => {
+		fastify.get('/tournament/getOpened', async (request, reply) => {
 			try
 			{
 				const tournaments = await db.all(`SELECT * FROM tournaments WHERE json_extract(data, '$.status') = 'open'`);
@@ -96,7 +96,7 @@ const start = async () => {
 		});
 
 		//	 Route pour récupérer un tournoi par ID
-		fastify.get('/api/database/tournament/get', async (request, reply) => {
+		fastify.get('/tournament/get', async (request, reply) => {
 			const { id } = request.query;
 			if (typeof id === 'undefined' || isNaN(Number(id)))
 				return reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -111,7 +111,7 @@ const start = async () => {
 		});
 		
 		// Route pour supprimer un tournoi
-		fastify.post('/api/database/tournament/delete', async (request, reply) => {
+		fastify.post('/tournament/delete', async (request, reply) => {
 			const { id } = request.body;
 			if (typeof id === 'undefined' || isNaN(Number(id)))
 				return reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -126,7 +126,7 @@ const start = async () => {
 		});
 
 		//	Route pour modifier un tournoi
-		fastify.post('/api/database/tournament/modify', async (request, reply) => {
+		fastify.post('/tournament/modify', async (request, reply) => {
 			const { tournament } = request.body;
 			if (typeof tournament.id === 'undefined' || isNaN(Number(tournament.id)))
 				return reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -141,7 +141,7 @@ const start = async () => {
 		});
 
 		// Route pour récupérer les tournois ouverts
-        fastify.get('/api/database/tournament/getAll', async (request, reply) => {
+        fastify.get('/tournament/getAll', async (request, reply) => {
             try {
 				const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
 				reply.status(200).send(tournaments);
@@ -152,7 +152,7 @@ const start = async () => {
         });
 
 		// Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
-		fastify.post('/api/database/user/oauth', async (request, reply) => {
+		fastify.post('/user/oauth', async (request, reply) => {
 			const { provider_id, email, nickname, picture, provider } = request.body;
 			
 			if (!provider_id || !email || !nickname || !provider) {
@@ -195,7 +195,7 @@ const start = async () => {
 		});
 
 		// Route pour récupérer un utilisateur par Auth0 ID
-		fastify.get('/api/database/user/oauth/:provider_id', async (request, reply) => {
+		fastify.get('/user/oauth/:provider_id', async (request, reply) => {
 			const { provider_id } = request.params;
 			
 			if (!provider_id) {
@@ -216,8 +216,8 @@ const start = async () => {
 			}
 		});
 
-		await fastify.listen({ port: 3003, host: '0.0.0.0' });
-		console.log(`Database service listening on port 3003`);
+        await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+        console.log(serviceName, `service listening on port`, serviceport);
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);
