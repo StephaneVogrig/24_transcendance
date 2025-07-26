@@ -22,7 +22,7 @@ SERVICES_PORTS	:=	ai:3009 \
 					database:3003 \
 					frontend:5173 \
 					game:3004 \
-					gateway:3443 \
+					gateway:3000 \
 					matchmaking:3005 \
 					tournament:3007 \
 					scores:3006 \

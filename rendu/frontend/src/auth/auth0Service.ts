@@ -106,7 +106,7 @@ export const handleAuthCallback = async (_code: string): Promise<void> => {
             
             // Envoyer les informations utilisateur au backend pour synchronisation
             try {
-                const response = await fetch(`http://${window.location.hostname}:3001/api/auth/user`, {
+                const response = await fetch(`http://${window.location.hostname}:3000/api/authentification/user`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user })

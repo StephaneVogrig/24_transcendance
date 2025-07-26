@@ -1,35 +1,33 @@
 import Fastify from 'fastify';
 import * as Tournament from './tournament.js'
 import * as Utils from './utils.js';
-import cors from '@fastify/cors'
+
+const serviceName = 'tournament';
+const serviceport = 3007;
 
 const fastify = Fastify({ logger: true });
 
-const HOST_IP = process.env.HOST_IP;
-fastify.register(cors, {
-	origin: [
-		`http://${HOST_IP}:5173`,
-		'http://localhost:5173'
-	],
-	methods: ['GET', 'POST'],
-	credentials: true
+// API endpoint to check the availability and operational status of the service.
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const start = async () => {
   try {
-	await fastify.listen({ port: 3007, host: '0.0.0.0' });
-	console.log(`Tournament service listening on port 3007`);
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+    console.log(serviceName, `service listening on port`, serviceport);
   } catch (err) {
 	fastify.log.error(err);
 	process.exit(1);
   }
 };
 
-fastify.get('/api/tournament', async (request, reply) => { 
-  return { message: 'Hello from Tournament Service!' };
-});
-
-fastify.get('/api/tournament/get', async (request, reply) => {
+fastify.get('/get', async (request, reply) => {
 	const { id } = request.query;
 	if (typeof id === 'undefined' || isNaN(Number(id)))
 		return reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -37,7 +35,7 @@ fastify.get('/api/tournament/get', async (request, reply) => {
 	reply.status(200).send(Utils.readTournament(tournament));
 });
 
-fastify.get('/api/tournament/playerInTournament', async (request, reply) => {
+fastify.get('/playerInTournament', async (request, reply) => {
 	const { player } = request.query;
 	if (!player || typeof player !== 'string')
 		return reply.status(400).send({ error: 'Missing or invalid player.' });
@@ -45,7 +43,7 @@ fastify.get('/api/tournament/playerInTournament', async (request, reply) => {
 	return reply.status(200).send({ exists });
 });
 
-fastify.post('/api/tournament/create', async (request, reply) => {
+fastify.post('/create', async (request, reply) => {
 	if (!request.body || typeof request.body.name !== 'string')
 		return reply.status(400).send({ error: 'Missing or invalid name.' });
 	const name = request.body.name;
@@ -59,7 +57,7 @@ fastify.post('/api/tournament/create', async (request, reply) => {
 	}
 });
 
-fastify.post('/api/tournament/join', async (request, reply) => {
+fastify.post('/join', async (request, reply) => {
 	if (!request.body || typeof request.body.name !== 'string')
 		return reply.status(400).send({ error: 'Missing or invalid name.' });
 	const name = request.body.name;
@@ -73,7 +71,7 @@ fastify.post('/api/tournament/join', async (request, reply) => {
 	}
 });
 
-fastify.post('/api/tournament/raw', async (request, reply) => {
+fastify.post('/raw', async (request, reply) => {
 	try
 	{
 		Tournament.addRawTournament(request.body.tournament);
@@ -84,7 +82,7 @@ fastify.post('/api/tournament/raw', async (request, reply) => {
 	}
 });
 
-fastify.post('/api/tournament/advance', async (request, reply) => {
+fastify.post('/advance', async (request, reply) => {
 	if (!request.body || typeof request.body.id !== 'number')
 	{
 		reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -100,7 +98,7 @@ fastify.post('/api/tournament/advance', async (request, reply) => {
 	reply.status(200).send(Utils.readRound(newTournament));
 });
 
-fastify.get('/api/tournament/winner', async (request, reply) => {
+fastify.get('/winner', async (request, reply) => {
 	const { id } = request.query;
 	if (typeof id === 'undefined' || isNaN(Number(id)))
 		return reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -108,7 +106,7 @@ fastify.get('/api/tournament/winner', async (request, reply) => {
 	reply.status(200).send({name: winner.name, score: winner.score});
 });
 
-fastify.get('/api/tournament/round', async (request, reply) => {
+fastify.get('/round', async (request, reply) => {
 	const { id } = request.query;
 	if (typeof id === 'undefined' || isNaN(Number(id)))
 		return reply.status(400).send({ error: 'Missing or invalid id.' });
@@ -116,7 +114,7 @@ fastify.get('/api/tournament/round', async (request, reply) => {
 	reply.status(200).send(Utils.readRound(round));
 });
 
-fastify.post('/api/tournament/playerscores', async (request, reply) => {
+fastify.post('/playerscores', async (request, reply) => {
 	const { players } = request.body;
 	if (!players)
 		return reply.status(400).send({ error: 'Missing or invalid players.' });
@@ -127,7 +125,7 @@ fastify.post('/api/tournament/playerscores', async (request, reply) => {
 		reply.status(200).send({ message: 'Score updated successfully!' });
 });
 
-fastify.get('/api/tournament/getAll', async (request, reply) => {
+fastify.get('/getAll', async (request, reply) => {
 	try {
 		const tournaments = await Tournament.getTournament();
 		console.log('tournaments:', tournaments);
@@ -142,7 +140,7 @@ fastify.get('/api/tournament/getAll', async (request, reply) => {
 		console.log('result:', result);
 		reply.status(200).send(result);
 	} catch (error) {
-		console.error('Error in /api/tournament/getAll:', error);
+		console.error('Error in /getAll:', error);
 		reply.status(500).send({ error: 'Internal server error', details: error.message });
 	}
 });

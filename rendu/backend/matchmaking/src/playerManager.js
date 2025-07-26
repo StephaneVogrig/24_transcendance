@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 
 async function sendstart(player1, player2) {
     try {
-        const response = await fetch(`http://game:3004/api/game/start`, {
+        const response = await fetch(`http://game:3004/start`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

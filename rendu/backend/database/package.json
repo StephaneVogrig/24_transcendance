@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "fastify": "^4.24.3",
-	  "@fastify/cors": "^8.4.0",
     "sqlite": "^4.1.2",
     "sqlite3": "^5.1.6",
     "bcrypt": "^5.1.1"

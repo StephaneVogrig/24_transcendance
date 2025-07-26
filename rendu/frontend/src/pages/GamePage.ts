@@ -250,7 +250,11 @@ export function gameOverTournament(winner: string, score: [number, number]) {
         baseColor = '#4299E1';
         glowColor = 'rgba(124, 255, 253, 0.7)';
 
-        if (winner === name) {
+        if (score[0] === score[1]) {
+            displayStatus = 'Your won by forfeit';
+            baseColor = '#48BB78';
+            glowColor = 'rgba(0, 255, 0, 0.7)';
+        } else if (winner === name) {
             displayStatus = 'You won your match';
             baseColor = '#48BB78';
             glowColor = 'rgba(0, 255, 0, 0.7)';

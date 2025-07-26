@@ -64,7 +64,7 @@ async function deleteTournamentFromDb(id)
 {
 	try
 	{
-		const response = await fetch(`http://database:3003/api/database/tournament/delete`, {
+		const response = await fetch(`http://database:3003/tournament/delete`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({id: id})
@@ -84,7 +84,7 @@ async function modifyTournamentInDb(tournament)
 {
 	try
 	{
-		const response = await fetch(`http://database:3003/api/database/tournament/modify`, {
+		const response = await fetch(`http://database:3003/tournament/modify`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ tournament })
@@ -103,7 +103,7 @@ async function modifyTournamentInDb(tournament)
 async function registerTournamentToDb(tournament)
 {
 	try {
-		const response = await fetch(`http://database:3003/api/database/tournament/create`, {
+		const response = await fetch(`http://database:3003/tournament/create`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ tournament })
@@ -151,7 +151,7 @@ async function startMatches(bracket)
 			players.status = 'playing';
 			const player1 = players[0].name;
 			const player2 = players[1].name;
-			const response = await fetch(`http://game:3004/api/game/start`, {
+			const response = await fetch(`http://game:3004/start`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ player1, player2, maxScore: MAX_SCORE })
@@ -318,7 +318,7 @@ export async function advanceToNextRound(id)
 	{
 		tournament.status = 'ended';
 		try {
-			const response = await fetch(`http://blockchain:3002/api/blockchain/register`, {
+			const response = await fetch(`http://blockchain:3002/register`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({tournament})

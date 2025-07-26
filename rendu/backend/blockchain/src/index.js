@@ -3,8 +3,13 @@ import Fastify from 'fastify';
 
 const fastify = Fastify({ logger: true });
 
-fastify.get('/api/blockchain', async (request, reply) => {
-  return { message: 'Hello from Blockchain Service!' };
+fastify.get('/health', async (request, reply) => {
+  return {
+    service: serviceName,
+    port: serviceport,
+    status: 'healthy',
+    uptime: process.uptime()
+  };
 });
 
 const API_KEY = process.env.BLOCKCHAIN_INFURIA_KEY;
@@ -37,7 +42,7 @@ function formatTournamentForBlockchain(tournament, dateStr) {
 
 const start = async () => {
 	try {
-		fastify.post('/api/blockchain/register', async (request, reply) => {
+		fastify.post('/register', async (request, reply) => {
 			const { tournament } = request.body;
 			if (!tournament)
 				return reply.status(400).send({ error: "Tournament needed to register to blockchain." });
@@ -56,7 +61,7 @@ const start = async () => {
 			return reply.status(200).send(receipt);
 		});
 
-		fastify.get('/api/blockchain/get', async (request, reply) => {
+		fastify.get('/get', async (request, reply) => {
 			const { id } = request.query;
 			if (typeof id === 'undefined' || isNaN(Number(id)))
 				return reply.status(400).send({ error: 'Missing or invalid id.' });

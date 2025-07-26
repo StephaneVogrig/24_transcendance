@@ -78,7 +78,7 @@ export async function createAI(name)
 
 		})
 
-		const response = await fetch(`http://game:3004/api/game/start`, {
+		const response = await fetch(`http://game:3004/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ player1: player, player2: playerAI, maxScore: 5 })
