@@ -501,10 +501,14 @@ io.on('connection', async (socket) => {
 					console.log(`Player ${disconnectedPlayerName} was in game ${gameId}. Notifying other player.`);
 					const otherPlayerSocketId = session.player1SocketId === socket.id ? session.player2SocketId : session.player1SocketId;
 					io.to(otherPlayerSocketId).emit('error', { message: `Your opponent ${disconnectedPlayerName} has disconnected.` });
-					clearInterval(session.intervalId);
 					io.to(gameId).emit('gameOver', {
-						type: await isInTournament(disconnectedPlayerName) ? 'tournament' : 'leave'
+						type: await isInTournament(disconnectedPlayerName) ? 'tournament' : 'leave',
+						winner: {
+							name: session.player1Name === disconnectedPlayerName ? session.player2Name : session.player1Name
+						},
+						score: [0, 0]
 					});
+					clearInterval(session.intervalId);
 					stopGame(disconnectedPlayerName);
 					gameSessions.delete(gameId);
 				}
