@@ -9,17 +9,7 @@ export class AppLayout {
 	private subtitle: HTMLElement;
 
 	private constructor() {
-		this.initializeLayout();
-	}
-
-	public static getInstance(): AppLayout {
-		if (!AppLayout.instance)
-			AppLayout.instance = new AppLayout();
-		return AppLayout.instance;
-	}
-
-	private initializeLayout(): void {
-		// Container principal
+		// Main container
 		this.layoutElement = document.createElement('div');
 		this.layoutElement.className = 'min-h-screen relative bg-black text-blue-600 overflow-hidden flex flex-col';
 
@@ -55,6 +45,12 @@ export class AppLayout {
 		window.addEventListener('languageChanged', () => {
 			this.subtitle.textContent = locale.subtitle;
 		});
+	}
+
+	public static getInstance(): AppLayout {
+		if (!AppLayout.instance)
+			AppLayout.instance = new AppLayout();
+		return AppLayout.instance;
 	}
 
 	public getLayout(): HTMLElement {

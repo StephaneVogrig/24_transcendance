@@ -47,12 +47,12 @@ export class BabylonGame {
         });
 
         window.addEventListener('resize', () => {
-            this.engine.resize();
+            this.engine?.resize();
         });
     }
 
     public update() {
-        this.engine.resize();
+        this.engine?.resize();
     }
 
 	public setSocket2(socket: Socket) {

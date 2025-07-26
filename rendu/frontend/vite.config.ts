@@ -3,12 +3,13 @@ import fs from 'fs';
 import path from 'path';
 
 export default defineConfig({
+  base: '/',
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 3000,
     https: {
-        key: fs.readFileSync(path.resolve(__dirname, './ssl/key.pem')),
-        cert: fs.readFileSync(path.resolve(__dirname, './ssl/cert.pem')),
+        key: fs.readFileSync(path.resolve(__dirname, '/app/ssl/key.pem')),
+        cert: fs.readFileSync(path.resolve(__dirname, '/app/ssl/cert.pem')),
     },
     proxy: {
       '/api': {
@@ -19,6 +20,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    assetsDir: 'assets'
   }
 })

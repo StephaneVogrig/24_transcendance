@@ -205,6 +205,7 @@ const maxScore = 10;
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow-lg p-3';
 
+        void statusColor;
         // Header de la carte
         const cardHeader = document.createElement('div');
         cardHeader.className = 'flex items-center justify-between mb-2 pb-2 border-b';
@@ -278,6 +279,7 @@ const maxScore = 10;
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow-lg p-3';
 
+        void statusColor;
         // Header de la carte
         const cardHeader = document.createElement('div');
         cardHeader.className = 'flex items-center justify-between mb-2 pb-2 border-b';
@@ -323,6 +325,7 @@ const maxScore = 10;
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow-lg p-2 min-h-[200px]';
 
+        void statusColor;
         // Header de la carte
         const cardHeader = document.createElement('div');
         cardHeader.className = 'flex items-center justify-between mb-2 pb-1 border-b';
@@ -363,6 +366,7 @@ const maxScore = 10;
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow-lg p-2 min-h-[400px]';
 
+        void statusColor;
         // Header de la carte
         const cardHeader = document.createElement('div');
         cardHeader.className = 'flex items-center justify-between mb-2 pb-1 border-b';

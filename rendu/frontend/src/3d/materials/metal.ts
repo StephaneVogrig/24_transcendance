@@ -5,7 +5,7 @@ export function createMetalMaterial(scene: Scene): PBRMaterial {
 
   if (!scene.environmentTexture) {
     scene.environmentTexture = CubeTexture.CreateFromPrefilteredData(
-      "public/assets/sky.env", scene
+      "assets/sky.env", scene
     );
   }
   metalMat.albedoColor = new Color3(1, 1, 1);

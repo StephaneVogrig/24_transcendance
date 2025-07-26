@@ -8,7 +8,7 @@ export function teamMember(firstName: string, lastName: string, imgName: string)
 
     const img = document.createElement('img');
     img.className = 'w-full sm: max-w-36 md:max-w-48 aspect-square rounded-full object-cover';
-    img.src = `public/assets/${imgName}.jpg`;
+    img.src = `assets/${imgName}.jpg`;
     div.appendChild(img);
 
     const firstNameTxt = document.createElement('h3');

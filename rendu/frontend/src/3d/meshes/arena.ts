@@ -1,6 +1,6 @@
 import { MeshBuilder, TransformNode, Scene, Color3, Vector3 } from "@babylonjs/core";
 import { createNeonMaterial } from "../materials/neon";
-import { createMetalMaterial } from "../materials/metal";
+// import { createMetalMaterial } from "../materials/metal";
 import { createOrnement } from "./ornement";
 
 export function createArena(scene : Scene): TransformNode {

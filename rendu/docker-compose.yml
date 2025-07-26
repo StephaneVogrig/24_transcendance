@@ -4,8 +4,8 @@ services:
         image: gateway
         container_name: gateway
         build:
-            context: ./backend/gateway
-            dockerfile: Dockerfile
+            context: .
+            dockerfile: backend/gateway/Dockerfile
         ports:
             - "3000:3000"
         environment:
@@ -23,8 +23,9 @@ services:
             - ai
         networks:
             - transcendence-network
-        volumes:
-            - ./ssl:/app/ssl
+        # volumes:
+        #     - ./ssl:/app/ssl
+        #     - ./frontend:/app/frontend_src
 
     authentification:
         image: authentification
@@ -137,22 +138,22 @@ services:
         networks:
             - transcendence-network
 
-    frontend:
-        image: frontend
-        container_name: frontend
-        build:
-            context: ./frontend
-            dockerfile: Dockerfile
-        ports:
-            - "5173:5173"
-        volumes:
-            - ./frontend:/app
-            - /app/node_modules
-            - ./ssl:/app/ssl
-        depends_on:
-            - gateway
-        networks:
-            - transcendence-network
+    # frontend:
+    #     image: frontend
+    #     container_name: frontend
+    #     build:
+    #         context: ./frontend
+    #         dockerfile: Dockerfile
+    #     ports:
+    #         - "5173:5173"
+    #     volumes:
+    #         - ./frontend:/app
+    #         - /app/node_modules
+    #         - ./ssl:/app/ssl
+    #     depends_on:
+    #         - gateway
+    #     networks:
+    #         - transcendence-network
 
 networks:
     transcendence-network:

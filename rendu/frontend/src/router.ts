@@ -55,6 +55,7 @@ export function navigate(path: string, pushState: boolean = true): void {
     // Sépare le chemin des paramètres de requête et des fragments (hash)
     const [basePath, queryStringWithHash] = path.split('?');
     const [cleanPath, hashString] = basePath.split('#'); // CleanPath will be 'basePath' if no hash, otherwise part before '#'
+    void hashString;
 
     // Parse les paramètres de requête
     if (queryStringWithHash) {
@@ -144,50 +145,6 @@ function addNavigationListeners(element: HTMLElement): void {
  * Démarre le routeur.
  * Gère la navigation initiale et les boutons avant/arrière du navigateur (`popstate`).
  */
-// export function startRouter(): void {
-//     window.addEventListener('popstate', () => {
-//         // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
-//         // y compris query params et hash. On ne push pas une nouvelle entrée.
-//         navigate(window.location.pathname + window.location.search + window.location.hash, false);
-//     });
-
-//     // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
-//     navigate(window.location.pathname + window.location.search + window.location.hash);
-// }
-
-
-/**
- * Démarre le routeur.
- * Gère la navigation initiale et les boutons avant/arrière du navigateur (`popstate`).
- */
-// export function startRouter(): void {
-//     window.addEventListener('popstate', () => {
-//         try {
-//             // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
-//             // y compris query params et hash. On ne push pas une nouvelle entrée.
-//             navigate(window.location.pathname + window.location.search + window.location.hash, false);
-//         } catch (error) {
-//             console.error('Erreur lors de la navigation popstate:', error);
-//             // Redirection vers la page d'accueil en cas d'erreur
-//             navigate('/', false);
-//         }
-//     });
-
-//     try {
-//         // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
-//         navigate(window.location.pathname + window.location.search + window.location.hash);
-//     } catch (error) {
-//         console.error('Erreur lors de la navigation initiale:', error);
-//         // Redirection vers la page d'accueil en cas d'erreur
-//         navigate('/');
-//     }
-// }
-
-
-/**
- * Démarre le routeur.
- * Gère la navigation initiale et les boutons avant/arrière du navigateur (`popstate`).
- */
 export function startRouter(): void {
     window.addEventListener('popstate', () => {
         try 
@@ -222,26 +179,6 @@ export function startRouter(): void {
     } 
     catch (error) {
         console.error('Erreur lors de la navigation initiale:', error);
-        // Redirection vers la page d'accueil en cas d'erreur
         navigate('/');
     }
 }
-
-
-
-//  Naviguer vers une route spécifique
-// const goBack = () => {
-
-//     navigate('/');
-
-//     // navigate('/previous-page');
-//     // if (window.history.length > 1) // Vérifier s'il y a une page précédente dans l'historique
-//     // {
-//     //     window.history.back();
-//     // }
-//     // else 
-//     // {
-//     //     // Pas d'historique, aller à la page d'accueil
-//     //     navigate('/');
-//     // }
-// };

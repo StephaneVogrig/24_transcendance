@@ -2,11 +2,19 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY ssl/ /app/ssl/
+
+COPY backend/gateway/package*.json ./
 
 RUN npm install
 
-COPY src/ ./src/
+COPY backend/gateway/src/ ./src/
+
+COPY frontend/package*.json ./frontend/
+
+COPY frontend/ ./frontend/
+
+RUN cd frontend && npm ci && npm run build && cp -r dist ../public
 
 EXPOSE 3000
 

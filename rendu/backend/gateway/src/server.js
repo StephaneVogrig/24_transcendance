@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import proxy from '@fastify/http-proxy';
+import staticPlugin from '@fastify/static';
 
 const serviceName = 'gateway';
 const serviceport = 3000;
@@ -22,12 +23,9 @@ const fastify = Fastify({
 
 import cors from '@fastify/cors';
 const HOST_IP = process.env.HOST_IP;
-const HOST_ADDRESS = `https://${HOST_IP}:5173`;
+const HOST_ADDRESS = `https://${HOST_IP}:3000`;
 await fastify.register(cors, {
-  origin: [
-  HOST_ADDRESS,
-  'https://localhost:5173',
-  ],
+  origin: HOST_ADDRESS,
   methods: ['GET', 'POST'],
   credentials: true
 });
@@ -54,7 +52,7 @@ fastify.get('/api/gateway/health', async (request, reply) => {
   };
 });
 
-// Proxy pour les services
+// Proxy for services
 fastify.register(proxy, {
   upstream: AUTH_SERVICE_BASE_URL,
   prefix: '/api/authentification'
@@ -101,6 +99,28 @@ fastify.register(proxy, {
   prefix: '/api/ai',
 });
 
+// Static to serve frontend files
+fastify.register(staticPlugin, {
+  root: '/app/public',
+  prefix: '/',
+  decorateReply: false,
+  setHeaders: (res, path, stat) => {
+    // Headers pour les fichiers statiques si nécessaire
+  },
+  // Fallback pour SPA - redirige vers index.html pour les routes non-API
+  wildcard: false,
+  send: {
+    acceptRanges: false
+  }
+});
+
+fastify.setNotFoundHandler((request, reply) => {
+  if (!request.url.startsWith('/api/') && !request.url.startsWith('/my-websocket/')) {
+    return reply.sendFile('index.html');
+  }
+  reply.code(404).send({ error: 'Not Found' });
+});
+
 const start = async () => {
   try {
     await fastify.listen({ 
@@ -108,7 +128,7 @@ const start = async () => {
       host: '0.0.0.0' 
     });
     console.log(serviceName, `service listening on port`, serviceport);
-    console.log(`CORS autorisé pour l'origine : ${HOST_ADDRESS}`);
+    // console.log(`CORS autorisé pour l'origine : ${HOST_ADDRESS}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

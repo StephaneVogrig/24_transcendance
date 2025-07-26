@@ -7,7 +7,7 @@ export function createSky(scene: Scene): Mesh {
     skyMaterial.backFaceCulling = false;
     skyMaterial.diffuseColor = new Color3(0, 0, 0);
     skyMaterial.specularColor = new Color3(0, 0, 0);
-    skyMaterial.emissiveTexture = new Texture("public/assets/sky.jpg", scene);
+    skyMaterial.emissiveTexture = new Texture("assets/sky.jpg", scene);
     skyMaterial.emissiveColor = new Color3(0, 0, 0);
     skyDome.material = skyMaterial;
     skyDome.rotation.x = -Math.PI / 10;
