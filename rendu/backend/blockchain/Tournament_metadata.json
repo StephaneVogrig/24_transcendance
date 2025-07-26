@@ -26,26 +26,8 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "string[]",
-						"name": "playerNames",
-						"type": "string[]"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint8[]",
-						"name": "playerScores",
-						"type": "uint8[]"
-					},
-					{
-						"indexed": false,
 						"internalType": "string",
-						"name": "date",
-						"type": "string"
-					},
-					{
-						"indexed": false,
-						"internalType": "string",
-						"name": "winner",
+						"name": "data",
 						"type": "string"
 					}
 				],
@@ -70,18 +52,8 @@
 								"type": "uint64"
 							},
 							{
-								"internalType": "string[]",
-								"name": "playerNames",
-								"type": "string[]"
-							},
-							{
-								"internalType": "uint8[]",
-								"name": "playerScores",
-								"type": "uint8[]"
-							},
-							{
 								"internalType": "string",
-								"name": "date",
+								"name": "data",
 								"type": "string"
 							}
 						],
@@ -101,23 +73,8 @@
 						"type": "uint64"
 					},
 					{
-						"internalType": "string[]",
-						"name": "playerNames",
-						"type": "string[]"
-					},
-					{
-						"internalType": "uint8[]",
-						"name": "playerScores",
-						"type": "uint8[]"
-					},
-					{
 						"internalType": "string",
-						"name": "date",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "winner",
+						"name": "data",
 						"type": "string"
 					}
 				],
@@ -143,7 +100,7 @@
 		"devdoc": {
 			"author": "scraeyme",
 			"events": {
-				"BroadcastTournament(uint64,string[],uint8[],string,string)": {
+				"BroadcastTournament(uint64,string)": {
 					"details": "The keyword emit is used in registerTournament() which calls for this event"
 				}
 			},
@@ -154,11 +111,10 @@
 						"id": "Index of the tournament to get (max: count - 1)"
 					}
 				},
-				"registerTournament(uint64,string[],uint8[],string,string)": {
+				"registerTournament(uint64,string)": {
 					"details": "Can only be called by the one who created the contract",
 					"params": {
-						"playerNames": "Name of the players",
-						"playerScores": "Score of the players"
+						"data": "Score and Names of the players"
 					}
 				}
 			},
@@ -167,7 +123,7 @@
 		},
 		"userdoc": {
 			"events": {
-				"BroadcastTournament(uint64,string[],uint8[],string,string)": {
+				"BroadcastTournament(uint64,string)": {
 					"notice": "This is why the major module is validated, it registers the scores to the blockchain"
 				}
 			},
@@ -176,7 +132,7 @@
 				"getTournament(uint64)": {
 					"notice": "Get a tournament score by index"
 				},
-				"registerTournament(uint64,string[],uint8[],string,string)": {
+				"registerTournament(uint64,string)": {
 					"notice": "Registers a tournament's score"
 				}
 			},
@@ -200,11 +156,11 @@
 	},
 	"sources": {
 		"Tournament.sol": {
-			"keccak256": "0x013fe330f23d7ff147d6848b44063bbf1c13d032f6896a40d3d020009608c62d",
+			"keccak256": "0xe7fefa2f34440e9ef8e9f1cb47aae8db6f85a9c227cce1a3af8933cde72eb8d0",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://2dacb8e805a909cf394f3dc7e53a69ec83c61d10cef377d218dcafc7751d33a9",
-				"dweb:/ipfs/QmcgYDhtWzZ5gTPd4isfXbfUqHXeED3hEgvwRG91VyzGxC"
+				"bzz-raw://b1f67cddcc662fac14de256cd34a05fa265edf5f9e549b45bef8292bf9f0ada2",
+				"dweb:/ipfs/QmSSf8fACwJWEE8aWVCqLBeYysJDxqJVFzm2mrMmHzGeFx"
 			]
 		}
 	},

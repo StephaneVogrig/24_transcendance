@@ -14,9 +14,7 @@ contract Tournament
 	struct TournamentScore
 	{
 		uint64 id;
-		string[] playerNames;
-		uint8[] playerScores;
-		string date;
+		string data;
 	}
 
 	// Modifier to only allow certain functions to be called by the owner of the contract
@@ -39,25 +37,21 @@ contract Tournament
 	 */
 	event BroadcastTournament(
 		uint64 indexed id,
-		string[] playerNames,
-		uint8[] playerScores,
-		string date,
-		string winner
+		string data
 	);
 
 	/**
 	 * @notice Registers a tournament's score
 	 * @dev Can only be called by the one who created the contract
-	 * @param playerNames Name of the players
-	 * @param playerScores Score of the players
+	 * @param data Score and Names of the players
 	 */
-	function registerTournament(uint64 id, string[] calldata playerNames, uint8[] calldata playerScores, string calldata date, string calldata winner)
+	function registerTournament(uint64 id, string calldata data)
 	public
 	onlyOwner
 	{
-		TournamentScore memory ts = TournamentScore(id, playerNames, playerScores, date);
+		TournamentScore memory ts = TournamentScore(id, data);
 		scores[tournamentCount] = ts;
-		emit BroadcastTournament(id, playerNames, playerScores, date, winner);
+		emit BroadcastTournament(id, data);
 		tournamentCount++;
 	}
 
