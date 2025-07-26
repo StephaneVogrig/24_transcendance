@@ -222,6 +222,11 @@ export const ProfilePage = (): HTMLElement => {
     backButton.onclick = () => navigate('/');
     container.insertBefore(backButton, title);
 
+    // // Option 2: Naviguer vers une route spécifique
+    // const goBack = () => {
+    //     navigate('/previous-page');
+    // };
+
     // Charger le statut au démarrage
     updateStatus();
 

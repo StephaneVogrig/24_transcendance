@@ -10,7 +10,10 @@ export const en = {
 	"leaderboard": "Leaderboard",
 	"language": "English",
 	"about": "about",
-    "connection": "connection",
+    "connection": "Connection",
+	"logout": "Logout",
+	"matchDisplay": "Matchs List",
+
 
 	"team": "The team",
 

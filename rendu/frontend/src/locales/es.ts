@@ -11,6 +11,8 @@ export const es = {
     "language": "Español",
     "about": "acerca de",
     "connection": "conexión",
+	"logout": "Cerrar sesión",
+    "matchDisplay": "Lista de Partidos",
 
 
     "team": "El equipo",

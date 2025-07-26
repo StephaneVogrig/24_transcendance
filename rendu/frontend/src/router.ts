@@ -85,6 +85,9 @@ export function navigate(path: string, pushState: boolean = true): void {
     if (matchedRoute) {
         if (pushState) {
             window.history.pushState(null, '', path);
+            console.log(`Navigating to: ${path}`);
+            // afficher l'historique de navigation
+            console.log('Current history state:', window.history);
         }
 
         if (appRoot) {
@@ -154,3 +157,20 @@ export function startRouter(): void {
     // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
     navigate(window.location.pathname + window.location.search + window.location.hash);
 }
+
+//  Naviguer vers une route spécifique
+// const goBack = () => {
+
+//     navigate('/');
+
+//     // navigate('/previous-page');
+//     // if (window.history.length > 1) // Vérifier s'il y a une page précédente dans l'historique
+//     // {
+//     //     window.history.back();
+//     // }
+//     // else 
+//     // {
+//     //     // Pas d'historique, aller à la page d'accueil
+//     //     navigate('/');
+//     // }
+// };

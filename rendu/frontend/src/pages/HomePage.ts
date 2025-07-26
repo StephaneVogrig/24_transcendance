@@ -6,6 +6,9 @@ import { locale } from '../i18n';
 import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
+import { logout } from '../auth/auth0Service';
+
+
 let socket = getSocket();
 let socket2: Socket | undefined;
 let isGameStarted = false;
@@ -196,16 +199,15 @@ export const HomePage = (): HTMLElement => {
 	nav.className = 'flex flex-col space-y-4';
 
 	// Fonction utilitaire pour créer un lien de navigation
-	const createNavLink = (text: string, route: string): HTMLAnchorElement => {
+	const createNavLink = (text: string, route: string, loginLogout?: string): HTMLAnchorElement => {
 		const link = document.createElement('a');
 		link.href = '#'; // Le href est souvent un '#' ou le chemin réel pour l'accessibilité
 		link.setAttribute('data-route', route);
-		link.className = 'btn btn-secondary text-center';
+		link.className = loginLogout || 'btn btn-secondary text-center';
 		link.textContent = text;
 		return link;
 	};
 
-	nav.appendChild(createNavLink('Se connecter', '/login'));
 
 	// Champ nom
 	const input = document.createElement('input');
@@ -261,13 +263,33 @@ export const HomePage = (): HTMLElement => {
 	const playTournament = createJoinButton(locale.join_tournament);
 	nav.appendChild(playTournament);
 
-	nav.appendChild(createNavLink(locale.leaderboard, '/leaderboard'));
+	// nav.appendChild(createNavLink(locale.leaderboard, '/leaderboard'));
+	nav.appendChild(createNavLink(locale.matchDisplay, '/MatchDisplay'));
+
+
+	// language button
 	const languageButton = createNavLink(locale.language, '/');
 	nav.appendChild(languageButton);
-
 	content.appendChild(nav);
 
-	 // about
+	// login/logout button
+	if ( localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') === null )
+	{
+		// nav.appendChild(createNavLink(locale.connection, '/login'));
+		const loginButton = createNavLink(locale.connection, '/login', 'btn btn-secondary max-w-40 mx-auto text-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200');
+		nav.appendChild(loginButton);
+	}
+	else
+	{
+		const logoutButton = document.createElement('button');
+		logoutButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-red-400 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
+		logoutButton.textContent = locale.logout || 'Déconnexion'; 
+		logoutButton.addEventListener('click', () => {	logout(); }); // appel fonction de déconnexion OAuth0
+		nav.appendChild(logoutButton);
+	}
+
+
+	// about
 	content.appendChild(bottomBtn(locale.about, '/about'));
 
 	// Join game button
@@ -499,6 +521,7 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
+	
 
 	// Language button
 	languageButton.addEventListener('click', async () => {
