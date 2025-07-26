@@ -203,7 +203,42 @@ export function gameStatusUpdate(status: string) {
     }
 }
 
-export function gameDefeatOver(winner: string, score: [number, number]) {
+export function gameOverDefault(winner: string, score: [number, number]) {
+    console.log(`Game defeat over: Winner: ${winner}, Score: ${score[0]} - ${score[1]}`);
+    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+    if (statusElement) {
+        let displayStatus = '';
+        let baseColor = '#FFFFFF';
+        let glowColor = 'rgba(255, 255, 255, 0.7)';
+
+        displayStatus = winner + ' wins ! ' + score[0] + ' - ' + score[1];
+        baseColor = '#4299E1';
+        glowColor = 'rgba(124, 255, 253, 0.7)';
+
+        if (winner === name) {
+            displayStatus = 'You win';
+            baseColor = '#48BB78';
+            glowColor = 'rgba(0, 255, 0, 0.7)';
+        } else {
+            displayStatus = 'You lose';
+            baseColor = '#F56565';
+            glowColor = 'rgba(255, 0, 0, 0.7)';
+        }
+
+        let coloredHtml = '';
+        if (displayStatus) {
+            for (let i = 0; i < displayStatus.length; i++) {
+                const char = displayStatus[i];
+                coloredHtml += `<span style="color: ${baseColor}; text-shadow: 0 0 10px ${glowColor};">${char}</span>`;
+            }
+        }
+        statusElement.innerHTML = coloredHtml;
+    } else {
+        console.error("Status element not found.");
+    }
+}
+
+export function gameOverTournament(winner: string, score: [number, number]) {
     console.log(`Game defeat over: Winner: ${winner}, Score: ${score[0]} - ${score[1]}`);
     const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
     if (statusElement) {

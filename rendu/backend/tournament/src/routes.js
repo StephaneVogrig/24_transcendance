@@ -37,6 +37,16 @@ fastify.get('/api/tournament/get', async (request, reply) => {
 	reply.status(200).send(Utils.readTournament(tournament));
 });
 
+fastify.get('/api/tournament/playerInTournament', async (request, reply) => {
+	const { player } = request.query;
+	if (!player || typeof player !== 'string')
+		return reply.status(400).send({ error: 'Missing or invalid player.' });
+	const exists = Tournament.playerExistsInAnyTournament(player);
+	if (!exists)
+		return reply.status(404).send();
+	reply.status(200).send();
+});
+
 fastify.post('/api/tournament/create', async (request, reply) => {
 	if (!request.body || typeof request.body.name !== 'string')
 		return reply.status(400).send({ error: 'Missing or invalid name.' });

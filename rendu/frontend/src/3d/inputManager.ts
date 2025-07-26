@@ -1,11 +1,7 @@
 import { Socket } from "socket.io-client";
-import { updateBallAndPlatforms } from './scenes/sceneGame';
-import { updateScores, gameOver } from '../pages/GamePage';
-import { teamPing } from './scenes/sceneGame';
-import { gameStatusUpdate } from '../pages/GamePage';
+import { teamPing, updateBallAndPlatforms } from './scenes/sceneGame';
 import { getSocket, getPlayerName } from '../websocket/websocket';
-import { gameDefeatOver } from '../pages/GamePage';
-import { setPlayerName } from '../pages/GamePage';
+import { gameStatusUpdate, updateScores, setPlayerName, gameOver, gameOverDefault, gameOverTournament } from '../pages/GamePage';
 import { navigate } from '../router';
 
 export class InputManager {
@@ -85,13 +81,27 @@ export class InputManager {
 			this.socket.disconnect();
 		});
 
-		this.socket.on('gameDefeatOver', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
+		this.socket.on('gameOverDefault', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
 			console.log('Game defeat over received:', data);
-			gameDefeatOver(data.winner.name, data.score);
+			gameOverDefault(data.winner.name, data.score);
 			if (this.socket2)
 				this.socket2.disconnect();
 			this.socket.disconnect();
 		});
+
+		this.socket.on('gamePresqueOver', (data: { type : string, winner: { name: string, score: number }, score: [number, number] }) => {
+			if (data.type === 'default')
+				gameOverDefault(data.winner.name, data.score);
+			if (data.type === 'leave')
+				gameOver();
+			if (data.type === 'tournament')
+				gameOverTournament(data.winner.name, data.score);
+			if (this.socket2)
+				this.socket2.disconnect();
+			this.socket.disconnect();
+		});
+
+
 
 		this.socket.on('teamPing', (data: { team: string }) => {
 			// console.debug(`Received team ping for team: ${data.team}`);

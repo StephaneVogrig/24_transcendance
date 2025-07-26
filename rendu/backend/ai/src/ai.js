@@ -72,7 +72,7 @@ export async function createAI(name)
 				paddlePos = data.paddle;
 			});
 
-			socket.on('gameDefeatOver', () => {
+			socket.on('gameOverDefault', () => {
 				gameOn = false;
 			});
 

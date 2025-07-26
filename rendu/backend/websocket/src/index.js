@@ -259,13 +259,19 @@ async function getstate(gameId, player) {
 					player2Score: player2Score
 				});
 			}
+			// HANDLE GAME STATUS
 			if (gameState.gameStatus) {
 				if (gameState.gameStatus === 'finished') {
 					console.log(`Game ${gameId} finished. Fetching game over state for player ${player}.`);
 					const gameOverState = await getGameOver(player);
 					if (gameOverState) {
 						console.log(`Game over state for player ${player}:`, gameOverState);
-						io.to(gameId).emit('gameDefeatOver', {
+						// io.to(gameId).emit('gameOverDefault', {
+						// 	winner: gameOverState.winner,
+						// 	score: gameOverState.score
+						// });
+						io.to(gameId).emit('gamePresqueOver', {
+							type: 'default',
 							winner: gameOverState.winner,
 							score: gameOverState.score
 						});
