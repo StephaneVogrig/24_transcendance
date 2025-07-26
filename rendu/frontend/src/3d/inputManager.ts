@@ -74,22 +74,8 @@ export class InputManager {
 			// console.log('Score update received:', data);
 			updateScores(data.player1Score, data.player2Score);
 		});
-		this.socket.on('gameOver', () => {
-			gameOver();
-			if (this.socket2)
-				this.socket2.disconnect();
-			this.socket.disconnect();
-		});
 
-		this.socket.on('gameOverDefault', (data: { winner: { name: string, score: number }, score: [number, number] }) => {
-			console.log('Game defeat over received:', data);
-			gameOverDefault(data.winner.name, data.score);
-			if (this.socket2)
-				this.socket2.disconnect();
-			this.socket.disconnect();
-		});
-
-		this.socket.on('gamePresqueOver', (data: { type : string, winner: { name: string, score: number }, score: [number, number] }) => {
+		this.socket.on('gameOver', (data: { type : string, winner: { name: string, score: number }, score: [number, number] }) => {
 			if (data.type === 'default')
 				gameOverDefault(data.winner.name, data.score);
 			if (data.type === 'leave')

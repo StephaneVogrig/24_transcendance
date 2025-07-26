@@ -24,15 +24,17 @@ import * as Utils from './utils.js';
  */
 
 let TOTAL_TOURNAMENTS = 0;
-const MAX_SCORE = 10;
+const MAX_SCORE = 5;
 
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};
 
-function playerExistsInAnyTournament(name)
+export function playerExistsInAnyTournament(name)
 {
 	for (const tournament of Object.values(TOURNAMENT_LIST))
 	{
+		if (tournament.status === 'ended')
+			continue;
 		if (tournament.players)
 		{
 			for (const player of tournament.players)

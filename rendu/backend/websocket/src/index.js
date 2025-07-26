@@ -169,6 +169,25 @@ async function getGameOver(player) {
 	}
 }
 
+async function isInTournament(playerName) {
+	try {
+		const response = await fetch(`http://tournament:3007/api/tournament/playerInTournament?player=${playerName}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		if (!response.ok) {
+			return false;
+		}
+		const responseData = await response.json();
+		return responseData.exists;
+	} catch (error) {
+		console.error('Error checking tournament status:', error);
+		return false;
+	}
+}
+
 async function getstate(gameId, player) {
 	try {
 		const response = await fetch(`http://game:3004/api/game/state?player=${player}`, {
@@ -266,19 +285,15 @@ async function getstate(gameId, player) {
 					const gameOverState = await getGameOver(player);
 					if (gameOverState) {
 						console.log(`Game over state for player ${player}:`, gameOverState);
-						// io.to(gameId).emit('gameOverDefault', {
-						// 	winner: gameOverState.winner,
-						// 	score: gameOverState.score
-						// });
-						io.to(gameId).emit('gamePresqueOver', {
-							type: 'default',
-							winner: gameOverState.winner,
-							score: gameOverState.score
-						});
+							io.to(gameId).emit('gameOver', {
+								type: isInTournament(player) ? 'tournament' : 'default',
+								winner: gameOverState.winner,
+								score: gameOverState.score
+							});
+						}
 					} else {
 						console.error(`Failed to fetch game over state for game ${gameId}`);
 					}
-				}
 				io.to(gameId).emit('gameStatusUpdate', {
 					gameStatus: gameState.gameStatus
 				});
@@ -293,9 +308,8 @@ async function getstate(gameId, player) {
 				}
 			}
 			return responseData.gameState;
-		} else {
+		} else
 			return null;
-		}
 	} catch (error) {
 		console.error('state: Error communicating with game logic service:', error);
 		return null;
@@ -446,7 +460,7 @@ io.on('connection', async (socket) => {
 		socket.emit('nameAccepted', { name: playerName });
 	});
 
-	socket.on('disconnect', () => {
+	socket.on('disconnect', async () => {
 		const disconnectedPlayerName = socketIdToPlayerName.get(socket.id);
 		if (disconnectedPlayerName)
 		{
@@ -481,7 +495,9 @@ io.on('connection', async (socket) => {
 					const otherPlayerSocketId = session.player1SocketId === socket.id ? session.player2SocketId : session.player1SocketId;
 					io.to(otherPlayerSocketId).emit('error', { message: `Your opponent ${disconnectedPlayerName} has disconnected.` });
 					clearInterval(session.intervalId);
-					io.to(gameId).emit('gameOver', { message: `Game over. Player ${disconnectedPlayerName} has disconnected.` });
+					io.to(gameId).emit('gameOver', {
+						type: await isInTournament(disconnectedPlayerName) ? 'tournament' : 'leave'
+					});
 					stopGame(disconnectedPlayerName);
 					gameSessions.delete(gameId);
 				}
