@@ -6,7 +6,9 @@ import { locale } from '../i18n';
 import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
-import { logout } from '../auth/auth0Service';
+import { logout, authGoogleButton } from '../auth/auth0Service';
+// import { authteGoogleButton } from './LoginPage.ts';
+
 
 
 let socket = getSocket();
@@ -275,9 +277,9 @@ export const HomePage = (): HTMLElement => {
 	// login/logout button
 	if ( localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') === null )
 	{
-		// nav.appendChild(createNavLink(locale.connection, '/login'));
-		const loginButton = createNavLink(locale.connection, '/login', 'btn btn-secondary max-w-40 mx-auto text-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200');
-		nav.appendChild(loginButton);
+		// const loginButton = createNavLink(locale.connection, '/login', 'btn btn-secondary max-w-40 mx-auto text-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200');
+		// nav.appendChild(loginButton);
+		authGoogleButton(nav, document.createElement('div'));
 	}
 	else
 	{

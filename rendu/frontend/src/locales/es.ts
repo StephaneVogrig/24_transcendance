@@ -12,7 +12,8 @@ export const es = {
     "about": "acerca de",
     "connection": "conexión",
 	"logout": "Cerrar sesión",
-    "matchDisplay": "Lista de Partidos",
+    "matchDisplay": "Lista de torneos",
+    "errorUserInfo": "No se pudieron recuperar los datos del usuario",
 
 
     "team": "El equipo",

@@ -1,8 +1,39 @@
 
-import { loginWithAuth0, loginWithGoogle, logout } from '../auth/auth0Service';
+import { loginWithGoogle, logout } from '../auth/auth0Service';
 import { navigate } from '../router';
 
+
+export const createGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLElement): void => {
+    const googleButton = document.createElement('button');
+    googleButton.id = 'google-oauth-btn';
+    googleButton.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200';
+    googleButton.innerHTML = `
+         <img class="w-5 h-5 mr-2" src="/assets/Google_logo.png" alt="Auth0 Logo" />
+        Continue with Google
+    `;
+    loginForm.appendChild(googleButton);
+
+    // Redirection vers OAuth Google au clic
+    googleButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            authMessageDiv.textContent = 'Redirection vers Google...';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+            
+            // Utiliser Auth0 pour la connexion Google
+            await loginWithGoogle();
+        } catch (error) {
+            console.error('Erreur lors de la connexion Google:', error);
+            authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+        }
+    });
+};
+
 export const LoginPage = (): HTMLElement => {
+
+
+    console.log('window.location.pathname:', window.location.pathname);
 
     // Créer la carte blanche du formulaire
     const cardDiv = document.createElement('div');
@@ -28,57 +59,34 @@ export const LoginPage = (): HTMLElement => {
 
 
     // Bouton Auth0 Universal Login
-    const auth0Button = document.createElement('button');
-    auth0Button.id = 'auth0-universal-btn';
-    auth0Button.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-    auth0Button.innerHTML = `
-        <img class="w-5 h-5 mr-2" src="/assets/pingpong.png" alt="Auth0 Logo" />
-        Login
-        `;
-    loginForm.appendChild(auth0Button);
+    // const auth0Button = document.createElement('button');
+    // auth0Button.id = 'auth0-universal-btn';
+    // auth0Button.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+    // auth0Button.innerHTML = `
+    //     <img class="w-5 h-5 mr-2" src="/assets/pingpong.png" alt="Auth0 Logo" />
+    //     Login
+    //     `;
+    // loginForm.appendChild(auth0Button);
+
+    // loginForm.appendChild(auth0Button);
 
     // Bouton Google OAuth
-    const googleButton = document.createElement('button');
-    googleButton.id = 'google-oauth-btn';
-    googleButton.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200';
-    googleButton.innerHTML = `
-         <img class="w-5 h-5 mr-2" src="/assets/Google_logo.png" alt="Auth0 Logo" />
-        Login
-        Continue with Google
-    `;
-    loginForm.appendChild(googleButton);
-
-    // Redirection vers OAuth Google au clic
-    googleButton.addEventListener('click', async () => {
-        try {
-            authMessageDiv.textContent = 'Redirection vers Google...';
-            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
-            
-            // Utiliser Auth0 pour la connexion Google
-            await loginWithGoogle();
-        } catch (error) {
-            console.error('Erreur lors de la connexion Google:', error);
-            authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
-            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
-        }
-    });
-
-    const handleAuth0Login = async () => {
-    try {
-        authMessageDiv.textContent = 'Redirection vers Auth0...';
-        authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
-        console.log('Tentative de connexion avec Auth0...');
-        // Appel à la fonction de connexion Auth0
-        await loginWithAuth0();
-    } catch (error) {
-        console.error('Erreur lors de la connexion Auth0:', error);
-        authMessageDiv.textContent = 'Erreur lors de la connexion avec Auth0. Veuillez réessayer.';
-        authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
-    }
-    };
+    createGoogleButton(loginForm, authMessageDiv);
+    // try {
+    //     authMessageDiv.textContent = 'Redirection vers Auth0...';
+    //     authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+    //     console.log('Tentative de connexion avec Auth0...');
+    //     // Appel à la fonction de connexion Auth0
+    //     await loginWithAuth0();
+    // } catch (error) {
+    //     console.error('Erreur lors de la connexion Auth0:', error);
+    //     authMessageDiv.textContent = 'Erreur lors de la connexion avec Auth0. Veuillez réessayer.';
+    //     authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+    // }
+    // };
 
 //     googleButton.addEventListener('click', handleGoogleLogin);
-    auth0Button.addEventListener('click', handleAuth0Login);
+    // auth0Button.addEventListener('click', handleAuth0Login);
 
 
     // Bouton Deconnexion
@@ -90,9 +98,6 @@ export const LoginPage = (): HTMLElement => {
     `;
     loginForm.appendChild(deconnexion);
 
-
-
-       
     // Écouteur d'événement pour la déconnexion
     deconnexion.addEventListener('click', async () => {
         try {
@@ -108,9 +113,7 @@ export const LoginPage = (): HTMLElement => {
             authMessageDiv.textContent = 'Déconnexion réussie. Redirection...';
             authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-green-600';
             
-            setTimeout(() => {
-                navigate('/');
-            }, 1000);
+            setTimeout(() => { navigate('/'); }, 1000);
             
         } catch (error) {
             console.error('Erreur lors de la déconnexion:', error);
@@ -121,21 +124,7 @@ export const LoginPage = (): HTMLElement => {
     
 
     // --- Fin de la section Auth0 ---
-    auth0Button.addEventListener('click', handleAuth0Login);
-
-
-    // Section "Don't have an account?"
-    // const registerPromptDiv = document.createElement('div');
-    // registerPromptDiv.className = 'mt-6 text-center';
-    // registerPromptDiv.innerHTML = `
-    //     <p class="text-sm text-gray-600">
-    //         Don't have an account?
-    //         <a href="/register" class="font-medium text-blue-600 hover:text-blue-500" data-route="/register">
-    //             Register here
-    //         </a>
-    //     </p>
-    // `;
-    // cardDiv.appendChild(registerPromptDiv);
+    // auth0Button.addEventListener('click', handleAuth0Login);
 
 
     // --- Logique JavaScript directement ici ---

@@ -12,7 +12,8 @@ export const en = {
 	"about": "about",
     "connection": "Connection",
 	"logout": "Logout",
-	"matchDisplay": "Matchs List",
+	"matchDisplay": "Tournament List",
+	"errorUserInfo": "Could not retrieve user information",
 
 
 	"team": "The team",

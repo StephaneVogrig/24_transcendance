@@ -12,7 +12,8 @@ export const fr = {
     "about": "à propos",
     "connection": "Connexion",
     "logout": "Déconnexion",
-    "matchDisplay": "Liste des Matchs",
+    "matchDisplay": "Liste des tournois",
+    "errorUserInfo": "Impossible de récupérer les informations utilisateur",
     
 
 

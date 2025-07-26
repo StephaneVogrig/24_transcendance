@@ -11,6 +11,35 @@ const AUTH0_REDIRECT_URI = `https://localhost:5173/auth/callback`;
 
 let auth0Client: any = null;
 
+
+export const authGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLElement): void => {
+    const googleButton = document.createElement('button');
+    googleButton.id = 'google-oauth-btn';
+    googleButton.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200';
+    googleButton.innerHTML = `
+         <img class="w-5 h-5 mr-2" src="/assets/Google_logo.png" alt="Auth0 Logo" />
+        Continue with Google
+    `;
+    loginForm.appendChild(googleButton);
+
+    // Redirection vers OAuth Google au clic
+    googleButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            authMessageDiv.textContent = 'Redirection vers Google...';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
+            
+            // Utiliser Auth0 pour la connexion Google
+            await loginWithGoogle();
+        } catch (error) {
+            console.error('Erreur lors de la connexion Google:', error);
+            authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
+            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+        }
+    });
+};
+
+
 /**
  * Charge dynamiquement Auth0 avec gestion d'erreur
  */
@@ -70,19 +99,19 @@ export const loginWithGoogle = async (): Promise<void> => {
 /**
  * Connexion universelle Auth0 (affiche toutes les options)
  */
-export const loginWithAuth0 = async (): Promise<void> => {
-    try {
-        const client = await initAuth0();
-        await client.loginWithRedirect({
-            authorizationParams: {
-                redirect_uri: AUTH0_REDIRECT_URI
-            }
-        });
-    } catch (error) {
-        console.error('Erreur lors de la connexion Auth0:', error);
-        alert('Service d\'authentification temporairement indisponible. Veuillez utiliser la connexion classique.');
-    }
-};
+// export const loginWithAuth0 = async (): Promise<void> => {
+//     try {
+//         const client = await initAuth0();
+//         await client.loginWithRedirect({
+//             authorizationParams: {
+//                 redirect_uri: AUTH0_REDIRECT_URI
+//             }
+//         });
+//     } catch (error) {
+//         console.error('Erreur lors de la connexion Auth0:', error);
+//         alert('Service d\'authentification temporairement indisponible. Veuillez utiliser la connexion classique.');
+//     }
+// };
 
 /**
  * Gère le callback après authentification
