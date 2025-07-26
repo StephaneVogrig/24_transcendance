@@ -85,9 +85,6 @@ export function navigate(path: string, pushState: boolean = true): void {
     if (matchedRoute) {
         if (pushState) {
             window.history.pushState(null, '', path);
-            console.log(`Navigating to: ${path}`);
-            // afficher l'historique de navigation
-            console.log('Current history state:', window.history);
         }
 
         if (appRoot) {
@@ -147,16 +144,87 @@ function addNavigationListeners(element: HTMLElement): void {
  * Démarre le routeur.
  * Gère la navigation initiale et les boutons avant/arrière du navigateur (`popstate`).
  */
+// export function startRouter(): void {
+//     window.addEventListener('popstate', () => {
+//         // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
+//         // y compris query params et hash. On ne push pas une nouvelle entrée.
+//         navigate(window.location.pathname + window.location.search + window.location.hash, false);
+//     });
+
+//     // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
+//     navigate(window.location.pathname + window.location.search + window.location.hash);
+// }
+
+
+/**
+ * Démarre le routeur.
+ * Gère la navigation initiale et les boutons avant/arrière du navigateur (`popstate`).
+ */
+// export function startRouter(): void {
+//     window.addEventListener('popstate', () => {
+//         try {
+//             // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
+//             // y compris query params et hash. On ne push pas une nouvelle entrée.
+//             navigate(window.location.pathname + window.location.search + window.location.hash, false);
+//         } catch (error) {
+//             console.error('Erreur lors de la navigation popstate:', error);
+//             // Redirection vers la page d'accueil en cas d'erreur
+//             navigate('/', false);
+//         }
+//     });
+
+//     try {
+//         // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
+//         navigate(window.location.pathname + window.location.search + window.location.hash);
+//     } catch (error) {
+//         console.error('Erreur lors de la navigation initiale:', error);
+//         // Redirection vers la page d'accueil en cas d'erreur
+//         navigate('/');
+//     }
+// }
+
+
+/**
+ * Démarre le routeur.
+ * Gère la navigation initiale et les boutons avant/arrière du navigateur (`popstate`).
+ */
 export function startRouter(): void {
     window.addEventListener('popstate', () => {
-        // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
-        // y compris query params et hash. On ne push pas une nouvelle entrée.
-        navigate(window.location.pathname + window.location.search + window.location.hash, false);
+        try 
+        {
+            const currentPath = window.location.pathname;
+            
+            // Cas particulier pour la page profile : toujours rediriger vers l'accueil
+            if (currentPath === '/profile') 
+            {
+                navigate('/', false);
+                return;
+            }
+            
+            // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
+            // y compris query params et hash. On ne push pas une nouvelle entrée.
+            navigate(window.location.pathname + window.location.search + window.location.hash, false);
+        }
+        catch (error) {
+            console.error('Erreur lors de la navigation popstate:', error);
+            // Redirection vers la page d'accueil en cas d'erreur
+            navigate('/', false);
+        }
     });
 
-    // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
-    navigate(window.location.pathname + window.location.search + window.location.hash);
+    try 
+    {
+        // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
+        navigate(window.location.pathname + window.location.search + window.location.hash);
+    } 
+    catch (error) {
+        console.error('Erreur lors de la navigation initiale:', error);
+        // Redirection vers la page d'accueil en cas d'erreur
+        navigate('/');
+    }
 }
+
+
 
 //  Naviguer vers une route spécifique
 // const goBack = () => {
