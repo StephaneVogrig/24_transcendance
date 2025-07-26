@@ -11,19 +11,19 @@
 
 ✅ Minor module: Use a database for the backend.
 
-❌ Major module: Implementing a remote authentication.
+✅ Major module: Implementing a remote authentication.
 
 ✅ Major module: Remote players.
 
 ✅ Major: Store the score of a tournament in the Blockchain.
 
-❌ Major module: Introduce an AI opponent.
+✅ Major module: Introduce an AI opponent.
 
 ✅ Major: Use advanced 3D techniques.
 
 ✅ Major module: Designing the backend as microservices. *
 
-❌ Minor module: Multiple language support.
+✅ Minor module: Multiple language support.
 
 ✅ Major module: Replace basic Pong with server-side Pong and implement an API.
 
