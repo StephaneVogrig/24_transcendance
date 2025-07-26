@@ -400,12 +400,12 @@ export const HomePage = (): HTMLElement => {
 
 		if (!socket.connected) {
 			await new Promise<void>((resolve) => {
-				socket = getSocket();
 				if (socket.connected)
 					resolve();
 				else
 				{
 					socket.on('connect', () => {
+						console.log('Player 1 socket connected for local play');
 						socket.off('connect');
 						resolve();
 					});
