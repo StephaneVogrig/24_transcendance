@@ -180,7 +180,7 @@ async function getGameOver(player) {
 
 async function isInTournament(playerName) {
 	try {
-		const response = await fetch(`http://tournament:3007/api/tournament/playerInTournament?player=${playerName}`, {
+		const response = await fetch(`http://tournament:3007/playerInTournament?player=${playerName}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
