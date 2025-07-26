@@ -64,6 +64,25 @@ export class Game {
         }
     }
 
+    async sendScores()
+    {
+        try
+        {
+            await fetch(`http://tournament:3007/api/tournament/playerscores`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    players: [{name: this.player1.getName(), score: this.player1.getScore()},
+                        {name: this.player2.getName(), score: this.player2.getScore()}]
+                    })
+            });
+        } catch (error) {
+            console.error('Error sending scores:', error);
+        }
+    }
+
     async start()
     {
         try {
@@ -78,9 +97,6 @@ export class Game {
             }
 
             this.gameStatus = 'ready';
-
-            console.log(`motclefpourlegrep`);
-            console.log(`motclefpourlegrep`);
 
             let i = 0;
             while (i <= 4) {
@@ -101,18 +117,7 @@ export class Game {
                     this.gameStatus = 'finished';
                     await new Promise(r => setTimeout(r, 1000));
                     console.debug(`this.player1.name=${this.player1.getName()}, this.player1.getScore()=${this.player1.getScore()}, this.player2.getName()=${this.player2.getName()}, this.player2.getScore()=${this.player2.getScore()}`);
-					try {
-						const response = await fetch(`http://tournament:3007/api/tournament/playerscores`, {
-							method: 'POST',
-							headers: {
-								'Content-Type': 'application/json'
-							},
-							body: JSON.stringify({
-								players: [{name: this.player1.getName(), score: this.player1.getScore()}, 
-									{name: this.player2.getName(), score: this.player2.getScore()}]
-							})
-						});
-					} catch (error) {}
+                    await this.sendScores();
 					stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();
@@ -148,7 +153,17 @@ export class Game {
         }
     }
 
-    stop() {
+    async stop(player) {
+        if (player === this.player1.getName()) {
+            this.player1.score = 0;
+            this.player2.score = this.maxScore;
+        }
+        else if (player === this.player2.getName()) {
+            this.player1.score = this.maxScore;
+            this.player2.score = 0;
+        }
+        await this.sendScores();
+        console.log(`score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);
         console.log(`Game stopped: ${this.player1.getName()} vs ${this.player2.getName()}`);
         this.stopBoolean = true;
     }

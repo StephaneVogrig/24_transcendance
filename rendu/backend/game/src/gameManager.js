@@ -25,7 +25,7 @@ export function deleteMatch(player1, player2) {
 export function stopMatch(player) {
     for (const [key, game] of map.entries()) {
         if (key.includes(player)) {
-            game.stop();
+            game.stop(player);
             map.delete(key);
             return;
         }
