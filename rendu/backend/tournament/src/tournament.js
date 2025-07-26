@@ -50,7 +50,7 @@ function findTournamentWithPlayer(name)
 {
 	for (const tournament of Object.values(TOURNAMENT_LIST))
 	{
-		if (tournament.players)
+		if (tournament.players && tournament.status !== 'ended')
 		{
 			for (const player of tournament.players)
 				if (player.name && player.name === name)
@@ -82,6 +82,7 @@ async function deleteTournamentFromDb(id)
 
 async function modifyTournamentInDb(tournament)
 {
+	// console.log(Utils.readTournament(tournament));
 	try
 	{
 		const response = await fetch(`http://database:3003/tournament/modify`, {
@@ -149,8 +150,8 @@ async function startMatches(bracket)
 	{
 		try {
 			players.status = 'playing';
-			const player1 = players[0].name;
-			const player2 = players[1].name;
+			let player1 = players[0].name;
+			let player2 = players[1].name;
 			const response = await fetch(`http://game:3004/start`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -183,8 +184,8 @@ export async function startTournament(tournament)
 	tournament.status = 'ongoing';
 	tournament.rounds = [generateBracket(tournament.players)];
 	TOURNAMENT_LIST[tournament.id] = tournament;
-	await modifyTournamentInDb(tournament);
 	await startMatches(tournament.rounds[tournament.roundIndex]);
+	await modifyTournamentInDb(tournament);
 }
 
 export function findTournament()
@@ -207,14 +208,15 @@ export async function joinTournament(name)
 		throw new Error(`Couldn't create tournament: name '${tmp}' is invalid.`);
 	const tournament = findTournament();
 	if (!tournament)
-		return createTournament(name);
+		return await createTournament(name);
 	if (tournament.status !== 'open')
 		throw new Error(`Tournament ${id} is full, ongoing or finished.`);
 	tournament.players.push({name: name, score: 0});
 	tournament.playerCount++;
 	if (tournament.playerCount === 4)
 		await startTournament(tournament);
-	await modifyTournamentInDb(tournament);
+	else
+		await modifyTournamentInDb(tournament);
 	return tournament;
 }
 
@@ -245,14 +247,12 @@ export async function updatePlayerScores(players)
 			break;
 		}
 	}
-	console.log(`Score of ${players[0].name}: ${players[0].score} | Score of ${players[1].name}: ${players[1].score} | Is bracket finished? ${hasWinner}`);
 	for (const match of tournament.rounds[tournament.roundIndex])
 	{
-		if (match.length !== 2)
-			continue;
 		const namesInMatch = match.map(p => p.name);
 		const namesToUpdate = players.map(p => p.name);
 		if (namesToUpdate.every(name => namesInMatch.includes(name))) {
+			console.log(`motclefpourlegrep --- Score of ${players[0].name}: ${players[0].score} | Score of ${players[1].name}: ${players[1].score} | Is bracket finished? ${hasWinner}`);
 			for (const player of match) {
 				const updated = players.find(p => p.name === player.name);
 				if (updated)
@@ -260,7 +260,7 @@ export async function updatePlayerScores(players)
 				if (player.score === MAX_SCORE)
 					match.status = 'finished';
 			}
-			if (hasWinner)
+			if (hasWinner || (match.status === 'finished' && tournament.rounds[tournament.roundIndex].length === 1))
 				await advanceToNextRound(tournament.id);
 			await modifyTournamentInDb(tournament);
 			return true;
@@ -317,6 +317,7 @@ export async function advanceToNextRound(id)
 	if (nextPlayers.length === 1)
 	{
 		tournament.status = 'ended';
+		tournament.winner = getWinner(id);
 		try {
 			const response = await fetch(`http://blockchain:3002/register`, {
 				method: 'POST',
@@ -343,7 +344,11 @@ export async function advanceToNextRound(id)
 		tournament.roundIndex++;
 		await startMatches(tournament.rounds[tournament.roundIndex]);
 	}
-	await modifyTournamentInDb(tournament);
+}
+
+function clonePlayer(player) {
+ 	return { ...player, score: 0};
+ 	// return { ...player};
 }
 
 function generateBracketInOrder(players) {
@@ -351,7 +356,7 @@ function generateBracketInOrder(players) {
         throw new Error("There must be an even number of players!");
     let pairedPlayers = [];
     for (let i = 0; i < players.length; i += 2)
-        pairedPlayers.push([players[i], players[i + 1]]);
+        pairedPlayers.push([clonePlayer(players[i]), clonePlayer(players[i + 1])]);
     return pairedPlayers;
 }
 
@@ -364,11 +369,7 @@ function generateBracket(players)
 	for (let i = 0; i < indexes.length; i++)
 		bracketPlayers[i] = players[indexes[i]];
 	let pairedPlayers = [];
-	let j = 0;
-	for (let i = 0; i < bracketPlayers.length; i += 2)
-	{
+	for (let i = 0, j = 0; i < bracketPlayers.length; i += 2, j++)
 		pairedPlayers[j] = [bracketPlayers[i], bracketPlayers[i + 1]];
-		j++;
-	}
 	return pairedPlayers;
 }

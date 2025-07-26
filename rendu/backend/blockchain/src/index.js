@@ -21,7 +21,7 @@ function formatTournamentForBlockchain(tournament, dateStr) {
 	const { id, players, rounds, winner } = tournament;
 
 	const playersStr = players
-		.map(p => `${p.name}(${p.score})`)
+		.map(p => `${p.name}`)
 		.join(', ');
 
 	const roundsStr = rounds.map((round, i) => {

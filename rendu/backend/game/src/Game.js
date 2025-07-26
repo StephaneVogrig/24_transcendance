@@ -152,9 +152,9 @@ export class Game {
     }
 
     async stop(player) {
-        if (player === this.player1.getName())
+        if (player === this.player1.getName() && this.player2.getScore() < this.maxScore && this.player1.getScore() < this.maxScore)
             this.player2.score = this.maxScore;
-        else if (player === this.player2.getName())
+        else if (player === this.player2.getName() && this.player1.getScore() < this.maxScore && this.player2.getScore() < this.maxScore)
             this.player1.score = this.maxScore;
         await this.sendScores();
         console.log(`score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);

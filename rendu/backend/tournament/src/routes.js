@@ -94,7 +94,7 @@ fastify.post('/advance', async (request, reply) => {
 		reply.status(400).send({error: `ID ${request.body.id} is invalid.`});
 		return;
 	}
-	const newTournament = Tournament.advanceToNextRound(request.body.id);
+	const newTournament = await Tournament.advanceToNextRound(request.body.id);
 	reply.status(200).send(Utils.readRound(newTournament));
 });
 
@@ -118,7 +118,7 @@ fastify.post('/playerscores', async (request, reply) => {
 	const { players } = request.body;
 	if (!players)
 		return reply.status(400).send({ error: 'Missing or invalid players.' });
-	const success = Tournament.updatePlayerScores(players);
+	const success = await Tournament.updatePlayerScores(players);
 	if (!success)
 		reply.status(404).send();
 	else
@@ -127,7 +127,7 @@ fastify.post('/playerscores', async (request, reply) => {
 
 fastify.get('/getAll', async (request, reply) => {
 	try {
-		const tournaments = await Tournament.getTournament();
+		const tournaments = Tournament.getTournament();
 		console.log('tournaments:', tournaments);
 		console.log('tournaments type:', typeof tournaments);
 		console.log('tournaments is array:', Array.isArray(tournaments));

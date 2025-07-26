@@ -323,9 +323,9 @@ async function getstate(gameId, player) {
 	}
 }
 
-function stopGame(playerName) {
+async function stopGame(playerName) {
 	try {
-		const reponse = fetch(`http://game:3004/stop`, {
+		const response = await fetch(`http://game:3004/stop`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -335,15 +335,15 @@ function stopGame(playerName) {
 				timestamp: Date.now()
 			})
 		});
-		if (!reponse.ok) {
-			console.error('stopGame: Failed to send stop request to game logic:', reponse.status);
+		if (!response.ok) {
+			console.error('stopGame: Failed to send stop request to game logic:', response.status);
 			return false;
 		}
 		if (playerName)
 		{
 			try
 			{
-				const response = fetch(`http://database:3003/removeUser`, {
+				const response = await fetch(`http://database:3003/removeUser`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ username: playerName })
@@ -509,7 +509,7 @@ io.on('connection', async (socket) => {
 						score: [0, 0]
 					});
 					clearInterval(session.intervalId);
-					stopGame(disconnectedPlayerName);
+					await stopGame(disconnectedPlayerName);
 					gameSessions.delete(gameId);
 				}
 			}
