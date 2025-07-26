@@ -116,7 +116,6 @@ export class Game {
                 if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
                     this.gameStatus = 'finished';
                     await new Promise(r => setTimeout(r, 1000));
-                    await this.sendScores();
 					stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();
@@ -153,14 +152,10 @@ export class Game {
     }
 
     async stop(player) {
-        if (player === this.player1.getName()) {
-            this.player1.score = 0;
+        if (player === this.player1.getName())
             this.player2.score = this.maxScore;
-        }
-        else if (player === this.player2.getName()) {
+        else if (player === this.player2.getName())
             this.player1.score = this.maxScore;
-            this.player2.score = 0;
-        }
         await this.sendScores();
         console.log(`score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);
         console.log(`Game stopped: ${this.player1.getName()} vs ${this.player2.getName()}`);

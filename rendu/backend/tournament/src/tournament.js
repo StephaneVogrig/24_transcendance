@@ -8,6 +8,7 @@ import * as Utils from './utils.js';
 /* Match has:
  * player1: Player
  * player2: Player
+ * status: playing, finished
  */
 
 /* Round has:
@@ -137,7 +138,6 @@ export async function createTournament(name)
 	return tournament;
 }
 
-
 export async function getMatches()
 {
 	return Object.values(TOURNAMENT_LIST);
@@ -148,13 +148,13 @@ async function startMatches(bracket)
 	for (const players of bracket)
 	{
 		try {
+			players.status = 'playing';
 			const player1 = players[0].name;
 			const player2 = players[1].name;
 			const response = await fetch(`http://game:3004/api/game/start`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				// body: JSON.stringify({ player1, player2, maxScore: MAX_SCORE })
-				body: JSON.stringify({ player1, player2, maxScore: MAX_SCORE }) // pour test affichage match -> Stephanie
+				body: JSON.stringify({ player1, player2, maxScore: MAX_SCORE })
 			});
 
 			if (!response.ok) {
@@ -237,16 +237,15 @@ export async function updatePlayerScores(players)
 	if (!tournament)
 		return false;
 	let hasWinner = false;
-	for (const match of tournament.rounds[tournament.roundIndex]) {
-		for (const player of match) {
-			if (player.score === MAX_SCORE) {
-				hasWinner = true;
-				break;
-			}
-		}
-		if (hasWinner)
+	for (const match of tournament.rounds[tournament.roundIndex])
+	{
+		if (match.status && match.status === 'finished')
+		{
+			hasWinner = true;
 			break;
+		}
 	}
+	console.log(`Score of ${players[0].name}: ${players[0].score} | Score of ${players[1].name}: ${players[1].score} | Is bracket finished? ${hasWinner}`);
 	for (const match of tournament.rounds[tournament.roundIndex])
 	{
 		if (match.length !== 2)
@@ -258,6 +257,8 @@ export async function updatePlayerScores(players)
 				const updated = players.find(p => p.name === player.name);
 				if (updated)
 					player.score = updated.score;
+				if (player.score === MAX_SCORE)
+					match.status = 'finished';
 			}
 			if (hasWinner)
 				await advanceToNextRound(tournament.id);
