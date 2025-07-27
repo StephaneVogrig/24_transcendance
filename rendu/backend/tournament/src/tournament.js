@@ -146,15 +146,15 @@ export async function getMatches()
 
 async function startMatches(bracket)
 {
-	if (bracket.length === 1 && (players[0].status === 'offline' || players[1].status === 'offline'))
-	{
-		console.log(`One of the players disconnected. Game ended.`);
-		players[players[0].status === 'offline' ? 1 : 0].score = MAX_SCORE;
-		await updatePlayerScores(players);
-		return;
-	}
 	for (const players of bracket)
 	{
+		// if (bracket.length === 1 && (players[0].status === 'offline' || players[1].status === 'offline'))
+		// {
+		// 	console.log(`One of the players disconnected. Game ended.`);
+		// 	players[players[0].status === 'offline' ? 1 : 0].score = MAX_SCORE;
+		// 	await updatePlayerScores(players);
+		// 	return;
+		// }
 		try {
 			players.status = 'playing';
 			let player1 = players[0].name;
