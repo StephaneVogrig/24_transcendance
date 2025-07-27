@@ -188,13 +188,11 @@ const maxScore = 10;
             // Bouton de détails
             const detailsBtn = document.createElement('button');
             detailsBtn.className = 'w-40 mt-2 px-2 py-0.5 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
-            detailsBtn.textContent = 'Détails';
+            detailsBtn.textContent = 'View on Blockchain';
             detailsBtn.onclick = () => {
-                // alert(`Détails du match:\n\nID: ${match.id}\nJoueur 1: ${match.player1}${match.score ? ` - Score: ${match.score.player1}` : ''}\nJoueur 2: ${match.player2}${match.score ? ` - Score: ${match.score.player2}` : ''}\nStatut: ${getStatusInfo(match.status).text}`);
-                alert(`Détails du match:\n\nID:`);
-                
+                window.open(`https://subnets-test.avax.network/c-chain/tx/${tournament.hash}`, '_blank');
             };
-            
+
             matchDiv.appendChild(playersContainer);
             matchDiv.appendChild(detailsBtn);
 

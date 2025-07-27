@@ -22,6 +22,7 @@ import * as Utils from './utils.js';
  * status: open, ongoing, ended (open: new players can join, ongoing: tournament is being played, ended: winner has been chosen)
  * roundIndex: index of current Round
  * createdAt: Date
+ * hash: Blockchain transaction hash (undefined until end of tournament)
  */
 
 let TOTAL_TOURNAMENTS = 0;
@@ -145,7 +146,8 @@ export async function createTournament(name)
 		status: 'open',
 		roundIndex: 0,
 		createdBy: name,
-		createdAt: new Date().toISOString()
+		createdAt: new Date().toISOString(),
+		hash: undefined
 	};
 	TOURNAMENT_LIST[tournament.id] = tournament;
 	TOTAL_TOURNAMENTS++;
@@ -350,6 +352,7 @@ export async function advanceToNextRound(id)
 
 			console.log('Registered tournament to blockchain.');
 			console.log(`Transaction link: https://subnets-test.avax.network/c-chain/tx/${hash}`);
+			tournament.hash = hash;
 		} catch (error) {
 			console.log(`Error while registering tournament to blockchain: ${error.message}.`);
 		}
