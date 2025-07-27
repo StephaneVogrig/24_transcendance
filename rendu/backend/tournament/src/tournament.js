@@ -234,6 +234,7 @@ export async function leaveTournament(name)
 			tournament.playerCount--;
 		}
 	}
+	await modifyTournamentInDb(tournament);
 }
 
 export function getCurrentRound(id)
