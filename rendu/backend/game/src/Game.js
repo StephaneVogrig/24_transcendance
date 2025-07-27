@@ -116,6 +116,7 @@ export class Game {
                 }
                 if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
                     this.gameStatus = 'finished';
+                    await new Promise(resolve => setTimeout(resolve, 200));
 					stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();
