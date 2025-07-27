@@ -6,7 +6,7 @@ let Auth0Client: any = null;
 // Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
 const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
-const AUTH0_REDIRECT_URI = `https://localhost:5173/auth/callback`;
+const AUTH0_REDIRECT_URI = `https://localhost:3000/auth/callback`;
 
 
 let auth0Client: any = null;
@@ -118,9 +118,14 @@ export const loginWithGoogle = async (): Promise<void> => {
  */
 export const handleAuthCallback = async (_code: string): Promise<void> => {
     console.log('Gestion du callback Auth0...');
+    console.log('URL de callback:', window.location.href);
+    
     try {
         const client = await initAuth0();
-        await client.handleRedirectCallback();
+        
+        // Gérer le callback avec plus de robustesse
+        const result = await client.handleRedirectCallback();
+        console.log('Callback traité:', result);
         
         // Vérifier si l'utilisateur est bien authentifié
         const isAuth = await client.isAuthenticated();
@@ -129,13 +134,17 @@ export const handleAuthCallback = async (_code: string): Promise<void> => {
             const user = await client.getUser();
             console.log('Utilisateur:', user);
             
-            //   envoyer les informations utilisateur au backend
-            await client.getTokenSilently();
-            console.log('Token Auth0 récupéré');
-            
-            // Envoyer les informations utilisateur au backend pour synchronisation
+            // Récupérer le token
             try {
-                const response = await fetch(`https://${window.location.hostname}:3000/api/authentification/user`, {
+                await client.getTokenSilently();
+                console.log('Token Auth0 récupéré');
+            } catch (tokenError: unknown) {
+                console.warn('Erreur lors de la récupération du token:', tokenError);
+            }
+            
+            // Synchronisation avec le backend (non critique)
+            try {
+                const response = await fetch(`/api/authentification/user`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user })
@@ -145,9 +154,9 @@ export const handleAuthCallback = async (_code: string): Promise<void> => {
                     const result = await response.json();
                     console.log('Informations utilisateur synchronisées avec le backend:', result);
                 } else {
-                    console.warn('Échec de la synchronisation avec le backend');
+                    console.warn('Échec de la synchronisation avec le backend:', response.status);
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.warn('Erreur lors de la synchronisation avec le backend:', error);
                 // Ce n'est pas critique, l'authentification peut continuer
             }
@@ -156,9 +165,16 @@ export const handleAuthCallback = async (_code: string): Promise<void> => {
             throw new Error('Échec de l\'authentification');
         }
         
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Erreur lors du callback Auth0:', error);
-        throw error;
+        
+        // Améliorer le message d'erreur
+        let errorMessage = 'Erreur inconnue lors de l\'authentification';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        
+        throw new Error(errorMessage);
     }
 };
 

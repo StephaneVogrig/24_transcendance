@@ -100,25 +100,47 @@ fastify.register(proxy, {
 });
 
 // Static to serve frontend files
-fastify.register(staticPlugin, {
+await fastify.register(staticPlugin, {
   root: '/app/public',
   prefix: '/',
   decorateReply: false,
   setHeaders: (res, path, stat) => {
-    // Headers pour les fichiers statiques si nécessaire
-  },
-  // Fallback pour SPA - redirige vers index.html pour les routes non-API
-  wildcard: false,
-  send: {
-    acceptRanges: false
+    // Headers CORS pour les fichiers statiques
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   }
 });
 
-fastify.setNotFoundHandler((request, reply) => {
-  if (!request.url.startsWith('/api/') && !request.url.startsWith('/my-websocket/')) {
-    return reply.sendFile('index.html');
+// Handler pour les routes SPA - doit être après l'enregistrement du plugin static
+fastify.setNotFoundHandler(async (request, reply) => {
+  const url = request.url;
+  
+  // Si c'est une route API ou websocket, retourner 404
+  if (url.startsWith('/api/') || url.startsWith('/my-websocket/')) {
+    return reply.code(404).send({ error: 'Not Found' });
   }
-  reply.code(404).send({ error: 'Not Found' });
+  
+  // Pour toutes les autres routes (y compris /auth/callback), servir index.html (SPA routing)
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const indexPath = path.join('/app/public', 'index.html');
+    
+    if (fs.existsSync(indexPath)) {
+      const indexContent = fs.readFileSync(indexPath, 'utf8');
+      return reply
+        .type('text/html')
+        .header('Cross-Origin-Embedder-Policy', 'unsafe-none')
+        .header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
+        .send(indexContent);
+    } else {
+      return reply.code(404).send({ error: 'Index file not found' });
+    }
+  } catch (error) {
+    console.error('Error serving index.html:', error);
+    return reply.code(500).send({ error: 'Internal Server Error' });
+  }
 });
 
 const start = async () => {
