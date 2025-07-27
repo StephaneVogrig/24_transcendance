@@ -3,6 +3,9 @@ import Fastify from 'fastify';
 
 const fastify = Fastify({ logger: true });
 
+const serviceName = 'blockchain';
+const serviceport = 3003;
+
 fastify.get('/health', async (request, reply) => {
   return {
     service: serviceName,
