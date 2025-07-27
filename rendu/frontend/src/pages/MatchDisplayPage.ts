@@ -190,7 +190,10 @@ const maxScore = 10;
             detailsBtn.className = 'w-40 mt-2 px-2 py-0.5 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
             detailsBtn.textContent = 'View on Blockchain';
             detailsBtn.onclick = () => {
-                window.open(`https://subnets-test.avax.network/c-chain/tx/${tournament.hash}`, '_blank');
+				if (tournament.hash)
+					window.open(`https://subnets-test.avax.network/c-chain/tx/${tournament.hash}`, '_blank');
+				else
+					alert(`Results are still being registered to the blockchain! This process can take up to 10 seconds, try again soon.`);
             };
 
             matchDiv.appendChild(playersContainer);

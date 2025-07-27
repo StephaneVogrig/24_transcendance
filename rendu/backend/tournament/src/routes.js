@@ -36,11 +36,11 @@ fastify.get('/get', async (request, reply) => {
 });
 
 fastify.get('/playerInTournament', async (request, reply) => {
-	const { player } = request.query;
-	if (!player || typeof player !== 'string')
-		return reply.status(400).send({ error: 'Missing or invalid player.' });
-	const exists = Tournament.playerExistsInAnyTournament(player);
-	return reply.status(200).send({ exists });
+	const { name } = request.query;
+	if (!name || typeof name !== 'string')
+		return reply.status(400).send({ error: 'Missing or invalid player name.' });
+	const tournament = Tournament.findTournamentWithPlayer(name);
+	return reply.status(200).send({ tournament });
 });
 
 fastify.post('/create', async (request, reply) => {

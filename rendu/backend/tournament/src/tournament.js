@@ -31,23 +31,7 @@ const MAX_SCORE = 5;
 // Stores all Tournament objects
 export let TOURNAMENT_LIST = {};
 
-export function playerExistsInAnyTournament(name)
-{
-	for (const tournament of Object.values(TOURNAMENT_LIST))
-	{
-		if (tournament.status === 'ended')
-			continue;
-		if (tournament.players)
-		{
-			for (const player of tournament.players)
-				if (player.name && player.name === name)
-					return (true);
-		}
-	}
-	return (false);
-}
-
-function findTournamentWithPlayer(name)
+export function findTournamentWithPlayer(name)
 {
 	for (const tournament of Object.values(TOURNAMENT_LIST))
 	{
@@ -218,7 +202,7 @@ export async function joinTournament(name)
 {
 	const tmp = name;
 	name = name.trim();
-	if (playerExistsInAnyTournament(name))
+	if (findTournamentWithPlayer(name))
 		throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
 	if (name.length < 3)
 		throw new Error(`Couldn't create tournament: name '${tmp}' is invalid.`);

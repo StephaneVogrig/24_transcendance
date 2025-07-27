@@ -180,7 +180,7 @@ async function getGameOver(player) {
 
 async function isInTournament(playerName) {
 	try {
-		const response = await fetch(`http://tournament:3007/playerInTournament?player=${playerName}`, {
+		const response = await fetch(`http://tournament:3007/playerInTournament?name=${playerName}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -190,7 +190,7 @@ async function isInTournament(playerName) {
 			return false;
 		}
 		const responseData = await response.json();
-		return responseData.exists;
+		return responseData.tournament !== undefined;
 	} catch (error) {
 		console.error('Error checking tournament status:', error);
 		return false;
