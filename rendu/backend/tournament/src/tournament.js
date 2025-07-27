@@ -60,14 +60,28 @@ function findTournamentWithPlayer(name)
 	return (undefined);
 }
 
+async function deletePlayerFromDb(name)
+{
+	await fetch(`http://database:3003/tournament/delete`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ username: name })
+	});
+}
+
 async function deleteTournamentFromDb(id)
 {
 	try
 	{
+		const tournament = TOURNAMENT_LIST[id];
+		if (!tournament)
+			return;
+		for (const player in tournament.players)
+			await deletePlayerFromDb(player.name);
 		const response = await fetch(`http://database:3003/tournament/delete`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({id: id})
+			body: JSON.stringify({ id: id })
 		});
 
 		if (!response.ok) {
@@ -318,6 +332,8 @@ export async function advanceToNextRound(id)
 	{
 		tournament.status = 'ended';
 		tournament.winner = getWinner(id);
+		for (const player in tournament.players)
+			await deletePlayerFromDb(player.name);
 		try {
 			const response = await fetch(`http://blockchain:3002/register`, {
 				method: 'POST',
