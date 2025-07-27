@@ -220,6 +220,22 @@ export async function joinTournament(name)
 	return tournament;
 }
 
+export async function leaveTournament(name)
+{
+	const tournament = findTournamentWithPlayer(name);
+	if (!tournament)
+		return;
+	if (tournament.status === 'open')
+	{
+		const index = tournament.players.findIndex(p => p.name === name);
+		if (index !== -1)
+		{
+			tournament.players.splice(index, 1);
+			tournament.playerCount--;
+		}
+	}
+}
+
 export function getCurrentRound(id)
 {
 	const tournament = TOURNAMENT_LIST[id];

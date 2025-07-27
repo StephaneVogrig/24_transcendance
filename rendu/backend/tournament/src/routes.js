@@ -57,6 +57,20 @@ fastify.post('/create', async (request, reply) => {
 	}
 });
 
+fastify.post('/leave', async (request, reply) => {
+	if (!request.body || typeof request.body.name !== 'string')
+		return reply.status(400).send({ error: 'Missing or invalid name.' });
+	const name = request.body.name;
+	try
+	{
+		Tournament.leaveTournament(name);
+		return reply.status(200).send();
+	} catch (err)
+	{
+		return reply.status(400).send({ error: err.message });
+	}
+});
+
 fastify.post('/join', async (request, reply) => {
 	if (!request.body || typeof request.body.name !== 'string')
 		return reply.status(400).send({ error: 'Missing or invalid name.' });

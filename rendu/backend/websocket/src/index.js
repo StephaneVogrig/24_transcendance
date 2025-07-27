@@ -490,6 +490,15 @@ io.on('connection', async (socket) => {
 			{
 				console.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
 			}
+			try
+			{
+				fetch(`http://database:3003/removeUser`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ username: disconnectedPlayerName })
+				});
+			}
+			catch (error) {}
 			if (pendingRedirectAcceptances.has(disconnectedPlayerName)) {
 				const { reject, cleanUp } = pendingRedirectAcceptances.get(disconnectedPlayerName);
 				pendingRedirectAcceptances.delete(disconnectedPlayerName);
@@ -532,6 +541,15 @@ io.on('connection', async (socket) => {
 					console.error(`Error deleting user ${disconnectedPlayerName} from db:`, error);
 				}
 			}
+			try
+			{
+				fetch(`http://tournament:3007/leave`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ name: disconnectedPlayerName })
+				});
+			}
+			catch (error) {}
 		}
 		else
 			console.log(`Unidentified socket disconnected: ${socket.id}`);
