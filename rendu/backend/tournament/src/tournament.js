@@ -39,7 +39,10 @@ export function findTournamentWithPlayer(name)
 		{
 			for (const player of tournament.players)
 				if (player.name && player.name === name)
+				{
+					console.log(`motclefpourlegrep: Found tournament with ${name}`);
 					return (tournament);
+				}
 		}
 	}
 	return (undefined);
@@ -81,7 +84,6 @@ async function deleteTournamentFromDb(id)
 
 async function modifyTournamentInDb(tournament)
 {
-	// console.log(Utils.readTournament(tournament));
 	try
 	{
 		const response = await fetch(`http://database:3003/tournament/modify`, {
@@ -174,7 +176,7 @@ export async function deleteTournament(id)
 {
 	const tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
-		throw new Error(`Couldn't delete tournament: ID '${id}' is invalid.`);
+		return;
 	await deleteTournamentFromDb(id);
 	delete TOURNAMENT_LIST[id];
 }
@@ -232,6 +234,11 @@ export async function leaveTournament(name)
 		{
 			tournament.players.splice(index, 1);
 			tournament.playerCount--;
+			if (tournament.playerCount === 0)
+			{
+				await deleteTournament(tournament.id);
+				TOTAL_TOURNAMENTS--;
+			}
 		}
 	}
 	await modifyTournamentInDb(tournament);
