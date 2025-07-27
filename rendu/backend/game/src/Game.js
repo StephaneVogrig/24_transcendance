@@ -43,6 +43,7 @@ export class Game {
     async sendStart()
     {
         try {
+			console.log(`Starting game in websocket for ${this.player1.getName()} and ${this.player2.getName()}`);
             const response = await fetch(`http://websocket:3008/startGame`, {
                 method: 'POST',
                 headers: {
@@ -131,7 +132,6 @@ export class Game {
 
     inputManager(player, key, action)
     {
-        console.log(`Game inputManager: player=${player}, key=${key}, action=${action}`);
         if (!player || !key || !action)
             throw new Error('Player, key, and action are required');
         if (player === this.player1.getName())

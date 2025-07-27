@@ -3,6 +3,7 @@ import * as Utils from './utils.js';
 /* Player has:
  * name (string)
  * score (uint8)
+ * online (boolean)
  */
 
 /* Match has:
@@ -123,7 +124,7 @@ export async function createTournament(name)
 {
 	const tournament = {
 		id: TOTAL_TOURNAMENTS,
-		players: [{name: name, score: 0}],
+		players: [{name: name, score: 0, online: true}],
 		playerCount: 1,
 		rounds: [],
 		status: 'open',
@@ -148,6 +149,13 @@ async function startMatches(bracket)
 	for (const players of bracket)
 	{
 		try {
+			if (bracket.length === 1 && (players[0].status === 'offline' || players[1].status === 'offline'))
+			{
+				console.log(`One of the players disconnected. Game ended.`);
+				players[players[0].status === 'offline' ? 1 : 0].score = MAX_SCORE;
+				await updatePlayerScores(players);
+				return;
+			}
 			players.status = 'playing';
 			let player1 = players[0].name;
 			let player2 = players[1].name;
@@ -163,6 +171,7 @@ async function startMatches(bracket)
 			}
 
 			console.log(`Starting match between ${player1} and ${player2}`);
+			
 		} catch (error) {
 			console.log(`Error while starting match: ${error.message}.`);
 		}
@@ -224,18 +233,23 @@ export async function leaveTournament(name)
 	const tournament = findTournamentWithPlayer(name);
 	if (!tournament)
 		return;
-	if (tournament.status === 'open')
+	if (tournament.status === 'open' || tournament.status === 'ongoing')
 	{
 		const index = tournament.players.findIndex(p => p.name === name);
 		if (index !== -1)
 		{
-			tournament.players.splice(index, 1);
-			tournament.playerCount--;
-			if (tournament.playerCount === 0)
+			if (tournament.status === 'open')
 			{
-				await deleteTournament(tournament.id);
-				TOTAL_TOURNAMENTS--;
+				tournament.players.splice(index, 1);
+				tournament.playerCount--;
+				if (tournament.playerCount === 0)
+				{
+					await deleteTournament(tournament.id);
+					TOTAL_TOURNAMENTS--;
+				}
 			}
+			else
+				tournament.players[index].status = 'offline';
 		}
 		await modifyTournamentInDb(tournament);
 	}

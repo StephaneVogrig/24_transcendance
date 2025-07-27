@@ -34,7 +34,6 @@ export class Player {
 
     inputManager()
     {
-        console.log(`Player ${this.name} inputManager: upPressed=${this.upPressed}, downPressed=${this.downPressed}`);
         if (this.upPressed)
             this.paddle.moveUp();
         if (this.downPressed)
