@@ -58,7 +58,7 @@ fastify.post('/stop', async (request, reply) => {
         return reply.status(400).send({ error: 'Player is required' });
     }
     try {
-        GameManager.stopMatch(player);
+        await GameManager.stopMatch(player);
     } catch (error) {
         return reply.status(404).send({ error: error.message });
     }

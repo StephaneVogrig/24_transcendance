@@ -39,10 +39,7 @@ export function findTournamentWithPlayer(name)
 		{
 			for (const player of tournament.players)
 				if (player.name && player.name === name)
-				{
-					console.log(`motclefpourlegrep: Found tournament with ${name}`);
 					return (tournament);
-				}
 		}
 	}
 	return (undefined);
@@ -240,8 +237,8 @@ export async function leaveTournament(name)
 				TOTAL_TOURNAMENTS--;
 			}
 		}
+		await modifyTournamentInDb(tournament);
 	}
-	await modifyTournamentInDb(tournament);
 }
 
 export function getCurrentRound(id)
@@ -276,7 +273,6 @@ export async function updatePlayerScores(players)
 		const namesInMatch = match.map(p => p.name);
 		const namesToUpdate = players.map(p => p.name);
 		if (namesToUpdate.every(name => namesInMatch.includes(name))) {
-			console.log(`motclefpourlegrep --- Score of ${players[0].name}: ${players[0].score} | Score of ${players[1].name}: ${players[1].score} | Is bracket finished? ${hasWinner}`);
 			for (const player of match) {
 				const updated = players.find(p => p.name === player.name);
 				if (updated)
@@ -369,13 +365,13 @@ export async function advanceToNextRound(id)
 	{
 		tournament.rounds.push(generateBracketInOrder(nextPlayers));
 		tournament.roundIndex++;
+		await new Promise(r => setTimeout(r, 300));
 		await startMatches(tournament.rounds[tournament.roundIndex]);
 	}
 }
 
 function clonePlayer(player) {
  	return { ...player, score: 0};
- 	// return { ...player};
 }
 
 function generateBracketInOrder(players) {

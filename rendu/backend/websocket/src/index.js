@@ -341,6 +341,7 @@ async function stopGame(playerName) {
 		}
 		if (playerName)
 		{
+			console.log(`stopGame called for player ${playerName}`);
 			try
 			{
 				const response = await fetch(`http://database:3003/removeUser`, {

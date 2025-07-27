@@ -86,7 +86,7 @@ export class Game {
     async start()
     {
         try {
-            this.sendStart();
+            await this.sendStart();
             console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
             const [player1RedirectStatus, player2RedirectStatus] = await Promise.all([
                 this.redirectPlayer(this.player1.getName()),
@@ -115,7 +115,6 @@ export class Game {
                 }
                 if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
                     this.gameStatus = 'finished';
-                    await new Promise(r => setTimeout(r, 1000));
 					stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();

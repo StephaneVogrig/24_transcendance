@@ -22,10 +22,10 @@ export function deleteMatch(player1, player2) {
     map.delete(key);
 }
 
-export function stopMatch(player) {
+export async function stopMatch(player) {
     for (const [key, game] of map.entries()) {
         if (key.includes(player)) {
-            game.stop(player);
+            await game.stop(player);
             map.delete(key);
             return;
         }
