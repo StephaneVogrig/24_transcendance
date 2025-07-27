@@ -146,7 +146,7 @@ function showGameModal(players: string) {
 	document.body.appendChild(modalOverlay);
 }
 
-function showTournamentModal(id: number): HTMLDivElement {
+function showTournamentModal(id: number, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement): HTMLDivElement {
 	const modalOverlay = document.createElement('div');
 	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
 	modalOverlay.id = 'tournamentFoundModalOverlay';
@@ -164,12 +164,23 @@ function showTournamentModal(id: number): HTMLDivElement {
 	message.textContent = 'Tournament joined ! ID: ' + id + ". Please wait for other players to join.";
 	modalContent.appendChild(message);
 
+	const quitGame = document.createElement('a');
+	quitGame.href = '#';
+	quitGame.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+	quitGame.textContent = 'Leave';
+	quitGame.addEventListener('click', () => {
+		socket.disconnect();
+		modalOverlay.remove();
+		enableJoining(playLocal, playAI, playOnline, playTournament);
+	});
+	modalContent.appendChild(quitGame);
+
 	modalOverlay.appendChild(modalContent);
 	document.body.appendChild(modalOverlay);
 	return modalOverlay;
 }
 
-function showWaitingGameModal(): HTMLDivElement {
+function showWaitingGameModal(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement): HTMLDivElement {
 	const modalOverlay = document.createElement('div');
 	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
 	modalOverlay.id = 'waitingGameModalOverlay';
@@ -186,6 +197,17 @@ function showWaitingGameModal(): HTMLDivElement {
 	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
 	message.textContent = 'Waiting for opponent...';
 	modalContent.appendChild(message);
+
+	const quitGame = document.createElement('a');
+	quitGame.href = '#';
+	quitGame.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
+	quitGame.textContent = 'Leave';
+	quitGame.addEventListener('click', () => {
+		socket.disconnect();
+		modalOverlay.remove();
+		enableJoining(playLocal, playAI, playOnline, playTournament);
+	});
+	modalContent.appendChild(quitGame);
 
 	modalOverlay.appendChild(modalContent);
 	document.body.appendChild(modalOverlay);
@@ -304,7 +326,7 @@ export const HomePage = (): HTMLElement => {
 			return;
 		}
 		await registerUsernameToDb(name);
-		const button = showWaitingGameModal();
+		const button = showWaitingGameModal(playLocal, playAI, playOnline, playTournament);
 		isGameStarted = false;
 		console.log('isGameStarted set to :', isGameStarted);
 		console.log(`Rejoindre une partie avec le nom: ${name}`);
@@ -527,7 +549,7 @@ export const HomePage = (): HTMLElement => {
 			console.log('Tournoi rejoins:', data);
 
 			if (data.playerCount < 4)
-				modal = showTournamentModal(data.id);
+				modal = showTournamentModal(data.id, playLocal, playAI, playOnline, playTournament);
 			disableJoining(playLocal, playAI, playOnline, playTournament);
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
