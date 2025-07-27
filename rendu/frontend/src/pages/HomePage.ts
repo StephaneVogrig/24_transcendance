@@ -485,8 +485,19 @@ export const HomePage = (): HTMLElement => {
 			setPlayerName(name);
 			await registerUsernameToDb(name);
 			if (!socket.connected) {
-				console.log("Socket not yet connected, waiting for 'connect' event...");
-				socket = getSocket();
+				await new Promise<void>((resolve) => {
+					if (socket.connected)
+						resolve();
+					else
+					{
+						socket.on('connect', () => {
+							console.log('Player 1 socket connected for local play');
+							socket.off('connect');
+							resolve();
+						});
+						socket.connect();
+					}
+				});
 			}
 
 			socket.emit('join', { name: name });
