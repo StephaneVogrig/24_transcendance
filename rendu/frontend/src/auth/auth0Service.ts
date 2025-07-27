@@ -6,7 +6,7 @@ let Auth0Client: any = null;
 // Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
 const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
-const AUTH0_REDIRECT_URI = `https://localhost:5173/auth/callback`;
+const AUTH0_REDIRECT_URI = `https://localhost:3000/auth/callback`;
 
 
 let auth0Client: any = null;

@@ -16,7 +16,7 @@ async function exchangeCodeForToken(authorizationCode) {
     // Configuration OAuth2 Google (ces valeurs devraient être dans les variables d'environnement)
     const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com';
     const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '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';
-    const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5173/auth/callback';
+    const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || 'https://localhost:3000/auth/callback';
 
     try {
         // Faire la requête d'échange du code contre un token
