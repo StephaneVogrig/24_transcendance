@@ -7,9 +7,8 @@ import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
 import { logout, authGoogleButton } from '../auth/auth0Service';
-// import { authteGoogleButton } from './LoginPage.ts';
 
-
+import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from '../HomePageUtils/dbServices.ts';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
@@ -25,60 +24,6 @@ function cleanupSockets() {
         socket2.disconnect();
         socket2 = undefined;
     }
-}
-
-async function registerUsernameToDb(username: string)
-{
-	try {
-		const response = await fetch(`https://${window.location.hostname}:3000/api/database/addUser`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ username })
-		});
-		if (!response.ok) {
-			console.error('Erreur lors de la requête de register db:', response.statusText);
-		}
-		console.log(`Successfully added user ${username} to db`);
-	} catch (error) {
-		console.error('Error adding user to db:', error);
-	}
-}
-
-async function usernameExistsInDb(username: string) : Promise<Boolean>
-{
-	try {
-		const response = await fetch(`https://${window.location.hostname}:3000/api/database/getUser?username=${username}`, {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' }
-		});
-		if (!response.ok) {
-			console.error('Erreur lors de la requête de check username in db:', response.statusText);
-			return false;
-		}
-		if (response.status === 204)
-			return false;
-		return true;
-	} catch (error) {
-		console.error('Error checking user to db:', error);
-	}
-	return false;
-}
-
-async function deleteUsernameFromDb(username: string)
-{
-	try {
-		const response = await fetch(`https://${window.location.hostname}:3000/api/database/removeUser`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ username })
-		});
-		if (!response.ok) {
-			console.error('Erreur lors de la requête de register db:', response.statusText);
-		}
-		console.log(`Successfully added user ${username} to db`);
-	} catch (error) {
-		console.error('Error adding user to db:', error);
-	}
 }
 
 function disableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
