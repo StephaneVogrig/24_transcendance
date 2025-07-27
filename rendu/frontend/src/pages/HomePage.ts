@@ -99,16 +99,16 @@ function enableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, 
 	playLocal.disabled = false;
 }
 
-function startGame(players: string) {
+function startGame(players: string, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement) {
 	if (isGameStarted) {
 		console.log('Game already started, skipping modal display.');
 		return;
 	}
 	isGameStarted = true;
-	showGameModal(players);
+	showGameModal(players, playLocal, playAI, playOnline, playTournament);
 }
 
-function showGameModal(players: string) {
+function showGameModal(players: string, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement) {
 	const modalOverlay = document.createElement('div');
 	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
 	modalOverlay.id = 'gameOverModalOverlay';
@@ -139,6 +139,7 @@ function showGameModal(players: string) {
 		modalOverlay.remove();
 		socket.emit('acceptGame');
 		navigate('/game');
+		enableJoining(playLocal, playAI, playOnline, playTournament);
 	});
 
 	modalContent.appendChild(homeLink);
@@ -343,8 +344,7 @@ export const HomePage = (): HTMLElement => {
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			button.remove();
-			startGame(data.gameId);
-			enableJoining(playLocal, playAI, playOnline, playTournament);
+			startGame(data.gameId, playLocal, playAI, playOnline, playTournament);
 		});
 
 		try {
@@ -421,7 +421,7 @@ export const HomePage = (): HTMLElement => {
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			socket.off('redirect');
-			startGame("you and your friend");
+			startGame("you and your friend", playLocal, playAI, playOnline, playTournament);
 			socket2.emit('join', { name: socket2.id });
 			socket2.emit('acceptGame');
 		});
@@ -466,7 +466,7 @@ export const HomePage = (): HTMLElement => {
 		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
 			console.log(`HomePage-AI: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			socket.off('redirect');
-			startGame("you and AI");
+			startGame("you and AI", playLocal, playAI, playOnline, playTournament);
 		});
 
 		socket.emit('join', { name });
@@ -529,8 +529,7 @@ export const HomePage = (): HTMLElement => {
 				console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 				if (modal)
 					modal.remove();
-				startGame(data.gameId);
-				enableJoining(playLocal, playAI, playOnline, playTournament);
+				startGame(data.gameId, playLocal, playAI, playOnline, playTournament);
 			});
 
 			let modal: HTMLDivElement;
