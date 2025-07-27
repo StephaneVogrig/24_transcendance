@@ -1,18 +1,18 @@
 import { getSocket, setPlayerName } from '../websocket/websocket';
-import { navigate } from '../router';
 import { bottomBtn } from './components/bottomBtn';
-import { langBtn } from './components/langBtn';
+import { joinButton } from './components/joinButton';
 import { locale } from '../i18n';
 import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
 import { logout, authGoogleButton } from '../auth/auth0Service';
 
-import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from '../HomePageUtils/dbServices.ts';
+import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from './HomePageUtils/dbServices.ts';
+import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
-let isGameStarted = false;
+let isGameStarted = { value: false };
 let isWaitingForGame = false;
 
 function cleanupSockets() {
@@ -35,129 +35,8 @@ function disableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement,
 	playLocal.disabled = true;
 }
 
-function enableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement)
-{
-	isWaitingForGame = false;
-	playOnline.disabled = false;
-	playAI.disabled = false;
-	playTournament.disabled = false;
-	playLocal.disabled = false;
-}
-
 function startGame(players: string, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement) {
-	if (isGameStarted) {
-		console.log('Game already started, skipping modal display.');
-		return;
-	}
-	isGameStarted = true;
-	showGameModal(players, playLocal, playAI, playOnline, playTournament);
-}
-
-function showGameModal(players: string, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement) {
-	const modalOverlay = document.createElement('div');
-	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-	modalOverlay.id = 'gameOverModalOverlay';
-
-	const modalContent = document.createElement('div');
-	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
-
-	const title = document.createElement('h2');
-	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'Game found!';
-	modalContent.appendChild(title);
-
-	const message = document.createElement('p');
-	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Thanks for waiting! Find your opponent and start the game between ' + players + '!';
-	modalContent.appendChild(message);
-
-	const homeLink = document.createElement('a');
-	homeLink.href = '#';
-	homeLink.setAttribute('data-route', '/game');
-	homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-	homeLink.textContent = 'Join the game';
-	homeLink.addEventListener('click', (event) => {
-		console.log('Game started, navigating to game page.');
-		isGameStarted = false;
-		console.log('isGameStarted set to :', isGameStarted);
-		event.preventDefault();
-		modalOverlay.remove();
-		socket.emit('acceptGame');
-		navigate('/game');
-		enableJoining(playLocal, playAI, playOnline, playTournament);
-	});
-
-	modalContent.appendChild(homeLink);
-	modalOverlay.appendChild(modalContent);
-	document.body.appendChild(modalOverlay);
-}
-
-function showTournamentModal(id: number, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement): HTMLDivElement {
-	const modalOverlay = document.createElement('div');
-	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-	modalOverlay.id = 'tournamentFoundModalOverlay';
-
-	const modalContent = document.createElement('div');
-	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
-
-	const title = document.createElement('h2');
-	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'Tournament';
-	modalContent.appendChild(title);
-
-	const message = document.createElement('p');
-	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Tournament joined ! ID: ' + id + ". Please wait for other players to join.";
-	modalContent.appendChild(message);
-
-	const quitGame = document.createElement('a');
-	quitGame.href = '#';
-	quitGame.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-	quitGame.textContent = 'Leave';
-	quitGame.addEventListener('click', () => {
-		socket.disconnect();
-		modalOverlay.remove();
-		enableJoining(playLocal, playAI, playOnline, playTournament);
-	});
-	modalContent.appendChild(quitGame);
-
-	modalOverlay.appendChild(modalContent);
-	document.body.appendChild(modalOverlay);
-	return modalOverlay;
-}
-
-function showWaitingGameModal(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement): HTMLDivElement {
-	const modalOverlay = document.createElement('div');
-	modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-	modalOverlay.id = 'waitingGameModalOverlay';
-
-	const modalContent = document.createElement('div');
-	modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
-
-	const title = document.createElement('h2');
-	title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-	title.textContent = 'Game';
-	modalContent.appendChild(title);
-
-	const message = document.createElement('p');
-	message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-	message.textContent = 'Waiting for opponent...';
-	modalContent.appendChild(message);
-
-	const quitGame = document.createElement('a');
-	quitGame.href = '#';
-	quitGame.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-	quitGame.textContent = 'Leave';
-	quitGame.addEventListener('click', () => {
-		socket.disconnect();
-		modalOverlay.remove();
-		enableJoining(playLocal, playAI, playOnline, playTournament);
-	});
-	modalContent.appendChild(quitGame);
-
-	modalOverlay.appendChild(modalContent);
-	document.body.appendChild(modalOverlay);
-	return modalOverlay;
+	showGameModal(players, playLocal, playAI, playOnline, playTournament, socket, isGameStarted);
 }
 
 export const HomePage = (): HTMLElement => {
@@ -178,7 +57,6 @@ export const HomePage = (): HTMLElement => {
 		return link;
 	};
 
-
 	// Champ nom
 	const input = document.createElement('input');
 	input.type = 'text';
@@ -196,14 +74,6 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
-	const createJoinButton = (title: string): HTMLButtonElement => {
-		const button = document.createElement('button');
-		button.textContent = title;
-		button.className = 'btn btn-primary text-center';
-		button.disabled = true;
-		return button;
-	}
-
 	nav.appendChild(input);
 
 	const playDiv = document.createElement('div');
@@ -219,23 +89,22 @@ export const HomePage = (): HTMLElement => {
 	playNav.className = 'grid gap-4 sm:grid-cols-3';
 	playDiv.appendChild(playNav);
 
-	const playOnline = createJoinButton(locale.online);
+	const playOnline = joinButton(locale.online);
 	playNav.appendChild(playOnline);
 
-	const playLocal = createJoinButton(locale.local);
+	const playLocal = joinButton(locale.local);
 	playLocal.disabled = false;
 	playNav.appendChild(playLocal);
 
-	const playAI = createJoinButton(locale.solo);
+	const playAI = joinButton(locale.solo);
 	playAI.disabled = false;
 	playNav.appendChild(playAI);
 
-	const playTournament = createJoinButton(locale.join_tournament);
+	const playTournament = joinButton(locale.join_tournament);
 	nav.appendChild(playTournament);
 
 	// nav.appendChild(createNavLink(locale.leaderboard, '/leaderboard'));
 	nav.appendChild(createNavLink(locale.matchDisplay, '/MatchDisplay'));
-
 
 	// language button
 	const languageButton = createNavLink(locale.language, '/');
@@ -258,7 +127,6 @@ export const HomePage = (): HTMLElement => {
 		nav.appendChild(logoutButton);
 	}
 
-
 	// about
 	content.appendChild(bottomBtn(locale.about, '/about'));
 
@@ -272,8 +140,8 @@ export const HomePage = (): HTMLElement => {
 			return;
 		}
 		await registerUsernameToDb(name);
-		const button = showWaitingGameModal(playLocal, playAI, playOnline, playTournament);
-		isGameStarted = false;
+		const button = showWaitingGameModal(playLocal, playAI, playOnline, playTournament, socket);
+		isGameStarted.value = false;
 		console.log('isGameStarted set to :', isGameStarted);
 		console.log(`Rejoindre une partie avec le nom: ${name}`);
 
@@ -493,44 +361,16 @@ export const HomePage = (): HTMLElement => {
 			console.log('Tournoi rejoins:', data);
 
 			if (data.playerCount < 4)
-				modal = showTournamentModal(data.id, playLocal, playAI, playOnline, playTournament);
+				modal = showTournamentModal(data.id, playLocal, playAI, playOnline, playTournament, socket);
 			disableJoining(playLocal, playAI, playOnline, playTournament);
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 		}
 	});
 
-	
-
 	// Language button
 	languageButton.addEventListener('click', async () => {
-		const modalOverlay = document.createElement('div');
-		modalOverlay.id = 'languageModal';
-		modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-
-		const modalContent = document.createElement('div');
-		modalContent.className = 'bg-gray-800 p-6 rounded-lg shadow-2xl text-center flex flex-col items-center gap-4';
-		modalOverlay.appendChild(modalContent);
-
-		modalContent.appendChild(langBtn('en'));
-		modalContent.appendChild(langBtn('fr'));
-		modalContent.appendChild(langBtn('es'));
-
-		const exitBtn = document.createElement('button');
-		exitBtn.className = `text-blue-600 text-lg font-semibold transition-transform transform hover:scale-110`;
-		exitBtn.textContent = 'exit';
-		modalContent.appendChild(exitBtn);
-
-		exitBtn.addEventListener('click', async () => {
-			modalOverlay.remove();
-		});
-
-		modalOverlay.addEventListener('click', (event) => {
-			if (event.target === modalOverlay) {
-				modalOverlay.remove();
-			}
-		});
-		document.body.appendChild(modalOverlay);
+		showLanguageSelectionModal();
 	});
 	return content;
 }
