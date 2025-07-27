@@ -330,8 +330,6 @@ export const HomePage = (): HTMLElement => {
 			return;
 		}
 		try {
-			setPlayerName(name);
-			await registerUsernameToDb(name);
 			if (!socket.connected) {
 				await new Promise<void>((resolve) => {
 					if (socket.connected)
@@ -347,6 +345,8 @@ export const HomePage = (): HTMLElement => {
 					}
 				});
 			}
+			setPlayerName(name);
+			await registerUsernameToDb(name);
 
 			socket.emit('join', { name: name });
 
