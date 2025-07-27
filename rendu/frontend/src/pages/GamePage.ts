@@ -1,6 +1,7 @@
 import { BabylonGame } from '../3d/main3d';
 import { navigate } from '../router';
 import { locale } from '../i18n';
+import { enableJoining } from './HomePage.ts';
 
 let cachedGamePage: HTMLElement | null = null;
 let name: string | null = null;
@@ -97,6 +98,13 @@ function showGameOverModal() {
     message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
     message.textContent = 'You won by forfeit!';
     modalContent.appendChild(message);
+
+	const waitingModal = document.getElementById('gameFoundModalOverlay');
+	if (waitingModal)
+	{
+		waitingModal.remove();
+		enableJoining();
+	}
 
     const homeLink = document.createElement('a');
     homeLink.href = '#';

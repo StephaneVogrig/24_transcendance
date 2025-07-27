@@ -1,22 +1,16 @@
 import { navigate } from '../../router';
 import { langBtn } from '../components/langBtn';
 import type { Socket } from "socket.io-client";
+import { enableJoining } from '../HomePage';
 
 interface MutableBoolean {
     value: boolean;
 }
 
-function enableJoining(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement) {
-    playOnline.disabled = false;
-    playAI.disabled = false;
-    playTournament.disabled = false;
-    playLocal.disabled = false;
-}
-
 /**
  * Modal for game found.
  */
-export function showGameModal(players: string, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement, socket: Socket, isGameStartedRef: MutableBoolean) {
+export function showGameModal(players: string, socket: Socket, isGameStartedRef: MutableBoolean) {
     if (isGameStartedRef.value) {
         console.log('Game already started, skipping modal display.');
         return;
@@ -51,7 +45,7 @@ export function showGameModal(players: string, playLocal: HTMLButtonElement, pla
         modalOverlay.remove();
         socket.emit('acceptGame');
         navigate('/game');
-        enableJoining(playLocal, playAI, playOnline, playTournament);
+        enableJoining();
     });
 
     modalContent.appendChild(joinLink);
@@ -62,7 +56,7 @@ export function showGameModal(players: string, playLocal: HTMLButtonElement, pla
 /**
  * Modal for waiting tournament.
  */
-export function showTournamentModal(id: number, playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement, socket: Socket): HTMLDivElement {
+export function showTournamentModal(id: number, socket: Socket): HTMLDivElement {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
     modalOverlay.id = 'tournamentFoundModalOverlay';
@@ -87,7 +81,7 @@ export function showTournamentModal(id: number, playLocal: HTMLButtonElement, pl
     quitButton.addEventListener('click', () => {
         socket.disconnect();
         modalOverlay.remove();
-        enableJoining(playLocal, playAI, playOnline, playTournament);
+        enableJoining();
     });
     modalContent.appendChild(quitButton);
 
@@ -99,7 +93,7 @@ export function showTournamentModal(id: number, playLocal: HTMLButtonElement, pl
 /**
  * Modal for waiting oponent to start game.
  */
-export function showWaitingGameModal(playLocal: HTMLButtonElement, playAI: HTMLButtonElement, playOnline: HTMLButtonElement, playTournament: HTMLButtonElement, socket: Socket): HTMLDivElement {
+export function showWaitingGameModal(socket: Socket): HTMLDivElement {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
     modalOverlay.id = 'waitingGameModalOverlay';
@@ -124,7 +118,7 @@ export function showWaitingGameModal(playLocal: HTMLButtonElement, playAI: HTMLB
     quitButton.addEventListener('click', () => {
         socket.disconnect();
         modalOverlay.remove();
-        enableJoining(playLocal, playAI, playOnline, playTournament);
+        enableJoining();
     });
     modalContent.appendChild(quitButton);
 
