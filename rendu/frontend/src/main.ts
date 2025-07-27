@@ -12,6 +12,9 @@ import { AboutPage } from './pages/AboutPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { MatchDisplayPage } from './pages/MatchDisplayPage';
 
+// Import des tests Auth0 pour le développement
+import './auth/authTester';
+
 
 
 addRoute('/', HomePage);

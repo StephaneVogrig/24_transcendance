@@ -1,7 +1,5 @@
-// import { navigate } from '../router'; // Assuming navigate is available or pass it as a param
-
-// Service Auth0 avec gestion d'erreur et fallback
 let Auth0Client: any = null;
+import { isPopupSupported, getPopupErrorMessage } from './popupHelpers';
 
 // Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
@@ -47,8 +45,9 @@ export const authGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLEle
 const loadAuth0 = async () => {
     try {
         if (!Auth0Client) {
-            const auth0Module = await import('@auth0/auth0-spa-js');
-            Auth0Client = auth0Module.Auth0Client;
+            // Import dynamique avec fallback pour les types
+            const auth0Module = await import('@auth0/auth0-spa-js') as any;
+            Auth0Client = auth0Module.Auth0Client || auth0Module.default?.Auth0Client || auth0Module.default;
         }
         return Auth0Client;
     } catch (error) {
@@ -70,7 +69,10 @@ export const initAuth0 = async (): Promise<any> => {
                 redirect_uri: AUTH0_REDIRECT_URI,
                 scope: 'openid profile email'
             },
-            cacheLocation: 'localstorage'
+            cacheLocation: 'localstorage',
+            // Configuration pour améliorer le support des popups
+            useRefreshTokens: true,
+            useRefreshTokensFallback: false
         });
         console.log('Client Auth0 initialisé avec succès');
     }
@@ -78,9 +80,77 @@ export const initAuth0 = async (): Promise<any> => {
 };
 
 /**
- * Connexion avec Google OAuth via Auth0
+ * Connexion avec Google OAuth via Auth0 en popup
  */
 export const loginWithGoogle = async (): Promise<void> => {
+    try {
+        // Vérifier le support des popups
+        if (!isPopupSupported()) {
+            console.warn('Popups non supportées, utilisation de la redirection');
+            return await loginWithGoogleRedirect();
+        }
+        
+        const client = await initAuth0();
+        
+        // Utiliser loginWithPopup au lieu de loginWithRedirect
+        const result = await client.loginWithPopup({
+            authorizationParams: {
+                connection: 'google-oauth2',
+                scope: 'openid profile email'
+            },
+            popup: {
+                // Configuration de la popup
+                timeoutInSeconds: 60,
+                popup: null // Laisser Auth0 gérer la création de la popup
+            }
+        });
+        
+        console.log('Connexion popup réussie:', result);
+        
+        // Vérifier l'authentification
+        const isAuth = await client.isAuthenticated();
+        if (isAuth) {
+            const user = await client.getUser();
+            console.log('Utilisateur connecté:', user);
+            
+            // Synchronisation avec le backend (optionnel)
+            try {
+                const response = await fetch(`/api/authentification/user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Informations utilisateur synchronisées avec le backend:', result);
+                }
+            } catch (error) {
+                console.warn('Erreur lors de la synchronisation avec le backend:', error);
+                // Non critique, continuer
+            }
+            
+            // Rediriger vers la page d'accueil après connexion réussie
+            window.location.href = '/';
+        }
+        
+    } catch (error) {
+        console.error('Erreur lors de la connexion Google:', error);
+        
+        // Utiliser les helpers pour des messages d'erreur plus clairs
+        if (error instanceof Error) {
+            const userFriendlyMessage = getPopupErrorMessage(error);
+            throw new Error(userFriendlyMessage);
+        }
+        
+        throw new Error('Service d\'authentification Google temporairement indisponible. Veuillez réessayer.');
+    }
+};
+
+/**
+ * Connexion avec Google OAuth via Auth0 avec redirection (fallback)
+ */
+export const loginWithGoogleRedirect = async (): Promise<void> => {
     try {
         const client = await initAuth0();
         await client.loginWithRedirect({
@@ -90,42 +160,37 @@ export const loginWithGoogle = async (): Promise<void> => {
             }
         });
     } catch (error) {
-        console.error('Erreur lors de la connexion Google:', error);
-        // Fallback : redirection vers une page d'erreur ou message
-        alert('Service d\'authentification Google temporairement indisponible. Veuillez utiliser la connexion classique.');
+        console.error('Erreur lors de la connexion Google avec redirection:', error);
+        throw new Error('Service d\'authentification Google temporairement indisponible.');
     }
 };
 
 /**
- * Connexion universelle Auth0 (affiche toutes les options)
- */
-// export const loginWithAuth0 = async (): Promise<void> => {
-//     try {
-//         const client = await initAuth0();
-//         await client.loginWithRedirect({
-//             authorizationParams: {
-//                 redirect_uri: AUTH0_REDIRECT_URI
-//             }
-//         });
-//     } catch (error) {
-//         console.error('Erreur lors de la connexion Auth0:', error);
-//         alert('Service d\'authentification temporairement indisponible. Veuillez utiliser la connexion classique.');
-//     }
-// };
-
-/**
- * Gère le callback après authentification
+ * Gère le callback après authentification (pour le fallback de redirection)
  */
 export const handleAuthCallback = async (_code: string): Promise<void> => {
-    console.log('Gestion du callback Auth0...');
+    console.log('Gestion du callback Auth0 (redirection fallback)...');
     console.log('URL de callback:', window.location.href);
     
     try {
         const client = await initAuth0();
         
-        // Gérer le callback avec plus de robustesse
-        const result = await client.handleRedirectCallback();
-        console.log('Callback traité:', result);
+        // Vérifier si nous avons des paramètres de callback dans l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasCode = urlParams.has('code') || window.location.hash.includes('code=');
+        const hasError = urlParams.has('error') || window.location.hash.includes('error=');
+        
+        if (hasError) {
+            const error = urlParams.get('error') || 'unknown_error';
+            const errorDescription = urlParams.get('error_description') || 'Une erreur est survenue lors de l\'authentification';
+            throw new Error(`Erreur Auth0: ${error} - ${errorDescription}`);
+        }
+        
+        if (hasCode) {
+            // Gérer le callback avec plus de robustesse
+            const result = await client.handleRedirectCallback();
+            console.log('Callback traité:', result);
+        }
         
         // Vérifier si l'utilisateur est bien authentifié
         const isAuth = await client.isAuthenticated();
@@ -230,15 +295,6 @@ export const clearLocalAuth = (): void => {
 };
 
 
-//  export const logout = () => {
-//         auth0Client.logout({
-//             logoutParams: {
-//             returnTo: window.location.origin
-//             }
-//         });
-//         }
-
-
 /**
  * Déconnexion
  */
@@ -249,19 +305,6 @@ export const logout = async (): Promise<void> => {
         
         // Nettoyer les données locales avant la déconnexion Auth0
         clearLocalAuth();
-
-
-        // --- Add this block to auth0Service.ts within the logout function ---
-        // Notify other tabs about logout using BroadcastChannel
-        // try {
-        //     const logoutChannel = new BroadcastChannel('auth_logout_channel');
-        //     logoutChannel.postMessage('logout');
-        //     logoutChannel.close();
-        //     console.log('Logout message broadcasted to other tabs.');
-        // } catch (broadcastError) {
-        //     console.warn('Could not broadcast logout message:', broadcastError);
-        // }
-        // --- End of BroadcastChannel addition ---
         
         // Déconnexion Auth0 (redirige automatiquement)
         await client.logout({

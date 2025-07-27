@@ -1,5 +1,5 @@
 
-import { loginWithGoogle, logout } from '../auth/auth0Service';
+import { loginWithGoogle, loginWithGoogleRedirect, logout } from '../auth/auth0Service';
 import { navigate } from '../router';
 
 
@@ -17,15 +17,41 @@ export const createGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLE
     googleButton.addEventListener('click', async (e) => {
         e.preventDefault();
         try {
-            authMessageDiv.textContent = 'Redirection vers Google...';
+            authMessageDiv.textContent = 'Connexion avec Google...';
             authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
             
-            // Utiliser Auth0 pour la connexion Google
+            // Utiliser Auth0 pour la connexion Google avec popup
             await loginWithGoogle();
+            
         } catch (error) {
             console.error('Erreur lors de la connexion Google:', error);
-            authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
-            authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+            
+            // Gestion des erreurs spécifiques
+            if (error instanceof Error) {
+                if (error.message.includes('popup_blocked')) {
+                    authMessageDiv.textContent = 'Popup bloquée. Tentative avec redirection...';
+                    authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-orange-600';
+                    
+                    // Fallback vers la redirection
+                    try {
+                        setTimeout(async () => {
+                            await loginWithGoogleRedirect();
+                        }, 1500);
+                    } catch (redirectError) {
+                        authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
+                        authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+                    }
+                } else if (error.message.includes('popup_closed_by_user')) {
+                    authMessageDiv.textContent = 'Connexion annulée.';
+                    authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-gray-600';
+                } else {
+                    authMessageDiv.textContent = error.message || 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
+                    authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+                }
+            } else {
+                authMessageDiv.textContent = 'Erreur lors de la connexion avec Google. Veuillez réessayer.';
+                authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
+            }
         }
     });
 };
@@ -57,37 +83,8 @@ export const LoginPage = (): HTMLElement => {
     loginForm.className = 'space-y-6';
     cardDiv.appendChild(loginForm);
 
-
-    // Bouton Auth0 Universal Login
-    // const auth0Button = document.createElement('button');
-    // auth0Button.id = 'auth0-universal-btn';
-    // auth0Button.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
-    // auth0Button.innerHTML = `
-    //     <img class="w-5 h-5 mr-2" src="/assets/pingpong.png" alt="Auth0 Logo" />
-    //     Login
-    //     `;
-    // loginForm.appendChild(auth0Button);
-
-    // loginForm.appendChild(auth0Button);
-
     // Bouton Google OAuth
     createGoogleButton(loginForm, authMessageDiv);
-    // try {
-    //     authMessageDiv.textContent = 'Redirection vers Auth0...';
-    //     authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
-    //     console.log('Tentative de connexion avec Auth0...');
-    //     // Appel à la fonction de connexion Auth0
-    //     await loginWithAuth0();
-    // } catch (error) {
-    //     console.error('Erreur lors de la connexion Auth0:', error);
-    //     authMessageDiv.textContent = 'Erreur lors de la connexion avec Auth0. Veuillez réessayer.';
-    //     authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-red-600';
-    // }
-    // };
-
-//     googleButton.addEventListener('click', handleGoogleLogin);
-    // auth0Button.addEventListener('click', handleAuth0Login);
-
 
     // Bouton Deconnexion
     const deconnexion = document.createElement('button');
@@ -123,8 +120,7 @@ export const LoginPage = (): HTMLElement => {
     }); 
     
 
-    // --- Fin de la section Auth0 ---
-    // auth0Button.addEventListener('click', handleAuth0Login);
+
 
 
     // --- Logique JavaScript directement ici ---
