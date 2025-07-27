@@ -86,16 +86,16 @@ function showGameOverModal() {
     modalOverlay.id = 'gameOverModalOverlay';
     
     const modalContent = document.createElement('div');
-    modalContent.className = 'bg-white p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
+    modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
     
     const title = document.createElement('h2');
-    title.className = 'text-5xl font-extrabold text-red-600 mb-4 tracking-wide';
+    title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
     title.textContent = locale.game_over;
     modalContent.appendChild(title);
     
     const message = document.createElement('p');
-    message.className = 'text-2xl text-gray-800 font-medium';
-    message.textContent = 'Thanks for playing! Your game has ended.';
+    message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
+    message.textContent = 'You won by forfeit!';
     modalContent.appendChild(message);
 
     const homeLink = document.createElement('a');
@@ -106,10 +106,10 @@ function showGameOverModal() {
     homeLink.addEventListener('click', (event) => {
         isGameOver = false;
         event.preventDefault();
-        modalOverlay.remove(); 
+        modalOverlay.remove();
         navigate('/');
     });
-    
+
     modalContent.appendChild(homeLink);
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);

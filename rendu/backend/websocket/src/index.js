@@ -471,36 +471,19 @@ io.on('connection', async (socket) => {
 		const disconnectedPlayerName = socketIdToPlayerName.get(socket.id);
 		if (disconnectedPlayerName)
 		{
-			console.log(`Player ${disconnectedPlayerName} (socket ID: ${socket.id}) disconnected.`);
 			playerNameToSocketId.delete(disconnectedPlayerName);
 			socketIdToPlayerName.delete(socket.id);
 			try
 			{
-				const reponse = fetch(`http://matchmaking:3005/leave`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: disconnectedPlayerName })
-			});
-				if (!reponse.ok)
-					console.log(`Failed to notify matchmaking service of player ${disconnectedPlayerName} disconnection:`, reponse.status);
-				else
-					console.log(`Matchmaking service notified of player ${disconnectedPlayerName} disconnection.`);
-			}
-			catch (error)
-			{
-				console.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
-			}
-			try
-			{
-				fetch(`http://database:3003/removeUser`, {
+				fetch(`http://matchmaking:3005/leave`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ username: disconnectedPlayerName })
+					body: JSON.stringify({ name: disconnectedPlayerName })
 				});
 			}
 			catch (error) {}
 			if (pendingRedirectAcceptances.has(disconnectedPlayerName)) {
-				const { reject, cleanUp } = pendingRedirectAcceptances.get(disconnectedPlayerName);
+				const { cleanUp } = pendingRedirectAcceptances.get(disconnectedPlayerName);
 				pendingRedirectAcceptances.delete(disconnectedPlayerName);
 				if (cleanUp) cleanUp();
 				console.warn(`Redirect acceptance for player ${disconnectedPlayerName} rejected due to disconnect.`);
@@ -522,28 +505,18 @@ io.on('connection', async (socket) => {
 					gameSessions.delete(gameId);
 				}
 			}
-			if (disconnectedPlayerName)
-			{
-				try
-				{
-					const response = fetch(`http://database:3003/removeUser`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ username: disconnectedPlayerName })
-					});
-					if (!response.ok)
-						console.log(`Failed to delete user ${disconnectedPlayerName} from db: ${response.status}`);
-					else
-						console.log(`Deleted ${disconnectedPlayerName} from db.`);
-				}
-				catch (error)
-				{
-					console.error(`Error deleting user ${disconnectedPlayerName} from db:`, error);
-				}
-			}
 			try
 			{
-				fetch(`http://tournament:3007/leave`, {
+				fetch(`http://database:3003/removeUser`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ username: disconnectedPlayerName })
+				});
+			}
+			catch (error) {}
+			try
+			{
+				await fetch(`http://tournament:3007/leave`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ name: disconnectedPlayerName })

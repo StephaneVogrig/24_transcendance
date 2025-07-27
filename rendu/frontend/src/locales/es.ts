@@ -1,6 +1,6 @@
 export const es = {
     "subtitle": "un pong de construcción rápida",
-    "back_home": "volver a inicio",
+    "back_home": "Volver a inicio",
 
     "play": "Jugar",
     "online": "En línea",

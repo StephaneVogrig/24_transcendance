@@ -1,6 +1,6 @@
 export const fr = {
     "subtitle": "un pong vite fait",
-    "back_home": "retour à l'accueil",
+    "back_home": "Retour à l'accueil",
 
     "play": "Jouer",
     "online": "En ligne",

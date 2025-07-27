@@ -1,6 +1,6 @@
 export const en = {
 	"subtitle": "a quick-build pong",
-	"back_home": "back home",
+	"back_home": "Back home",
 
 	"play": "Play",
 	"online": "Online",

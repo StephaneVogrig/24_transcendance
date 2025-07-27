@@ -36,5 +36,5 @@ export function findMatch(player) {
     for (const [key, game] of map.entries())
         if (key.includes(player))
             return game;
-    throw new Error(`No match found for player ${player}`);
+    return undefined;
 }
