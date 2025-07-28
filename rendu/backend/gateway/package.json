@@ -11,10 +11,16 @@
   "dependencies": {
     "@fastify/cors": "^8.4.0",
     "@fastify/http-proxy": "^9.x.x",
+    "@fastify/static": "^7.0.4",
     "fastify": "^4.24.3",
-    "@fastify/static": "^7.0.4"
+    "pino-pretty": "^13.0.0"
   },
-  "keywords": ["fastify", "gateway", "pong", "javascript"],
+  "keywords": [
+    "fastify",
+    "gateway",
+    "pong",
+    "javascript"
+  ],
   "author": "Viiiite",
   "license": "MIT"
 }

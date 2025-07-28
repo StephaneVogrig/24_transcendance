@@ -4,7 +4,19 @@ import * as GameManager from './gameManager.js';
 const serviceName = 'game';
 const serviceport = 3004;
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({
+    logger: {
+        transport: {
+            target: 'pino-pretty',
+            options: {
+                colorize: true,
+                translateTime: 'SYS:HH:MM:ss.l',
+                singleLine: true,
+                ignore: 'pid,hostname'
+            }
+        }
+    },
+});
 
 // API endpoint to check the availability and operational status of the service.
 fastify.get('/health', async (request, reply) => {
@@ -15,16 +27,6 @@ fastify.get('/health', async (request, reply) => {
     uptime: process.uptime()
   };
 });
-
-const start = async () => {
-  try {
-    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
-    console.log(serviceName, `service listening on port`, serviceport);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
 
 fastify.post('/start', async (request, reply) => {
     const { player1, player2, maxScore } = request.body;
@@ -109,5 +111,14 @@ fastify.get('/state', async (request, reply) => {
     };
     return reply.status(200).send({state: state});
 });
+
+const start = async () => {
+  try {
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
 
 start();

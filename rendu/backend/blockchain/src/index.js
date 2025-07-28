@@ -1,7 +1,18 @@
 import Web3 from 'web3';
 import Fastify from 'fastify';
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({
+	logger: {
+		transport: {
+			target: 'pino-pretty',
+			options: {
+				colorize: true,
+				translateTime: 'SYS:HH:MM:ss Z',
+				ignore: 'pid,hostname'
+			}
+		}
+	},
+});
 
 const serviceName = 'blockchain';
 const serviceport = 3003;

@@ -5,7 +5,19 @@ import { saveUserToDatabase, getUserFromDatabase } from './userDatabase.js';
 const serviceName = 'authentification';
 const serviceport = 3001;
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({
+  logger: {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'SYS:HH:MM:ss.l',
+        singleLine: true,
+        ignore: 'pid,hostname'
+      }
+    }
+  },
+});
 
 // API endpoint to check the availability and operational status of the service.
 fastify.get('/health', async (request, reply) => {
@@ -16,16 +28,6 @@ fastify.get('/health', async (request, reply) => {
     uptime: process.uptime()
   };
 });
-
-const start = async () => {
-  try {
-    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
-    console.log(serviceName, `service listening on port`, serviceport);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
 
 // Route pour vérifier le statut d'authentification
 fastify.get('/status', async (request, reply) => {
@@ -117,5 +119,13 @@ fastify.get('/user/:auth0_id', async (request, reply) => {
   }
 });
 
+const start = async () => {
+  try {
+    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
 
 start();

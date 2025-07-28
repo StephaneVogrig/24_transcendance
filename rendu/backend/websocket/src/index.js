@@ -5,7 +5,19 @@ import cors from '@fastify/cors';
 const serviceName = 'websocket';
 const serviceport = 3008;
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({
+	logger: {
+        transport: {
+            target: 'pino-pretty',
+            options: {
+                colorize: true,
+                translateTime: 'SYS:HH:MM:ss.l',
+				singleLine: true,
+                ignore: 'pid,hostname'
+            }
+        }
+    },
+});
 
 const HOST_IP = process.env.HOST_IP;
 const HOST_ADDRESS = `https://${HOST_IP}:5173`;
@@ -533,7 +545,6 @@ io.on('connection', async (socket) => {
 const start = async () => {
   try {
     await fastify.listen({ port: serviceport, host: '0.0.0.0' });
-    console.log(serviceName, `service listening on port`, serviceport);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

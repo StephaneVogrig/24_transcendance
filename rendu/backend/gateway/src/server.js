@@ -12,7 +12,17 @@ const cert = fs.readFileSync('/app/ssl/cert.pem', 'utf8');
 const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
 
 const fastify = Fastify({
-    logger: true,
+    logger: {
+		transport: {
+			target: 'pino-pretty',
+			options: {
+				colorize: true,
+                translateTime: 'SYS:HH:MM:ss.l',
+                singleLine: true,
+				ignore: 'pid,hostname'
+			}
+		}
+	},
     https: {
         key: key,
         cert: cert,
@@ -146,7 +156,6 @@ const start = async () => {
             port: serviceport,
             host: '0.0.0.0'
         });
-        console.log(serviceName, `service listening on port`, serviceport);
     } catch (err) {
         fastify.log.error(err);
         process.exit(1);

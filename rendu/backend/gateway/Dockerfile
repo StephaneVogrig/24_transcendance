@@ -6,7 +6,7 @@ COPY ssl/ /app/ssl/
 
 COPY backend/gateway/package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY backend/gateway/src/ ./src/
 
