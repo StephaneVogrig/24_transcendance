@@ -25,7 +25,8 @@ SERVICES_PORTS	:=	ai:3009 \
 					matchmaking:3005 \
 					tournament:3007 \
 					scores:3006 \
-					websocket:3008
+					websocket:3008 \
+					frontend:5173
 
 # Extract service names from SERVICES_PORTS
 SERVICES := $(foreach element,$(SERVICES_PORTS),$(word 1,$(subst :, ,$(element))))

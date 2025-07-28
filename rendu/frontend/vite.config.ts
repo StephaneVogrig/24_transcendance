@@ -1,26 +1,21 @@
 import { defineConfig } from 'vite'
-import fs from 'fs';
-import path from 'path';
 
 export default defineConfig({
-  base: '/',
-  server: {
-    host: '0.0.0.0',
-    port: 3000,
-    https: {
-        key: fs.readFileSync(path.resolve(__dirname, '/app/ssl/key.pem')),
-        cert: fs.readFileSync(path.resolve(__dirname, '/app/ssl/cert.pem')),
+    base: '/',
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        allowedHosts: ['frontend', 'localhost', '127.0.0.1'],
+        hmr: {
+            protocol: 'wss',
+            host: 'localhost',
+            port: 3000,
+            clientPort: 3000,
+        },
     },
-    proxy: {
-      '/api': {
-        target: 'https://gateway:3000',
-        changeOrigin: true
-      }
+    build: {
+        outDir: 'dist',
+        sourcemap: true,
+        assetsDir: 'assets'
     }
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-    assetsDir: 'assets'
-  }
 })

@@ -10,12 +10,6 @@ RUN npm ci
 
 COPY backend/gateway/src/ ./src/
 
-COPY frontend/package*.json ./frontend/
-
-COPY frontend/ ./frontend/
-
-RUN cd frontend && npm ci && npm run build && cp -r dist ../public
-
 EXPOSE 3000
 
 CMD ["node", "src/server.js"]

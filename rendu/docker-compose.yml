@@ -21,6 +21,7 @@ services:
             - tournament
             - websocket
             - ai
+            - frontend
         networks:
             - transcendence-network
         # volumes:
@@ -138,22 +139,20 @@ services:
         networks:
             - transcendence-network
 
-    # frontend:
-    #     image: frontend
-    #     container_name: frontend
-    #     build:
-    #         context: ./frontend
-    #         dockerfile: Dockerfile
-    #     ports:
-    #         - "5173:5173"
-    #     volumes:
-    #         - ./frontend:/app
-    #         - /app/node_modules
-    #         - ./ssl:/app/ssl
-    #     depends_on:
-    #         - gateway
-    #     networks:
-    #         - transcendence-network
+    frontend:
+        image: frontend
+        container_name: frontend
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        ports:
+            - "5173:5173"
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+            - ./ssl:/app/ssl
+        networks:
+            - transcendence-network
 
 networks:
     transcendence-network:

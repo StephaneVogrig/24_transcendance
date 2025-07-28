@@ -1,8 +1,7 @@
 import Fastify from 'fastify';
 import proxy from '@fastify/http-proxy';
-import staticPlugin from '@fastify/static';
+import replyFrom from '@fastify/reply-from';
 import fs from 'fs';
-import path from 'path';
 
 const serviceName = 'gateway';
 const serviceport = 3000;
@@ -13,16 +12,16 @@ const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
 
 const fastify = Fastify({
     logger: {
-		transport: {
-			target: 'pino-pretty',
-			options: {
-				colorize: true,
+        transport: {
+            target: 'pino-pretty',
+            options: {
+                colorize: true,
                 translateTime: 'SYS:HH:MM:ss.l',
                 singleLine: true,
-				ignore: 'pid,hostname'
-			}
-		}
-	},
+                ignore: 'pid,hostname'
+            }
+        }
+    },
     https: {
         key: key,
         cert: cert,
@@ -108,18 +107,7 @@ fastify.register(proxy, {
     prefix: '/api/ai',
 });
 
-// Static to serve frontend files
-await fastify.register(staticPlugin, {
-    root: '/app/public',
-    prefix: '/',
-    decorateReply: false,
-    // Add specific headers from server_branch.js for static files
-    setHeaders: (res, path, stat) => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-    }
-});
+await fastify.register(replyFrom, {});
 
 // Fallback for SPA routing
 fastify.setNotFoundHandler(async (request, reply) => {
@@ -130,24 +118,7 @@ fastify.setNotFoundHandler(async (request, reply) => {
         return reply.code(404).send({ error: 'Not Found' });
     }
 
-    // For all other routes, serve index.html with specific headers
-    try {
-        const indexPath = path.join('/app/public', 'index.html');
-
-        if (fs.existsSync(indexPath)) {
-            const indexContent = fs.readFileSync(indexPath, 'utf8');
-            return reply
-            .type('text/html')
-            .header('Cross-Origin-Embedder-Policy', 'unsafe-none')
-            .header('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
-            .send(indexContent);
-        } else {
-            return reply.code(404).send({ error: 'Index file not found' });
-        }
-    } catch (error) {
-        console.error('Error serving index.html:', error);
-        return reply.code(500).send({ error: 'Internal Server Error' });
-    }
+    return reply.from('http://frontend:5173' + url);
 });
 
 const start = async () => {
