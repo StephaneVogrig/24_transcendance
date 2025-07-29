@@ -2,11 +2,26 @@ import Fastify from 'fastify';
 import proxy from '@fastify/http-proxy';
 import replyFrom from '@fastify/reply-from';
 import fs from 'fs';
+import cors from '@fastify/cors';
+
+const HOST_IP = process.env.HOST_IP;
+const HOST_ADDRESS = `https://${HOST_IP}:3000`;
 
 const serviceName = 'gateway';
 const serviceport = 3000;
 
-/* https server ********************************************************/
+const AUTH_SERVICE_BASE_URL = 'http://authentification:3001';
+const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';
+const DATABASE_SERVICE_BASE_URL = 'http://database:3003';
+const GAME_SERVICE_BASE_URL = 'http://game:3004';
+const MATCHMAKING_SERVICE_BASE_URL = 'http://matchmaking:3005';
+const SCORES_SERVICE_BASE_URL = 'http://scores:3006';
+const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
+const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
+const AI_SERVICE_BASE_URL = 'http://ai:3009';
+const FRONTEND_SERVICE_BASE_URL = 'http://frontend:5173';
+
+/* server ********************************************************/
 const cert = fs.readFileSync('/app/ssl/cert.pem', 'utf8');
 const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
 
@@ -28,27 +43,7 @@ const fastify = Fastify({
     }
 });
 
-/* cors protection ****************************************************/
-import cors from '@fastify/cors';
-const HOST_IP = process.env.HOST_IP;
-const HOST_ADDRESS = `https://${HOST_IP}:3000`;
-await fastify.register(cors, {
-    origin: HOST_ADDRESS,
-    methods: ['GET', 'POST'],
-    credentials: true
-});
-
-/* ********************************************************************/
-
-const AUTH_SERVICE_BASE_URL = 'http://authentification:3001';
-const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';
-const DATABASE_SERVICE_BASE_URL = 'http://database:3003';
-const GAME_SERVICE_BASE_URL = 'http://game:3004';
-const MATCHMAKING_SERVICE_BASE_URL = 'http://matchmaking:3005';
-const SCORES_SERVICE_BASE_URL = 'http://scores:3006';
-const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
-const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
-const AI_SERVICE_BASE_URL = 'http://ai:3009';
+/* routes *************************************************************/
 
 // API endpoint to check the availability and operational status of the service.
 fastify.get('/api/gateway/health', async (request, reply) => {
@@ -60,7 +55,15 @@ fastify.get('/api/gateway/health', async (request, reply) => {
   };
 });
 
-// Proxy for services
+/* proxy **************************************************************/
+
+// cors protection
+await fastify.register(cors, {
+    origin: HOST_ADDRESS,
+    methods: ['GET', 'POST'],
+    credentials: true
+});
+
 fastify.register(proxy, {
     upstream: AUTH_SERVICE_BASE_URL,
     prefix: '/api/authentification'
@@ -107,19 +110,33 @@ fastify.register(proxy, {
     prefix: '/api/ai',
 });
 
+fastify.register(proxy, {
+    upstream: FRONTEND_SERVICE_BASE_URL,
+    prefix: '/vite-hmr',
+    websocket: true,
+    replyOptions: {
+        rewriteRequestHeaders: (originalReq, headers) => {
+            return {
+                ...headers,
+                'host': 'frontend:5173'
+            };
+        }
+    }
+});
+
 await fastify.register(replyFrom, {});
 
-// Fallback for SPA routing
 fastify.setNotFoundHandler(async (request, reply) => {
     const url = request.url;
 
-    // If it's an API or websocket route, return a 404 error
     if (url.startsWith('/api/') || url.startsWith('/my-websocket/')) {
         return reply.code(404).send({ error: 'Not Found' });
     }
 
-    return reply.from('http://frontend:5173' + url);
+    return reply.from(FRONTEND_SERVICE_BASE_URL + url);
 });
+
+/**********************************************************************/
 
 const start = async () => {
     try {
