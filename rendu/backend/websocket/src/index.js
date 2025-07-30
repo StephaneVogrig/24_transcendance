@@ -19,27 +19,7 @@ const fastify = Fastify({
     },
 });
 
-const HOST_IP = process.env.HOST_IP;
-const HOST_ADDRESS = `https://${HOST_IP}:5173`;
-
-fastify.register(cors, {
-	origin: [
-		HOST_ADDRESS,
-		'https://localhost:5173'
-	],
-	methods: ['GET', 'POST'],
-	credentials: true
-});
-
 const io = new Server(fastify.server, {
-	cors: {
-		origin: [
-			HOST_ADDRESS,
-			'https://localhost:5173'
-		],
-		methods: ['GET', 'POST'],
-		credentials: true
-	},
 	path: '/my-websocket/'
 });
 

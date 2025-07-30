@@ -2,8 +2,6 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY ssl/ /app/ssl/
-
 COPY backend/gateway/package*.json ./
 
 RUN npm ci

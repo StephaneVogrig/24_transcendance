@@ -9,6 +9,7 @@ import { authGoogleButton } from '../auth/auth0Service';
 
 import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from './HomePageUtils/dbServices.ts';
 import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
+import { API_BASE_URL, BASE_URL } from '../config.ts';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
@@ -186,7 +187,7 @@ export const HomePage = (): HTMLElement => {
 
 		try {
 			console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
-			const response = await fetch(`https://${window.location.hostname}:3000/api/matchmaking/join`, {
+			const response = await fetch(`${API_BASE_URL}/matchmaking/join`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name: name })
@@ -211,7 +212,7 @@ export const HomePage = (): HTMLElement => {
 		socket.off('redirect');
 		socket.off('connect');
 		
-		let socket2 = io(`https://${window.location.hostname}:3000`, {
+		let socket2 = io(`${BASE_URL}`, {
 			path: '/api/websocket/my-websocket/'
 		});
 		
@@ -244,7 +245,7 @@ export const HomePage = (): HTMLElement => {
 		if (socket.id)
 			setPlayerName(socket.id);
 
-		const response = await fetch(`https://${window.location.hostname}:3000/api/game/start`, {
+		const response = await fetch(`${API_BASE_URL}/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ player1: socket.id, player2: socket2.id, maxScore: 5 })
@@ -309,7 +310,7 @@ export const HomePage = (): HTMLElement => {
 		socket.emit('join', { name });
 
 		try {
-			const response = await fetch(`https://${window.location.hostname}:3000/api/ai/create`, {
+			const response = await fetch(`${API_BASE_URL}/ai/create`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({name})
@@ -370,7 +371,7 @@ export const HomePage = (): HTMLElement => {
 			});
 
 			let modal: HTMLDivElement;
-			const response = await fetch(`https://${window.location.hostname}:3000/api/tournament/join`, {
+			const response = await fetch(`${API_BASE_URL}/tournament/join`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name })

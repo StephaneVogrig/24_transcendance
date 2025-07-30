@@ -1,11 +1,7 @@
 import Fastify from 'fastify';
 import proxy from '@fastify/http-proxy';
 import replyFrom from '@fastify/reply-from';
-import fs from 'fs';
 import cors from '@fastify/cors';
-
-const HOST_IP = process.env.HOST_IP;
-const HOST_ADDRESS = `https://${HOST_IP}:3000`;
 
 const serviceName = 'gateway';
 const serviceport = process.env.PORT;
@@ -22,8 +18,6 @@ const AI_SERVICE_BASE_URL = 'http://ai:3009';
 const FRONTEND_SERVICE_BASE_URL = 'http://frontend:5173';
 
 /* server ********************************************************/
-const cert = fs.readFileSync('/app/ssl/cert.pem', 'utf8');
-const key = fs.readFileSync('/app/ssl/key.pem', 'utf8');
 
 const fastify = Fastify({
     logger: {
@@ -37,10 +31,6 @@ const fastify = Fastify({
             }
         }
     },
-    https: {
-        key: key,
-        cert: cert,
-    }
 });
 
 /* routes *************************************************************/
@@ -56,13 +46,6 @@ fastify.get('/api/gateway/health', async (request, reply) => {
 });
 
 /* proxy **************************************************************/
-
-// cors protection
-await fastify.register(cors, {
-    origin: HOST_ADDRESS,
-    methods: ['GET', 'POST'],
-    credentials: true
-});
 
 fastify.register(proxy, {
     upstream: AUTH_SERVICE_BASE_URL,
