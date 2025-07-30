@@ -16,24 +16,40 @@ export const AuthCallbackPage = (_pathParams?: Record<string, string>, _queryPar
     // Gérer le callback Auth0
     const processCallback = async () => {
         try {
+            console.log('Début du traitement du callback...');
+            console.log('URL actuelle:', window.location.href);
+            
+            // Attendre un peu pour que la page soit complètement chargée
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             // Utiliser Auth0 pour gérer le callback
             await handleAuthCallback('');
             
-            // Redirection 
-            window.location.replace('/profile');
+            statusDiv.innerHTML = `
+                <div class="text-green-600 text-center">
+                    <p class="font-bold mb-2">Authentification réussie!</p>
+                    <p class="text-sm">Redirection en cours...</p>
+                </div>
+            `;
             
-        } catch (error) {
+            // Redirection avec délai vers la page d'accueil
+            setTimeout(() => {
+                window.location.replace('/');
+            }, 1000);
+
+        } catch (error: unknown) {
             console.error('Erreur lors du callback Auth0:', error);
             statusDiv.innerHTML = `
                 <div class="text-red-600 text-center">
                     <p class="font-bold mb-2">Erreur d'authentification</p>
-                    <p class="text-sm">Redirection vers la page de connexion...</p>
+                    <p class="text-sm">${error instanceof Error ? error.message : 'Erreur inconnue'}</p>
+                    <p class="text-sm">Redirection vers la page d'accueil...</p>
                 </div>
             `;
             
-            // Redirection vers la page de connexion après 3 secondes
+            // Redirection vers la page d'accueil après 3 secondes
             setTimeout(() => {
-                window.location.replace('/login');
+                window.location.replace('/');
             }, 3000);
         }
     };
