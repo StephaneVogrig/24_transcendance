@@ -188,4 +188,13 @@ Links:
 https://www.figma.com/slides/bE0cLtw0m0GEfEW2xCNLrw/Untitled?node-id=1-42&t=XtBTBjDyrwIyI9GK-0
 
 ## credits
-https://svs.gsfc.nasa.gov/4851/
+Skybox voie lactee: [nasa](https://svs.gsfc.nasa.gov/4851/)
+
+## [Vite](https://vite.dev/)
+Vite est un serveur de developpement permettant de refleter a chaud les changements effectues dans le projet. Il permet d'accelerer et de simplifier le developpement.
+### [Vite setup catalog](https://github.com/sapphi-red/vite-setup-catalogue)
+
+[Configuration du hmr](https://vite.dev/config/server-options.html#server-hmr).
+
+
+## [fastify](https://fastify.dev/)
