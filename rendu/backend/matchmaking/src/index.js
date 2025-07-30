@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import * as PlayerManager from './playerManager.js';
 
 const serviceName = 'matchmaking';
-const serviceport = process.env.PORT;
+const serviceport = 3005;
 
 const fastify = Fastify({
     logger: {

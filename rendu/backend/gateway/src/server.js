@@ -8,7 +8,7 @@ const HOST_IP = process.env.HOST_IP;
 const HOST_ADDRESS = `https://${HOST_IP}:3000`;
 
 const serviceName = 'gateway';
-const serviceport = process.env.PORT;
+const serviceport = 3000;
 
 const AUTH_SERVICE_BASE_URL = 'http://authentification:3001';
 const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';

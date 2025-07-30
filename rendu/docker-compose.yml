@@ -7,11 +7,10 @@ services:
             context: .
             dockerfile: backend/gateway/Dockerfile
         ports:
-            - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+            - "3000:3000"
         environment:
             - NODE_ENV=development
             - HOST_IP=${HOST_IP}
-            - PORT=${GATEWAY_PORT}
         depends_on:
             - authentification
             - blockchain
@@ -36,10 +35,7 @@ services:
             context: ./backend/authentification
             dockerfile: Dockerfile
         ports:
-            - "${AUTHENTIFICATION_PORT}:${AUTHENTIFICATION_PORT}"
-        environment:
-            - HOST_IP=${HOST_IP}
-            - PORT=${AUTHENTIFICATION_PORT}
+            - "3001:3001"
         networks:
             - transcendence-network
 
@@ -50,14 +46,11 @@ services:
             context: ./backend/blockchain
             dockerfile: Dockerfile
         ports:
-            - "${BLOCKCHAIN_PORT}:${BLOCKCHAIN_PORT}"
-        environment:
-            - HOST_IP=${HOST_IP}
-            - PORT=${BLOCKCHAIN_PORT}
-        env_file:
-            - .env
+            - "3002:3002"
         networks:
             - transcendence-network
+        env_file:
+            - .env
 
     database:
         image: database
@@ -66,22 +59,20 @@ services:
             context: ./backend/database
             dockerfile: Dockerfile
         ports:
-            - "${DATABASE_PORT}:${DATABASE_PORT}"
-        environment:
-            - HOST_IP=${HOST_IP}
-            - PORT=${DATABASE_PORT}
+            - "3003:3003"
         networks:
             - transcendence-network
+        environment:
+            - HOST_IP=${HOST_IP}
 
     game:
         image: game
         container_name: game
         build: ./backend/game
         ports:
-            - "${GAME_PORT}:${GAME_PORT}"
+            - "3004:3004"
         environment:
             - HOST_IP=${HOST_IP}
-            - PORT=${GAME_PORT}
         networks:
             - transcendence-network
 
@@ -92,10 +83,9 @@ services:
             context: ./backend/matchmaking
             dockerfile: Dockerfile
         ports:
-            - "${MATCHMAKING_PORT}:${MATCHMAKING_PORT}"
+            - "3005:3005"
         environment:
             - HOST_IP=${HOST_IP}
-            - PORT=${MATCHMAKING_PORT}
         networks:
             - transcendence-network
 
@@ -106,10 +96,7 @@ services:
             context: ./backend/scores
             dockerfile: Dockerfile
         ports:
-            - "${SCORES_PORT}:${SCORES_PORT}"
-        environment:
-            - HOST_IP=${HOST_IP}
-            - PORT=${SCORES_PORT}
+            - "3006:3006"
         networks:
             - transcendence-network
 
@@ -120,10 +107,9 @@ services:
             context: ./backend/tournament
             dockerfile: Dockerfile
         ports:
-            - "${TOURNAMENT_PORT}:${TOURNAMENT_PORT}"
+            - "3007:3007"
         environment:
             - HOST_IP=${HOST_IP}
-            - PORT=${TOURNAMENT_PORT}
         networks:
             - transcendence-network
 
@@ -134,10 +120,9 @@ services:
             context: ./backend/websocket
             dockerfile: Dockerfile
         ports:
-            - "${WEBSOCKET_PORT}:${WEBSOCKET_PORT}"
+            - "3008:3008"
         environment:
             - HOST_IP=${HOST_IP}
-            - PORT=${WEBSOCKET_PORT}
         networks:
             - transcendence-network
 
@@ -148,10 +133,9 @@ services:
             context: ./backend/ai
             dockerfile: Dockerfile
         ports:
-            - "${AI_PORT}:${AI_PORT}"
+            - "3009:3009"
         environment:
             - HOST_IP=${HOST_IP}
-            - PORT=${AI_PORT}
         networks:
             - transcendence-network
 
@@ -162,11 +146,10 @@ services:
             context: ./frontend
             dockerfile: Dockerfile
         ports:
-            - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+            - "5173:5173"
             - "5174:5174"
         environment:
             - HOST_IP=${HOST_IP}
-            - PORT=${FRONTEND_PORT}
         volumes:
             - ./frontend:/app
             - /app/node_modules

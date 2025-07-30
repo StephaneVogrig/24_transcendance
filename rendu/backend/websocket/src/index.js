@@ -3,7 +3,7 @@ import { Server } from 'socket.io';
 import cors from '@fastify/cors';
 
 const serviceName = 'websocket';
-const serviceport = process.env.PORT;
+const serviceport = 3008;
 
 const fastify = Fastify({
 	logger: {

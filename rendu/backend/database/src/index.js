@@ -3,8 +3,7 @@ import { initDatabase } from './db.js';
 import fs from 'fs';
 
 const serviceName = 'database';
-const serviceport = process.env.PORT;
-
+const serviceport = 3003;
 
 const fastify = Fastify({ logger: true });
 

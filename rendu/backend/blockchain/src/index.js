@@ -1,14 +1,6 @@
 import Web3 from 'web3';
 import Fastify from 'fastify';
 
-const serviceName = 'blockchain';
-const serviceport = process.env.PORT;
-
-const API_KEY = process.env.BLOCKCHAIN_INFURIA_KEY;
-const API_LINK = `https://avalanche-fuji.infura.io/v3/${API_KEY}`;
-const ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"errNotOwner","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint64","name":"id","type":"uint64"},{"indexed":false,"internalType":"string","name":"data","type":"string"}],"name":"BroadcastTournament","type":"event"},{"inputs":[{"internalType":"uint64","name":"id","type":"uint64"}],"name":"getTournament","outputs":[{"components":[{"internalType":"uint64","name":"id","type":"uint64"},{"internalType":"string","name":"data","type":"string"}],"internalType":"struct Tournament.TournamentScore","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint64","name":"id","type":"uint64"},{"internalType":"string","name":"data","type":"string"}],"name":"registerTournament","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"tournamentCount","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"}];
-const CONTRACT_ADDRESS = "0xa10064c3c34c29911e7e446759ce79dc02eaf61f";
-
 const fastify = Fastify({
 	logger: {
 		transport: {
@@ -22,6 +14,8 @@ const fastify = Fastify({
 	},
 });
 
+const serviceName = 'blockchain';
+const serviceport = 3003;
 
 fastify.get('/health', async (request, reply) => {
   return {
@@ -31,6 +25,11 @@ fastify.get('/health', async (request, reply) => {
     uptime: process.uptime()
   };
 });
+
+const API_KEY = process.env.BLOCKCHAIN_INFURIA_KEY;
+const API_LINK = `https://avalanche-fuji.infura.io/v3/${API_KEY}`;
+const ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"errNotOwner","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint64","name":"id","type":"uint64"},{"indexed":false,"internalType":"string","name":"data","type":"string"}],"name":"BroadcastTournament","type":"event"},{"inputs":[{"internalType":"uint64","name":"id","type":"uint64"}],"name":"getTournament","outputs":[{"components":[{"internalType":"uint64","name":"id","type":"uint64"},{"internalType":"string","name":"data","type":"string"}],"internalType":"struct Tournament.TournamentScore","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint64","name":"id","type":"uint64"},{"internalType":"string","name":"data","type":"string"}],"name":"registerTournament","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"tournamentCount","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"}];
+const CONTRACT_ADDRESS = "0xa10064c3c34c29911e7e446759ce79dc02eaf61f";
 
 function formatTournamentForBlockchain(tournament, dateStr) {
 	const { id, players, rounds, winner } = tournament;

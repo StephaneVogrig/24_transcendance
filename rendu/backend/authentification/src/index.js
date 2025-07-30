@@ -3,7 +3,7 @@ import Fastify from 'fastify';
 import { saveUserToDatabase, getUserFromDatabase } from './userDatabase.js';
 
 const serviceName = 'authentification';
-const serviceport = process.env.PORT;
+const serviceport = 3001;
 
 const fastify = Fastify({
   logger: {

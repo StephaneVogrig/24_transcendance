@@ -3,7 +3,7 @@ import * as Tournament from './tournament.js'
 import * as Utils from './utils.js';
 
 const serviceName = 'tournament';
-const serviceport = process.env.PORT;
+const serviceport = 3007;
 
 const fastify = Fastify({
     logger: {
