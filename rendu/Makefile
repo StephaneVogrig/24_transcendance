@@ -31,6 +31,9 @@ SERVICES_PORTS	:=	ai:3009 \
 # Extract service names from SERVICES_PORTS
 SERVICES := $(foreach element,$(SERVICES_PORTS),$(word 1,$(subst :, ,$(element))))
 
+# export an environnement varaible for the port of each service
+$(foreach element,$(SERVICES_PORTS),$(eval export $(shell echo $(word 1,$(subst :, ,$(element))) | tr 'a-z' 'A-Z')_PORT := $(word 2,$(subst :, ,$(element)))))
+
 # *** Rules ********************************************************************
 
 all: ssl up
