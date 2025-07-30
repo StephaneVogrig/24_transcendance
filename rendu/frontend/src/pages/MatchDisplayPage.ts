@@ -6,7 +6,7 @@ import {
     Match
 } from '../services/matchService';
 
-const maxScore = 10; 
+const maxScore = 5; 
 
     const extractMatchesFromTournament = (tournament: any[], state: string, Matchs: Match[], playerNbr: number) => {
         let i = 1;
