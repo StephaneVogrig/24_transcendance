@@ -12,8 +12,32 @@ export const es = {
     "about": "acerca de",
     "connection": "conexión",
 	"logout": "Cerrar sesión",
+    "profile": "Perfil",
     "matchDisplay": "Lista de torneos",
     "errorUserInfo": "No se pudieron recuperar los datos del usuario",
+
+// Profile
+    "userconnected": "✅ Usuario Conectado",  
+    "errorconnection": "Error al cerrar sesión",
+    "errorStatus": "⚠️ Error al verificar el estado de autenticación",
+
+// Match Display
+    "errorMatchDownload": "Error de carga",
+    "errorMatchDisplay": "No se pudieron cargar los partidos. Por favor, inténtelo de nuevo más tarde.",
+    "matchWaiting": "Esperando",
+    "matchPlaying": "Jugando",
+    "matchFinished": "Terminado",
+    "tournamentCreated": "Torneo creado por ",
+    "tournamentWinner": "🏆 Ganador: ",
+    "tournamentWaiting": "Torneos en espera",
+    "noTournamentWaiting": "No hay torneos en espera",
+    "tournamentInProgress": "Torneos en curso",
+    "noTournamentInProgress": "No hay torneos en curso",
+    "tournamentFinished": "Torneos finalizados",
+    "noTournamentFinished": "No hay torneos finalizados",
+
+// Home Page
+    "UsernameInUse": "Nombre de usuario ya en uso",
 
 
     "team": "El equipo",

@@ -12,10 +12,33 @@ export const en = {
 	"about": "about",
     "connection": "Connection",
 	"logout": "Logout",
+	"profile": "Profile",
 	"matchDisplay": "Tournament List",
 	"errorUserInfo": "Could not retrieve user information",
 
+	// Profile
+	"userconnected": "✅  User Connected",
+	"errorconnection": "Error during logout",
+	"errorStatus": "⚠️ Unable to check authentication status",
 
+	// Match Display
+	"errorMatchDownload": "Loading error",
+	"errorMatchDisplay": "Could not load matches. Please try again later.",
+	"matchWaiting": "Waiting",
+	"matchPlaying": "Playing",
+	"matchFinished": "Finished",
+	"tournamentCreated": "Tournament created by ",
+	"tournamentWinner": "🏆 Winner: ",
+	"tournamentWaiting": "Tournaments waiting",
+	"noTournamentWaiting": "No tournaments waiting",
+	"tournamentInProgress": "Tournaments in progress",
+	"noTournamentInProgress": "No tournaments in progress",
+	"tournamentFinished": "Tournaments finished",
+	"noTournamentFinished": "No tournaments finished",
+
+	// Home Page
+	"UsernameInUse": "Username already in use",
+	
 	"team": "The team",
 
 	"exit_game": "Exit Game",

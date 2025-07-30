@@ -5,7 +5,7 @@ import { locale } from '../i18n';
 import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
-import { logout, authGoogleButton } from '../auth/auth0Service';
+import { authGoogleButton } from '../auth/auth0Service';
 
 import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from './HomePageUtils/dbServices.ts';
 import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
@@ -116,7 +116,6 @@ export const HomePage = (): HTMLElement => {
 	playTournament = joinButton(locale.join_tournament);
 	nav.appendChild(playTournament);
 
-	// nav.appendChild(createNavLink(locale.leaderboard, '/leaderboard'));
 	nav.appendChild(createNavLink(locale.matchDisplay, '/MatchDisplay'));
 
 	// language button
@@ -133,11 +132,23 @@ export const HomePage = (): HTMLElement => {
 	}
 	else
 	{
-		const logoutButton = document.createElement('button');
-		logoutButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-red-400 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
-		logoutButton.textContent = locale.logout || 'Déconnexion'; 
-		logoutButton.addEventListener('click', () => {	logout(); }); // appel fonction de déconnexion OAuth0
-		nav.appendChild(logoutButton);
+		const profileButton = document.createElement('button');
+		profileButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-green-400 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
+		profileButton.textContent = locale.profile || 'Profile'; 
+		profileButton.addEventListener('click', () => {
+			window.location.href = '/profile';
+		});
+		nav.appendChild(profileButton);
+
+		// const profileButton = createNavLink("profile", '/profile');
+		// nav.appendChild(profileButton);
+		// content.appendChild(nav);
+
+		// const logoutButton = document.createElement('button');
+		// logoutButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-red-400 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
+		// logoutButton.textContent = locale.logout || 'Déconnexion'; 
+		// logoutButton.addEventListener('click', () => {	logout(); }); // appel fonction de déconnexion OAuth0
+		// nav.appendChild(logoutButton);
 	}
 
 	// about
@@ -326,7 +337,7 @@ export const HomePage = (): HTMLElement => {
 		const name = input.value.trim();
 		if (await usernameExistsInDb(name))
 		{
-			alert("Username already in use");
+			alert(locale.UsernameInUse || 'Username already in use');
 			return;
 		}
 		try {

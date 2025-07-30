@@ -1,5 +1,5 @@
 import { navigate } from '../router';
-// import { locale } from '../i18n';
+import { locale } from '../i18n';
 
 import { 
     getTournamentsType,
@@ -61,13 +61,13 @@ const maxScore = 5;
             // case 'finale':
             //     return { color: 'bg-pink-100 text-orange-800', text: 'Finale playing' };
             case 'final_waiting':
-                return { color: 'bg-orange-100 text-orange-800', text: 'Finale en attente' };
+                return { color: 'bg-orange-100 text-orange-800', text: locale.matchWaiting };
             case 'waiting':
-                return { color: 'bg-yellow-100 text-yellow-800', text: 'En attente' };
+                return { color: 'bg-yellow-100 text-yellow-800', text: locale.matchWaiting };
             case 'playing':
-                return { color: 'bg-green-100 text-green-800', text: 'En cours' };
+                return { color: 'bg-green-100 text-green-800', text: locale.matchPlaying };
             case 'finished':
-                return { color: 'bg-gray-100 text-gray-800', text: 'Terminé' };
+                return { color: 'bg-gray-100 text-gray-800', text: locale.matchFinished };
             default:
                 return { color: 'bg-gray-100 text-gray-800', text: 'Inconnu' };
         }
@@ -158,7 +158,7 @@ const maxScore = 5;
             const playerList = tournament.players.map((player: any) => player.name);
             const matchId = document.createElement('span');
             matchId.className = 'text-xs font-medium text-gray-500';
-            matchId.textContent = `Tournament created by ${tournament.createdBy}`;
+            matchId.textContent = `${locale.tournamentCreated} ${tournament.createdBy}`;
             
             matchHeader.appendChild(matchId);
             matchDiv.appendChild(matchHeader);
@@ -181,7 +181,7 @@ const maxScore = 5;
                     const name = winner.name;
                     const winnerElement = document.createElement('div');
                     winnerElement.className = 'text-sm font-bold text-green-600';
-                    winnerElement.textContent = `🏆 Vainqueur: ${name}`;
+                    winnerElement.textContent = `${locale.tournamentWinner} ${name}`;
                     playersContainer.appendChild(winnerElement);
                 }
             }
@@ -448,17 +448,17 @@ const maxScore = 5;
             cardsContainer.innerHTML = '';
 
             // Créer les cartes pour chaque type de tournoi
-            const waitingCard = createOpenTournamentCard('Tournois en Attente', open,
-                'bg-yellow-100 text-yellow-800','Aucun tournoi en attente');
+            const waitingCard = createOpenTournamentCard(locale.tournamentWaiting, open,
+                'bg-yellow-100 text-yellow-800', locale.tournamentNoWaiting);
 
             // const ongoingCard = createOngoingTournamentCard('Tournois en Cours', Matchs_tournament_ongoing,
             //     'bg-green-100 text-green-800', 'Aucun tournoi en cours');
 
-            const ongoingCard = createOngoingTournamentCard('Tournois en Cours', ongoing,
-                'bg-green-100 text-green-800', 'Aucun tournoi en cours');
+            const ongoingCard = createOngoingTournamentCard(locale.tournamentInProgress, ongoing,
+                'bg-green-100 text-green-800', locale.noTournamentInProgress);
 
-            const finishedCard = createEndedTournamentCard('Tournois Terminés', ended,
-                'bg-gray-100 text-gray-800','Aucun tournoi terminé');
+            const finishedCard = createEndedTournamentCard(locale.tournamentFinished, ended,
+                'bg-gray-100 text-gray-800',locale.noTournamentFinished);
 
             // Ajouter la carte ongoing au-dessus
             cardsContainer.appendChild(ongoingCard);
@@ -474,12 +474,12 @@ const maxScore = 5;
             cardsContainer.appendChild(bottomCardsContainer);
 
         } catch (error) {
-            console.error('Erreur lors du chargement des matchs:', error);
+            // console.error('Erreur lors du chargement des matchs:', error);
             cardsContainer.innerHTML = `
                 <div class="col-span-full text-center py-12">
                     <div class="text-red-400 text-6xl mb-4">⚠️</div>
-                    <h3 class="text-xl font-semibold text-red-600 mb-2">Erreur de chargement</h3>
-                    <p class="text-gray-500">Impossible de charger les matchs. Veuillez réessayer.</p>
+                    <h3 class="text-xl font-semibold text-red-600 mb-2">${locale.errorMatchDownload}</h3>
+                    <p class="text-gray-500">${locale.errorMatchDisplay}</p>
                 </div>
             `;
         }
@@ -535,9 +535,9 @@ export const MatchDisplayPage = (): HTMLElement => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
         </svg>
     `;
-    refreshButton.title = 'Rafraîchir les matchs';
+    // refreshButton.title = 'Rafraîchir les matchs';
     refreshButton.onclick = () => {
-        console.log('Rafraîchissement des matchs...');
+        // console.log('Rafraîchissement des matchs...');
         loadMatches(cardsContainer);
     };
     titleContainer.appendChild(refreshButton);

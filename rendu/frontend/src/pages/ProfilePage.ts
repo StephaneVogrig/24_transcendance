@@ -77,7 +77,7 @@ export const ProfilePage = (): HTMLElement => {
             {
                 statusDiv.innerHTML = ''; // Clear previous content
 
-                const statusTitle = createElement('h3', { text: '✅ Utilisateur Connecté',
+                const statusTitle = createElement('h3', { text: locale.userconnected,
                 className: 'text-xl font-semibold text-center text-green-600 mb-2', });
                 statusDiv.appendChild(statusTitle);
 
@@ -123,10 +123,10 @@ export const ProfilePage = (): HTMLElement => {
                         await logout();
                     } 
                     catch (error) {
-                        console.error('Erreur lors de la déconnexion:', error);
+                        console.error(locale.errorconnection, error);
                         logoutBtn.disabled = false;
                         // logoutBtn.textContent = 'Se Déconnecter';
-                        alert('Erreur lors de la déconnexion');
+                        alert(locale.errorconnection);
                     }
                 });
             } 
@@ -141,7 +141,7 @@ export const ProfilePage = (): HTMLElement => {
         } 
         catch (error) {
             console.error('Erreur lors de la vérification du statut:', error);
-            userInfoDiv.appendChild(createErrorMessage('⚠️ Impossible de vérifier le status d\'authentification', 'warning'));
+            userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));
         }
     };
 
