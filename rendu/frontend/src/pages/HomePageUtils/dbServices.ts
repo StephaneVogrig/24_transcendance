@@ -1,7 +1,9 @@
+import { API_BASE_URL } from '../../config.ts';
+
 export async function registerUsernameToDb(username: string)
 {
 	try {
-		const response = await fetch(`https://${window.location.hostname}:3000/api/database/addUser`, {
+		const response = await fetch(`${API_BASE_URL}/database/addUser`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ username })
@@ -18,7 +20,7 @@ export async function registerUsernameToDb(username: string)
 export async function usernameExistsInDb(username: string) : Promise<Boolean>
 {
 	try {
-		const response = await fetch(`https://${window.location.hostname}:3000/api/database/getUser?username=${username}`, {
+		const response = await fetch(`${API_BASE_URL}/database/getUser?username=${username}`, {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' }
 		});
@@ -38,7 +40,7 @@ export async function usernameExistsInDb(username: string) : Promise<Boolean>
 export async function deleteUsernameFromDb(username: string)
 {
 	try {
-		const response = await fetch(`https://${window.location.hostname}:3000/api/database/removeUser`, {
+		const response = await fetch(`${API_BASE_URL}/database/removeUser`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ username })

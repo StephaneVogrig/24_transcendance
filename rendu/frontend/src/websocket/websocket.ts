@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import { BASE_URL } from '../config.ts';
 
 let socketInstance: Socket | null = null;
 let playerName: string | null = null;
@@ -7,7 +8,7 @@ let playerSocket2: Socket | null = null;
 export const getSocket = (): Socket => {
     if (!socketInstance || !socketInstance.connected) {
         if (!socketInstance) {
-            socketInstance = io(`https://${window.location.hostname}:3000`, {
+            socketInstance = io(`${BASE_URL}`, {
                 path: '/api/websocket/my-websocket/',
 				forceNew: true
             });

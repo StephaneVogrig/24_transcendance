@@ -1,0 +1,60 @@
+services:
+    proxy:
+        ports:
+            - "${PROXY_PORT}:${PROXY_PORT}"
+        volumes:
+            - ./proxy/nginx-dev.conf:/etc/nginx/nginx.conf:ro
+
+    frontend:
+        image: frontend-vite
+        container_name: frontend-vite
+        build:
+            dockerfile: Dockerfile.vite
+        ports:
+            - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+            - ./ssl:/app/ssl
+        environment:
+            - VITE_PROXY_PORT=${PROXY_PORT}
+
+    gateway:
+        ports:
+            - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+
+    authentification:
+        ports:
+            - "${AUTHENTIFICATION_PORT}:${AUTHENTIFICATION_PORT}"
+
+    blockchain:
+        ports:
+            - "${BLOCKCHAIN_PORT}:${BLOCKCHAIN_PORT}"
+
+    database:
+        ports:
+            - "${DATABASE_PORT}:${DATABASE_PORT}"
+
+    game:
+        ports:
+            - "${GAME_PORT}:${GAME_PORT}"
+
+    matchmaking:
+        ports:
+            - "${MATCHMAKING_PORT}:${MATCHMAKING_PORT}"
+
+    scores:
+        ports:
+            - "${SCORES_PORT}:${SCORES_PORT}"
+
+    tournament:
+        ports:
+            - "${TOURNAMENT_PORT}:${TOURNAMENT_PORT}"
+
+    websocket:
+        ports:
+            - "${WEBSOCKET_PORT}:${WEBSOCKET_PORT}"
+
+    ai:
+        ports:
+            - "${AI_PORT}:${AI_PORT}"
