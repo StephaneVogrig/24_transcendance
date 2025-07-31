@@ -2,7 +2,8 @@ import Fastify from 'fastify';
 import * as GameManager from './gameManager.js';
 
 const serviceName = 'game';
-const serviceport = 3004;
+const serviceport = process.env.PORT;
+
 
 const fastify = Fastify({
     logger: {

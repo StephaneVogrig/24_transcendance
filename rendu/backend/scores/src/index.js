@@ -1,7 +1,8 @@
 import Fastify from 'fastify';
 
 const serviceName = 'scores';
-const serviceport = 3006;
+const serviceport = process.env.PORT;
+
 
 const fastify = Fastify({
     logger: {

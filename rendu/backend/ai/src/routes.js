@@ -3,7 +3,7 @@ import * as AI from './ai.js';
 import { addAI } from './iaManager.js';
 
 const serviceName = 'ai';
-const serviceport = 3009;
+const serviceport = process.env.PORT;
 
 const fastify = Fastify({
     logger: {
