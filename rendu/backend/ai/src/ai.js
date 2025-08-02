@@ -70,10 +70,28 @@ export class AI {
 					reject(new Error(`Socket connection error: ${err.message}`));
 				});
 
-				this.socket.on('IAState', (data) => {
-					this.ballPos = data.ball;
-					this.ballSpeed = data.ballspeed;
-					this.paddlePos = data.paddle;
+				this.socket.on('gameState', (data) => {
+                    if (!data || !data.ball || !data.player2?.paddle || !data.gameStatus) {
+						console.warn('Données de gameState invalides');
+						return;
+					}
+
+					if (data.gameStatus === 'finished'){
+						this.gameOn = false;
+					}
+
+					this.ballPos = {
+						x: data.ball._x,
+						y: data.ball._y,
+					}
+					this.ballSpeed = {
+						x: data.ballspeed._x,
+						y: data.ballspeed._y
+					};
+					this.paddlePos = {
+						x: data.player2.paddle._x,
+						y: data.player2.paddle._y,
+					};
 				});
 
 				this.socket.on('gameOverDefault', () => {

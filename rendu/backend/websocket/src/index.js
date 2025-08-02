@@ -204,111 +204,52 @@ async function getstate(gameId, player) {
 
 		const responseData = await response.json();
 
-		if (responseData.state) {
-			const gameState = responseData.state;
-
-			const ballPos = {
-				x: gameState.ball._x / 2.5,
-				y: 0,
-				z: gameState.ball._y / 2.5
-			};
-
-			const ballSpeed = {
-				x: gameState.ballspeed._x,
-				y: 0,
-				z: gameState.ballspeed._y
-			};
-
-			const ballSpeedIA = {
-				x: gameState.ballspeed._x,
-				y: gameState.ballspeed._y
-			};
-
-			const paddleIA = {
-				x: gameState.player2.paddle._x,
-				y: gameState.player2.paddle._y,
-			};
-
-			const ballPosIA = {
-				x: gameState.ball._x,
-				y: gameState.ball._y,
-			}
-
-			let platform1Pos = null;
-			if (gameState.player1 && gameState.player1.paddle){
-				platform1Pos = {
-					x: gameState.player1.paddle._x / 2.5 + 0.5,
-					y: 0,
-					z: gameState.player1.paddle._y / 2.5
-				};
-			}
-
-			let platform2Pos = null;
-			if (gameState.player2 && gameState.player2.paddle) {
-				platform2Pos = {
-					x: gameState.player2.paddle._x / 2.5 - 0.5,
-					y: 0,
-					z: gameState.player2.paddle._y / 2.5
-				};
-			}
-			if (gameState.player1.name === player) {
-				const player1SocketId = playerNameToSocketId.get(player); 
-				if (player1SocketId)
-					io.to(player1SocketId).emit('teamPing', { team: 'left' });
-				const player2SocketId = playerNameToSocketId.get(gameState.player2.name);
-				if (player2SocketId)
-					io.to(player2SocketId).emit('teamPing', { team: 'right' });
-			}
-			if (ballPos && platform1Pos && platform2Pos) {
-				io.to(gameId).emit('updatePositions', {
-					ball: ballPos,
-					platform1: platform1Pos,
-					platform2: platform2Pos
-				});
-				io.to(gameId).emit('IAState', {
-					ball: ballPosIA,
-					ballspeed: ballSpeedIA,
-					paddle: paddleIA
-				});
-			}
-			if (gameState.score) {
-				const player1Score = gameState.score[0];
-				const player2Score = gameState.score[1];
-				io.to(gameId).emit('scoreUpdate', {
-					player1Score: player1Score,
-					player2Score: player2Score
-				});
-			}
-			// HANDLE GAME STATUS
-			if (gameState.gameStatus) {
-				if (gameState.gameStatus === 'finished') {
-					console.log(`Game ${gameId} finished. Fetching game over state for player ${player}.`);
-					const gameOverState = await getGameOver(player);
-					if (gameOverState) {
-						console.log(`Game over state for player ${player}:`, gameOverState);
-						io.to(gameId).emit('gameOver', {
-							type: isInTournament(player) ? 'tournament' : 'default',
-							winner: gameOverState.winner,
-							score: gameOverState.score
-						});
-					}
-				}
-				io.to(gameId).emit('gameStatusUpdate', {
-					gameStatus: gameState.gameStatus
-				});
-				if (gameState.gameStatus === 'finished') {
-					console.log(`Game ${gameId} finished. Stopping game loop.`);
-					const session = gameSessions.get(gameId);
-					if (session) {
-						clearInterval(session.intervalId);
-						gameSessions.delete(gameId);
-						console.log(`Game session ${gameId} cleared from memory.`);
-					}
-				}
-			}
-			return responseData.gameState;
-		} else
+		if (!responseData.gameState) {
 			return null;
+		}
+
+		const gameState = responseData.gameState;
+
+		if (gameState.player1.name === player) {
+			const player1SocketId = playerNameToSocketId.get(player);
+			if (player1SocketId)
+				io.to(player1SocketId).emit('teamPing', { team: 'left' });
+			const player2SocketId = playerNameToSocketId.get(gameState.player2.name);
+			if (player2SocketId)
+				io.to(player2SocketId).emit('teamPing', { team: 'right' });
+		}
+
+		// HANDLE GAME STATUS
+		if (gameState.gameStatus) {
+			if (gameState.gameStatus === 'finished') {
+				console.log(`Game ${gameId} finished. Fetching game over state for player ${player}.`);
+				const gameOverState = await getGameOver(player);
+				if (gameOverState) {
+					console.log(`Game over state for player ${player}:`, gameOverState);
+					io.to(gameId).emit('gameOver', {
+						type: isInTournament(player) ? 'tournament' : 'default',
+						winner: gameOverState.winner,
+						score: gameOverState.score
+					});
+				}
+			}
+			io.to(gameId).emit('gameStatusUpdate', {
+				gameStatus: gameState.gameStatus
+			});
+			if (gameState.gameStatus === 'finished') {
+				console.log(`Game ${gameId} finished. Stopping game loop.`);
+				const session = gameSessions.get(gameId);
+				if (session) {
+					clearInterval(session.intervalId);
+					gameSessions.delete(gameId);
+					console.log(`Game session ${gameId} cleared from memory.`);
+				}
+			}
+		}
+
+		io.to(gameId).emit('gameState', responseData.gameState);
+        return responseData.gameState;
+
 	} catch (error) {
 		console.error('state: Error communicating with game logic service:', error);
 		return null;

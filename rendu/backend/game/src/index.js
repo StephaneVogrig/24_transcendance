@@ -96,7 +96,7 @@ fastify.get('/state', async (request, reply) => {
     const match = GameManager.findMatch(player);
     if (!match)
         return reply.status(404).send({ error: `No match found for player ${player}` });
-    const state = {
+    const gameState = {
         player1: {
             name: match.player1.getName(),
             paddle: match.player1.getPaddle().getPosition()
@@ -110,7 +110,7 @@ fastify.get('/state', async (request, reply) => {
         score: [match.player1.getScore(), match.player2.getScore()],
         gameStatus: match.gameStatus
     };
-    return reply.status(200).send({state: state});
+    return reply.status(200).send({gameState: gameState});
 });
 
 const start = async () => {

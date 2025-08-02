@@ -62,17 +62,35 @@ export class InputManager {
 	}
 
 	private init() {
-		// this.socket.on('message', (data) => {
-		// 	console.log(`Message from server: ${data}`);
-		// });
 
-		this.socket.on('updatePositions', (data: { ball: { x: number, y: number, z: number }, platform1: { x: number, y: number, z: number }, platform2: { x: number, y: number, z: number } }) => {
-			// console.log('Received position update:', data);
-			updateBallAndPlatforms(data.ball, data.platform1, data.platform2);
-		});
-		this.socket.on('scoreUpdate', (data: { player1Score: number, player2Score: number }) => {
-			// console.log('Score update received:', data);
-			updateScores(data.player1Score, data.player2Score);
+		let gameStatus = '';
+
+		this.socket.on('gameState', (data) => {
+			if (!data || !data.ball || !data.player1?.paddle || !data.player2?.paddle || !data.score || !data.gameStatus) {
+				console.warn(`socket.on gameState, invalid data.`, data);
+				return;
+			}
+			const ballPos = {
+				x: data.ball._x / 2.5,
+				y: 0,
+				z: data.ball._y / 2.5
+			};
+			const platform1Pos = {
+				x: data.player1.paddle._x / 2.5 + 0.5,
+				y: 0,
+				z: data.player1.paddle._y / 2.5
+			};
+			const platform2Pos = {
+				x: data.player2.paddle._x / 2.5 - 0.5,
+				y: 0,
+				z: data.player2.paddle._y / 2.5
+			};
+			updateBallAndPlatforms(ballPos, platform1Pos, platform2Pos);
+			updateScores(data.score[0], data.score[1]);
+			if (gameStatus != data.gameStatus || data.gameStatus === 'waiting') {
+				gameStatus = data.gameStatus;
+				gameStatusUpdate(gameStatus);
+			}
 		});
 
 		this.socket.on('gameOver', (data: { type : string, winner: { name: string, score: number }, score: [number, number] }) => {
@@ -90,8 +108,6 @@ export class InputManager {
 			}
 		});
 
-
-
 		this.socket.on('teamPing', (data: { team: string }) => {
 			// console.debug(`Received team ping for team: ${data.team}`);
 			if (data.team === 'left') {
@@ -106,8 +122,6 @@ export class InputManager {
 			console.log(`Name accepted: ${data.name}`);
 			setPlayerName(data.name);
 		});
-
-		let gameStatus = '';
 
 		this.socket.on('gameStatusUpdate', (data: { gameStatus: string }) => {
 			if (gameStatus != data.gameStatus || data.gameStatus === 'waiting') {
