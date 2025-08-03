@@ -22,7 +22,7 @@ function calculateYgoal(ballSpeed, ballPos, paddlePos) {
 		// console.log(`> y_goal: ${y_goal}`);
 		while (y_goal < -25 || y_goal > 25)
 		{
-			if (speed.y = 0)
+			if (speed.y === 0)
 				break;
 
 			let ywall = speed.y > 0 ? 25 : -25;
