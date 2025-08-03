@@ -98,6 +98,15 @@ export class AI {
 					this.gameOn = false;
 				});
 
+				this.socket.on('disconnect', () => {
+					console.log(`AI socket disconnected for ${this.playerAI}`);
+					this.gameOn = false;
+				});
+
+				// this.socket.on('error', (error) => {
+				// 	console.error(`AI socket error for ${this.playerAI}: `, error);
+				// 	this.gameOn = false;
+				// });
 			})
 
 			const response = await fetch(`http://game:3004/start`, {
@@ -118,6 +127,11 @@ export class AI {
 
 			while (this.gameOn)
 			{
+				if (!this.socket || !this.socket.connected) {
+					console.log(`AI socket disconnected, stopping game`);
+					this.gameOn = false;
+					break;
+				}
 				let y_goal = calculateYgoal(this.ballSpeed, this.ballPos, this.paddlePos);
 
 				// console.log(`y_goal: ${y_goal}`);
