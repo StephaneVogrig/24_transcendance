@@ -39,22 +39,21 @@ tournament
 websocket
 ```
 # Architecture
+
 ```
-transcendence/
-├── backend/				# Fastify uniquement aucun framwork
-│   ├── ai/
-│   ├── authentification/
-│   ├── blockchain/
-│   ├── database/			# SQLite
-│   ├── games/
-│   ├── gateway/			# point d'entrée unique
-│   ├── matchmaking/
-│   ├── scores/
-│   ├── shared/
-│   ├── tournament/
-│   └── websocket/ 
-├── frontend/				# SPA, Tailwind CSS & Typescript uniquement			
-└── docker-compose.yml
+└── proxy					# point d'entrée unique
+	├── frontend
+	└── gateway				# point d'entrée API
+		├── ai
+		├── authentification
+		├── blockchain
+		├── database
+		├── games
+		├── matchmaking
+		├── scores
+		├── shared
+		├── tournament
+		└── websocket 
 ```
 
 # Tutos
