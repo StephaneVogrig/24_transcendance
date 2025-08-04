@@ -1,4 +1,5 @@
 import { locale } from '../i18n';
+import { authGoogleButton } from '../auth/auth0Service';
 
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
@@ -54,7 +55,7 @@ export const Connected = (user: any, userInfoDiv: HTMLDivElement): void =>
     {
         // Title
         const infoTitle = createElement('h3', {
-            text: 'Informations Utilisateur',
+            text: locale.userInfo,
             className: 'text-lg font-semibold text-gray-800 mb-4',
         });
         userInfoDiv.appendChild(infoTitle);
@@ -106,14 +107,14 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         const icon = createElement('div', { text: '❌', className: 'text-center text-red-600 text-6xl mb-4', });
         statusDiv.appendChild(icon);
 
-        const statusTitle = createElement('h3', { text: 'Utilisateur Non Connecté', className: 'text-center text-xl font-semibold text-red-600 mb-2', });
+        const statusTitle = createElement('h3', { text: locale.notConnected, className: 'text-center text-xl font-semibold text-red-600 mb-2', });
         statusDiv.appendChild(statusTitle);
 
         userInfoDiv.innerHTML = ''; // Vider le contenu précédent
 
         const userInfoContent = document.createElement('div');
         userInfoContent.className = 'text-center text-gray-500';
-        const userInfoText = createElement('p', { text: 'Connectez-vous pour voir vos informations', className: 'text-center text-gray-500', });
+        const userInfoText = createElement('p', { text: locale.connectForInfo, className: 'text-center text-gray-500', });
         userInfoContent.appendChild(userInfoText);
         userInfoDiv.appendChild(userInfoContent);
 
@@ -126,12 +127,15 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         const actionsContainer = document.createElement('div');
         actionsContainer.className = 'flex flex-wrap gap-4';
 
-        const loginButton = document.createElement('button');
-        loginButton.id = 'login-btn';
-        loginButton.className = 'px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200';
-        loginButton.textContent = 'Se Connecter';
+        // const loginButton = document.createElement('button');
+        // loginButton.id = 'login-btn';
+        // loginButton.className = 'px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200';
+        // loginButton.textContent = 'Se Connecter';
 
-        actionsContainer.appendChild(loginButton);
+
+        authGoogleButton(actionsDiv, document.createElement('div'));
+
+        // actionsContainer.appendChild(loginButton);
         actionsDiv.appendChild(actionsTitle);
         actionsDiv.appendChild(actionsContainer);
 }

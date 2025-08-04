@@ -18,8 +18,11 @@ export const fr = {
     
     // Profile
     "userconnected": "✅ Utilisateur Connecté",
+    "userInfo": "Informations Utilisateur",
     "errorconnection": "Erreur lors de la déconnexion",
-    "errorStatus": "'⚠️ Impossible de vérifier le status d\'authentification'",   
+    "errorStatus": "⚠️ Impossible de vérifier le status d\'authentification",   
+    "statusAuth": "Statut d'authentification",
+    "return": "Retour",
 
     // Match Display
     "errorMatchDownload": "Erreur de chargement",
@@ -35,6 +38,10 @@ export const fr = {
     "noTournamentInProgress": "Aucun tournoi en cours",
     "tournamentFinished": "Tournois terminés",
     "noTournamentFinished": "Aucun tournoi terminé",
+
+    // profileUtils
+    "notConnected": "Utilisateur Non Connecté",
+    "connectForInfo": "Connectez-vous pour voir vos informations",
 
     // Home Page
     "UsernameInUse": "Nom d'utilisateur déjà utilisé",

@@ -18,8 +18,12 @@ export const en = {
 
 	// Profile
 	"userconnected": "✅  User Connected",
+	"userInfo": "User Information",
 	"errorconnection": "Error during logout",
 	"errorStatus": "⚠️ Unable to check authentication status",
+	"satusAuth": "Authentication Status",
+    "return": "Return",
+
 
 	// Match Display
 	"errorMatchDownload": "Loading error",
@@ -35,6 +39,10 @@ export const en = {
 	"noTournamentInProgress": "No tournaments in progress",
 	"tournamentFinished": "Tournaments finished",
 	"noTournamentFinished": "No tournaments finished",
+
+	// profileUtils
+	"notConnected": "User Not Connected",
+	"connectForInfo": "Connect to see your information",
 
 	// Home Page
 	"UsernameInUse": "Username already in use",

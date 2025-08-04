@@ -17,9 +17,12 @@ export const es = {
     "errorUserInfo": "No se pudieron recuperar los datos del usuario",
 
 // Profile
-    "userconnected": "✅ Usuario Conectado",  
+    "userconnected": "✅ Usuario Conectado",
+    "userInfo": "Información del Usuario",
     "errorconnection": "Error al cerrar sesión",
     "errorStatus": "⚠️ Error al verificar el estado de autenticación",
+    "statusAuth": "Estado de autenticación",
+    "return": "Volver",
 
 // Match Display
     "errorMatchDownload": "Error de carga",
@@ -35,6 +38,10 @@ export const es = {
     "noTournamentInProgress": "No hay torneos en curso",
     "tournamentFinished": "Torneos finalizados",
     "noTournamentFinished": "No hay torneos finalizados",
+
+// profileUtils
+    "notConnected": "Usuario No Conectado",
+    "connectForInfo": "Conéctese para ver su información",
 
 // Home Page
     "UsernameInUse": "Nombre de usuario ya en uso",

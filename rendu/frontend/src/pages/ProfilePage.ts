@@ -1,9 +1,7 @@
-import { isAuthenticated, getUser, logout} from '../auth/auth0Service';
+import { getUser, logout} from '../auth/auth0Service';
 import { navigate } from '../router';
 import { locale } from '../i18n';
-
 import { notConnected, Connected, animateLoading } from '../utils/ProfileUtils';
-
 
 // Fonction utilitaire 
 const createErrorMessage = (message: string, type: 'error' | 'warning' | 'info' = 'warning'): HTMLElement => {
@@ -34,7 +32,6 @@ const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: {
 
 export const ProfilePage = (): HTMLElement => {
     const mainDiv = document.createElement('div');
-    mainDiv.className = 'min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6';
 
     // Conteneur principal
     const container = document.createElement('div');
@@ -44,7 +41,7 @@ export const ProfilePage = (): HTMLElement => {
     // Titre
     const title = document.createElement('h1');
     title.className = 'text-4xl font-bold text-center text-gray-800 mb-8';
-    title.textContent = 'Statut d\'Authentification';
+    title.textContent = locale.statusAuth;
     container.appendChild(title);
 
     // Zone de statut
@@ -65,18 +62,14 @@ export const ProfilePage = (): HTMLElement => {
     // Fonction pour mettre à jour le statut
     const updateStatus = async () => {
         try {
-
             animateLoading(statusDiv); // Afficher l'indicateur de chargement
 
             userInfoDiv.innerHTML = '';
             actionsDiv.innerHTML = '';
 
-            const authenticated = await isAuthenticated();// Vérifier l'authentification
-
-            if (authenticated) // Utilisateur connecté
+            if ( localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') != null )
             {
                 statusDiv.innerHTML = ''; // Clear previous content
-
                 const statusTitle = createElement('h3', { text: locale.userconnected,
                 className: 'text-xl font-semibold text-center text-green-600 mb-2', });
                 statusDiv.appendChild(statusTitle);
@@ -97,7 +90,7 @@ export const ProfilePage = (): HTMLElement => {
                 } 
                 catch (error) 
                 {
-                    console.error(locale.errorUserInfo, error);
+                    // console.error(locale.errorUserInfo, error);
                     userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
                 }
 
@@ -105,7 +98,6 @@ export const ProfilePage = (): HTMLElement => {
                 actionsDiv.innerHTML = ''; // Clear previous content
 
                 const actionsContainer = createElement('div', {className: 'flex flex-wrap gap-4'});
-
                 const logoutButton = createElement('button', {text:locale.logout, className: 'px-6 py-2 bg-red-700 text-white rounded-lg'});
                 logoutButton.id = 'logout-btn';
 
@@ -119,28 +111,20 @@ export const ProfilePage = (): HTMLElement => {
                     try 
                     {
                         logoutBtn.disabled = true;
-                        // logoutBtn.textContent = 'Déconnexion...';
                         await logout();
                     } 
                     catch (error) {
-                        console.error(locale.errorconnection, error);
+                        // console.error(locale.errorconnection, error);
                         logoutBtn.disabled = false;
-                        // logoutBtn.textContent = 'Se Déconnecter';
                         alert(locale.errorconnection);
                     }
                 });
             } 
             else // Utilisateur non connecté
-            {
                 notConnected(statusDiv, userInfoDiv, actionsDiv);
-        
-                const loginBtn = actionsDiv.querySelector('#login-btn') as HTMLButtonElement;
-                loginBtn?.addEventListener('click', () => navigate('/login'));
-            }
-
         } 
         catch (error) {
-            console.error('Erreur lors de la vérification du statut:', error);
+            // console.error('Erreur lors de la vérification du statut:', error);
             userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));
         }
     };
@@ -152,7 +136,7 @@ export const ProfilePage = (): HTMLElement => {
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
-        <span>Retour</span>
+        <span>${locale.return}</span>
     `;
     backButton.onclick = () => navigate('/');
     container.insertBefore(backButton, title);
