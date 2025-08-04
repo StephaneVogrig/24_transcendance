@@ -63,7 +63,6 @@ export function readTournament(tournament) {
 	return lines.join('\n');
 }
 
-
 export function readRound(round) {
 	const roundArray = Object.values(round);
 	return {
@@ -79,4 +78,11 @@ export function readRound(round) {
 			}
 		}))
 	};
+}
+
+export function checkPlayerName(playerName) {
+	if (playerName.length < 3)
+		throw new Error(`player name '${playerName}' is too short, minimum 3 characters.`);
+	if (playerName.length > 25)
+		throw new Error(`player name '${playerName}' is too long, maximum 25 characters.`);
 }

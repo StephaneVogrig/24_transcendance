@@ -212,8 +212,6 @@ export async function joinTournament(name)
 	name = name.trim();
 	if (findTournamentWithPlayer(name))
 		throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
-	if (name.length < 3)
-		throw new Error(`Couldn't create tournament: name '${tmp}' is invalid.`);
 	const tournament = findTournament();
 	if (!tournament)
 		return await createTournament(name);

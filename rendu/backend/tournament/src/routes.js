@@ -80,6 +80,7 @@ fastify.post('/join', async (request, reply) => {
     const name = request.body.name;
     try
     {
+        Utils.checkPlayerName(name);
         const tournament = await Tournament.joinTournament(name);
         return reply.send(tournament);
     } catch (err)
