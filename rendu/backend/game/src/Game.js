@@ -1,3 +1,4 @@
+import { log } from './fastify.js'
 import * as Ball from './Ball.js';
 import { Player } from './Player.js';
 import { stopMatch } from './gameManager.js';
@@ -43,7 +44,7 @@ export class Game {
     async sendStart()
     {
         try {
-			console.log(`Starting game in websocket for ${this.player1.getName()} and ${this.player2.getName()}`);
+			log.debug({gameId: this.gameId}, `Starting game in websocket for ${this.player1.getName()} and ${this.player2.getName()}`);
             const response = await fetch(`http://websocket:3008/startGame`, {
                 method: 'POST',
                 headers: {
@@ -57,16 +58,17 @@ export class Game {
             });
             
             if (!response.ok) {
-                console.error('Failed to start the game:', response.statusText);
+                log.error({gameId: this.gameId}, 'Failed to start the game:', response.statusText);
             }
         } catch (error) {
-            console.error('Error starting the game:', error);
+            log.error({gameId: this.gameId}, 'Error starting the game:', error);
             throw error;
         }
     }
 
     async sendScores()
     {
+        log.debug({gameId: this.gameId}, `send scores`);
         try
         {
             await fetch(`http://tournament:3007/playerscores`, {
@@ -80,7 +82,7 @@ export class Game {
                     })
             });
         } catch (error) {
-            console.error('Error sending scores:', error);
+            log.error({gameId: this.gameId}, 'Error sending scores:', error);
         }
     }
 
@@ -88,13 +90,13 @@ export class Game {
     {
         try {
             await this.sendStart();
-            console.log(`Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
+            log.debug({gameId: this.gameId}, `Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
             const [player1RedirectStatus, player2RedirectStatus] = await Promise.all([
                 this.redirectPlayer(this.player1.getName()),
                 this.redirectPlayer(this.player2.getName())
             ]);
             if (!player1RedirectStatus || !player2RedirectStatus) {
-                return console.error('Failed to redirect players');
+                return log.error({gameId: this.gameId}, 'Failed to redirect players');
             }
 
             this.gameStatus = 'ready';
@@ -104,14 +106,14 @@ export class Game {
                 await new Promise(r => setTimeout(r, 1000));
                 this.gameStatus = `${3 - i}`;
                 i++;
-                console.log(`Game starting in ${3 - i} seconds...`);
+                log.debug({gameId: this.gameId}, `Game starting in ${3 - i} seconds...`);
             }
 
             this.gameStatus = 'started';
 
             const loop = async () => {
                 if (this.stopBoolean) {
-                    console.log('Game loop stopped');
+                    log.debug({gameId: this.gameId}, 'Game loop stopped');
                     return;
                 }
                 if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
@@ -126,7 +128,7 @@ export class Game {
             };
             loop();
         } catch (error) {
-            console.error('Error starting the game:', error);
+            log.error({gameId: this.gameId}, 'Error starting the game:', error);
             this.gameStatus = 'error';
         }
     }
@@ -157,8 +159,8 @@ export class Game {
         else if (player === this.player2.getName() && this.player1.getScore() < this.maxScore && this.player2.getScore() < this.maxScore)
             this.player1.score = this.maxScore;
         await this.sendScores();
-        console.log(`score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);
-        console.log(`Game stopped: ${this.player1.getName()} vs ${this.player2.getName()}`);
+        // log.debug({gameId: this.gameId}, `score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);
+        log.debug({gameId: this.gameId}, `Game stopped: ${this.player1.getName()} vs ${this.player2.getName()}`);
         this.stopBoolean = true;
     }
 }

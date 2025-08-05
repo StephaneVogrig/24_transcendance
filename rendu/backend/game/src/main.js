@@ -1,4 +1,4 @@
 import {fastify }from './fastify.js'
-import './routes.js'
+import './index.js'
 
 export const app = fastify;

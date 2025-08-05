@@ -1,4 +1,4 @@
-import { fastify } from './fastify.js'
+import { fastify, log } from './fastify.js'
 import * as GameManager from './gameManager.js';
 
 const serviceName = 'game';
@@ -20,12 +20,14 @@ fastify.post('/start', async (request, reply) => {
 		console.log(`${player1} and ${player2} " | " ${maxScore}`);
         return reply.status(400).send({ error: 'Both player1 and player2 are required' });
     }
+    log.debug(request.body, "requested start game");
     try {
         GameManager.addMatch(player1, player2, maxScore);
     } catch (error) {
+        log.error(error, `start error`);
         return reply.status(400).send({ error: error.message });
     }
-    console.log(`Starting game between ${player1} and ${player2}`);
+    // console.log(`Starting game between ${player1} and ${player2}`);
     return reply.status(200).send({ message: `Game started between ${player1} and ${player2}` });
 });
 
@@ -45,6 +47,7 @@ fastify.post('/stop', async (request, reply) => {
     if (!player) {
         return reply.status(400).send({ error: 'Player is required' });
     }
+    log.debug(request.body, "requested stop");
     try {
         await GameManager.stopMatch(player);
     } catch (error) {
