@@ -2,11 +2,11 @@
   "name": "transcendence-game",
   "version": "1.0.0",
   "description": "Game service for Transcendence",
-  "main": "src/index.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node src/index.js"
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
   },
   "dependencies": {
     "fastify": "^4.24.3",

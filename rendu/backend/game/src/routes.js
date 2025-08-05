@@ -1,23 +1,8 @@
-import Fastify from 'fastify';
+import { fastify } from './fastify.js'
 import * as GameManager from './gameManager.js';
 
 const serviceName = 'game';
 const serviceport = process.env.PORT;
-
-
-const fastify = Fastify({
-    logger: {
-        transport: {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'SYS:HH:MM:ss.l',
-                singleLine: true,
-                ignore: 'pid,hostname'
-            }
-        }
-    },
-});
 
 // API endpoint to check the availability and operational status of the service.
 fastify.get('/health', async (request, reply) => {
@@ -112,14 +97,3 @@ fastify.get('/state', async (request, reply) => {
     };
     return reply.status(200).send({gameState: gameState});
 });
-
-const start = async () => {
-  try {
-    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();
