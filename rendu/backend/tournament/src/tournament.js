@@ -1,4 +1,5 @@
 import * as Utils from './utils.js';
+import { log } from './fastify.js';
 
 /* Player has:
  * name (string)
@@ -159,6 +160,7 @@ async function startMatches(bracket)
 			players.status = 'playing';
 			let player1 = players[0].name;
 			let player2 = players[1].name;
+			log.debug(`Starting match between ${player1} and ${player2}`);
 			const response = await fetch(`http://game:3004/start`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -169,8 +171,6 @@ async function startMatches(bracket)
 				const err = await response.text();
 				throw new Error(err);
 			}
-
-			console.log(`Starting match between ${player1} and ${player2}`);
 			
 		} catch (error) {
 			console.log(`Error while starting match: ${error.message}.`);
@@ -208,6 +208,7 @@ export function findTournament()
 
 export async function joinTournament(name)
 {
+	log.debug(`player %s want join tournament`, name);
 	const tmp = name;
 	name = name.trim();
 	if (findTournamentWithPlayer(name))
@@ -219,6 +220,7 @@ export async function joinTournament(name)
 		throw new Error(`Tournament ${id} is full, ongoing or finished.`);
 	tournament.players.push({name: name, score: 0});
 	tournament.playerCount++;
+	log.debug(`player %s succesfuly join tournament`, name);
 	if (tournament.playerCount === 4)
 		await startTournament(tournament);
 	else
@@ -268,6 +270,7 @@ export function getOngoingTournaments()
 
 export async function updatePlayerScores(players)
 {
+	log.debug(`updatePlayerScores for %s and %s`, players[0].name, players[1].name);
 	const tournament = findTournamentWithPlayer(players[0].name);
 	if (!tournament)
 		return false;
@@ -290,7 +293,10 @@ export async function updatePlayerScores(players)
 				if (updated)
 					player.score = updated.score;
 				if (player.score === MAX_SCORE)
+				{
 					match.status = 'finished';
+					log.debug(`match %s is finished`, match);
+				}
 			}
 			if (hasWinner || (match.status === 'finished' && tournament.rounds[tournament.roundIndex].length === 1))
 				await advanceToNextRound(tournament.id);
