@@ -1,18 +1,6 @@
-import { fastify, log } from './fastify.js';
+import { fastify, log } from '../shared/fastify.js';
 import * as Tournament from './tournament.js'
 import * as Utils from './utils.js';
-
-const serviceName = 'tournament';
-const serviceport = process.env.PORT;
-
-fastify.get('/health', async (request, reply) => {
-  return {
-    service: serviceName,
-    port: serviceport,
-    status: 'healthy',
-    uptime: process.uptime()
-  };
-});
 
 fastify.get('/get', async (request, reply) => {
     const { id } = request.query;

@@ -2,12 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY tournament/package*.json ./
 
-RUN npm install
+RUN npm ci
 
-COPY . .
+COPY shared ./shared
+
+COPY tournament/src ./src
 
 EXPOSE 3007
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "shared/server.js"]

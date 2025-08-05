@@ -1,5 +1,5 @@
 import * as Utils from './utils.js';
-import { log } from './fastify.js';
+import { log } from '../shared/fastify.js';
 
 /* Player has:
  * name (string)

@@ -141,8 +141,8 @@ services:
         image: tournament
         container_name: tournament
         build:
-            context: ./backend/tournament
-            dockerfile: Dockerfile
+            context: ./backend
+            dockerfile: tournament/Dockerfile
         environment:
             - SERVICE_NAME=tournament
             - NODE_ENV=${NODE_ENV}
