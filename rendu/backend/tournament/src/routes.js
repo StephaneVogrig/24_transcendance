@@ -117,14 +117,29 @@ fastify.get('/round', async (request, reply) => {
 });
 
 fastify.post('/playerscores', async (request, reply) => {
-    const { players } = request.body;
-    if (!players)
+    if (!request.body?.players)
         return reply.status(400).send({ error: 'Missing or invalid players.' });
-    const success = await Tournament.updatePlayerScores(players);
-    if (!success)
-        reply.status(404).send();
-    else
+
+    const players = request.body.players;
+
+    if (!Array.isArray(players) || players.length !== 2)
+        return reply.status(400).send({ error: 'Missing or invalid players.' });
+
+    for (const player of players) {
+    if (!player.name || typeof player.score !== 'number') {
+        return reply.status(400).send({ error: 'Invalid player data.' });
+    }
+}
+    try {
+        await Tournament.updatePlayerScores(players);
         reply.status(200).send({ message: 'Score updated successfully!' });
+    } catch (error) {
+        if (error.message.includes('not found')) {
+            reply.status(404).send({ error: error.message });
+        } else {
+            reply.status(500).send({ error: 'Internal server error' });
+        }
+    }
 });
 
 fastify.get('/getAll', async (request, reply) => {

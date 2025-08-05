@@ -147,6 +147,7 @@ export async function getMatches()
 
 async function startMatches(bracket)
 {
+	log.debug(bracket, 'start macthes');
 	for (const players of bracket)
 	{
 		// if (bracket.length === 1 && (players[0].status === 'offline' || players[1].status === 'offline'))
@@ -212,7 +213,10 @@ export async function joinTournament(name)
 	const tmp = name;
 	name = name.trim();
 	if (findTournamentWithPlayer(name))
+	{
+		log.debug(TOURNAMENT_LIST, `Couldn't join tournament: name '${name}' is already in a tournament.`);
 		throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
+	}
 	const tournament = findTournament();
 	if (!tournament)
 		return await createTournament(name);
@@ -270,41 +274,48 @@ export function getOngoingTournaments()
 
 export async function updatePlayerScores(players)
 {
-	log.debug(`updatePlayerScores for %s and %s`, players[0].name, players[1].name);
+	log.debug(players,`updatePlayerScores %s vs %s`, players[0].name, players[1].name);
 	const tournament = findTournamentWithPlayer(players[0].name);
-	if (!tournament)
-		return false;
-	let hasWinner = false;
-	for (const match of tournament.rounds[tournament.roundIndex])
-	{
-		if (match.status && match.status === 'finished')
-		{
-			hasWinner = true;
-			break;
-		}
+	if (!tournament){
+		log.debug(`Tournament not found to update score %s vs %s`, players[0].name, players[1].name)
+		throw new Error(`Tournament not found`);
 	}
-	for (const match of tournament.rounds[tournament.roundIndex])
+
+	let matchFound = false;
+	const round = tournament.rounds[tournament.roundIndex];
+
+	for (const match of round)
 	{
 		const namesInMatch = match.map(p => p.name);
-		const namesToUpdate = players.map(p => p.name);
-		if (namesToUpdate.every(name => namesInMatch.includes(name))) {
-			for (const player of match) {
-				const updated = players.find(p => p.name === player.name);
-				if (updated)
-					player.score = updated.score;
-				if (player.score === MAX_SCORE)
-				{
-					match.status = 'finished';
-					log.debug(`match %s is finished`, match);
-				}
-			}
-			if (hasWinner || (match.status === 'finished' && tournament.rounds[tournament.roundIndex].length === 1))
-				await advanceToNextRound(tournament.id);
-			await modifyTournamentInDb(tournament);
-			return true;
+		if (!players.every(player => namesInMatch.includes(player.name))) {
+			continue;
 		}
+		matchFound = true;
+		for (const player of match) {
+			const updated = players.find(p => p.name === player.name);
+			if (updated)
+				player.score = updated.score;
+			if (player.score === MAX_SCORE)
+			{
+				log.debug(match,`match %s vs %s is finished`, players[0].name, players[1].name);
+				match.status = 'finished';
+			}
+		}
+		break;
 	}
-	return false;
+
+	if (!matchFound) {
+		log.debug(tournament, `No match %s vs %s found to update`, players[0].name, players[1].name)
+		throw new Error(`Match not found`);
+	}
+
+	const allMatchesFinished = round.every(match => match.status === 'finished');
+
+	if (allMatchesFinished) {
+		log.debug(round, `all matches finished`);
+		await advanceToNextRound(tournament.id);
+	}
+	await modifyTournamentInDb(tournament);
 }
 
 export function getTournament(id) {
@@ -316,6 +327,7 @@ export function getTournament(id) {
 
 function generateNextRound(pairedPlayers)
 {
+	log.debug(pairedPlayers,`generate next round`);
 	if (pairedPlayers.length === 1)
 		return [pairedPlayers[0][0]];
 	if (pairedPlayers.length % 2 === 1)
@@ -350,14 +362,17 @@ export async function advanceToNextRound(id)
 	let tournament = TOURNAMENT_LIST[id];
 	if (!tournament)
 		throw new Error(`ID ${id} is invalid in advanceToNextRound call.`);
+	log.debug(tournament, `advance to next round for tournament`);
 	const ongoingRound = tournament.rounds[tournament.roundIndex];
 	const nextPlayers = generateNextRound(ongoingRound);
 	if (nextPlayers.length === 1)
 	{
 		tournament.status = 'ended';
 		tournament.winner = getWinner(id);
-		for (const player in tournament.players)
+		for (const player in tournament.players){
+			log.debug(tournament.players, `player to delete: `, player);
 			await deletePlayerFromDb(player.name);
+		}
 		try {
 			const response = await fetch(`http://blockchain:3002/register`, {
 				method: 'POST',
