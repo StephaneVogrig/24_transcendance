@@ -2,13 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY game/package*.json ./
 
-RUN npm install vector2d
-RUN npm install
+RUN npm ci
 
-COPY . .
+COPY shared ./shared
+
+COPY game/src ./src
 
 EXPOSE 3004
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "shared/server.js"]

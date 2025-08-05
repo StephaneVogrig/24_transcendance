@@ -1,18 +1,5 @@
-import { fastify, log } from './fastify.js'
+import { fastify, log } from '../shared/fastify.js'
 import * as GameManager from './gameManager.js';
-
-const serviceName = 'game';
-const serviceport = process.env.PORT;
-
-// API endpoint to check the availability and operational status of the service.
-fastify.get('/health', async (request, reply) => {
-  return {
-    service: serviceName,
-    port: serviceport,
-    status: 'healthy',
-    uptime: process.uptime()
-  };
-});
 
 fastify.post('/start', async (request, reply) => {
     const { player1, player2, maxScore } = request.body;

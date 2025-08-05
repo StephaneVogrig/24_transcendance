@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "fastify": "^4.24.3",
-    "pino-pretty": "^13.0.0"
+    "pino-pretty": "^13.0.0",
+    "vector2d": "^3.0.0"
   },
   "keywords": [],
   "author": "Viiiite",

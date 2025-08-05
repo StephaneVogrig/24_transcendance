@@ -33,6 +33,7 @@ services:
             context: .
             dockerfile: backend/gateway/Dockerfile
         environment:
+            - SERVICE_NAME=gateway
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${GATEWAY_PORT}
@@ -57,6 +58,7 @@ services:
             context: ./backend/authentification
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=authentification
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${AUTHENTIFICATION_PORT}
@@ -70,6 +72,7 @@ services:
             context: ./backend/blockchain
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=blockchain
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${BLOCKCHAIN_PORT}
@@ -85,6 +88,7 @@ services:
             context: ./backend/database
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=database
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${DATABASE_PORT}
@@ -94,8 +98,11 @@ services:
     game:
         image: game
         container_name: game
-        build: ./backend/game
+        build:
+            context: ./backend
+            dockerfile: game/Dockerfile
         environment:
+            - SERVICE_NAME=game
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${GAME_PORT}
@@ -109,6 +116,7 @@ services:
             context: ./backend/matchmaking
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=matchmaking
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${MATCHMAKING_PORT}
@@ -122,6 +130,7 @@ services:
             context: ./backend/scores
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=scores
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${SCORES_PORT}
@@ -135,6 +144,7 @@ services:
             context: ./backend/tournament
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=tournament
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${TOURNAMENT_PORT}
@@ -148,6 +158,7 @@ services:
             context: ./backend/websocket
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=websocket
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${WEBSOCKET_PORT}
@@ -161,6 +172,7 @@ services:
             context: ./backend/ai
             dockerfile: Dockerfile
         environment:
+            - SERVICE_NAME=ai
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${AI_PORT}
