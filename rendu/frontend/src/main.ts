@@ -9,11 +9,8 @@ import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AboutPage } from './pages/AboutPage';
-import { AuthCallbackPage } from './pages/AuthCallbackPage';
+// import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { MatchDisplayPage } from './pages/MatchDisplayPage';
-
-// Import des tests Auth0 pour le développement
-import './auth/authTester';
 
 
 
@@ -24,7 +21,7 @@ addRoute('/game', GamePage);
 addRoute('/profile', ProfilePage);
 addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
-addRoute('/auth/callback', AuthCallbackPage);
+// addRoute('/auth/callback', AuthCallbackPage);
 addRoute('/MatchDisplay', MatchDisplayPage);
 
 

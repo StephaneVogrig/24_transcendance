@@ -1,7 +1,5 @@
 let Auth0Client: any = null;
-import { isPopupSupported, getPopupErrorMessage } from './popupHelpers';
 
-// Configuration Auth0 - à configurer avec vos vraies valeurs Auth0
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
 const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
 const AUTH0_REDIRECT_URI = `https://localhost:3000/auth/callback`;
@@ -84,12 +82,6 @@ export const initAuth0 = async (): Promise<any> => {
  */
 export const loginWithGoogle = async (): Promise<void> => {
     try {
-        // Vérifier le support des popups
-        if (!isPopupSupported()) {
-            console.warn('Popups non supportées, utilisation de la redirection');
-            return await loginWithGoogleRedirect();
-        }
-        
         const client = await initAuth0();
         
         // Utiliser loginWithPopup au lieu de loginWithRedirect
@@ -114,7 +106,8 @@ export const loginWithGoogle = async (): Promise<void> => {
             console.log('Utilisateur connecté:', user);
             
             // Synchronisation avec le backend (optionnel)
-            try {
+            try 
+            {
                 const response = await fetch(`/api/authentification/user`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -125,24 +118,18 @@ export const loginWithGoogle = async (): Promise<void> => {
                     const result = await response.json();
                     console.log('Informations utilisateur synchronisées avec le backend:', result);
                 }
-            } catch (error) {
-                console.warn('Erreur lors de la synchronisation avec le backend:', error);
-                // Non critique, continuer
+            }
+            catch (error) {
+                console.warn('Erreur lors de la synchronisation avec le backend:', error); // Non critique, continuer
             }
             
             // Rediriger vers la page d'accueil après connexion réussie
             window.location.href = '/';
         }
         
-    } catch (error) {
-        console.error('Erreur lors de la connexion Google:', error);
-        
-        // Utiliser les helpers pour des messages d'erreur plus clairs
-        if (error instanceof Error) {
-            const userFriendlyMessage = getPopupErrorMessage(error);
-            throw new Error(userFriendlyMessage);
-        }
-        
+    } 
+    catch (error) 
+    {
         throw new Error('Service d\'authentification Google temporairement indisponible. Veuillez réessayer.');
     }
 };
@@ -150,107 +137,110 @@ export const loginWithGoogle = async (): Promise<void> => {
 /**
  * Connexion avec Google OAuth via Auth0 avec redirection (fallback)
  */
-export const loginWithGoogleRedirect = async (): Promise<void> => {
-    try {
-        const client = await initAuth0();
-        await client.loginWithRedirect({
-            authorizationParams: {
-                connection: 'google-oauth2',
-                redirect_uri: AUTH0_REDIRECT_URI
-            }
-        });
-    } catch (error) {
-        console.error('Erreur lors de la connexion Google avec redirection:', error);
-        throw new Error('Service d\'authentification Google temporairement indisponible.');
-    }
-};
+// export const loginWithGoogleRedirect = async (): Promise<void> => {
+//     try {
+//         const client = await initAuth0();
+//         await client.loginWithRedirect({
+//             authorizationParams: {
+//                 connection: 'google-oauth2',
+//                 redirect_uri: AUTH0_REDIRECT_URI
+//             }
+//         });
+//     } catch (error) {
+//         console.error('Erreur lors de la connexion Google avec redirection:', error);
+//         throw new Error('Service d\'authentification Google temporairement indisponible.');
+//     }
+// };
 
 /**
  * Gère le callback après authentification (pour le fallback de redirection)
  */
-export const handleAuthCallback = async (_code: string): Promise<void> => {
-    console.log('Gestion du callback Auth0 (redirection fallback)...');
-    console.log('URL de callback:', window.location.href);
+// export const handleAuthCallback = async (_code: string): Promise<void> => {
+//     console.log('Gestion du callback Auth0 (redirection fallback)...');
+//     console.log('URL de callback:', window.location.href);
     
-    try {
-        const client = await initAuth0();
+//     try {
+//         const client = await initAuth0();
         
-        // Vérifier si nous avons des paramètres de callback dans l'URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasCode = urlParams.has('code') || window.location.hash.includes('code=');
-        const hasError = urlParams.has('error') || window.location.hash.includes('error=');
+//         // Vérifier si nous avons des paramètres de callback dans l'URL
+//         const urlParams = new URLSearchParams(window.location.search);
+//         const hasCode = urlParams.has('code') || window.location.hash.includes('code=');
+//         const hasError = urlParams.has('error') || window.location.hash.includes('error=');
         
-        if (hasError) {
-            const error = urlParams.get('error') || 'unknown_error';
-            const errorDescription = urlParams.get('error_description') || 'Une erreur est survenue lors de l\'authentification';
-            throw new Error(`Erreur Auth0: ${error} - ${errorDescription}`);
-        }
+//         if (hasError) {
+//             const error = urlParams.get('error') || 'unknown_error';
+//             const errorDescription = urlParams.get('error_description') || 'Une erreur est survenue lors de l\'authentification';
+//             throw new Error(`Erreur Auth0: ${error} - ${errorDescription}`);
+//         }
         
-        if (hasCode) {
-            // Gérer le callback avec plus de robustesse
-            const result = await client.handleRedirectCallback();
-            console.log('Callback traité:', result);
-        }
+//         if (hasCode) {
+//             // Gérer le callback avec plus de robustesse
+//             const result = await client.handleRedirectCallback();
+//             console.log('Callback traité:', result);
+//         }
         
-        // Vérifier si l'utilisateur est bien authentifié
-        const isAuth = await client.isAuthenticated();
-        if (isAuth) {
-            console.log('Authentification réussie');
-            const user = await client.getUser();
-            console.log('Utilisateur:', user);
+//         // Vérifier si l'utilisateur est bien authentifié
+//         const isAuth = await client.isAuthenticated();
+//         if (isAuth) {
+//             console.log('Authentification réussie');
+//             const user = await client.getUser();
+//             console.log('Utilisateur:', user);
             
-            // Récupérer le token
-            try {
-                await client.getTokenSilently();
-                console.log('Token Auth0 récupéré');
-            } catch (tokenError: unknown) {
-                console.warn('Erreur lors de la récupération du token:', tokenError);
-            }
+//             // Récupérer le token
+//             try {
+//                 await client.getTokenSilently();
+//                 console.log('Token Auth0 récupéré');
+//             } catch (tokenError: unknown) {
+//                 console.warn('Erreur lors de la récupération du token:', tokenError);
+//             }
             
-            // Synchronisation avec le backend (non critique)
-            try {
-                const response = await fetch(`/api/authentification/user`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user })
-                });
+//             // Synchronisation avec le backend (non critique)
+//             try {
+//                 const response = await fetch(`/api/authentification/user`, {
+//                     method: 'POST',
+//                     headers: { 'Content-Type': 'application/json' },
+//                     body: JSON.stringify({ user })
+//                 });
                 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Informations utilisateur synchronisées avec le backend:', result);
-                } else {
-                    console.warn('Échec de la synchronisation avec le backend:', response.status);
-                }
-            } catch (error: unknown) {
-                console.warn('Erreur lors de la synchronisation avec le backend:', error);
-                // Ce n'est pas critique, l'authentification peut continuer
-            }
+//                 if (response.ok) {
+//                     const result = await response.json();
+//                     console.log('Informations utilisateur synchronisées avec le backend:', result);
+//                 } else {
+//                     console.warn('Échec de la synchronisation avec le backend:', response.status);
+//                 }
+//             } catch (error: unknown) {
+//                 console.warn('Erreur lors de la synchronisation avec le backend:', error);
+//                 // Ce n'est pas critique, l'authentification peut continuer
+//             }
             
-        } else {
-            throw new Error('Échec de l\'authentification');
-        }
+//         } else 
+//         {
+//             throw new Error('Échec de l\'authentification');
+//         }
         
-    } catch (error: unknown) {
-        console.error('Erreur lors du callback Auth0:', error);
+//     } catch (error: unknown) {
+//         console.error('Erreur lors du callback Auth0:', error);
         
-        // Améliorer le message d'erreur
-        let errorMessage = 'Erreur inconnue lors de l\'authentification';
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
+//         // Améliorer le message d'erreur
+//         let errorMessage = 'Erreur inconnue lors de l\'authentification';
+//         if (error instanceof Error) {
+//             errorMessage = error.message;
+//         }
         
-        throw new Error(errorMessage);
-    }
-};
+//         throw new Error(errorMessage);
+//     }
+// };
 
 /**
  * Vérifie si l'utilisateur est authentifié
  */
 export const isAuthenticated = async (): Promise<boolean> => {
-    try {
+    try 
+    {
         const client = await initAuth0();
         return await client.isAuthenticated();
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Erreur lors de la vérification d\'authentification:', error);
         return false;
     }
@@ -278,18 +268,14 @@ export const getUser = async () => {
  * Nettoie les données d'authentification locales
  */
 export const clearLocalAuth = (): void => {
-    try {
-        // Nettoyer le localStorage
-        // localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::dev-yo45rdk5nhctgvu2.eu.auth0.com::openid profile email');
-        // localStorage.removeItem('a0.spajs.txs');
-
-        localStorage.clear(); // Nettoyer tout le localStorage en dernier recours
+    try 
+    {
+        localStorage.clear(); // Nettoyer tout le localStorage 
         
-        // Nettoyer le sessionStorage
-        sessionStorage.clear();
-        
+        sessionStorage.clear();// Nettoyer le sessionStorage
         console.log('Données d\'authentification locales nettoyées');
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Erreur lors du nettoyage des données locales:', error);
     }
 };
@@ -299,12 +285,12 @@ export const clearLocalAuth = (): void => {
  * Déconnexion
  */
 export const logout = async (): Promise<void> => {
-    try {
+    try 
+    {
         console.log('Début de la déconnexion...');
         const client = await initAuth0();
         
-        // Nettoyer les données locales avant la déconnexion Auth0
-        clearLocalAuth();
+        clearLocalAuth();  // Nettoyer les données locales avant la déconnexion Auth0
         
         // Déconnexion Auth0 (redirige automatiquement)
         await client.logout({
@@ -313,11 +299,11 @@ export const logout = async (): Promise<void> => {
             }
         });
         
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Erreur lors de la déconnexion:', error);
         
-        // Fallback : nettoyer les données et rediriger manuellement
-        clearLocalAuth();
+        clearLocalAuth();  // Fallback : nettoyer les données et rediriger manuellement
         
         // Essayer de rediriger vers Auth0 logout manuellement
         try {
@@ -338,11 +324,13 @@ export const getAccessToken = async (): Promise<string | null> => {
     try {
         const client = await initAuth0();
         const isAuth = await client.isAuthenticated();
-        if (isAuth) {
+        if (isAuth) 
+        {
             return await client.getTokenSilently();
         }
         return null;
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Erreur lors de la récupération du token:', error);
         return null;
     }
