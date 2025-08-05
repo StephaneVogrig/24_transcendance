@@ -38,6 +38,7 @@ export const fr = {
     "noTournamentInProgress": "Aucun tournoi en cours",
     "tournamentFinished": "Tournois terminés",
     "noTournamentFinished": "Aucun tournoi terminé",
+    "finalMatch": "Match Final",
 
     // profileUtils
     "notConnected": "Utilisateur Non Connecté",

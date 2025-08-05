@@ -2,61 +2,102 @@ import { navigate } from '../router';
 import { locale } from '../i18n';
 
 import { getTournamentsType, Match } from '../utils/matchDisplayUtils';
+// import { registerUsernameToDb } from './HomePageUtils/dbServices';
 
-const maxScore = 5; 
+const maxScore = 5;
+
+
+const errorInfo = (cardsContainer: HTMLElement,  msg1: string, msg2: string): void => 
+{
+    cardsContainer.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <div class="text-red-400 text-6xl mb-4">⚠️</div>
+                    <h3 class="text-xl font-semibold text-red-600 mb-2"> ${msg1}</h3>
+                    <p class="text-gray-500"> ${msg2} </p>
+                </div>
+            `;
+}
+ 
+const empty = (emptyMessage: string): HTMLElement => 
+{
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'text-center py-4 text-gray-500';
+    emptyDiv.innerHTML = `
+        <div class="text-2xl mb-1">🎮</div>
+        <p class="text-xs">${emptyMessage}</p>
+    `;
+    return emptyDiv;
+};
+
+const initMatch = (match: any, round: any[] | null, state: string, type: string) =>
+{
+    if (round === null)
+    {
+         match = {
+            id: locale.finalMatch,
+            player1: '?',
+            player2: '?',
+            status: 'final_waiting',
+            score: {
+                player1: 0,
+                player2: 0
+            }
+        };
+    }
+    else if (round && round.length > 0)
+    {    
+        match = {
+        id: type,
+        player1: round[0].name,
+        player2: round[1].name,
+        score: {
+            player1: round[0].score,
+            player2: round[1].score
+        },
+        status: (round[0].score === maxScore || round[1].score === maxScore) ? 'finished' : state
+        };
+    }    
+    return(match);
+}
 
 const extractMatchesFromTournament = (tournament: any[], state: string, Matchs: Match[], playerNbr: number) => {
     let i = 1;
-    let j = 0;
     let roundNbr = playerNbr / 2;
 
-    for (const element of tournament) {
-        // convertir les round en Match
-        for (const roundElement of element.rounds) {
-            // console.log('///////// ROUND:', roundElement);
-            for (i = 0; i < roundElement.length; i++) {
+    for (const element of tournament)
+    {
+        for (const roundElement of element.rounds) 
+        {
             let match;
-            let round = roundElement[i];
-            match = {
-                id: `Match ${i}`,
-                player1: round[0].name,
-                player2: round[1].name,
-                // status: state,
-                score: {
-                    player1: round[0].score,
-                    player2: round[1].score
-                },
-                status: (round[0].score === maxScore || round[1].score === maxScore) ? 'finished' : state
-            };
-            j++;
-            // console.log('///////// MATCH:', match);
-            Matchs.push(match);
-            }
-            // console.log('///////// element.rounds.length ', element.rounds.length );
-            if ( i === 2 && element.rounds.length != roundNbr) {
-                let match;
-                match = {
-                    id: `Match ${i}`,
-                    player1: `?`,
-                    player2: '?',
-                    status: 'final_waiting',
-                    score: {
-                        player1: 0,
-                        player2: 0
-                    }
-                };
-                console.log('///////// MATCH:', match);
+            if (roundElement.length === 1) // c'est la finale
+            {
+                let round = roundElement[0];
+                match = initMatch(match, round, state, locale.finalMatch);
                 Matchs.push(match);
+                return;
             }
+            else
+            {
+                for (i = 0; i < roundElement.length; i++) // les match existants [plyr1 VS plyr2]
+                {
+                    let round = roundElement[i];
+                    match = initMatch(match, round, state, `Match ${i + 1}`);
+                    Matchs.push(match);
+                }
+                if ( i === 2 && element.rounds.length != roundNbr) // pour la finale [ ? VS ? ]
+                {
+                    match = initMatch(match, null, state, 'final_waiting');
+                    Matchs.push(match);
+                }
+            }   
         }
     }
 };
 
 
-    const getStatusInfo = (status: string) => {
+const getStatusInfo = (status: string) => {
         switch (status) {
-            // case 'finale':
-            //     return { color: 'bg-pink-100 text-orange-800', text: 'Finale playing' };
+
             case 'final_waiting':
                 return { color: 'bg-orange-100 text-orange-800', text: locale.matchWaiting };
             case 'waiting':
@@ -68,22 +109,25 @@ const extractMatchesFromTournament = (tournament: any[], state: string, Matchs: 
             default:
                 return { color: 'bg-gray-100 text-gray-800', text: 'Inconnu' };
         }
-    };
+};
 
 
 
-const createMatchElement = (match: Match): HTMLElement => {
+const createMatchElement = (match: Match): HTMLElement => 
+{
     const matchDiv = document.createElement('div');
     matchDiv.className = 'bg-gray-400 rounded-lg p-2 flex items-center space-x-2';
 
-    // Conteneur gauche pour le numéro et le statut
+    // Conteneur gauche ---------[ Match id + status ]----------------------------  
     const leftContainer = document.createElement('div');
     leftContainer.className = 'flex flex-col items-start space-y-1 min-w-[80px]';
-    
+
+    // -> Match id 
     const matchId = document.createElement('span');
     matchId.className = 'text-xs font-bold text-gray-800';
     matchId.textContent = match.id;
-    
+
+    // -> statut  
     const statusSpan = document.createElement('span');
     const statusInfo = getStatusInfo(match.status);
     statusSpan.className = `px-1 py-0.5 rounded text-xs font-medium ${statusInfo.color}`;
@@ -92,21 +136,24 @@ const createMatchElement = (match: Match): HTMLElement => {
     leftContainer.appendChild(matchId);
     leftContainer.appendChild(statusSpan);
 
-    // Conteneur droit pour les joueurs et le score
+    // Conteneur droit ----------[player1 VS player2] + [scores] --------------------
     const rightContainer = document.createElement('div');
     rightContainer.className = 'flex-1';
 
     const playersDiv = document.createElement('div');
     playersDiv.className = 'flex items-center justify-around text-xs';
     
+    // -> player1 
     const player1Wrapper = document.createElement('div');
     player1Wrapper.className = 'bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-bold';
     player1Wrapper.textContent = match.player1;
     
+    // -> VS
     const vs = document.createElement('span');
     vs.className = 'text-white font-bold text-xs';
     vs.textContent = 'VS';
     
+    // -> player2
     const player2Wrapper = document.createElement('div');
     player2Wrapper.className = 'bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 font-bold';
     player2Wrapper.textContent = match.player2;
@@ -116,6 +163,7 @@ const createMatchElement = (match: Match): HTMLElement => {
     playersDiv.appendChild(player2Wrapper);
     rightContainer.appendChild(playersDiv);
 
+    // ->  score si match terminé
     if (match.score && ( match.status === 'finished')) {
         const scoreDiv = document.createElement('div');
         scoreDiv.className = 'flex justify-center mt-1 text-sm font';
@@ -136,22 +184,19 @@ const createMatchElement = (match: Match): HTMLElement => {
 const winnerName = (round: any) =>
 {
     if (round.length > 1)
-    {
-        console.log(`No winners yet for tournament`);
         return null;
-    }
     else
         return( round[0][0].score > round[0][1].score ? round[0][0] : round[0][1]);
 };
 
-const createEndedTournamentElement = (tournament: any): HTMLElement => {
+const createEndedTournamentElement = (tournament: any): HTMLElement => 
+{
     const matchDiv = document.createElement('div');
     matchDiv.className = 'bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-colors duration-200';
 
     const matchHeader = document.createElement('div');
     matchHeader.className = 'flex justify-between items-center mb-1';
 
-    // const playerList = tournament.players.map((player: any) => player.name).join(' - ');
     const playerList = tournament.players.map((player: any) => player.name);
     const matchId = document.createElement('span');
     matchId.className = 'text-xs font-medium text-gray-500';
@@ -160,11 +205,11 @@ const createEndedTournamentElement = (tournament: any): HTMLElement => {
     matchHeader.appendChild(matchId);
     matchDiv.appendChild(matchHeader);
 
-    // Créer un conteneur pour les joueurs
+    // Conteneur des joueurs en attente -----------------
     const playersContainer = document.createElement('div');
     playersContainer.className = 'flex flex-col space-y-1';
 
-    // Créer un élément pour chaque joueur
+    // 1 element pour chaque joueur
     playerList.forEach((playerName: string) => {
         const playerElement = document.createElement('div');
         playerElement.className = 'text-xs font-medium text-gray-700';
@@ -172,6 +217,7 @@ const createEndedTournamentElement = (tournament: any): HTMLElement => {
         playersContainer.appendChild(playerElement);
     });    
     
+    // Rechercher le gagnant du tournoi ------------------
     for (const round of tournament.rounds) 
     {
         const winner = winnerName(round);
@@ -183,7 +229,8 @@ const createEndedTournamentElement = (tournament: any): HTMLElement => {
             playersContainer.appendChild(winnerElement);
         }
     }
-    // Bouton de détails
+    
+    // Bouton de détail ------------------------------------
     const detailsBtn = document.createElement('button');
     detailsBtn.className = 'w-40 mt-2 px-2 py-0.5 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
     detailsBtn.textContent = 'View on Blockchain';
@@ -200,11 +247,10 @@ const createEndedTournamentElement = (tournament: any): HTMLElement => {
     return matchDiv;
 };
 
-const createOpenTournamentCard = (title: string, tournament: any[], statusColor: string, emptyMessage: string): HTMLElement => {
+const createOpenTournamentCard = (title: string, tournament: any[], emptyMessage: string): HTMLElement => {
 const card = document.createElement('div');
 card.className = 'bg-white rounded-lg shadow-lg p-3';
 
-void statusColor;
 // Header de la carte
 const cardHeader = document.createElement('div');
 cardHeader.className = 'flex items-center justify-between mb-2 pb-2 border-b';
@@ -221,12 +267,13 @@ const tournamentList = document.createElement('div');
 tournamentList.className = 'space-y-2 max-h-60 overflow-y-auto';
 
 if (tournament.length === 0) {
-    const emptyDiv = document.createElement('div');
-    emptyDiv.className = 'text-center py-4 text-gray-500';
-    emptyDiv.innerHTML = `
-    <div class="text-2xl mb-1">🎮</div>
-    <p class="text-xs">${emptyMessage}</p>
-    `;
+    // const emptyDiv = document.createElement('div');
+    // emptyDiv.className = 'text-center py-4 text-gray-500';
+    // emptyDiv.innerHTML = `
+    // <div class="text-2xl mb-1">🎮</div>
+    // <p class="text-xs">${emptyMessage}</p>
+    // `;
+    const emptyDiv = empty(emptyMessage); 
     tournamentList.appendChild(emptyDiv);
 } else {
     tournament.forEach(singleTournament => {
@@ -295,12 +342,13 @@ const tournamentList = document.createElement('div');
 tournamentList.className = 'space-y-2 max-h-60 overflow-y-auto';
 
 if (tournament.length === 0) {
-    const emptyDiv = document.createElement('div');
-    emptyDiv.className = 'text-center py-4 text-gray-500';
-    emptyDiv.innerHTML = `
-    <div class="text-2xl mb-1">🎮</div>
-    <p class="text-xs">${emptyMessage}</p>
-    `;
+    // const emptyDiv = document.createElement('div');
+    // emptyDiv.className = 'text-center py-4 text-gray-500';
+    // emptyDiv.innerHTML = `
+    // <div class="text-2xl mb-1">🎮</div>
+    // <p class="text-xs">${emptyMessage}</p>
+    // `;
+    const emptyDiv = empty(emptyMessage); 
     tournamentList.appendChild(emptyDiv);
 } 
 else 
@@ -316,12 +364,18 @@ return card;
 };
 
 
-const createOngoingMatchCard = (title: string, matches: Match[], statusColor: string, emptyMessage: string): HTMLElement => 
+const createOngoingMatchCard = (title: string, matches: Match[]): HTMLElement => 
 {
     const card = document.createElement('div');
-    card.className = 'bg-white rounded-lg shadow-lg p-2 min-h-[200px]';
+    
 
-    void statusColor;
+    const matchHeight = 60; // hauteur approximative d'un match en px
+    const cardHeight = matchHeight * 3;
+    card.className = `bg-white rounded-lg shadow-lg p-2 h-[${cardHeight}px]`;
+
+// card.className = 'bg-white rounded-lg shadow-lg p-2 min-h-[200px]';
+
+
     // Header de la carte
     const cardHeader = document.createElement('div');
     cardHeader.className = 'flex items-center justify-between mb-2 pb-1 border-b';
@@ -333,20 +387,26 @@ const createOngoingMatchCard = (title: string, matches: Match[], statusColor: st
     cardHeader.appendChild(cardTitle);
     card.appendChild(cardHeader);
 
-    // Conteneur des matchs
+    // // Conteneur des matchs
+    // const matchList = document.createElement('div');
+    // matchList.className = 'space-y-1 max-h-[170px] overflow-y-auto';
+    
+    // Conteneur des matchs avec hauteur ajustée
     const matchList = document.createElement('div');
-    matchList.className = 'space-y-1 max-h-[170px] overflow-y-auto';
+    const listHeight = cardHeight - 40; // Soustraire l'espace pour le header et padding
+    matchList.className = `space-y-1 h-[${listHeight}px] overflow-y-auto`;
 
     if (matches.length === 0) {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'text-center py-3 text-gray-500';
-        emptyDiv.innerHTML = `
-            <div class="text-xl mb-1">🎮</div>
-            <p class="text-xs">${emptyMessage}</p>
-        `;
+        // const emptyDiv = document.createElement('div');
+        // emptyDiv.className = 'text-center py-3 text-gray-500';
+        // emptyDiv.innerHTML = `
+        //     <div class="text-xl mb-1">🎮</div>
+        //     <p class="text-xs">${locale.noTournamentInProgress}</p>
+        // `;
+        const emptyDiv = empty(locale.noTournamentInProgress); 
         matchList.appendChild(emptyDiv);}
     else {
-        console.log(' -> MATCHS récupérés  ', matches);
+        // console.log(' -> MATCHS récupérés  ', matches);
         matches.forEach(match => {
             const matchItem = createMatchElement(match);
             matchList.appendChild(matchItem);
@@ -381,12 +441,14 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
     // console.log('createOngoingTournamentCard -> tournaments', tournaments);
     if (tournaments.length === 0)         // Vérifier si le tableau tournaments est vide
     {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'text-center py-3 text-gray-500';
-        emptyDiv.innerHTML = `
-            <div class="text-2xl mb-1">🎮</div>
-            <p class="text-xs">${emptyMessage}</p>
-        `;
+        // const emptyDiv = document.createElement('div');
+        // emptyDiv.className = 'text-center py-3 text-gray-500';
+        // emptyDiv.innerHTML = `
+        //     <div class="text-2xl mb-1">🎮</div>
+        //     <p class="text-xs">${emptyMessage}</p>
+        // `;
+
+        const emptyDiv = empty(emptyMessage); 
         matchList.appendChild(emptyDiv);
     }
     else {
@@ -396,8 +458,7 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
             extractMatchesFromTournament([tournaments[i]], 'playing', Matchs_tournament_ongoing, 4);
             // console.log('createOngoingTournamentCard -> Matchs_tournament_ongoing', Matchs_tournament_ongoing);
             const tournamentsName: string = tournaments[i].createdBy;
-            const ongoingCard = createOngoingMatchCard(`Tournoi de ${tournamentsName}`, Matchs_tournament_ongoing,
-            'bg-green-100 text-green-800', 'Aucun tournoi en cours');
+            const ongoingCard = createOngoingMatchCard(`Tournoi de ${tournamentsName}`, Matchs_tournament_ongoing);
             matchList.appendChild(ongoingCard);
         }
     }
@@ -408,7 +469,8 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
 
 
 
-const loadMatches = async (cardsContainer : HTMLElement ) => {
+const loadMatches = async (cardsContainer : HTMLElement ) => 
+{
     try {
         // Afficher un indicateur de chargement
         cardsContainer.innerHTML = `
@@ -424,23 +486,18 @@ const loadMatches = async (cardsContainer : HTMLElement ) => {
         const ended = await getTournamentsType('ended');
 
         // DEBUG ------------
-        // if (open.length != 0 ) {
-        //     console.log('+++ open TOURNAMENT récupérés +++ ', open);
-        // }
-        // if (ongoing.length != 0) { 
-        //     console.log('??? ongoing TOURNAMENT récupérés ??? ', ongoing);
-        //     // console.log('*** LISTE DES MATCHS en cours récupérés *** ', Matchs_tournament_ongoing);
-        // }
-        // if (ended.length != 0) {   
-        //     console.log('*** ended TOURNAMENT récupérés *** ', ended);
-        // }
+        if (open.length != 0 )
+            console.log('+++ open TOURNAMENT récupérés +++ ', open);
+        if (ongoing.length != 0) 
+            console.log('??? ongoing TOURNAMENT récupérés ??? ', ongoing);
+        if (ended.length != 0)   
+            console.log('*** ended TOURNAMENT récupérés *** ', ended);
 
         // Vider le conteneur et créer les cartes
         cardsContainer.innerHTML = '';
 
         // Créer les cartes pour chaque type de tournoi
-        const waitingCard = createOpenTournamentCard(locale.tournamentWaiting, open,
-            'bg-yellow-100 text-yellow-800', locale.tournamentNoWaiting);
+        const waitingCard = createOpenTournamentCard(locale.tournamentWaiting, open, locale.noTournamentWaiting);
 
         // const ongoingCard = createOngoingTournamentCard('Tournois en Cours', Matchs_tournament_ongoing,
         //     'bg-green-100 text-green-800', 'Aucun tournoi en cours');
@@ -464,20 +521,14 @@ const loadMatches = async (cardsContainer : HTMLElement ) => {
         
         cardsContainer.appendChild(bottomCardsContainer);
 
-    } catch (error) {
-        // console.error('Erreur lors du chargement des matchs:', error);
-        cardsContainer.innerHTML = `
-            <div class="col-span-full text-center py-12">
-                <div class="text-red-400 text-6xl mb-4">⚠️</div>
-                <h3 class="text-xl font-semibold text-red-600 mb-2">${locale.errorMatchDownload}</h3>
-                <p class="text-gray-500">${locale.errorMatchDisplay}</p>
-            </div>
-        `;
+    } 
+    catch (error) {
+        errorInfo(cardsContainer, locale.errorMatchDownload, locale.errorMatchDisplay);
     }
 };
 
-// Fonction pour créer la page de test
-export const MatchDisplayPage = (): HTMLElement => {
+export const MatchDisplayPage = (): HTMLElement => 
+{
     // Conteneur principal (remplace mainDiv)
     const container = document.createElement('div');
     container.className = 'max-w-none mx-auto min-h-screen p-3';

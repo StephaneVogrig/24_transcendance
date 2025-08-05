@@ -72,7 +72,7 @@ export const initAuth0 = async (): Promise<any> => {
             useRefreshTokens: true,
             useRefreshTokensFallback: false
         });
-        console.log('Client Auth0 initialisé avec succès');
+        console.log('Client Auth0 initialisé -> ', auth0Client);
     }
     return auth0Client;
 };
@@ -98,6 +98,7 @@ export const loginWithGoogle = async (): Promise<void> => {
         });
         
         console.log('Connexion popup réussie:', result);
+        console.log('URL de callback:', window.location.href);
         
         // Vérifier l'authentification
         const isAuth = await client.isAuthenticated();

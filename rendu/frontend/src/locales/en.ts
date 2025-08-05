@@ -39,6 +39,7 @@ export const en = {
 	"noTournamentInProgress": "No tournaments in progress",
 	"tournamentFinished": "Tournaments finished",
 	"noTournamentFinished": "No tournaments finished",
+	"finalMatch": "Final Match",
 
 	// profileUtils
 	"notConnected": "User Not Connected",
