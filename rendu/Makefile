@@ -95,26 +95,30 @@ build-dev:
 	$(DOCKER_COMPOSE_DEV_CMD) build;
 
 up:
-	@if [ "$(ACTIVE_ENV)" = "none" ]; then \
-		$(MAKE) ssl; \
-		$(DOCKER_COMPOSE_PROD_CMD) up -d --build; \
-		echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
-		echo "$(PURPPLE)Transcendence started in mode 🚀 production$(DEFAULT)"; \
-	else \
-		echo "$(YELLOW)Warning: Transcendence $(ACTIVE_ENV) is currently running. Please stop it first. (e.g., make down)$(DEFAULT)"; \
-	fi
+	@if [ "$(ACTIVE_ENV)" = "dev" ]; then \
+		$(DOCKER_COMPOSE_DEV_CMD) down; \
+	fi; \
+	$(MAKE) ssl; \
+	$(DOCKER_COMPOSE_PROD_CMD) up -d --build; \
+	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
+	echo "$(PURPPLE)Transcendence started in mode 🚀 production$(DEFAULT)";
 
 up-prod: up
 
 up-dev:
-	@if [ "$(ACTIVE_ENV)" = "none" ]; then \
-		$(MAKE) ssl; \
-		$(DOCKER_COMPOSE_DEV_CMD) up -d --build; \
-		echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
-		echo "$(PURPPLE)Transcendence started in mode ⚒️  development$(DEFAULT)"; \
-	else \
-		echo "$(YELLOW)Warning: Transcendence $(ACTIVE_ENV) is currently running. Please stop it first. (e.g., make down)$(DEFAULT)"; \
-	fi
+	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
+		$(DOCKER_COMPOSE_PROD_CMD) down; \
+	fi; \
+	$(MAKE) ssl; \
+	$(DOCKER_COMPOSE_DEV_CMD) up -d --build; \
+	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
+	echo "$(PURPPLE)Transcendence started in mode ⚒️  development$(DEFAULT)";
+
+start: up
+
+start-prod: up
+
+start-dev: up-dev
 
 down:
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
@@ -125,16 +129,26 @@ down:
         echo "$(YELLOW)No Transcendence stack is currently active. Nothing to stop.$(DEFAULT)"; \
     fi
 
+stop: down
+
 restart:
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
-		$(DOCKER_COMPOSE_PROD_CMD) down; \
 		$(MAKE) up; \
     elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
-		$(DOCKER_COMPOSE_DEV_CMD) down; \
 		$(MAKE) up-dev; \
 	else \
         echo "$(YELLOW)No Transcendence stack is currently active. Nothing to restart.$(DEFAULT)"; \
     fi
+
+restart-services:
+	@services_to_restart=$$(echo $(SERVICES) | tr ' ' '\n' | grep -v 'gateway' | grep -v 'proxy' | tr '\n' ' '); \
+	if [ "$(ACTIVE_ENV)" = "prod" ]; then \
+		$(DOCKER_COMPOSE_PROD_CMD) up -d --build $$services_to_restart; \
+	elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
+		$(DOCKER_COMPOSE_DEV_CMD) up -d --build $$services_to_restart; \
+	else \
+		echo "$(YELLOW)No Transcendence stack is currently active. Nothing to restart.$(DEFAULT)"; \
+	fi
 
 logs:
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
@@ -203,10 +217,8 @@ down-$(1):
 
 restart-$(1):
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
-		$$(DOCKER_COMPOSE_PROD_CMD) down $(1); \
 		$$(DOCKER_COMPOSE_PROD_CMD) up $(1) -d --build; \
     elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
-		$$(DOCKER_COMPOSE_DEV_CMD) down $(1); \
 		$$(DOCKER_COMPOSE_DEV_CMD) up $(1) -d --build; \
 	else \
         echo "$(YELLOW)No Transcendence stack is currently active. Nothing to restart.$(DEFAULT)"; \
@@ -247,7 +259,12 @@ $(foreach service,$(SERVICES),$(eval $(call SERVICE_RULES,$(service))))
 		up-prod \
 		up-dev \
 		down \
+		start \
+		start-prod \
+		start-dev \
+		stop \
 		restart \
+		restart-services \
 		logs \
 		clean \
 		fclean \
