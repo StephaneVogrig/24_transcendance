@@ -155,8 +155,8 @@ services:
         image: websocket
         container_name: websocket
         build:
-            context: ./backend/websocket
-            dockerfile: Dockerfile
+            context: ./backend
+            dockerfile: websocket/Dockerfile
         environment:
             - SERVICE_NAME=websocket
             - NODE_ENV=${NODE_ENV}
@@ -169,8 +169,8 @@ services:
         image: ai
         container_name: ai
         build:
-            context: ./backend/ai
-            dockerfile: Dockerfile
+            context: ./backend
+            dockerfile: ai/Dockerfile
         environment:
             - SERVICE_NAME=ai
             - NODE_ENV=${NODE_ENV}

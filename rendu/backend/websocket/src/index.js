@@ -1,36 +1,8 @@
-import Fastify from 'fastify';
+import { fastify, log } from '../shared/fastify.js';
 import { Server } from 'socket.io';
-import cors from '@fastify/cors';
-
-const serviceName = 'websocket';
-const serviceport = process.env.PORT;
-
-const fastify = Fastify({
-	logger: {
-        transport: {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'SYS:HH:MM:ss.l',
-				singleLine: true,
-                ignore: 'pid,hostname'
-            }
-        }
-    },
-});
 
 const io = new Server(fastify.server, {
 	path: '/my-websocket/'
-});
-
-// API endpoint to check the availability and operational status of the service.
-fastify.get('/health', async (request, reply) => {
-  return {
-    service: serviceName,
-    port: serviceport,
-    status: 'healthy',
-    uptime: process.uptime()
-  };
 });
 
 let playerNameToSocketId = new Map();
@@ -462,14 +434,3 @@ io.on('connection', async (socket) => {
 			console.log(`Unidentified socket disconnected: ${socket.id}`);
 	});
 });
-
-const start = async () => {
-  try {
-    await fastify.listen({ port: serviceport, host: '0.0.0.0' });
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();

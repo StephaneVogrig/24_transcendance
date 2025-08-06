@@ -2,15 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY websocket/package*.json ./
 
-RUN npm install socket.io --save
-RUN npm install @fastify/cors@^8 --save
+RUN npm ci
 
-RUN npm install
+COPY shared ./shared
 
-COPY . .
+COPY websocket/src ./src
 
 EXPOSE 3008
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "shared/server.js"]
