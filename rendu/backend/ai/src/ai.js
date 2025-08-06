@@ -1,3 +1,4 @@
+import { log } from '../shared/fastify.js';
 import io from 'socket.io-client';
 import { deleteAI } from './iaManager.js';
 
@@ -16,10 +17,10 @@ function calculateYgoal(ballSpeed, ballPos, paddlePos) {
 	let pos = { x: ballPos.x, y: ballPos.y };
 	if (ballSpeed.x < 0)
 	{
-		// console.log(`ballspeed < 0 -----------------------`);
+		// log.debug(`ballspeed < 0 -----------------------`);
 
 		y_goal = calculateY(speed, pos, paddlePos);
-		// console.log(`> y_goal: ${y_goal}`);
+		// log.debug(`> y_goal: ${y_goal}`);
 		while (y_goal < -25 || y_goal > 25)
 		{
 			if (speed.y === 0)
@@ -38,7 +39,7 @@ function calculateYgoal(ballSpeed, ballPos, paddlePos) {
 
 export class AI {
 	constructor(name) {
-		console.log(`Creating AI instance for player: ${name}`);
+		log.debug(`Creating AI instance for player: ${name}`);
 		this.player = name;
 		this.playerAI = name + "AI";
 		this.socket = null;
@@ -49,7 +50,7 @@ export class AI {
 	}
 
 	async start() {
-		console.log(`start AI: ${this.playerAI}`);
+		log.debug(`start AI: ${this.playerAI}`);
 		try {
 			if (!this.player)
 				throw new Error("Player needed for call to start");
@@ -60,7 +61,7 @@ export class AI {
 				});
 
 				this.socket.on('connect', () => {
-					// console.log(`AI socket connected for ${this.playerAI} with ID: ${this.socket.id}`);
+					// log.debug(`AI socket connected for ${this.playerAI} with ID: ${this.socket.id}`);
 					this.socket.emit('identify_player', { name: this.playerAI });
 					resolve(this.socket);
 				});
@@ -99,7 +100,7 @@ export class AI {
 				});
 
 				this.socket.on('disconnect', () => {
-					console.log(`AI socket disconnected for ${this.playerAI}`);
+					log.debug(`AI socket disconnected for ${this.playerAI}`);
 					this.gameOn = false;
 				});
 
@@ -128,14 +129,14 @@ export class AI {
 			while (this.gameOn)
 			{
 				if (!this.socket || !this.socket.connected) {
-					console.log(`AI socket disconnected, stopping game`);
+					log.debug(`AI socket disconnected, stopping game`);
 					this.gameOn = false;
 					break;
 				}
 				let y_goal = calculateYgoal(this.ballSpeed, this.ballPos, this.paddlePos);
 
-				// console.log(`y_goal: ${y_goal}`);
-				// console.log(`paddlePos.y: ${paddlePos.y}`);
+				// log.debug(`y_goal: ${y_goal}`);
+				// log.debug(`paddlePos.y: ${paddlePos.y}`);
 				let timeoutOffset = 0;
 				const delay = 1000;
 				const offset = 2.1;
@@ -162,7 +163,7 @@ export class AI {
 			deleteAI(this.playerAI);
 
 		} catch (error) {
-			console.log(`Error while starting match between AI and ${this.player}: ${error.message}.`);
+			log.debug(`Error while starting match between AI and ${this.player}: ${error.message}.`);
 		}
 	}
 

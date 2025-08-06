@@ -2,12 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY ai/package*.json ./
 
-RUN npm install
+RUN npm ci
 
-COPY . .
+COPY shared ./shared
+
+COPY ai/src ./src
 
 EXPOSE 3009
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "shared/server.js"]
