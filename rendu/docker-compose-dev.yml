@@ -4,6 +4,7 @@ services:
             - "${PROXY_PORT}:${PROXY_PORT}"
         volumes:
             - ./proxy/nginx-dev.conf:/etc/nginx/nginx.conf:ro
+        stop_grace_period: 0s
 
     frontend:
         image: frontend-vite
