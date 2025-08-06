@@ -113,8 +113,8 @@ services:
         image: matchmaking
         container_name: matchmaking
         build:
-            context: ./backend/matchmaking
-            dockerfile: Dockerfile
+            context: ./backend
+            dockerfile: matchmaking/Dockerfile
         environment:
             - SERVICE_NAME=matchmaking
             - NODE_ENV=${NODE_ENV}

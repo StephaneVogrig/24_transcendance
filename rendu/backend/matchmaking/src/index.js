@@ -1,32 +1,5 @@
-import Fastify from 'fastify';
+import { fastify, log } from '../shared/fastify.js';
 import * as PlayerManager from './playerManager.js';
-
-const serviceName = 'matchmaking';
-const serviceport = process.env.PORT;
-
-const fastify = Fastify({
-    logger: {
-        transport: {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'SYS:HH:MM:ss.l',
-                singleLine: true,
-                ignore: 'pid,hostname'
-            }
-        }
-    },
-});
-
-// API endpoint to check the availability and operational status of the service.
-fastify.get('/health', async (request, reply) => {
-    return {
-        service: serviceName,
-        port: serviceport,
-        status: 'healthy',
-        uptime: process.uptime()
-    };
-});
 
 fastify.post('/join', async (request, reply) => {
     const { name } = request.body;
@@ -57,14 +30,3 @@ fastify.post('/leave', async (request, reply) => {
         reply.status(400).send({ error: error.message });
     }
 });
-
-const start = async () => {
-    try {
-        await fastify.listen({ port: serviceport, host: '0.0.0.0' });
-    } catch (err) {
-        fastify.log.error(err);
-        process.exit(1);
-    }
-};
-
-start();

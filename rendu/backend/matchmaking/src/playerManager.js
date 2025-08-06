@@ -1,4 +1,4 @@
-import Fastify from 'fastify';
+import { log } from '../shared/fastify.js';
 
 async function sendstart(player1, player2) {
     try {

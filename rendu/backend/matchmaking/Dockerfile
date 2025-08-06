@@ -2,12 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY matchmaking/package*.json ./
 
-RUN npm install
+RUN npm ci
 
-COPY . .
+COPY shared ./shared
+
+COPY matchmaking/src ./src
 
 EXPOSE 3005
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "shared/server.js"]
