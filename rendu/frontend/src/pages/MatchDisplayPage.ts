@@ -2,7 +2,6 @@ import { navigate } from '../router';
 import { locale } from '../i18n';
 
 import { getTournamentsType, Match } from '../utils/matchDisplayUtils';
-// import { registerUsernameToDb } from './HomePageUtils/dbServices';
 
 const maxScore = 5;
 
@@ -386,26 +385,19 @@ const createOngoingMatchCard = (title: string, matches: Match[]): HTMLElement =>
     
     cardHeader.appendChild(cardTitle);
     card.appendChild(cardHeader);
-
-    // // Conteneur des matchs
-    // const matchList = document.createElement('div');
-    // matchList.className = 'space-y-1 max-h-[170px] overflow-y-auto';
     
     // Conteneur des matchs avec hauteur ajustée
     const matchList = document.createElement('div');
     const listHeight = cardHeight - 40; // Soustraire l'espace pour le header et padding
     matchList.className = `space-y-1 h-[${listHeight}px] overflow-y-auto`;
 
-    if (matches.length === 0) {
-        // const emptyDiv = document.createElement('div');
-        // emptyDiv.className = 'text-center py-3 text-gray-500';
-        // emptyDiv.innerHTML = `
-        //     <div class="text-xl mb-1">🎮</div>
-        //     <p class="text-xs">${locale.noTournamentInProgress}</p>
-        // `;
+    if (matches.length === 0) 
+    {
         const emptyDiv = empty(locale.noTournamentInProgress); 
-        matchList.appendChild(emptyDiv);}
-    else {
+        matchList.appendChild(emptyDiv);
+    }
+    else 
+    {
         // console.log(' -> MATCHS récupérés  ', matches);
         matches.forEach(match => {
             const matchItem = createMatchElement(match);
@@ -441,17 +433,11 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
     // console.log('createOngoingTournamentCard -> tournaments', tournaments);
     if (tournaments.length === 0)         // Vérifier si le tableau tournaments est vide
     {
-        // const emptyDiv = document.createElement('div');
-        // emptyDiv.className = 'text-center py-3 text-gray-500';
-        // emptyDiv.innerHTML = `
-        //     <div class="text-2xl mb-1">🎮</div>
-        //     <p class="text-xs">${emptyMessage}</p>
-        // `;
-
         const emptyDiv = empty(emptyMessage); 
         matchList.appendChild(emptyDiv);
     }
-    else {
+    else 
+    {
         for (let i = 0; i < tournaments.length; i++ )
         {
             const Matchs_tournament_ongoing: Match[] = [];
@@ -476,7 +462,7 @@ const loadMatches = async (cardsContainer : HTMLElement ) =>
         cardsContainer.innerHTML = `
             <div class="col-span-full text-center py-12">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p class="text-gray-600">Chargement des matchs...</p>
+                <p class="text-gray-600">${locale.matchDownload}</p>
             </div>
         `;
 
@@ -544,13 +530,13 @@ export const MatchDisplayPage = (): HTMLElement =>
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
-        <span class="text-xs">Retour</span>
+        <span class="text-xs">${locale.back}</span>
     `;
     backButton.onclick = () => navigate('/choice-game');
 
     const title = document.createElement('h1');
     title.className = 'text-2xl font-bold text-Blue-800 flex-1 text-center';
-    title.textContent = 'Matchs';
+    title.textContent = locale.matchTitle;
 
     // Espace pour équilibrer
     const spacer = document.createElement('div');

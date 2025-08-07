@@ -15,6 +15,7 @@ export const fr = {
     "profile": "Profil",
     "matchDisplay": "Liste des tournois",
     "errorUserInfo": "Impossible de récupérer les informations utilisateur",
+    "google": "Se connecter avec Google",
     
     // Profile
     "userconnected": "✅ Utilisateur Connecté",
@@ -25,6 +26,7 @@ export const fr = {
     "return": "Retour",
 
     // Match Display
+    "matchTitle": "Tournois",
     "errorMatchDownload": "Erreur de chargement",
     "errorMatchDisplay": "Impossible de charger les matchs. Veuillez réessayer plus tard.",
     "matchWaiting": "En attente",
@@ -39,6 +41,8 @@ export const fr = {
     "tournamentFinished": "Tournois terminés",
     "noTournamentFinished": "Aucun tournoi terminé",
     "finalMatch": "Match Final",
+    "back": "Retour",
+    "matchDownload": "Chargement des matchs...",
 
     // profileUtils
     "notConnected": "Utilisateur Non Connecté",

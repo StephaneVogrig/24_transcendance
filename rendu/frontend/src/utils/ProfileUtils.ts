@@ -127,12 +127,6 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         const actionsContainer = document.createElement('div');
         actionsContainer.className = 'flex flex-wrap gap-4';
 
-        // const loginButton = document.createElement('button');
-        // loginButton.id = 'login-btn';
-        // loginButton.className = 'px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200';
-        // loginButton.textContent = 'Se Connecter';
-
-
         authGoogleButton(actionsDiv, document.createElement('div'));
 
         // actionsContainer.appendChild(loginButton);

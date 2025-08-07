@@ -66,49 +66,6 @@ export async function getTournament(): Promise<any> {
 }
 
 
-//
-// function filterAndParseTournaments(tournaments: any[], status: string): Promise<Match[]> 
-// {
-//     return Promise.resolve(tournaments.filter((tournament: any) => 
-//     {
-//         try 
-//         {
-//             const parsedTournament = JSON.parse(tournament.data);
-//             return parsedTournament.status === status;
-//         } 
-//         catch (error) {
-//             console.error("Erreur lors du parsing du tournament data:", error);
-//             return false; // Exclure ce tournoi si le parsing échoue
-//         }
-//     }).map((tournament: any) => 
-//     {
-//         try 
-//         {
-//             return JSON.parse(tournament.data);
-//         } 
-//         catch (error) {
-//             console.error("Erreur lors du parsing du tournament data:", error);
-//             return null; // Retourner null si le parsing échoue
-//         }
-//     }).filter((tournament: any) => tournament !== null) as Match[]);
-// }
-
-
-
-// function filterTournamentsByStatus(tournaments: any[], status: string): any[] 
-// {
-//     return tournaments.filter((tournament: any) => {
-//         try 
-//         {
-//             const parsedTournament = JSON.parse(tournament.data);
-//             return parsedTournament.status === status;
-//         } catch (error) {
-//             console.error("Erreur lors du parsing du tournament data:", error);
-//             return false;
-//         }
-//     });
-// }
-
 function filterTournamentsByStatus(tournaments: any[], status: string): any[] 
 {
     tournaments = tournaments.filter((tournament: any) => {
@@ -123,19 +80,6 @@ function filterTournamentsByStatus(tournaments: any[], status: string): any[]
     });
     return tournaments as any[];
 }
-
-// function parseTournaments(tournaments: any[]): Match[] 
-// {
-//     return tournaments.map((tournament: any) => {
-//             try {
-//                 return JSON.parse(tournament.data);
-//             } catch (error) {
-//                 console.error("Erreur lors du parsing du tournament data:", error);
-//                 return null;
-//             }
-//         })
-//         .filter((tournament: any): tournament is Match => tournament !== null);
-// }
 
 function parseTournaments(tournaments: any[]): Match[] 
 {
