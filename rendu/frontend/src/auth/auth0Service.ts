@@ -142,7 +142,8 @@ export const loginWithGoogle = async (): Promise<void> => {
 //     try {
 //         const client = await initAuth0();
 //         await client.loginWithRedirect({
-//             authorizationParams: {
+//             authorizationParams:
+//             {
 //                 connection: 'google-oauth2',
 //                 redirect_uri: AUTH0_REDIRECT_URI
 //             }
@@ -297,7 +298,8 @@ export const logout = async (): Promise<void> => {
         await client.logout({
             logoutParams: {
                 returnTo: window.location.origin
-            }
+            },
+            openUrl: false /// MOD SPA
         });
         
     }
@@ -308,12 +310,12 @@ export const logout = async (): Promise<void> => {
         
         // Essayer de rediriger vers Auth0 logout manuellement
         try {
-            const logoutUrl = `https://dev-yo45rdk5nhctgvu2.eu.auth0.com/v2/logout?returnTo=${encodeURIComponent(window.location.origin)}&client_id=VksN5p5Q9jbXcBAOw72RLLogClp44FVH`;
-            window.location.replace(logoutUrl);
+            // const logoutUrl = `https://dev-yo45rdk5nhctgvu2.eu.auth0.com/v2/logout?returnTo=${encodeURIComponent(window.location.origin)}&client_id=VksN5p5Q9jbXcBAOw72RLLogClp44FVH`;
+            // window.location.replace(logoutUrl);
         } catch (redirectError) {
             console.error('Erreur lors de la redirection manuelle:', redirectError);
             // Dernier recours : redirection locale
-            window.location.replace('/login');
+            // window.location.replace('/login');
         }
     }
 };
