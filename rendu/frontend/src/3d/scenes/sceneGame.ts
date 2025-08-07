@@ -12,6 +12,8 @@ let ball: any = null;
 let platform1: any = null;
 let platform2: any = null;
 
+let camera: ArcRotateCamera | null = null;
+
 let mirror = 1;
 
 export function resetVariables() {
@@ -27,7 +29,7 @@ export function resetVariables() {
 export const createSceneGame = async function (engine: Engine, canvas: HTMLCanvasElement): Promise<Scene> {
     const scene = new Scene(engine);
 
-    const camera = new ArcRotateCamera("camera", 1*(Math.PI), 2*Math.PI/5, 50, Vector3.Zero(), scene);
+    camera = new ArcRotateCamera("camera", 1*(Math.PI), 2*Math.PI/5, 50, Vector3.Zero(), scene);
     camera.lowerRadiusLimit = 30;
     camera.upperRadiusLimit = 80;
     camera.inputs.remove(camera.inputs.attached.keyboard);
@@ -84,5 +86,14 @@ export function teamPing(direction: number) {
         mirror = 1;
         platform1.rotation.x = Math.PI / -2;
         platform2.rotation.x = Math.PI / 2;
+    }
+}
+
+export function setCameraPosition(alpha: number, beta: number, radius: number) {
+    if (camera) {
+        camera.alpha = alpha;
+        camera.beta = beta;
+        camera.radius = radius;
+        camera.update();
     }
 }

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { teamPing, updateBallAndPlatforms } from './scenes/sceneGame';
+import { teamPing, updateBallAndPlatforms, setCameraPosition } from './scenes/sceneGame';
 import { getSocket, getPlayerName } from '../websocket/websocket';
 import { gameStatusUpdate, updateScores, setPlayerName, gameOver, gameOverDefault, gameOverTournament } from '../pages/GamePage';
 import { navigate } from '../router';
@@ -157,6 +157,12 @@ export class InputManager {
 				this.socket.emit('keyup', { key: 'ArrowRight' });
 				this.isRightPressed = false;
 		  }
+		});
+		window.addEventListener("keyup", (event) => {
+			if (event.code === "Digit1" || event.code === "Numpad1")
+				setCameraPosition(Math.PI, 2*Math.PI/5, 50);
+			else if (event.code === "Digit2" || event.code === "Numpad2")
+				setCameraPosition(Math.PI/2, Math.PI, 0);
 		});
 	}
 }
