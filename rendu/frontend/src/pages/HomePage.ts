@@ -10,7 +10,7 @@ import { authGoogleButton } from '../auth/auth0Service';
 import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from './HomePageUtils/dbServices.ts';
 import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { API_BASE_URL, BASE_URL } from '../config.ts';
-import { navigate } from '../router';
+import { navigate, redirectToHome } from '../router';
 
 let socket = getSocket();
 let socket2: Socket | undefined;

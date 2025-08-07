@@ -116,6 +116,14 @@ export function navigate(path: string, pushState: boolean = true): void {
 }
 
 /**
+ * Redirige l'utilisateur vers la page d'accueil.
+ * Utile lors de la déconnexion ou en cas d'erreur d'authentification.
+ */
+export function redirectToHome(): void {
+    navigate('/', true);
+}
+
+/**
  * Gère les clics sur les liens avec l'attribut 'data-route'.
  * Empêche le comportement par défaut du navigateur et utilise notre fonction navigate.
  * @param event L'événement de clic.
@@ -151,11 +159,9 @@ export function startRouter(): void {
         {
             const currentPath = window.location.pathname;
             console.log('Popstate event triggered. Current path:', currentPath);
-            console.log(window.location.search, window.location.hash);
-
             
-            // Cas particulier pour la page profile : toujours rediriger vers l'accueil
-            if (currentPath === '/profile') 
+            // Cas particuliers pour rediriger vers l'accueil
+            if (currentPath === '/profile' || currentPath === '/logout') 
             {
                 navigate('/', false);
                 return;

@@ -16,17 +16,33 @@ const createAvatar = (user: any): HTMLImageElement =>
     element.className = 'w-16 h-16 rounded-full border-2 border-gray-200';
     element.alt = 'Avatar';
     
-    // Set up error handler before setting src to prevent blinking
+    // Toujours utiliser l'avatar par défaut pour éviter les problèmes CORS
+    // Les images provenant de services externes causent des erreurs OpaqueResponseBlocking
+    element.src = '/assets/default-avatar.png';
+    
+    // Ajouter un gestionnaire d'erreur au cas où l'image par défaut ne serait pas trouvée
     element.onerror = () => { 
-        console.log('Avatar load failed, using default');
-        element.src = '/assets/default-avatar.png'; 
-        element.onerror = null; // Prevent infinite loop if default image also fails
+        console.log('Default avatar not found, creating fallback with initials');
+        // Créer un avatar avec les initiales de l'utilisateur comme fallback
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.fillStyle = '#3B82F6'; // Couleur bleu
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const initials = user.name ? user.name.charAt(0).toUpperCase() : '?';
+            ctx.fillText(initials, 32, 32);
+            element.src = canvas.toDataURL();
+        }
+        element.onerror = null; // Prevent infinite loop
     };
     
-    // Set src after error handler is in place
-    element.src = user.picture || '/assets/default-avatar.png';
-    
-    console.log('Avatar created with src:', element.src);
+    console.log('Avatar created with default avatar to avoid CORS issues');
     return element;
 }
 
@@ -48,7 +64,33 @@ export const animateLoading = (container: HTMLElement): void => {
     container.appendChild(loadingDiv);
 }
 
-// ...existing code...
+
+//     // Ajouter un gestionnaire d'erreur au cas où l'image par défaut ne serait pas trouvée
+//     element.onerror = () => { 
+//         console.log('Default avatar not found, using fallback');
+//         // Créer un avatar avec les initiales de l'utilisateur
+//         const canvas = document.createElement('canvas');
+//         canvas.width = 64;
+//         canvas.height = 64;
+//         const ctx = canvas.getContext('2d');
+//         if (ctx) {
+//             ctx.fillStyle = '#3B82F6'; // Couleur bleu
+//             ctx.fillRect(0, 0, 64, 64);
+//             ctx.fillStyle = '#FFFFFF';
+//             ctx.font = '24px Arial';
+//             ctx.textAlign = 'center';
+//             ctx.textBaseline = 'middle';
+//             const initials = user.name ? user.name.charAt(0).toUpperCase() : '?';
+//             ctx.fillText(initials, 32, 32);
+//             element.src = canvas.toDataURL();
+//         }
+//         element.onerror = null; // Prevent infinite loop
+//     };
+    
+//     console.log('Avatar created with default src');
+//     return element;
+// }
+
 export const Connected = (user: any, userInfoDiv: HTMLDivElement): void => 
 {
     if (user)  // utilisateur connecté

@@ -1,5 +1,5 @@
 import { getUser, logout} from '../auth/auth0Service';
-import { navigate } from '../router';
+import { navigate, redirectToHome } from '../router';
 import { locale } from '../i18n';
 import { notConnected, Connected, animateLoading } from '../utils/ProfileUtils';
 
@@ -112,11 +112,15 @@ export const ProfilePage = (): HTMLElement => {
                     {
                         logoutBtn.disabled = true;
                         await logout();
+                        // Rediriger vers l'accueil après déconnexion réussie
+                        redirectToHome();
                     } 
                     catch (error) {
                         // console.error(locale.errorconnection, error);
                         logoutBtn.disabled = false;
                         alert(locale.errorconnection);
+                        // En cas d'erreur, rediriger quand même vers l'accueil
+                        redirectToHome();
                     }
                 });
             } 
