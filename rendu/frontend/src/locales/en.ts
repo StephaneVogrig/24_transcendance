@@ -51,6 +51,8 @@ export const en = {
 
 	// Home Page
 	"UsernameInUse": "Username already in use",
+	"UserInTournament": "Username already in tournament, quit the tournament or change your username",
+	"UserInOnlineGame": "Username already in online game, quit the game or change your username",
 	
 	"team": "The team",
 

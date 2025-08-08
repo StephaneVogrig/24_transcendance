@@ -17,25 +17,29 @@ export async function registerUsernameToDb(username: string)
 	}
 }
 
-export async function usernameExistsInDb(username: string) : Promise<Boolean>
-{
-	try {
-		const response = await fetch(`${API_BASE_URL}/database/getUser?username=${username}`, {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' }
-		});
-		if (!response.ok) {
-			console.error('Erreur lors de la requête de check username in db:', response.statusText);
-			return false;
-		}
-		if (response.status === 204)
-			return false;
-		return true;
-	} catch (error) {
-		console.error('Error checking user to db:', error);
-	}
-	return false;
-}
+
+// Pour HomePage pour voir si joueur existe déjà dans la base de données mais je l'ai remplacée par getActivePlayersFromDb (table players)
+// --- IGNORE ---
+// export async function usernameExistsInDb(username: string) : Promise<Boolean>
+// {
+// 	try {
+// 		const response = await fetch(`${API_BASE_URL}/database/getUser?username=${username}`, {
+// 			method: 'GET',
+// 			headers: { 'Content-Type': 'application/json' }
+// 		});
+// 		if (!response.ok) {
+// 			console.error('Erreur lors de la requête de check username in db:', response.statusText);
+// 			return false;
+// 		}
+// 		if (response.status === 204)
+// 			return false;
+// 		return true;
+// 	} catch (error) {
+// 		console.error('Error checking user to db:', error);
+// 	}
+// 	return false;
+// }
+
 
 export async function deleteUsernameFromDb(username: string)
 {
@@ -51,5 +55,27 @@ export async function deleteUsernameFromDb(username: string)
 		console.log(`Successfully added user ${username} to db`);
 	} catch (error) {
 		console.error('Error adding user to db:', error);
+	}
+}
+
+export async function getActivePlayersFromDb(): Promise<any[]> 
+{
+	try 
+	{
+		const response = await fetch(`${API_BASE_URL}/database/getActivePlayers`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' }
+		});
+		if (!response.ok) {
+			const err = await response.text();
+			console.error('Erreur de réponse:', err);
+			throw new Error(`Failed to fetch active players: ${err}`);
+		}
+		const players = await response.json();
+		return Array.isArray(players) ? players : [];
+	} 
+	catch (err: any) {
+		console.error('Erreur complète:', err);
+		throw new Error(`Database connection error: ${err?.message || err}`);
 	}
 }

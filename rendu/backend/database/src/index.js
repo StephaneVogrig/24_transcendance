@@ -56,6 +56,17 @@ const start = async () => {
 			}
 		});
 
+		// Route to get all active players
+		fastify.get('/getActivePlayers', async (request, reply) => {
+			try {
+				const players = await db.all('SELECT * FROM `players`');
+				console.log('Database: returning players:', players);
+				reply.status(200).send(players); // Retourner directement le tableau
+			} catch (err) {
+				reply.status(500).send({ error: err.message });
+			}
+		});
+
 		fastify.post('/removeUser', async (request, reply) => {
 			const { username } = request.body;
 			if (!username || typeof username !== 'string')
@@ -141,7 +152,10 @@ const start = async () => {
 			}
 		});
 
-		// Route pour récupérer les tournois ouverts
+
+
+
+		// Route pour récupérer la liste des joueurs
         fastify.get('/tournament/getAll', async (request, reply) => {
             try {
 				const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
@@ -151,6 +165,7 @@ const start = async () => {
 				reply.status(500).send({error: err.message});
 			}
         });
+
 
 		// Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
 		fastify.post('/user/oauth', async (request, reply) => {

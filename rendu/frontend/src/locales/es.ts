@@ -50,6 +50,8 @@ export const es = {
 
 // Home Page
     "UsernameInUse": "Nombre de usuario ya en uso",
+    "UserInTournament": "Nombre de usuario ya en torneo, salga del torneo o cambie su nombre de usuario",
+    "UserInOnlineGame": "Nombre de usuario ya en juego en línea, salga del juego o cambie su nombre de usuario",
 
 
     "team": "El equipo",
