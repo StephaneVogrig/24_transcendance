@@ -532,7 +532,7 @@ export const MatchDisplayPage = (): HTMLElement =>
         </svg>
         <span class="text-xs">${locale.back}</span>
     `;
-    backButton.onclick = () => navigate('/choice-game');
+    backButton.onclick = () => navigate('/');
 
     const title = document.createElement('h1');
     title.className = 'text-2xl font-bold text-Blue-800 flex-1 text-center';
