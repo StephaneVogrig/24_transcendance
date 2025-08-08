@@ -212,7 +212,7 @@ export const HomePage = (): HTMLElement => {
 	try {
 		socket.off('redirect');
 		socket.off('connect');
-		
+
 		let socket2 = io(`${BASE_URL}`, {
 			path: '/api/websocket/my-websocket/'
 		});
@@ -246,6 +246,14 @@ export const HomePage = (): HTMLElement => {
 		if (socket.id)
 			setPlayerName(socket.id);
 
+		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
+			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
+			socket.off('redirect');
+			startGame("you and your friend");
+			socket2.emit('join', { name: socket2.id });
+			socket2.emit('acceptGame');
+		});
+
 		const response = await fetch(`${API_BASE_URL}/game/start`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -256,14 +264,6 @@ export const HomePage = (): HTMLElement => {
 			const err = await response.text();
 			throw new Error(err);
 		}
-
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			socket.off('redirect');
-			startGame("you and your friend");
-			socket2.emit('join', { name: socket2.id });
-			socket2.emit('acceptGame');
-		});
 
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
