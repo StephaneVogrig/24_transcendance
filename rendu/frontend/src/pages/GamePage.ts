@@ -180,16 +180,15 @@ export function gameStatusUpdate(status: string) {
         let baseColor = '#FFFFFF';
         let glowColor = 'rgba(255, 255, 255, 0.7)';
 
-        if (status === 'ready') {
-            displayStatus = 'Your opponent has joined the game!';
-            baseColor = '#4299E1';
-            glowColor = 'rgba(124, 255, 253, 0.7)';
-        } else if (status === 'started') {
-            displayStatus = '';
-        } else if (status === 'waiting') {
+
+        if (status === 'waiting') {
             displayStatus = 'Waiting for Players';
             baseColor = '#F6AD55';
             glowColor = 'rgba(255, 140, 0, 0.7)';
+        } else if (status === 'ready') {
+            displayStatus = 'Your opponent has joined the game!';
+            baseColor = '#4299E1';
+            glowColor = 'rgba(124, 255, 253, 0.7)';
         } else if (status === '3' || status === '2' || status === '1') {
             displayStatus = status;
             baseColor = '#4299E1';
@@ -198,6 +197,8 @@ export function gameStatusUpdate(status: string) {
             displayStatus = 'GO !';
             baseColor = '#F6AD55';
             glowColor = 'rgba(255, 140, 0, 0.7)';
+        } else if (status === 'started') {
+            displayStatus = '';
         }
 
         let coloredHtml = '';

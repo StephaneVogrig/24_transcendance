@@ -15,6 +15,8 @@ export class Game {
         this.gameId = gameId;
         this.stopBoolean = false;
         this.gameStatus = 'waiting';
+        this.countdownTimeoutId = null;
+        this.stopCountdownResolver = null;
         this.start();
     }
 
@@ -58,10 +60,10 @@ export class Game {
             });
             
             if (!response.ok) {
-                log.error({gameId: this.gameId}, 'Failed to start the game:', response.statusText);
+                log.error({gameId: this.gameId}, 'Failed to start the game in websocket ', response.statusText);
             }
         } catch (error) {
-            log.error({gameId: this.gameId}, 'Error starting the game:', error);
+            log.error({gameId: this.gameId}, 'Error starting the game in websocket ', error);
             throw error;
         }
     }
@@ -90,7 +92,7 @@ export class Game {
     {
         try {
             await this.sendStart();
-            log.debug({gameId: this.gameId}, `Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
+            // log.debug({gameId: this.gameId}, `Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
             const [player1RedirectStatus, player2RedirectStatus] = await Promise.all([
                 this.redirectPlayer(this.player1.getName()),
                 this.redirectPlayer(this.player2.getName())
@@ -101,12 +103,22 @@ export class Game {
 
             this.gameStatus = 'ready';
 
-            let i = 0;
-            while (i <= 4) {
-                await new Promise(r => setTimeout(r, 1000));
-                this.gameStatus = `${3 - i}`;
-                i++;
-                log.debug({gameId: this.gameId}, `Game starting in ${3 - i} seconds...`);
+            let i = 4;
+            while (i > -2) {
+                const countdownPromise = new Promise(resolve => {
+                    this.stopCountdownResolver = resolve;
+                    this.countdownTimeoutId = setTimeout(resolve, 1000);
+                });
+                await countdownPromise;
+                // await new Promise(r => this.countdownTimeoutId = setTimeout(r, 1000));
+                if (this.stopBoolean) {
+                    log.debug({gameId: this.gameId}, 'Game count stopped');
+                    this.gameStatus = 'finished';
+                    return;
+                }
+                this.gameStatus = `${i}`;
+                log.debug({gameId: this.gameId}, `Game starting in ${i} seconds...`);
+                i--;
             }
 
             this.gameStatus = 'started';
@@ -114,6 +126,7 @@ export class Game {
             const loop = async () => {
                 if (this.stopBoolean) {
                     log.debug({gameId: this.gameId}, 'Game loop stopped');
+                    this.gameStatus = 'finished';
                     return;
                 }
                 if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
@@ -129,7 +142,6 @@ export class Game {
             loop();
         } catch (error) {
             log.error({gameId: this.gameId}, 'Error starting the game:', error);
-            this.gameStatus = 'error';
         }
     }
 
@@ -154,13 +166,48 @@ export class Game {
     }
 
     async stop(player) {
+        log.debug({gameId: this.gameId}, `stopping game: ${this.player1.getName()} vs ${this.player2.getName()}`);
+        log.debug({gameId: this.gameId}, `Current gameStatus: '${this.gameStatus}'`);
+        if (this.gameStatus === 'finished'){
+            log.debug({gameId: this.gameId, gamestatus: this.gameStatus}, `stop game exit`)
+            return;
+        }
+        this.stopBoolean = true;
+        this.gameStatus = 'finished';
+        if (this.stopCountdownResolver) {
+            this.stopCountdownResolver();
+            this.stopCountdownResolver = null;
+        }
+        if (this.countdownTimeoutId) {
+            clearTimeout(this.countdownTimeoutId);
+            this.countdownTimeoutId = null;
+        }
+        // log.debug({gameId: this.gameId}, `score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);
+
+        log.debug({gameId: this.gameId}, 'waiting game stopped');
+        await new Promise((resolve, reject) => {
+            const checkStatus = () => {
+                if (this.gameStatus === 'finished') {
+                    resolve();
+                } else {
+                    log.trace({gameId: this.gameId}, 'waiting game stopped');
+                    setTimeout(checkStatus, 50);
+                }
+            };
+
+            checkStatus();
+
+            setTimeout(() => {
+                reject(new Error('Game stop timeout'));
+            }, 5000);
+        });
+
         if (player === this.player1.getName() && this.player2.getScore() < this.maxScore && this.player1.getScore() < this.maxScore)
             this.player2.score = this.maxScore;
         else if (player === this.player2.getName() && this.player1.getScore() < this.maxScore && this.player2.getScore() < this.maxScore)
             this.player1.score = this.maxScore;
-        await this.sendScores();
-        // log.debug({gameId: this.gameId}, `score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);
+
         log.debug({gameId: this.gameId}, `Game stopped: ${this.player1.getName()} vs ${this.player2.getName()}`);
-        this.stopBoolean = true;
+        await this.sendScores();
     }
 }

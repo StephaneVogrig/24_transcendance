@@ -10,12 +10,12 @@ fastify.post('/start', async (request, reply) => {
     log.debug(request.body, "requested start game");
     try {
         GameManager.addMatch(player1, player2, maxScore);
+        log.debug(request.body, "Game started");
+        return reply.status(200).send({ message: `Game started between ${player1} and ${player2}` });
     } catch (error) {
         log.error(error, `start error`);
         return reply.status(400).send({ error: error.message });
     }
-    // console.log(`Starting game between ${player1} and ${player2}`);
-    return reply.status(200).send({ message: `Game started between ${player1} and ${player2}` });
 });
 
 fastify.post('/input', async (request, reply) => {
@@ -35,12 +35,13 @@ fastify.post('/stop', async (request, reply) => {
         return reply.status(400).send({ error: 'Player is required' });
     }
     log.debug(request.body, "requested stop");
+
     try {
         await GameManager.stopMatch(player);
+        return reply.status(200).send({ message: `Game stopped for player ${player}` });
     } catch (error) {
         return reply.status(404).send({ error: error.message });
     }
-    return reply.status(200).send({ message: `Game stopped for player ${player}` });
 });
 
 fastify.get('/gameOver', async (request, reply) => {
