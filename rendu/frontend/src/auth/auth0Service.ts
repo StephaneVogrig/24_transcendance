@@ -73,7 +73,8 @@ export const initAuth0 = async (): Promise<any> => {
             cacheLocation: 'localstorage',
             // Configuration pour améliorer le support des popups
             useRefreshTokens: true,
-            useRefreshTokensFallback: false
+            useRefreshTokensFallback: false,
+            legacySameSiteCookie: true
         });
         console.log('Client Auth0 initialisé -> ', auth0Client);
     }
@@ -91,12 +92,8 @@ export const loginWithGoogle = async (): Promise<void> => {
         const result = await client.loginWithPopup({
             authorizationParams: {
                 connection: 'google-oauth2',
-                scope: 'openid profile email'
-            },
-            popup: {
-                // Configuration de la popup
-                timeoutInSeconds: 60,
-                popup: null // Laisser Auth0 gérer la création de la popup
+                scope: 'openid profile email',
+                redirect_uri: AUTH0_REDIRECT_URI
             }
         });
         
