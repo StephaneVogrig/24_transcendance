@@ -56,6 +56,6 @@ export const fr = {
     "exit_game": "Quitter le jeu",
 
     "game_over": "Jeu Terminé",
-    "game_status": "Statut du Jeu : Prêt",
+    "game_status": "Vous n'avez pas d'adversaire",
 
 };
