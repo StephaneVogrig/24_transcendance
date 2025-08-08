@@ -29,6 +29,9 @@ export HOST_IP
 # Directory for SSL certificates
 SSL_DIR	:=	ssl
 
+# Directory for database SQLITE
+DB_DIR	:= backend/database/db_data
+
 SERVICES_PORTS	:=	ai:3009 \
 					authentification:3001 \
 					blockchain:3002 \
@@ -86,6 +89,10 @@ $(SSL_DIR)/key.pem $(SSL_DIR)/cert.pem:
 		-subj "/C=FR/ST=NA/L=Angouleme/O=Transcendence/CN=$(HOST_IP)"
 	@echo "$(GREEN)Certificats générés dans $(SSL_DIR)/$(DEFAULT)"
 
+setup:
+	@mkdir -p $(DB_DIR)
+	@echo "$(GREEN)Folder 'db_data' ready for SQLite.$(DEFAULT)"
+
 build:
 	$(DOCKER_COMPOSE_PROD_CMD) build;
 
@@ -94,22 +101,20 @@ build-prod: build
 build-dev:
 	$(DOCKER_COMPOSE_DEV_CMD) build;
 
-up:
+up: setup ssl
 	@if [ "$(ACTIVE_ENV)" = "dev" ]; then \
 		$(DOCKER_COMPOSE_DEV_CMD) down; \
 	fi; \
-	$(MAKE) ssl; \
 	$(DOCKER_COMPOSE_PROD_CMD) up -d --build; \
 	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
 	echo "$(PURPPLE)Transcendence started in mode 🚀 production$(DEFAULT)";
 
 up-prod: up
 
-up-dev:
+up-dev: setup ssl
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
 		$(DOCKER_COMPOSE_PROD_CMD) down; \
 	fi; \
-	$(MAKE) ssl; \
 	$(DOCKER_COMPOSE_DEV_CMD) up -d --build; \
 	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
 	echo "$(PURPPLE)Transcendence started in mode ⚒️  development$(DEFAULT)";
@@ -173,6 +178,7 @@ fclean:
 	@echo "$(YELLOW)🔥 Nettoyage complet (volumes et orphelins)...$(DEFAULT)"
 	-@docker system prune -af --volumes || true
 	@rm -rf $(SSL_DIR)
+	@rm -rf $(DB_DIR)
 
 # Check the health of the services
 health:
@@ -258,6 +264,7 @@ $(foreach service,$(SERVICES),$(eval $(call SERVICE_RULES,$(service))))
 		prod \
 		dev \
 		ssl \
+		setup \
 		build \
 		build-prod \
 		build-dev \

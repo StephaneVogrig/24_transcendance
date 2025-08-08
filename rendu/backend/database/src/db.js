@@ -4,7 +4,7 @@ import { open } from 'sqlite'
 export function initDatabase()
 {
 	return open({
-		filename: './ft_transcendence.sqlite',
+		filename: '/app/db_data/ft_transcendence.sqlite',
 		driver: sqlite3.Database
 	});
 }

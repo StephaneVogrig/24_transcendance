@@ -13,3 +13,5 @@
 **/ssl
 
 images_originales/
+
+rendu/backend/database/db_data/*

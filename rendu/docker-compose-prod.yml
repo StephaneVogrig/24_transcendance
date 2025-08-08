@@ -94,6 +94,8 @@ services:
             - PORT=${DATABASE_PORT}
         networks:
             - transcendence-network
+        volumes:
+            - ./backend/database/db_data:/app/db_data
 
     game:
         image: game
