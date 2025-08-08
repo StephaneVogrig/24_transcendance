@@ -92,25 +92,29 @@ export class Game {
     {
         try {
             await this.sendStart();
-            // log.debug({gameId: this.gameId}, `Game started with players: ${this.player1.getName()} and ${this.player2.getName()}`);
             const [player1RedirectStatus, player2RedirectStatus] = await Promise.all([
                 this.redirectPlayer(this.player1.getName()),
                 this.redirectPlayer(this.player2.getName())
             ]);
-            if (!player1RedirectStatus || !player2RedirectStatus) {
-                return log.error({gameId: this.gameId}, 'Failed to redirect players');
+            if (!player1RedirectStatus) {
+                stopMatch(this.player1.getName());
+                return;
+            }
+            if (!player2RedirectStatus) {
+                stopMatch(this.player2.getName());
+                return;
             }
 
             this.gameStatus = 'ready';
 
-            let i = 4;
+            let i = 3;
             while (i > -2) {
                 const countdownPromise = new Promise(resolve => {
                     this.stopCountdownResolver = resolve;
                     this.countdownTimeoutId = setTimeout(resolve, 1000);
                 });
                 await countdownPromise;
-                // await new Promise(r => this.countdownTimeoutId = setTimeout(r, 1000));
+
                 if (this.stopBoolean) {
                     log.debug({gameId: this.gameId}, 'Game count stopped');
                     this.gameStatus = 'finished';
@@ -182,7 +186,6 @@ export class Game {
             clearTimeout(this.countdownTimeoutId);
             this.countdownTimeoutId = null;
         }
-        // log.debug({gameId: this.gameId}, `score reset: ${this.player1.getName()}=${this.player1.getScore()}, ${this.player2.getName()}=${this.player2.getScore()}`);
 
         log.debug({gameId: this.gameId}, 'waiting game stopped');
         await new Promise((resolve, reject) => {
