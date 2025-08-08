@@ -133,18 +133,22 @@ stop: down
 
 restart:
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
+		$(DOCKER_COMPOSE_PROD_CMD) down; \
 		$(MAKE) up; \
     elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
+		$(DOCKER_COMPOSE_DEV_CMD) down; \
 		$(MAKE) up-dev; \
 	else \
         echo "$(YELLOW)No Transcendence stack is currently active. Nothing to restart.$(DEFAULT)"; \
     fi
 
 restart-services:
-	@services_to_restart=$$(echo $(SERVICES) | tr ' ' '\n' | grep -v 'gateway' | grep -v 'proxy' | tr '\n' ' '); \
+	@services_to_restart=$$(echo $(SERVICES) | tr ' ' '\n' | grep -v 'gateway' | grep -v 'proxy' | grep -v 'frontend' | tr '\n' ' '); \
 	if [ "$(ACTIVE_ENV)" = "prod" ]; then \
+		$(DOCKER_COMPOSE_PROD_CMD) down $$services_to_restart; \
 		$(DOCKER_COMPOSE_PROD_CMD) up -d --build $$services_to_restart; \
 	elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
+		$(DOCKER_COMPOSE_DEV_CMD) down $$services_to_restart; \
 		$(DOCKER_COMPOSE_DEV_CMD) up -d --build $$services_to_restart; \
 	else \
 		echo "$(YELLOW)No Transcendence stack is currently active. Nothing to restart.$(DEFAULT)"; \
@@ -217,8 +221,10 @@ down-$(1):
 
 restart-$(1):
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
+		$$(DOCKER_COMPOSE_PROD_CMD) down $(1); \
 		$$(DOCKER_COMPOSE_PROD_CMD) up $(1) -d --build; \
     elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
+		$$(DOCKER_COMPOSE_DEV_CMD) down $(1); \
 		$$(DOCKER_COMPOSE_DEV_CMD) up $(1) -d --build; \
 	else \
         echo "$(YELLOW)No Transcendence stack is currently active. Nothing to restart.$(DEFAULT)"; \

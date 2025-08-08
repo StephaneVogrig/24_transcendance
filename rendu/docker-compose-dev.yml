@@ -19,43 +19,54 @@ services:
             - ./ssl:/app/ssl
         environment:
             - VITE_PROXY_PORT=${PROXY_PORT}
+        stop_grace_period: 0s
 
     gateway:
         ports:
             - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+        stop_grace_period: 0s
 
     authentification:
         ports:
             - "${AUTHENTIFICATION_PORT}:${AUTHENTIFICATION_PORT}"
+        stop_grace_period: 0s
 
     blockchain:
         ports:
             - "${BLOCKCHAIN_PORT}:${BLOCKCHAIN_PORT}"
+        stop_grace_period: 0s
 
     database:
         ports:
             - "${DATABASE_PORT}:${DATABASE_PORT}"
+        stop_grace_period: 0s
 
     game:
         ports:
             - "${GAME_PORT}:${GAME_PORT}"
+        stop_grace_period: 0s
 
     matchmaking:
         ports:
             - "${MATCHMAKING_PORT}:${MATCHMAKING_PORT}"
+        stop_grace_period: 0s
 
     scores:
         ports:
             - "${SCORES_PORT}:${SCORES_PORT}"
+        stop_grace_period: 0s
 
     tournament:
         ports:
             - "${TOURNAMENT_PORT}:${TOURNAMENT_PORT}"
+        stop_grace_period: 0s
 
     websocket:
         ports:
             - "${WEBSOCKET_PORT}:${WEBSOCKET_PORT}"
+        stop_grace_period: 0s
 
     ai:
         ports:
             - "${AI_PORT}:${AI_PORT}"
+        stop_grace_period: 0s
