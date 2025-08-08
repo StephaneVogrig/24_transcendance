@@ -10,6 +10,7 @@ import { authGoogleButton } from '../auth/auth0Service';
 import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from './HomePageUtils/dbServices.ts';
 import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { API_BASE_URL, BASE_URL } from '../config.ts';
+import { navigate } from '../router';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
@@ -137,7 +138,7 @@ export const HomePage = (): HTMLElement => {
 		profileButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-green-400 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
 		profileButton.textContent = locale.profile || 'Profile'; 
 		profileButton.addEventListener('click', () => {
-			window.location.href = '/profile';
+            navigate('/profile');
 		});
 		nav.appendChild(profileButton);
 

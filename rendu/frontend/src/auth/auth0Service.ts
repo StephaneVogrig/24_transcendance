@@ -1,5 +1,6 @@
 let Auth0Client: any = null;
 import { locale } from '../i18n';
+import { navigate } from '../router';
 
 
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
@@ -127,7 +128,8 @@ export const loginWithGoogle = async (): Promise<void> => {
             }
             
             // Rediriger vers la page d'accueil après connexion réussie
-            window.location.href = '/';
+            navigate('/');
+
         }
         
     } 
