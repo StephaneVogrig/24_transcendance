@@ -7,12 +7,11 @@ ARG VITE_PROXY_PORT
 
 COPY package*.json ./
 
-RUN npm ci --only=production
+RUN npm ci
 
 COPY . .
 
-RUN VITE_PROXY_PORT=${VITE_PROXY_PORT} \
-	npm run build
+RUN VITE_PROXY_PORT=${VITE_PROXY_PORT} npm run build
 
 # stage 2
 FROM nginx:stable-alpine AS runner
