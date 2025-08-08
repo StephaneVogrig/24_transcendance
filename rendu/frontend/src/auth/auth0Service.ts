@@ -199,15 +199,15 @@ export const logout = async (): Promise<void> => {
         console.log('Début de la déconnexion...');
         const client = await initAuth0();
         
-        clearLocalAuth();  // Nettoyer les données locales avant la déconnexion Auth0
         
-        // Déconnexion Auth0 (redirige automatiquement)
+        // Déconnexion Auth0
         await client.logout({
-            logoutParams: {
-                returnTo: window.location.origin
-            }
+            openUrl: false
         });
-        
+
+        clearLocalAuth();  // Nettoyer les données locales
+
+        navigate('/profile');
     }
     catch (error) {
         console.error('Erreur lors de la déconnexion:', error);
@@ -221,7 +221,7 @@ export const logout = async (): Promise<void> => {
         } catch (redirectError) {
             console.error('Erreur lors de la redirection manuelle:', redirectError);
             // Dernier recours : redirection locale
-            window.location.replace('/login');
+            navigate('/profile');
         }
     }
 };
