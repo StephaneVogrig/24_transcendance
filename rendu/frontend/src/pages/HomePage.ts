@@ -326,7 +326,6 @@ export const HomePage = (): HTMLElement => {
 		}
 
 		console.log(`Partie IA créée avec ${name}`);
-		cleanupSockets();
 		} catch (error) {
 			alert(`Erreur lors de la création: ${(error as Error).message}`);
 			socket.off('redirect');

@@ -11,7 +11,7 @@ export async function addAI(name) {
 	if (map.has(name))
 		throw new Error(`AI with name ${name} already exists.`);
 	const ai = new ia.AI(name);
-	await ai.start();
+	ai.start();
 
 	map.set(name, ai);
 	log.debug(map, `Added AI with name: ${name}`);
