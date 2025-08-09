@@ -265,13 +265,10 @@ card.appendChild(cardHeader);
 const tournamentList = document.createElement('div');
 tournamentList.className = 'space-y-2 max-h-60 overflow-y-auto';
 
+ // Nettoyer le conteneur avant de le remplir
+tournamentList.innerHTML = '';
+
 if (tournament.length === 0) {
-    // const emptyDiv = document.createElement('div');
-    // emptyDiv.className = 'text-center py-4 text-gray-500';
-    // emptyDiv.innerHTML = `
-    // <div class="text-2xl mb-1">🎮</div>
-    // <p class="text-xs">${emptyMessage}</p>
-    // `;
     const emptyDiv = empty(emptyMessage); 
     tournamentList.appendChild(emptyDiv);
 } else {
@@ -444,7 +441,7 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
             extractMatchesFromTournament([tournaments[i]], 'playing', Matchs_tournament_ongoing, 4);
             // console.log('createOngoingTournamentCard -> Matchs_tournament_ongoing', Matchs_tournament_ongoing);
             const tournamentsName: string = tournaments[i].createdBy;
-            const ongoingCard = createOngoingMatchCard(`Tournoi de ${tournamentsName}`, Matchs_tournament_ongoing);
+            const ongoingCard = createOngoingMatchCard(`${locale.tournamentName} ${tournamentsName}`, Matchs_tournament_ongoing);
             matchList.appendChild(ongoingCard);
         }
     }
@@ -484,9 +481,6 @@ const loadMatches = async (cardsContainer : HTMLElement ) =>
 
         // Créer les cartes pour chaque type de tournoi
         const waitingCard = createOpenTournamentCard(locale.tournamentWaiting, open, locale.noTournamentWaiting);
-
-        // const ongoingCard = createOngoingTournamentCard('Tournois en Cours', Matchs_tournament_ongoing,
-        //     'bg-green-100 text-green-800', 'Aucun tournoi en cours');
 
         const ongoingCard = createOngoingTournamentCard(locale.tournamentInProgress, ongoing,
             'bg-green-100 text-green-800', locale.noTournamentInProgress);

@@ -43,6 +43,7 @@ export const fr = {
     "finalMatch": "Match Final",
     "back": "Retour",
     "matchDownload": "Chargement des matchs...",
+    "tournamentName": "Tournoi de ",
 
     // profileUtils
     "notConnected": "Utilisateur Non Connecté",

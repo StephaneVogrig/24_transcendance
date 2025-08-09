@@ -212,11 +212,11 @@ export async function joinTournament(name)
 	log.debug(`player %s want join tournament`, name);
 	const tmp = name;
 	name = name.trim();
-	if (findTournamentWithPlayer(name))
-	{
-		log.debug(TOURNAMENT_LIST, `Couldn't join tournament: name '${name}' is already in a tournament.`);
-		throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
-	}
+	// if (findTournamentWithPlayer(name))
+	// {
+	// 	log.debug(TOURNAMENT_LIST, `Couldn't join tournament: name '${name}' is already in a tournament.`);
+	// 	throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
+	// }
 	const tournament = findTournament();
 	if (!tournament)
 		return await createTournament(name);

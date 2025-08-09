@@ -12,7 +12,7 @@ import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageS
 import { API_BASE_URL, BASE_URL } from '../config.ts';
 import { navigate } from '../router';
 
-import { isAnActivePlayer } from './HomePageUtils/HomePageUtils.ts';
+import { isAnActivePlayer, createNavLink } from './HomePageUtils/HomePageUtils.ts';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
@@ -52,23 +52,10 @@ function cleanupSockets() {
     }
 }
 
-// // Vérifier si le nom existe déjà dans la liste des joueurs actifs
-// async function isAnActivePlayer(name: string) : Promise<boolean>
-// {
-// 	const activePlayerList = await getActivePlayersFromDb();
-// 	console.log('Active players from DB:', activePlayerList);
-
-// 	if (activePlayerList.some(player => player.username === name)) 
-// 	{
-// 		alert(locale.UserInTournament || 'Username already in tournament');
-// 		return false;
-// 	}
-// 	return true;
-// }
-
 function startGame(players: string) {
 	showGameModal(players, socket, isGameStarted);
 }
+
 
 export const HomePage = (): HTMLElement => {
 	const content = document.createElement('div');
@@ -78,15 +65,6 @@ export const HomePage = (): HTMLElement => {
 	const nav = document.createElement('nav');
 	nav.className = 'flex flex-col space-y-4';
 
-	// Fonction utilitaire pour créer un lien de navigation
-	const createNavLink = (text: string, route: string, loginLogout?: string): HTMLAnchorElement => {
-		const link = document.createElement('a');
-		link.href = '#'; // Le href est souvent un '#' ou le chemin réel pour l'accessibilité
-		link.setAttribute('data-route', route);
-		link.className = loginLogout || 'btn btn-secondary text-center';
-		link.textContent = text;
-		return link;
-	};
 
 	// Champ nom
 	const input = document.createElement('input');
@@ -207,7 +185,7 @@ export const HomePage = (): HTMLElement => {
 			}
 			disableJoining();
 		} catch (error) {
-			alert(`Erreur lors de la création: ${(error as Error).message}`);
+			alert(`Erreur lors de la création 1: ${(error as Error).message}`);
 			name = '';
 			button.remove();
 			await deleteUsernameFromDb(name);
@@ -273,7 +251,7 @@ export const HomePage = (): HTMLElement => {
 		}
 
 		} catch (error) {
-			alert(`Erreur lors de la création: ${(error as Error).message}`);
+			alert(`Erreur lors de la création 2: ${(error as Error).message}`);
 			socket.off('redirect');
 			socket.off('connect');
 		}
@@ -334,7 +312,7 @@ export const HomePage = (): HTMLElement => {
 
 		console.log(`Partie IA créée avec ${name}`);
 		} catch (error) {
-			alert(`Erreur lors de la création: ${(error as Error).message}`);
+			alert(`Erreur lors de la création 3: ${(error as Error).message}`);
 			socket.off('redirect');
 			socket.off('connect');
 		}
@@ -399,7 +377,7 @@ export const HomePage = (): HTMLElement => {
 				modal = showTournamentModal(data.id, socket);
 			disableJoining();
 		} catch (error) {
-			alert(`Erreur lors de la création: ${(error as Error).message}`);
+			alert(`Erreur lors de la création 4: ${(error as Error).message}`);
 		}
 	});
 
