@@ -172,7 +172,7 @@ fastify.post('/user/oauth', async (request, reply) => {
             });
         }
     } catch (err) {
-        console.error('Database error:', err);
+        log.error('Database error:', err);
         return reply.status(500).send({ error: err.message });
     }
 });
@@ -194,7 +194,7 @@ fastify.get('/user/oauth/:provider_id', async (request, reply) => {
 
         return reply.status(200).send({ user });
     } catch (err) {
-        console.error('Database error:', err);
+        log.error('Database error:', err);
         return reply.status(500).send({ error: err.message });
     }
 });
@@ -203,7 +203,7 @@ fastify.get('/user/oauth/:provider_id', async (request, reply) => {
 fastify.get('/getActivePlayers', async (request, reply) => {
     try {
         const players = await db.all('SELECT * FROM `players`');
-        console.log('Database: returning players:', players);
+        log.debug('Database: returning players:', players);
         reply.status(200).send(players); // Retourner directement le tableau
     } catch (err) {
         reply.status(500).send({ error: err.message });
