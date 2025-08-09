@@ -87,7 +87,7 @@ export class InputManager {
 			};
 			updateBallAndPlatforms(ballPos, platform1Pos, platform2Pos);
 			updateScores(data.score[0], data.score[1]);
-			if (gameStatus != data.gameStatus || data.gameStatus === 'waiting') {
+			if (gameStatus != data.gameStatus) {
 				gameStatus = data.gameStatus;
 				gameStatusUpdate(gameStatus);
 			}
@@ -124,7 +124,7 @@ export class InputManager {
 		});
 
 		this.socket.on('gameStatusUpdate', (data: { gameStatus: string }) => {
-			if (gameStatus != data.gameStatus || data.gameStatus === 'waiting') {
+			if (gameStatus != data.gameStatus) {
 				gameStatus = data.gameStatus;
 				gameStatusUpdate(gameStatus);
 			}

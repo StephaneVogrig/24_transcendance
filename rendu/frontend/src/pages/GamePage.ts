@@ -6,6 +6,8 @@ import { enableJoining } from './HomePage.ts';
 let cachedGamePage: HTMLElement | null = null;
 let name: string | null = null;
 
+let statusParagraph = document.createElement('p');
+
 export function setPlayerName(playerName: string) {
     name = playerName;
 }
@@ -41,7 +43,6 @@ export const GamePage = (): HTMLElement => {
     scoreParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 ';
     gameContainer.appendChild(scoreParagraph);
 
-    const statusParagraph = document.createElement('p');
     statusParagraph.id = 'gameStatusDisplay';
     statusParagraph.textContent = locale.game_status;
     statusParagraph.className = 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-semibold text-orange-500 z-10';
@@ -173,7 +174,7 @@ export function updateScores(player1Score: number, player2Score: number) {
 
 export function gameStatusUpdate(status: string) {
     console.log(`Game status updated: ${status}`);
-    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+    const statusElement = statusParagraph;
 
     if (statusElement && status !== 'finished') {
         let displayStatus = '';
@@ -214,7 +215,7 @@ export function gameStatusUpdate(status: string) {
 
 export function gameOverDefault(winner: string, score: [number, number]) {
     console.log(`Game defeat over: Winner: ${winner}, Score: ${score[0]} - ${score[1]}`);
-    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+    const statusElement = statusParagraph;
     if (statusElement) {
         let displayStatus = '';
         let baseColor = '#FFFFFF';
@@ -249,7 +250,7 @@ export function gameOverDefault(winner: string, score: [number, number]) {
 
 export function gameOverTournament(winner: string, score: [number, number]) {
     console.log(`Game defeat over: Winner: ${winner}, Score: ${score[0]} - ${score[1]}`);
-    const statusElement = document.getElementById('gameStatusDisplay') as HTMLParagraphElement;
+    const statusElement = statusParagraph;
     if (statusElement) {
         let displayStatus = '';
         let baseColor = '#FFFFFF';
