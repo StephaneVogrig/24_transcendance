@@ -9,10 +9,11 @@
     "dev": "node src/index.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "fastify": "^4.24.3",
-    "sqlite": "^4.1.2",
-    "sqlite3": "^5.1.6",
-    "bcrypt": "^5.1.1"
+    "pino-pretty": "^13.0.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   },
   "keywords": [],
   "author": "Viiiite",

@@ -2,14 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY database/package*.json ./
 
 RUN apk add --no-cache python3 make g++ sqlite
-RUN npm install
 
-COPY init.sql ./init.sql
-COPY src ./src
+RUN npm ci
+
+COPY database/init.sql ./init.sql
+COPY shared ./shared
+COPY database/src ./src
 
 EXPOSE 3003
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "shared/server.js"]

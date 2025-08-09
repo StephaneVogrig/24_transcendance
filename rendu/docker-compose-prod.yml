@@ -85,8 +85,8 @@ services:
         image: database
         container_name: database
         build:
-            context: ./backend/database
-            dockerfile: Dockerfile
+            context: ./backend
+            dockerfile: database/Dockerfile
         environment:
             - SERVICE_NAME=database
             - NODE_ENV=${NODE_ENV}
