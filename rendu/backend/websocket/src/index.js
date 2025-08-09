@@ -17,7 +17,7 @@ async function waitForRedirectAcceptance(playerName, timeout = 60000) {
 		const timer = setTimeout(() => {
 			if (pendingRedirectAcceptances.has(playerName)) {
 				pendingRedirectAcceptances.delete(playerName);
-				console.warn(`Redirect acceptance for player ${playerName} timed out.`);
+				log.warn(`Redirect acceptance for player ${playerName} timed out.`);
 				reject(new Error('Redirect acceptance timed out.'));
 			}
 		}, timeout);
@@ -28,16 +28,16 @@ async function waitForRedirectAcceptance(playerName, timeout = 60000) {
 
 fastify.post('/redirect', async (request, reply) => {
 	const { name, gameId } = request.body;
-	console.log(`Received request to redirect player ${name} to game ${gameId}`);
+	log.debug(request.body, `Received request to redirect player ${name} to game ${gameId}`);
 	if (!name || !gameId) {
 		return reply.status(400).send({ error: 'Player name and game ID are required' });
 	}
 	const socketId = playerNameToSocketId.get(name);
 	if (!socketId) {
-		console.warn(`Player ${name} not found in active connections. They might be reconnecting.`);
+		log.warn(`Player ${name} not found in active connections. They might be reconnecting.`);
 		return reply.status(404).send({ error: `Player ${name} not found or not currently connected to a known socket.` });
 	}
-	console.log(`Redirecting player ${name} with socket ID ${socketId} to game ${gameId}`);
+	log.debug(`Redirecting player ${name} with socket ID ${socketId} to game ${gameId}`);
 	
 	io.to(socketId).emit('redirect', { gameId: gameId, playerName: name });
 	await waitForRedirectAcceptance(name);
@@ -51,7 +51,7 @@ fastify.post('/startGame', async (request, reply) => {
 		return reply.status(400).send({ error: 'player1Name, player2Name, and gameId are required' });
 	}
 
-	console.log(`Received request to start game ${gameId} for ${player1Name} and ${player2Name}`);
+	log.debug(`Received request to start game ${gameId} for ${player1Name} and ${player2Name}`);
 
 	const player1SocketId = playerNameToSocketId.get(player1Name);
 	const player2SocketId = playerNameToSocketId.get(player2Name);
@@ -60,20 +60,20 @@ fastify.post('/startGame', async (request, reply) => {
 	const player2Socket = io.sockets.sockets.get(player2SocketId);
 
 	if (!player1Socket || !player2Socket) {
-		console.warn(`Game ${gameId} cannot start: One or both players not connected.`);
+		log.warn(`Game ${gameId} cannot start: One or both players not connected.`);
 		if (!player1Socket) io.to(playerNameToSocketId.get(player1Name)).emit('error', { message: 'Your opponent disconnected or connection issue.' });
 		if (!player2Socket) io.to(playerNameToSocketId.get(player2Name)).emit('error', { message: 'Your opponent disconnected or connection issue.' });
 		return reply.status(404).send({ error: 'One or both players are not connected.' });
 	}
 
 	if (gameSessions.has(gameId)) {
-		console.warn(`Game ${gameId} already exists and is attempting to be started again.`);
+		log.warn(`Game ${gameId} already exists and is attempting to be started again.`);
 		return reply.status(409).send({ error: `Game ${gameId} already in progress.` });
 	}
 
 	player1Socket.join(gameId);
 	player2Socket.join(gameId);
-	console.log(`Players ${player1Name} (${player1Socket.id}) and ${player2Name} (${player2Socket.id}) joined room ${gameId}`);
+	log.debug(`Players ${player1Name} (${player1Socket.id}) and ${player2Name} (${player2Socket.id}) joined room ${gameId}`);
 
 	const gameInterval = setInterval(async () => {
 		await getstate(gameId, player1Name); 
@@ -86,10 +86,10 @@ fastify.post('/startGame', async (request, reply) => {
 		player2SocketId: player2Socket.id,
 		intervalId: gameInterval
 	});
-	console.log(`Game session ${gameId} registered.`);
+	log.debug(`Game session ${gameId} registered.`);
 
 	io.to(gameId).emit('gameStarted', { gameId: gameId, player1Name: player1Name, player2Name: player2Name });
-	console.log(`'gameStarted' event emitted to room ${gameId}`);
+	log.debug(`'gameStarted' event emitted to room ${gameId}`);
 
 	return reply.status(200).send({ message: `Game session ${gameId} created and started for players ${player1Name} and ${player2Name}`, gameId });
 });
@@ -110,13 +110,13 @@ async function sendInput(playerName, key, action) {
 		});
 		
 		if (!response.ok) {
-			console.error('Input: Failed to send to game logic:', response.status);
+			log.error('Input: Failed to send to game logic:', response.status);
 			return false;
 		} else {
 			return true;
 		}
 	} catch (error) {
-		console.error('Input: Error communicating with game logic service:', error);
+		log.error('Input: Error communicating with game logic service:', error);
 		return false;
 	}
 }
@@ -137,7 +137,7 @@ async function getGameOver(player) {
 		const responseData = await response.json();
 		return responseData.state;
 	} catch (error) {
-		console.error('Error fetching game over state:', error);
+		log.error('Error fetching game over state:', error);
 		return null;
 	}
 }
@@ -156,7 +156,7 @@ async function isInTournament(playerName) {
 		const responseData = await response.json();
 		return responseData.tournament !== undefined;
 	} catch (error) {
-		console.error('Error checking tournament status:', error);
+		log.error('Error checking tournament status:', error);
 		return false;
 	}
 }
@@ -194,10 +194,10 @@ async function getstate(gameId, player) {
 		// HANDLE GAME STATUS
 		if (gameState.gameStatus) {
 			if (gameState.gameStatus === 'finished') {
-				console.log(`Game ${gameId} finished. Fetching game over state for player ${player}.`);
+				log.debug(`Game ${gameId} finished. Fetching game over state for player ${player}.`);
 				const gameOverState = await getGameOver(player);
 				if (gameOverState) {
-					console.log(`Game over state for player ${player}:`, gameOverState);
+					log.debug(`Game over state for player ${player}:`, gameOverState);
 					io.to(gameId).emit('gameOver', {
 						type: isInTournament(player) ? 'tournament' : 'default',
 						winner: gameOverState.winner,
@@ -209,12 +209,12 @@ async function getstate(gameId, player) {
 				gameStatus: gameState.gameStatus
 			});
 			if (gameState.gameStatus === 'finished') {
-				console.log(`Game ${gameId} finished. Stopping game loop.`);
+				log.debug(`Game ${gameId} finished. Stopping game loop.`);
 				const session = gameSessions.get(gameId);
 				if (session) {
 					clearInterval(session.intervalId);
 					gameSessions.delete(gameId);
-					console.log(`Game session ${gameId} cleared from memory.`);
+					log.debug(`Game session ${gameId} cleared from memory.`);
 				}
 			}
 		}
@@ -223,7 +223,7 @@ async function getstate(gameId, player) {
         return responseData.gameState;
 
 	} catch (error) {
-		console.error('state: Error communicating with game logic service:', error);
+		log.error('state: Error communicating with game logic service:', error);
 		return null;
 	}
 }
@@ -241,12 +241,12 @@ async function stopGame(playerName) {
 			})
 		});
 		if (!response.ok) {
-			console.error('stopGame: Failed to send stop request to game logic:', response.status);
+			log.error('stopGame: Failed to send stop request to game logic:', response.status);
 			return false;
 		}
 		if (playerName)
 		{
-			console.log(`stopGame called for player ${playerName}`);
+			log.debug(`stopGame called for player ${playerName}`);
 			try
 			{
 				const response = await fetch(`http://database:3003/removeUser`, {
@@ -255,35 +255,35 @@ async function stopGame(playerName) {
 					body: JSON.stringify({ username: playerName })
 				});
 				if (!response.ok)
-					console.log(`Failed to delete user ${playerName} from db: ${response.status}`);
+					log.debug(`Failed to delete user ${playerName} from db: ${response.status}`);
 				else
-					console.log(`Deleted ${playerName} from db.`);
+					log.debug(`Deleted ${playerName} from db.`);
 			}
 			catch (error)
 			{
-				console.error(`Error removing ${playerName} in database:`, error);
+				log.error(`Error removing ${playerName} in database:`, error);
 			}
 		}
 		return true;
 	} catch (error) {
-		console.error('stopGame: Error communicating with game logic service:', error);
+		log.error('stopGame: Error communicating with game logic service:', error);
 		return false;
 	}
 }
 
 io.on('connection', async (socket) => {
-	console.log(`Socket connected: ${socket.id}`);
+	log.debug(`Socket connected: ${socket.id}`);
 	socket.data.status = 'connected';
 
 	socket.on('join', async (data) => {
 		const name = data.name;
 		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 25) {
-			console.error(`Invalid player name: ${name}`);
+			log.error(`Invalid player name: ${name}`);
 			socket.emit('error', { message: 'Player name must be a string between 3 and 25 characters.' });
 			return;
 		}
 		// if (playerNameToSocketId.has(name)) {
-		// 	console.error(`Player name ${name} is already in use.`);
+		// 	log.error(`Player name ${name} is already in use.`);
 		// 	socket.emit('error', { message: `Player name ${name} is already in use.` });
 		// 	return;
 		// }
@@ -294,19 +294,19 @@ io.on('connection', async (socket) => {
 				headers: { 'Content-Type': 'application/json' }
 			});
 			if (!response.ok)
-				console.log(`Error calling getUser in db for user ${name}`);
+				log.debug(`Error calling getUser in db for user ${name}`);
 			else if (response.status === 204)
 			{
-				console.error(`Player name ${name} is already in use.`);
+				log.error(`Player name ${name} is already in use.`);
 				socket.emit('error', { message: `Player name ${name} is already in use.` });
 				return;
 			}
 		}
 		catch (error)
 		{
-			console.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
+			log.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
 		}
-		console.log(`Player ${name} joined (matchmaking) with socket ID: ${socket.id}`);
+		log.debug(`Player ${name} joined (matchmaking) with socket ID: ${socket.id}`);
 		playerNameToSocketId.set(name, socket.id);
 		socketIdToPlayerName.set(socket.id, name);
 		socket.data.playerName = name;
@@ -315,16 +315,16 @@ io.on('connection', async (socket) => {
 	socket.on('identify_player', (data) => {
 		const name = data.name;
 		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 25) {
-			console.error(`Invalid player name for identify_player: ${name}`);
+			log.error(`Invalid player name for identify_player: ${name}`);
 			socket.emit('error', { message: 'Player name must be a string between 3 and 25 characters.' });
 			return;
 		}
 		if (playerNameToSocketId.has(name)) {
-			console.error(`Player name ${name} is already in use.`);
+			log.error(`Player name ${name} is already in use.`);
 			socket.emit('error', { message: `Player name ${name} is already in use.` });
 			return;
 		}
-		console.log(`Player ${name} identified (in-game) with new socket ID: ${socket.id}`);
+		log.debug(`Player ${name} identified (in-game) with new socket ID: ${socket.id}`);
 		playerNameToSocketId.set(name, socket.id);
 		socketIdToPlayerName.set(socket.id, name);
 		socket.data.playerName = name;
@@ -334,10 +334,10 @@ io.on('connection', async (socket) => {
 		const playerName = socket.data.playerName;
 		
 		if (!playerName) {
-			console.error(`Keydown from unidentified socket: ${socket.id}. Data: ${JSON.stringify(data)}`);
+			log.error(`Keydown from unidentified socket: ${socket.id}. Data: ${JSON.stringify(data)}`);
 			return;
 		}
-		console.log(`Key down: ${data.key} for player ${playerName}`);
+		log.debug(`Key down: ${data.key} for player ${playerName}`);
 		sendInput(playerName, data.key, 'keydown');
 	});
 
@@ -345,10 +345,10 @@ io.on('connection', async (socket) => {
 		const playerName = socket.data.playerName;
 
 		if (!playerName) {
-			console.error(`Keyup from unidentified socket: ${socket.id}. Data: ${JSON.stringify(data)}`);
+			log.error(`Keyup from unidentified socket: ${socket.id}. Data: ${JSON.stringify(data)}`);
 			return;
 		}
-		console.log(`Key up: ${data.key} for player ${playerName}`);
+		log.debug(`Key up: ${data.key} for player ${playerName}`);
 		sendInput(playerName, data.key, 'keyup');
 	});
 
@@ -356,20 +356,20 @@ io.on('connection', async (socket) => {
 		const playerName = socket.data.playerName;
 
 		if (!playerName) {
-			console.error(`acceptGame from unidentified socket: ${socket.id}`);
+			log.error(`acceptGame from unidentified socket: ${socket.id}`);
 			return;
 		}
-		console.log(`Player ${playerName} accepted the game`);
+		log.debug(`Player ${playerName} accepted the game`);
 		if (pendingRedirectAcceptances.has(playerName)) {
 			const { resolve, cleanUp } = pendingRedirectAcceptances.get(playerName);
 			pendingRedirectAcceptances.delete(playerName);
 			resolve();
 			if (cleanUp) cleanUp();
-			console.log(`Redirect acceptance for player ${playerName} resolved.`);
+			log.debug(`Redirect acceptance for player ${playerName} resolved.`);
 		} else {
-			console.warn(`Player ${playerName} accepted game but no pending redirect acceptance was found.`);
+			log.warn(`Player ${playerName} accepted game but no pending redirect acceptance was found.`);
 		}
-		console.log(`Player ${playerName} status set to 'in-game' after accepting game.`);
+		log.debug(`Player ${playerName} status set to 'in-game' after accepting game.`);
 		socket.emit('nameAccepted', { name: playerName });
 	});
 
@@ -392,11 +392,11 @@ io.on('connection', async (socket) => {
 				const { cleanUp } = pendingRedirectAcceptances.get(disconnectedPlayerName);
 				pendingRedirectAcceptances.delete(disconnectedPlayerName);
 				if (cleanUp) cleanUp();
-				console.warn(`Redirect acceptance for player ${disconnectedPlayerName} rejected due to disconnect.`);
+				log.warn(`Redirect acceptance for player ${disconnectedPlayerName} rejected due to disconnect.`);
 			}
 			for (const [gameId, session] of gameSessions.entries()) {
 				if (session.player1SocketId === socket.id || session.player2SocketId === socket.id) {
-					console.log(`Player ${disconnectedPlayerName} was in game ${gameId}. Notifying other player.`);
+					log.debug(`Player ${disconnectedPlayerName} was in game ${gameId}. Notifying other player.`);
 					const otherPlayerSocketId = session.player1SocketId === socket.id ? session.player2SocketId : session.player1SocketId;
 					io.to(otherPlayerSocketId).emit('error', { message: `Your opponent ${disconnectedPlayerName} has disconnected.` });
 					io.to(gameId).emit('gameOver', {
@@ -431,6 +431,6 @@ io.on('connection', async (socket) => {
 			catch (error) {}
 		}
 		else
-			console.log(`Unidentified socket disconnected: ${socket.id}`);
+			log.debug(`Unidentified socket disconnected: ${socket.id}`);
 	});
 });
