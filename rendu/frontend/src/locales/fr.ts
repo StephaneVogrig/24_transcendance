@@ -50,6 +50,8 @@ export const fr = {
 
     // Home Page
     "UsernameInUse": "Nom d'utilisateur déjà utilisé",
+    "UserInTournament": "Nom d'utilisateur déjà dans un tournoi, quittez le tournoi ou changez votre nom d'utilisateur",
+    "UserInOnlineGame": "Nom d'utilisateur déjà dans un jeu en ligne, quittez le jeu ou changez votre nom d'utilisateur",
 
     "team": "L'équipe",
 

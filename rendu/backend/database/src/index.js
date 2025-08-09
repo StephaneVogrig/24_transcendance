@@ -198,3 +198,14 @@ fastify.get('/user/oauth/:provider_id', async (request, reply) => {
         return reply.status(500).send({ error: err.message });
     }
 });
+
+// Route to get all active players
+fastify.get('/getActivePlayers', async (request, reply) => {
+    try {
+        const players = await db.all('SELECT * FROM `players`');
+        console.log('Database: returning players:', players);
+        reply.status(200).send(players); // Retourner directement le tableau
+    } catch (err) {
+        reply.status(500).send({ error: err.message });
+    }
+});

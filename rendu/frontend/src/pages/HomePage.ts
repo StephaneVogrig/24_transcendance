@@ -7,10 +7,12 @@ import { BabylonGame } from '../3d/main3d.ts';
 
 import { authGoogleButton } from '../auth/auth0Service';
 
-import { registerUsernameToDb, usernameExistsInDb, deleteUsernameFromDb } from './HomePageUtils/dbServices.ts';
+import { registerUsernameToDb, deleteUsernameFromDb} from './HomePageUtils/dbServices.ts';
 import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { API_BASE_URL, BASE_URL } from '../config.ts';
 import { navigate } from '../router';
+
+import { isAnActivePlayer } from './HomePageUtils/HomePageUtils.ts';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
@@ -49,6 +51,20 @@ function cleanupSockets() {
         socket2 = undefined;
     }
 }
+
+// // Vérifier si le nom existe déjà dans la liste des joueurs actifs
+// async function isAnActivePlayer(name: string) : Promise<boolean>
+// {
+// 	const activePlayerList = await getActivePlayersFromDb();
+// 	console.log('Active players from DB:', activePlayerList);
+
+// 	if (activePlayerList.some(player => player.username === name)) 
+// 	{
+// 		alert(locale.UserInTournament || 'Username already in tournament');
+// 		return false;
+// 	}
+// 	return true;
+// }
 
 function startGame(players: string) {
 	showGameModal(players, socket, isGameStarted);
@@ -128,8 +144,6 @@ export const HomePage = (): HTMLElement => {
 	// login/logout button
 	if ( localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') === null )
 	{
-		// const loginButton = createNavLink(locale.connection, '/login', 'btn btn-secondary max-w-40 mx-auto text-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200');
-		// nav.appendChild(loginButton);
 		authGoogleButton(nav, document.createElement('div'));
 	}
 	else
@@ -141,16 +155,6 @@ export const HomePage = (): HTMLElement => {
             navigate('/profile');
 		});
 		nav.appendChild(profileButton);
-
-		// const profileButton = createNavLink("profile", '/profile');
-		// nav.appendChild(profileButton);
-		// content.appendChild(nav);
-
-		// const logoutButton = document.createElement('button');
-		// logoutButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-red-400 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
-		// logoutButton.textContent = locale.logout || 'Déconnexion'; 
-		// logoutButton.addEventListener('click', () => {	logout(); }); // appel fonction de déconnexion OAuth0
-		// nav.appendChild(logoutButton);
 	}
 
 	// about
@@ -160,11 +164,14 @@ export const HomePage = (): HTMLElement => {
 	let name: string;
 	playOnline.addEventListener('click', async () => {
 		name = input.value.trim();
-		if (await usernameExistsInDb(name))
+
+		const isActive = await isAnActivePlayer(name);// le joueur est-il dans la liste des joueurs actifs 
+		if (!isActive) 
 		{
-			alert("Username already in game");
+			alert(locale.UserInOnlineGame || 'Username already in online game');
 			return;
 		}
+
 		await registerUsernameToDb(name);
 		const button = showWaitingGameModal(socket);
 		isGameStarted.value = false;
@@ -336,11 +343,14 @@ export const HomePage = (): HTMLElement => {
 	// Tournament button
 	playTournament.addEventListener('click', async () => {
 		const name = input.value.trim();
-		if (await usernameExistsInDb(name))
+
+		const isActive = await isAnActivePlayer(name); // le joueur est-il dans la liste des joueurs actifs 
+		if (!isActive) 
 		{
-			alert(locale.UsernameInUse || 'Username already in use');
+			alert(locale.UserInTournament || 'Username already in tournament');
 			return;
 		}
+
 		try {
 			if (!socket.connected) {
 				await new Promise<void>((resolve) => {

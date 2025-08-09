@@ -149,3 +149,5 @@ fastify.get('/getAll', async (request, reply) => {
         reply.status(500).send({ error: 'Internal server error', details: error.message });
     }
 });
+
+
