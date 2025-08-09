@@ -130,12 +130,9 @@ export class Game {
             const loop = async () => {
                 if (this.stopBoolean) {
                     log.debug({gameId: this.gameId}, 'Game loop stopped');
-                    this.gameStatus = 'finished';
                     return;
                 }
                 if (this.player1.getScore() >= this.maxScore || this.player2.getScore() >= this.maxScore) {
-                    this.gameStatus = 'finished';
-                    await new Promise(resolve => setTimeout(resolve, 200));
 					stopMatch(this.player1.getName());
                 }
                 this.player1.inputManager();
@@ -209,6 +206,7 @@ export class Game {
             this.player2.score = this.maxScore;
         else if (player === this.player2.getName() && this.player1.getScore() < this.maxScore && this.player2.getScore() < this.maxScore)
             this.player1.score = this.maxScore;
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         log.debug({gameId: this.gameId}, `Game stopped: ${this.player1.getName()} vs ${this.player2.getName()}`);
         await this.sendScores();
