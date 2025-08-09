@@ -173,12 +173,25 @@ clean:
 	-@$(DOCKER_COMPOSE_PROD_CMD) down --rmi local || true
 	-@$(DOCKER_COMPOSE_DEV_CMD) down --rmi local || true
 
-fclean:
-	@$(MAKE) clean
+fclean: clean
 	@echo "$(YELLOW)🔥 Nettoyage complet (volumes et orphelins)...$(DEFAULT)"
 	-@docker system prune -af --volumes || true
 	@rm -rf $(SSL_DIR)
 	@rm -rf $(DB_DIR)
+
+restart-fclean-database:
+	@echo "$(YELLOW)🔥 Database: Nettoyage complet (volumes et orphelins)...$(DEFAULT)"
+	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
+        $(DOCKER_COMPOSE_PROD_CMD) down -v database; \
+		rm -rf $(DB_DIR);\
+        $(DOCKER_COMPOSE_PROD_CMD) up -d database; \
+    elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
+        $(DOCKER_COMPOSE_DEV_CMD) down -v database; \
+		rm -rf $(DB_DIR);\
+        $(DOCKER_COMPOSE_DEV_CMD) up -d database; \
+    else \
+        echo "$(YELLOW)No Transcendence stack is currently active to fclean database.$(DEFAULT)"; \
+	fi
 
 # Check the health of the services
 health:
@@ -207,7 +220,7 @@ ip:
 # *** rules for each services *************************************************************
 
 define SERVICE_RULES
-up-$(1):
+up-$(1): setup ssl
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
 		$$(DOCKER_COMPOSE_PROD_CMD) up $(1) -d --build; \
     elif [ "$(ACTIVE_ENV)" = "dev" ]; then \
@@ -278,6 +291,7 @@ $(foreach service,$(SERVICES),$(eval $(call SERVICE_RULES,$(service))))
 		stop \
 		restart \
 		restart-services \
+		restart-fclean-database \
 		logs \
 		clean \
 		fclean \
