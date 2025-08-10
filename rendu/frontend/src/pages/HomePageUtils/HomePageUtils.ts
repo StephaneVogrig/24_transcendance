@@ -1,19 +1,19 @@
-import { getActivePlayersFromDb } from '../HomePageUtils/dbServices.ts';
-import { locale } from '../../i18n';
+// import { getActivePlayersFromDb } from '../HomePageUtils/dbServices.ts';
+// import { locale } from '../../i18n';
 
-// Vérifier si le nom existe déjà dans la liste des joueurs actifs
-export async function isAnActivePlayer(name: string) : Promise<boolean>
-{
-	const activePlayerList = await getActivePlayersFromDb();
-	console.log('Active players from DB:', activePlayerList);
+// // Vérifier si le nom existe déjà dans la liste des joueurs actifs
+// export async function isAnActivePlayer(name: string) : Promise<boolean>
+// {
+// 	const activePlayerList = await getActivePlayersFromDb();
+// 	console.log('Active players from DB:', activePlayerList);
 
-	if (activePlayerList.some(player => player.username === name)) 
-	{
-		alert(locale.UserInTournament || 'Username already in tournament');
-		return false;
-	}
-	return true;
-}
+// 	if (activePlayerList.some(player => player.username === name)) 
+// 	{
+// 		alert(locale.UserInTournament || 'Username already in tournament');
+// 		return false;
+// 	}
+// 	return true;
+// }
 
 export const createNavLink = (text: string, route: string, loginLogout?: string): HTMLAnchorElement => {
 	const link = document.createElement('a');

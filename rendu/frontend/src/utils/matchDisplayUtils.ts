@@ -1,12 +1,7 @@
 import { API_BASE_URL } from '../config.ts';
 
-/**
- * Service pour gérer les matchs en cours
- */
-
 export interface Match {
     id: string;
-    // playercount: number;
     player1: string;
     player2: string;
     status: string; //'waiting'  'playing'  'finished';
@@ -16,54 +11,23 @@ export interface Match {
     };
 }
 
-
-// FONCTION NON UTILISÉE - Récupère le gagnant d'un tournoi
-// export async function getWinner(id: string): Promise<string | null> {
-//     try 
-//     {
-//         const response = await fetch(`${API_BASE_URL}/tournament/winner/${id}`, {
-//             method: 'GET',
-//             headers: { 'Content-Type': 'application/json' },
-//         });
-
-//         if (!response.ok) 
-//         {
-//             throw new Error(`HTTP error! status: ${response.status}`);
-//         }
-
-//         const result = await response.json();
-//         return result.winner || null;
-//     } 
-//     catch (error) {
-//         console.error('Erreur lors de la récupération du gagnant:', error);
-//         throw error;
-//     }
-// }
-
-
-
-//recuperer tous les matchs actifs
-export async function getTournament(): Promise<any> {
-    try 
-    {
-        const response = await fetch(`${API_BASE_URL}/database/tournament/getAll`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (!response.ok) 
+// Récupérer tous les tournois en appellant le docker tournament
+export async function getListOfTournaments(): Promise<any> 
+{
+    return fetch(`${API_BASE_URL}/tournament/getAllTournaments`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    })
+    .then(response => {
+        if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
-
-        console.log('+++ getTournament() RESPONSE FETCH -> GET +++', response);
-
-        const tournaments = await response.json(); // Récupérer les tournois en format JSON 
-
-        return tournaments;
-    } 
-    catch (error) {
+        }
+        return response.json();
+    })
+    .catch(error => {
         console.error('Erreur lors de la récupération des tournois:', error);
         throw error;
-    }
+    });
 }
 
 
@@ -112,17 +76,14 @@ export async function getTournamentsType( status: string): Promise<any>
 {
     try 
     {
-        const allTournament = getTournament();
-        
-        const tournaments = await allTournament;
+        const tournaments = await getListOfTournaments();
         const filteredTournaments = await filterAndParseTournaments(tournaments, status);
-
         return filteredTournaments;
-
     }
     catch (error) {
         console.error('ENDED   Erreur lors de la récupération des tournois', error);
         throw error;
     }
 }
+
 

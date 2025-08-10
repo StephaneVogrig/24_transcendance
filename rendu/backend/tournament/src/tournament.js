@@ -429,3 +429,32 @@ function generateBracket(players)
 		pairedPlayers[j] = [bracketPlayers[i], bracketPlayers[i + 1]];
 	return pairedPlayers;
 }
+
+
+// Le backend tournois appelle le backend database pour récupérer tous les tournois
+// et les ajoute au cache local TOURNAMENT_LIST
+export async function getAllTournamentsInDB() 
+{
+    try 
+	{
+        const response = await fetch(`http://database:3003/getAllInDB`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) 
+		{
+            const err = await response.text();
+            throw new Error(err);
+        }
+
+		// Méthode qui lit la réponse HTTP via `fetch` et le convertit en objet JavaScript
+        const tournaments = await response.json();
+        
+        return tournaments;
+    }
+	catch (error) {
+        console.log(`Error while fetching tournaments list from database: ${error.message}.`);
+        throw error; 
+    }
+}

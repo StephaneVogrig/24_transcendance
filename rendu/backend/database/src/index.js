@@ -91,8 +91,9 @@ fastify.post('/tournament/modify', async (request, reply) => {
     reply.status(201).send({message: 'Tournament modified.'});
 });
 
-// Route pour récupérer les tournois ouverts
-fastify.get('/tournament/getAll', async (request, reply) => {
+
+// Route pour récupérer tous les tournois
+fastify.get('/getAllInDB', async (request, reply) => {
     const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
     log.debug(tournaments, `tournament get`);
     reply.status(200).send(tournaments);
@@ -161,3 +162,4 @@ fastify.get('/getActivePlayers', async (request, reply) => {
     log.debug('Database: returning players:', players);
     reply.status(200).send(players);
 });
+

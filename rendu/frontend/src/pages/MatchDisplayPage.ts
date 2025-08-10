@@ -5,7 +5,6 @@ import { getTournamentsType, Match } from '../utils/matchDisplayUtils';
 
 const maxScore = 5;
 
-
 const errorInfo = (cardsContainer: HTMLElement,  msg1: string, msg2: string): void => 
 {
     cardsContainer.innerHTML = `
@@ -93,7 +92,6 @@ const extractMatchesFromTournament = (tournament: any[], state: string, Matchs: 
     }
 };
 
-
 const getStatusInfo = (status: string) => {
         switch (status) {
 
@@ -109,8 +107,6 @@ const getStatusInfo = (status: string) => {
                 return { color: 'bg-gray-100 text-gray-800', text: 'Inconnu' };
         }
 };
-
-
 
 const createMatchElement = (match: Match): HTMLElement => 
 {
@@ -169,7 +165,7 @@ const createMatchElement = (match: Match): HTMLElement =>
         scoreDiv.innerHTML = `
             <span class="text-blue-600">${match.score.player1}</span>
             <span class="mx-1 text-gray-40">-</span>
-            <span class="text-red-600">${match.score.player2}</span>
+            <span class="text-blue-600">${match.score.player2}</span>
         `;
         rightContainer.appendChild(scoreDiv);
     }
@@ -337,13 +333,8 @@ card.appendChild(cardHeader);
 const tournamentList = document.createElement('div');
 tournamentList.className = 'space-y-2 max-h-60 overflow-y-auto';
 
-if (tournament.length === 0) {
-    // const emptyDiv = document.createElement('div');
-    // emptyDiv.className = 'text-center py-4 text-gray-500';
-    // emptyDiv.innerHTML = `
-    // <div class="text-2xl mb-1">🎮</div>
-    // <p class="text-xs">${emptyMessage}</p>
-    // `;
+if (tournament.length === 0) 
+{
     const emptyDiv = empty(emptyMessage); 
     tournamentList.appendChild(emptyDiv);
 } 
@@ -427,8 +418,7 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
     const matchList = document.createElement('div');
     matchList.className = 'space-y-2 max-h-[360px] overflow-y-auto';
 
-    // console.log('createOngoingTournamentCard -> tournaments', tournaments);
-    if (tournaments.length === 0)         // Vérifier si le tableau tournaments est vide
+    if (tournaments.length === 0)  // Vérifier si le tableau tournaments est vide
     {
         const emptyDiv = empty(emptyMessage); 
         matchList.appendChild(emptyDiv);
@@ -439,7 +429,6 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
         {
             const Matchs_tournament_ongoing: Match[] = [];
             extractMatchesFromTournament([tournaments[i]], 'playing', Matchs_tournament_ongoing, 4);
-            // console.log('createOngoingTournamentCard -> Matchs_tournament_ongoing', Matchs_tournament_ongoing);
             const tournamentsName: string = tournaments[i].createdBy;
             const ongoingCard = createOngoingMatchCard(`${locale.tournamentName} ${tournamentsName}`, Matchs_tournament_ongoing);
             matchList.appendChild(ongoingCard);
@@ -455,7 +444,7 @@ const createOngoingTournamentCard = (title: string, tournaments: any[], statusCo
 const loadMatches = async (cardsContainer : HTMLElement ) => 
 {
     try {
-        // Afficher un indicateur de chargement
+        //  indicateur de chargement
         cardsContainer.innerHTML = `
             <div class="col-span-full text-center py-12">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>

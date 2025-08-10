@@ -130,24 +130,20 @@ fastify.post('/playerscores', async (request, reply) => {
     }
 });
 
-fastify.get('/getAll', async (request, reply) => {
-    try {
-        const tournaments = Tournament.getTournament();
-        console.log('tournaments:', tournaments);
-        console.log('tournaments type:', typeof tournaments);
-        console.log('tournaments is array:', Array.isArray(tournaments));
+
+fastify.get('/getAllTournaments', async (request, reply) => {
+    try 
+    {
+        const tournaments = await Tournament.getAllTournamentsInDB(); // appel du backend database
         
-        if (!Array.isArray(tournaments)) {
-            return reply.status(500).send({ error: 'getAllTournaments did not return an array' });
-        }
-        
-        const result = tournaments.map(Utils.readTournament);
-        console.log('result:', result);
-        reply.status(200).send(result);
-    } catch (error) {
-        console.error('Error in /getAll:', error);
-        reply.status(500).send({ error: 'Internal server error', details: error.message });
+        if (!tournaments) // si pas de tournois -> Retourne tab vide
+            return reply.status(200).send([]); 
+            
+        reply.status(200).send(tournaments); // Envoie la liste des tournois
+    } 
+    catch (error) {
+        console.error('Erreur getAllTournaments:', error);
+        reply.status(500).send({ error: 'Erreur lors de la récupération des tournois' });
     }
 });
-
 
