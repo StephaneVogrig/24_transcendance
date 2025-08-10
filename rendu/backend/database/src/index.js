@@ -10,10 +10,21 @@ await db.exec(sql);
 
 fastify.post('/addUser', {schema: schemas.usernameBody}, async (request, reply) => {
     const { username } = request.body;
-    await db.run('INSERT INTO `players` (username) VALUES (?)', [username]);
+    try {
+        await db.run('INSERT INTO `players` (username) VALUES (?)', [username]);
 
-    log.debug(`player '${username}' inserted successfully`);
-    reply.status(201).send({message: 'Player registered.'});
+        log.debug(`player '${username}' inserted successfully`);
+        reply.status(201).send({message: 'Player registered.'});
+    } catch (error) {
+        if (error.code === 'SQLITE_CONSTRAINT') {
+            log.info(`Registration attempt with existing username: ${username}`);
+            return reply.status(409).send({
+                message: 'Username already exists',
+                error: 'DUPLICATE_USERNAME'
+            });
+        }
+        throw error;
+    }
 });
 
 fastify.get('/getUser', {schema: schemas.usernameQuery}, async (request, reply) => {

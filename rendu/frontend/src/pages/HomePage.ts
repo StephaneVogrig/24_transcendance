@@ -7,12 +7,11 @@ import { BabylonGame } from '../3d/main3d.ts';
 
 import { authGoogleButton } from '../auth/auth0Service';
 
-import { registerUsernameToDb, deleteUsernameFromDb} from './HomePageUtils/dbServices.ts';
 import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { API_BASE_URL, BASE_URL } from '../config.ts';
 import { navigate } from '../router';
 
-import { isAnActivePlayer, createNavLink } from './HomePageUtils/HomePageUtils.ts';
+import { createNavLink } from './HomePageUtils/HomePageUtils.ts';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
@@ -143,25 +142,37 @@ export const HomePage = (): HTMLElement => {
 	playOnline.addEventListener('click', async () => {
 		name = input.value.trim();
 
-		const isActive = await isAnActivePlayer(name);// le joueur est-il dans la liste des joueurs actifs 
-		if (!isActive) 
-		{
-			alert(locale.UserInOnlineGame || 'Username already in online game');
-			return;
-		}
-
-		await registerUsernameToDb(name);
-		const button = showWaitingGameModal(socket);
 		isGameStarted.value = false;
 		console.log('isGameStarted set to :', isGameStarted);
 		console.log(`Rejoindre une partie avec le nom: ${name}`);
 
-		setPlayerName(name);
-
 		if (!socket.connected)
 			socket = getSocket();
 
-		socket.emit('join', { name: name });
+        try {
+            const joinWithTimeout = new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('Le serveur ne répond pas'));
+                }, 15000);
+
+                socket.emit('join', { name }, (response: {success: boolean, message: string}) => {
+                    clearTimeout(timeout);
+                    if (response && response.success) {
+                        resolve(response);
+                    } else {
+                        reject(new Error(response.message || 'Erreur de connexion'));
+                    }
+                });
+            });
+
+            await joinWithTimeout;
+        } catch (error) {
+            console.log(`error send by socket: ${(error as Error).message}`)
+			alert(`${(error as Error).message}`);
+			return;
+        }
+
+		const button = showWaitingGameModal(socket);
 
 		console.log(`redirecting to game with name: ${name}`);
 		socket.off('redirect');
@@ -321,13 +332,6 @@ export const HomePage = (): HTMLElement => {
 	playTournament.addEventListener('click', async () => {
 		const name = input.value.trim();
 
-		const isActive = await isAnActivePlayer(name); // le joueur est-il dans la liste des joueurs actifs 
-		if (!isActive) 
-		{
-			alert(locale.UserInTournament || 'Username already in tournament');
-			return;
-		}
-
 		try {
 			if (!socket.connected) {
 				await new Promise<void>((resolve) => {
@@ -345,9 +349,30 @@ export const HomePage = (): HTMLElement => {
 				});
 			}
 			setPlayerName(name);
-			await registerUsernameToDb(name);
 
-			socket.emit('join', { name: name });
+
+            try {
+                const joinWithTimeout = new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        reject(new Error('Le serveur ne répond pas'));
+                    }, 15000);
+
+                    socket.emit('join', { name }, (response: {success: boolean, message: string}) => {
+                        clearTimeout(timeout);
+                        if (response && response.success) {
+                            resolve(response);
+                        } else {
+                            reject(new Error(response.message || 'Erreur de connexion'));
+                        }
+                    });
+                });
+
+                await joinWithTimeout;
+            } catch (error) {
+                console.log(`error send by socket: ${(error as Error).message}`)
+                alert(`${(error as Error).message}`);
+                return;
+            }
 
 			socket.off('redirect');
 			socket.on('redirect', (data: { gameId: string, playerName: string }) => {

@@ -275,41 +275,46 @@ io.on('connection', async (socket) => {
 	log.debug(`Socket connected: ${socket.id}`);
 	socket.data.status = 'connected';
 
-	socket.on('join', async (data) => {
+	socket.on('join', async (data, callback) => {
 		const name = data.name;
-		if (!name || typeof name !== 'string' || name.length < 3 || name.length > 25) {
-			log.error(`Invalid player name: ${name}`);
-			socket.emit('error', { message: 'Player name must be a string between 3 and 25 characters.' });
-			return;
-		}
-		// if (playerNameToSocketId.has(name)) {
-		// 	log.error(`Player name ${name} is already in use.`);
-		// 	socket.emit('error', { message: `Player name ${name} is already in use.` });
-		// 	return;
-		// }
+
 		try
 		{
-			const response = await fetch(`http://database:3003/getUser?username=${name}`, {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' }
+			const response = await fetch(`http://database:3003/addUser`, {
+				method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: name
+                })
 			});
+            log.debug(response, `response from database from adduser`);
 			if (!response.ok)
-				log.debug(`Error calling getUser in db for user ${name}`);
-			else if (response.status === 204)
-			{
-				log.error(`Player name ${name} is already in use.`);
-				socket.emit('error', { message: `Player name ${name} is already in use.` });
-				return;
-			}
+            {
+                let message = '';
+                if (response.status === 400)
+                    message = `Invalid player name: ${name}`;
+                else if (response.status === 409)
+                    message = `Player name ${name} is already in use.`;
+                else
+                    message = `Internal error (database)`;
+                log.debug(message);
+                callback({ success: false, message: message});
+                return;
+            }
 		}
 		catch (error)
 		{
 			log.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
+            callback({ success: false, message: error.message});
+            return;
 		}
-		log.debug(`Player ${name} joined (matchmaking) with socket ID: ${socket.id}`);
+		log.debug(`Player ${name} joined with socket ID: ${socket.id}`);
 		playerNameToSocketId.set(name, socket.id);
 		socketIdToPlayerName.set(socket.id, name);
 		socket.data.playerName = name;
+        callback({ success: true, message: '' });
 	});
 
 	socket.on('identify_player', (data) => {

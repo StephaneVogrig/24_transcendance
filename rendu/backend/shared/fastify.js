@@ -25,6 +25,7 @@ fastify.setErrorHandler(function (error, request, reply) {
         return reply.status(400).send({ error: 'Invalid data' });
     } else {
         log.error({
+            code: error?.code,
             message: error.message,
             stack: error.stack
         }, `Server error occurred on route ${request.routeOptions?.url}`);
