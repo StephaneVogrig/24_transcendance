@@ -28,7 +28,7 @@ export async function deleteUsernameFromDb(username: string)
 		if (!response.ok) {
 			console.error('Erreur lors de la requête de register db:', response.statusText);
 		}
-		console.log(`Successfully added user ${username} to db`);
+		console.log(`Successfully deleted user ${username} to db`);
 	} catch (error) {
 		console.error('Error adding user to db:', error);
 	}
