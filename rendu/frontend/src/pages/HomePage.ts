@@ -188,7 +188,6 @@ export const HomePage = (): HTMLElement => {
 			alert(`Erreur lors de la création 1: ${(error as Error).message}`);
 			name = '';
 			button.remove();
-			await deleteUsernameFromDb(name);
 		}
 	});
 

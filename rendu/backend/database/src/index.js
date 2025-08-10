@@ -19,12 +19,14 @@ fastify.post('/addUser', {schema: schemas.usernameBody}, async (request, reply) 
 fastify.get('/getUser', {schema: schemas.usernameQuery}, async (request, reply) => {
     const { username } = request.query;
     const player = await db.get('SELECT * FROM `players` WHERE `username` = ?', [username]);
+    log.debug(player, `getUser '${username}' done`);
     reply.status(200).send({player});
 });
 
 fastify.post('/removeUser', {schema: schemas.usernameBody}, async (request, reply) => {
     const { username } = request.body;
     await db.run('DELETE FROM `players` WHERE `username` = ?', [username]);
+    log.debug(`player '${username}' deleted successfully`)
     reply.status(200).send({message: "Player removed."});
 });
 
@@ -34,12 +36,14 @@ fastify.post('/tournament/create', async (request, reply) => {
         return reply.status(400).send({error: 'Missing tournament data.'});
 
     await db.run('INSERT INTO `tournaments` (id, data) VALUES (?, ?)', [tournament.id, JSON.stringify(tournament)]);
+    log.debug(tournament, `tournament '${tournament.id}' inserted successfully`);
     reply.status(200).send({message: 'Tournament registered.'});
 });
 
 // Route pour récupérer les tournois ouverts
 fastify.get('/tournament/getOpened', async (request, reply) => {
     const tournaments = await db.all(`SELECT * FROM tournaments WHERE json_extract(data, '$.status') = 'open'`);
+    log.debug(tournaments, `tournament getOpened`);
     reply.status(200).send(tournaments);
 });
 
@@ -50,6 +54,7 @@ fastify.get('/tournament/get', async (request, reply) => {
         return reply.status(400).send({ error: 'Missing or invalid id.' });
 
     const tournament = await db.all(`SELECT * FROM tournaments WHERE id = ?`, [id]);
+    log.debug(tournament, `tournament get`);
     reply.status(200).send(tournament);
 });
 
@@ -60,6 +65,7 @@ fastify.post('/tournament/delete', async (request, reply) => {
         return reply.status(400).send({ error: 'Missing or invalid id.' });
 
     await db.run('DELETE FROM `tournaments` WHERE id = ?', [id]);
+    log.debug(`tournament '${id}' deleted successfully`);
     reply.status(201).send({message: 'Tournament deleted.'});
 });
 
@@ -70,12 +76,14 @@ fastify.post('/tournament/modify', async (request, reply) => {
         return reply.status(400).send({ error: 'Missing or invalid id.' });
 
     await db.run('UPDATE `tournaments` SET data = ? WHERE id = ? ', [JSON.stringify(tournament), tournament.id]);
+    log.debug(tournament, `tournament '${tournament.id}' updated successfully`);
     reply.status(201).send({message: 'Tournament modified.'});
 });
 
 // Route pour récupérer les tournois ouverts
 fastify.get('/tournament/getAll', async (request, reply) => {
     const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
+    log.debug(tournaments, `tournament get`);
     reply.status(200).send(tournaments);
 });
 
@@ -98,6 +106,7 @@ fastify.post('/user/oauth', async (request, reply) => {
         );
 
         const updatedUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+        log.debug(`user/oauth/ User ${nickname} updated successfully`);
         return reply.status(200).send({
             message: 'User updated successfully',
             user: updatedUser
@@ -110,6 +119,7 @@ fastify.post('/user/oauth', async (request, reply) => {
         );
 
         const newUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+        log.debug(`user/oauth/ User ${nickname} created successfully`);
         return reply.status(201).send({
             message: 'User created successfully',
             user: newUser
@@ -126,8 +136,11 @@ fastify.get('/user/oauth/:provider_id', async (request, reply) => {
 
     const user = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
     if (!user) {
+        log.debug(request, `user/oauth/ User ${user} not found`);
         return reply.status(404).send({ error: 'User not found' });
     }
+
+    log.debug(request, `user/oauth/ User ${user} found`);
     return reply.status(200).send({ user });
 });
 
