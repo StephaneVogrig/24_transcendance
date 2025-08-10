@@ -382,8 +382,6 @@ export const HomePage = (): HTMLElement => {
 	});
 
 	// Language button
-	languageButton.addEventListener('click', async () => {
-		showLanguageSelectionModal();
-	});
+	languageButton.addEventListener('click', showLanguageSelectionModal);
 	return content;
 }
