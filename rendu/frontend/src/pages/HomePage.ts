@@ -5,7 +5,7 @@ import { locale } from '../i18n';
 import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
-import { authGoogleButton } from '../auth/auth0Service';
+import { authGoogleButton } from '../auth/auth0Utils';
 
 import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { API_BASE_URL, BASE_URL } from '../config.ts';

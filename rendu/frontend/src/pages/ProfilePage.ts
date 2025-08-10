@@ -1,4 +1,4 @@
-import { getUser, logout} from '../auth/auth0Service';
+import { getUser, logout} from '../auth/auth0Utils';
 import { navigate } from '../router';
 import { locale } from '../i18n';
 import { notConnected, Connected, animateLoading } from '../utils/ProfileUtils';

@@ -17,27 +17,28 @@ export interface Match {
 }
 
 
-export async function getWinner(id: string): Promise<string | null> {
-    try 
-    {
-        const response = await fetch(`${API_BASE_URL}/tournament/winner/${id}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-        });
+// FONCTION NON UTILISÉE - Récupère le gagnant d'un tournoi
+// export async function getWinner(id: string): Promise<string | null> {
+//     try 
+//     {
+//         const response = await fetch(`${API_BASE_URL}/tournament/winner/${id}`, {
+//             method: 'GET',
+//             headers: { 'Content-Type': 'application/json' },
+//         });
 
-        if (!response.ok) 
-        {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+//         if (!response.ok) 
+//         {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
 
-        const result = await response.json();
-        return result.winner || null;
-    } 
-    catch (error) {
-        console.error('Erreur lors de la récupération du gagnant:', error);
-        throw error;
-    }
-}
+//         const result = await response.json();
+//         return result.winner || null;
+//     } 
+//     catch (error) {
+//         console.error('Erreur lors de la récupération du gagnant:', error);
+//         throw error;
+//     }
+// }
 
 
 

@@ -1,5 +1,5 @@
 import { locale } from '../i18n';
-import { authGoogleButton } from '../auth/auth0Service';
+import { authGoogleButton } from '../auth/auth0Utils';
 
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
