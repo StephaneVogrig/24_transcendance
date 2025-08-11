@@ -276,10 +276,10 @@ io.on('connection', async (socket) => {
 	socket.data.status = 'connected';
 
 	socket.on('join', async (data, callback) => {
+        const name = data.name;
 		try
 		{
-            log.debug(data, `socketOn join started`);
-            const name = data.name;
+            log.debug({name: 'socketOnJoin'}, `started for ${name}`);
 			const response = await fetch(`http://database:3003/addUser`, {
 				method: 'POST',
                 headers: {
@@ -289,7 +289,6 @@ io.on('connection', async (socket) => {
                     username: name
                 })
 			});
-            log.debug(response, `response from database from adduser`);
 			if (!response.ok)
             {
                 let message = '';
@@ -299,20 +298,20 @@ io.on('connection', async (socket) => {
                     message = `Player name ${name} is already in use.`;
                 else
                     message = `Internal error (database)`;
-                log.debug(message);
+                log.debug({name: 'socketOnJoin'}, message);
                 callback({ success: false, message: message});
-                return;
+            } else {
+                log.debug({name: 'socketOnJoin'}, `Player ${name} joined with socket ID: ${socket.id}`);
+                playerNameToSocketId.set(name, socket.id);
+                socketIdToPlayerName.set(socket.id, name);
+                socket.data.playerName = name;
+                log.debug({name: 'socketOnJoin'}, `succesfully completed for ${name}`);
+                callback({ success: true, message: '' });
             }
-            log.debug(`Player ${name} joined with socket ID: ${socket.id}`);
-            playerNameToSocketId.set(name, socket.id);
-            socketIdToPlayerName.set(socket.id, name);
-            socket.data.playerName = name;
-            log.debug(data, `socketOn join succesfully completed`);
-            callback({ success: true, message: '' });
 		}
 		catch (error)
 		{
-	        log.debug(error, `socketOn join error`);
+	        log.debug({name: 'socketOnJoin', error: error}, `socketOn join error for ${name}`);
             callback({ success: false, message: error.message});
 		}
 	});
