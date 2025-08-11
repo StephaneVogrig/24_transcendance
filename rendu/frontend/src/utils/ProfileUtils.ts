@@ -1,5 +1,6 @@
 import { locale } from '../i18n';
 import { authGoogleButton } from '../auth/auth0Utils';
+import { API_BASE_URL, BASE_URL } from '../config.ts';
 
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
@@ -48,11 +49,10 @@ export const animateLoading = (container: HTMLElement): void => {
     container.appendChild(loadingDiv);
 }
 
-// ...existing code...
-export const Connected = (user: any, userInfoDiv: HTMLDivElement): void => 
+function displayUserInfo(userData: any, userInfoDiv: HTMLDivElement): void
 {
-    if (user)  // utilisateur connecté
-    {
+
+        console.log('DISPLAY USER INFO', userData);
         // Title
         const infoTitle = createElement('h3', {
             text: locale.userInfo,
@@ -69,28 +69,40 @@ export const Connected = (user: any, userInfoDiv: HTMLDivElement): void =>
         detailsContainer.appendChild(topSection);
 
         // Avatar image
-        const avatarImg = createAvatar(user);
+        const avatarImg = createAvatar(userData);
         topSection.appendChild(avatarImg);
 
         // Name and Email container
         const nameEmailDiv = createElement('div', {});
         topSection.appendChild(nameEmailDiv);
-
-        nameEmailDiv.appendChild(
-            createElement('p', {text: user.name || 'N/A', className: 'font-semibold text-gray-800',}) );
-        nameEmailDiv.appendChild(
-            createElement('p', {text: user.email || 'N/A', className: 'text-gray-600',}));
+        nameEmailDiv.appendChild(createElement('p', {text: userData.givenName || 'N/A', className: 'font-semibold text-gray-800',}) );
+        nameEmailDiv.appendChild(createElement('p', {text: userData.familyName || 'N/A', className: 'text-gray-600',}));
 
         // --- Bottom section: Nickname ---
         const nicknameSection = createElement('div', { className: 'bg-gray-50 p-3 rounded-lg'});
         detailsContainer.appendChild(nicknameSection);
+        nicknameSection.appendChild(createElement('p', {text: userData.mail || 'N/A', className: 'text-sm text-gray-800',}));
+}
 
-        nicknameSection.appendChild(
-            createElement('p', {text: 'Nickname', className: 'text-sm font-medium text-gray-500',}));
-        nicknameSection.appendChild(
-            createElement('p', {text: user.nickname || 'N/A', className: 'text-sm text-gray-800',}));
-    } 
-    else // si erreur lors de la récupération des informations utilisateur 
+export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void => 
+{
+    console.log('userConnected called with user:', userObj);
+
+    const userData = {
+        picture: userObj.picture || '/assets/default-avatar.png',
+        mail: userObj.email || userObj.mail || 'Email non disponible',
+        nickname: userObj.nickname  || 'Nickname non disponible',
+        givenName:  userObj.givenName || 'Prénom non disponible',
+        familyName: userObj.familyName || 'Nom de famille non disponible',
+        status: userObj.status || 'unknown'
+    };
+
+   console.log('User data prepared:', userData);
+
+    // AFFICHAGE DES INFORMATIONS UTILISATEUR
+    if (userData) 
+        displayUserInfo(userData, userInfoDiv);
+    else // si erreur lors de la récupération des informations utilisateur
     {
         userInfoDiv.innerHTML = ''; // Clear previous content
         const errorContainer = createElement('div', { className: 'text-center text-yellow-600', });
@@ -98,6 +110,7 @@ export const Connected = (user: any, userInfoDiv: HTMLDivElement): void =>
         userInfoDiv.appendChild(errorContainer);
     }
 }
+
     
 export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElement,
         actionsDiv: HTMLDivElement): void =>  
@@ -132,4 +145,62 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         // actionsContainer.appendChild(loginButton);
         actionsDiv.appendChild(actionsTitle);
         actionsDiv.appendChild(actionsContainer);
+}
+
+// OK -----------------------------------------------------------
+export async function getAllUserInfo(): Promise<any>
+{
+   return fetch(`${API_BASE_URL}/authentification/getAllUserInfo`, {
+       method: 'GET',
+       headers: { 'Content-Type': 'application/json' },
+   })
+   .then(response => {
+       if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+       }
+       return response.json();
+   })
+   .catch(error => {
+       console.error('!!! Erreur lors de la récupération des utilisateurs:', error);
+       throw error;
+   });
+}
+//   -----------------------------------------------------------
+
+// OK -----------------------------------------------------------
+export async function getActiveUserInfo(): Promise<any>
+{
+   return fetch(`${API_BASE_URL}/authentification/getActiveUserInfo`, {
+       method: 'GET',
+       headers: { 'Content-Type': 'application/json' },
+   })
+   .then(response => {
+       if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+       }
+       return response.json();
+   })
+   .catch(error => {
+       console.error('!!! Erreur lors de la récupération des utilisateurs:', error);
+       throw error;
+   });
+}
+//   -----------------------------------------------------------
+
+export async function getUserInfoWithID(): Promise<any>
+{
+   return fetch(`${API_BASE_URL}/authentification/getUserInfoID`, {
+       method: 'GET',
+       headers: { 'Content-Type': 'application/json' },
+   })
+   .then(response => {
+       if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+       }
+       return response.json();
+   })
+   .catch(error => {
+       console.error('!!! Erreur lors de la récupération de l utilisateur:', error);
+       throw error;
+   });
 }

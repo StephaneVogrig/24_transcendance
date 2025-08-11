@@ -8,19 +8,22 @@
  * @returns {Promise<Object>} L'utilisateur sauvegardé
  * @throws {Error} Si la sauvegarde échoue
  */
-async function saveUserToDatabase(userInfo) {
-    if (!userInfo) {
+export async function saveUserToDatabase(userInfo) {
+    if (!userInfo) 
         throw new Error('User information is required');
-    }
 
-    const { sub: provider_id, email, nickname, picture } = userInfo;
+    const { sub: provider_id, email, nickname, picture, givenName, familyName, status } = userInfo;
 
-    if (!provider_id || !email || !nickname) {
+    if (!provider_id || !email || !nickname) 
         throw new Error('Missing required user fields: sub (provider_id), email, nickname');
-    }
 
-    try {
-        console.log('Saving user to database:', { provider_id, email, nickname, picture });
+    console.log(`Saving user to database: `, userInfo);
+    console.log(`provider_id, email, nickname, `, { provider_id, email, nickname });
+    console.log(` picture, givenName, familyName, status `, { picture, givenName, familyName, status });
+
+    try 
+    {
+        console.log('Saving user to database:', { provider_id, email, nickname, picture, givenName, familyName, status });
 
         const response = await fetch(`http://database:3003/user/oauth`, {
             method: 'POST',
@@ -31,16 +34,22 @@ async function saveUserToDatabase(userInfo) {
                 email,
                 nickname,
                 picture,
+                givenName,
+                familyName,
                 provider: 'auth0',
-                provider_id
+                provider_id,
+                status
             })
         });
 
-        if (!response.ok) {
+        if (!response.ok) 
+        {
             let errorData;
-            try {
+            try 
+            {
                 errorData = await response.json();
-            } catch (parseError) {
+            } 
+            catch (parseError) {
                 console.error('Could not parse error response:', parseError);
                 throw new Error(`Database error: ${response.status} ${response.statusText}`);
             }
@@ -48,9 +57,11 @@ async function saveUserToDatabase(userInfo) {
         }
 
         let result;
-        try {
+        try 
+        {
             result = await response.json();
-        } catch (parseError) {
+        } 
+        catch (parseError) {
             console.error('Could not parse response:', parseError);
             throw new Error('Invalid JSON response from database service');
         }
@@ -58,65 +69,112 @@ async function saveUserToDatabase(userInfo) {
         console.log('User saved successfully:', result.message);
         
         return result.user;
-
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Error saving user to database:', error);
         throw new Error(`Failed to save user: ${error.message}`);
     }
 }
 
-/**
- * Récupère un utilisateur par son Auth0 ID
- * @param {string} auth0_id - L'ID Auth0 de l'utilisateur
- * @returns {Promise<Object>} L'utilisateur trouvé
- * @throws {Error} Si l'utilisateur n'est pas trouvé
- */
-async function getUserFromDatabase(auth0_id) {
-    if (!auth0_id) {
-        throw new Error('Auth0 ID is required');
-    }
 
-    try {
-        console.log('Fetching user from database:', auth0_id);
+// OK -----------------------------------------------------------
+export async function getActiveUserInfoInDB()
+{
+   try
+   {
+       const response = await fetch(`http://database:3003/getActiveUserInDB`, {
+           method: 'GET',
+           headers: { 'Content-Type': 'application/json' }
+       });
 
-        const response = await fetch(`http://database:3003/user/oauth/${encodeURIComponent(auth0_id)}`, {
-            method: 'GET',
+       if (!response.ok)
+       {
+           const err = await response.text();
+           throw new Error(err);
+       }
+
+       // Méthode qui lit la réponse HTTP via `fetch` et le convertit en objet JavaScript
+       const tournaments = await response.json();
+      
+       return tournaments;
+   }
+   catch (error) {
+       console.log(`Error while fetching users list from database: ${error.message}.`);
+       throw error;
+   }
+}
+// -----------------------------------------------------------
+
+// OK -----------------------------------------------------------
+export async function getAllUserInfoInDB()
+{
+   try
+   {
+       const response = await fetch(`http://database:3003/getAllUserInDB`, {
+           method: 'GET',
+           headers: { 'Content-Type': 'application/json' }
+       });
+
+       if (!response.ok)
+       {
+           const err = await response.text();
+           throw new Error(err);
+       }
+
+       // Méthode qui lit la réponse HTTP via `fetch` et le convertit en objet JavaScript
+       const tournaments = await response.json();
+      
+       return tournaments;
+   }
+   catch (error) {
+       console.log(`Error while fetching users list from database: ${error.message}.`);
+       throw error;
+   }
+}
+// -----------------------------------------------------------
+
+
+
+export async function updateLogStatusInDatabase(user) {
+    if (!user || !user.nickname || !user.status) 
+        throw new Error('User nickname and status are required');
+
+    try 
+    {
+        console.log('Updating user status in database:', { nickname: user.nickname, status: user.status });
+
+        const response = await fetch(`http://database:3003/updateUserLogStatusInDB`, {
+            method: 'POST',
             headers: {
-                'Accept': 'application/json',
-            }
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nickname: user.nickname,
+                status: user.status
+            })
         });
 
-        if (response.status === 404) {
-            return null; // Utilisateur non trouvé
-        }
-
-        if (!response.ok) {
+        if (!response.ok) 
+        {
             let errorData;
-            try {
+            try 
+            {
                 errorData = await response.json();
-            } catch (parseError) {
+            } 
+            catch (parseError) {
                 console.error('Could not parse error response:', parseError);
                 throw new Error(`Database error: ${response.status} ${response.statusText}`);
             }
             throw new Error(`Database error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
         }
 
-        let result;
-        try {
-            result = await response.json();
-        } catch (parseError) {
-            console.error('Could not parse response:', parseError);
-            throw new Error('Invalid JSON response from database service');
-        }
+        const result = await response.json();
+        console.log('User status updated successfully:', result.message);
         
-        console.log('User found in database:', result.user.nickname);
-        
-        return result.user;
-
-    } catch (error) {
-        console.error('Error fetching user from database:', error);
-        throw new Error(`Failed to fetch user: ${error.message}`);
+        return result;
+    } 
+    catch (error) {
+        console.error('Error updating user status in database:', error);
+        throw new Error(`Failed to update user status: ${error.message}`);
     }
 }
-
-export { saveUserToDatabase, getUserFromDatabase };

@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
-import { saveUserToDatabase, getUserFromDatabase } from './userDatabase.js';
+import { saveUserToDatabase, getAllUserInfoInDB, getActiveUserInfoInDB, updateLogStatusInDatabase } from './userDatabase.js';
+// import {  getUserFromDatabase } from './userDatabase.js';
+
 
 const serviceName = 'authentification';
 const serviceport = process.env.PORT;
@@ -35,24 +37,40 @@ fastify.get('/status', async (request, reply) => {
 });
 
 // Route pour recevoir les informations utilisateur d'Auth0
-fastify.post('/user', async (request, reply) => {
+fastify.post('/userRegistering', async (request, reply) => {
   const { user } = request.body;
-  console.log('User info received from Auth0:', user);
-  
+  console.log('!!! User info received from Auth0:', user);
+
+  //exemple de données utilisateur reçues
+//   !!! User info received from Auth0: {
+//   given_name: 'Gollum',
+//   family_name: 'Smeagol',
+//   nickname: '666.gollum',
+//   name: 'Gollum Smeagol',
+//   picture: 'https://lh3.googleusercontent.com/a/ACg8ocIENaeZPVFX0lw6WoVma5HapN2nJpCsXYBW5EsJEh4q7_Kw6Ak=s96-c',
+//   updated_at: '2025-08-11T17:14:25.421Z',
+//   email: '666.gollum@gmail.com',
+//   email_verified: true,
+//   sub: 'google-oauth2|108259952350802037215'
+// }
+ 
   if (!user) {
     return reply.status(400).send({ error: 'No user information provided' });
   }
   
-  try {
-    // Mapping des données Auth0 vers notre format
+  try // Mapping des données Auth0 vers notre format
+  {
     const mappedUser = {
       sub: user.sub,
       email: user.email,
-      nickname: user.nickname || user.name || user.given_name || 'Unknown',
-      picture: user.picture
+      nickname: user.nickname || 'Unknown',
+      picture: user.picture,
+      givenName: user.given_name || 'Unknown',
+      familyName: user.family_name || 'Unknown',
+      status: 'active', // Par défaut, l'utilisateur est actif
     };
     
-    console.log('Mapped user data:', mappedUser);
+    console.log('!!! Mapped user data:', mappedUser);
     
     // Sauvegarder l'utilisateur en base de données
     const savedUser = await saveUserToDatabase(mappedUser);
@@ -81,48 +99,96 @@ fastify.post('/user', async (request, reply) => {
   }
 });
 
-// Route pour récupérer un utilisateur par Auth0 ID
-fastify.get('/user/:auth0_id', async (request, reply) => {
-  const { auth0_id } = request.params;
+
+
+fastify.get('/getAllUserInfo', async (request, reply) => {
+   try {
+        const users = await getAllUserInfoInDB(); // appel du backend database
+       
+        if (!users || users.length === 0) {
+            return reply.status(200).send([]);
+        }
+           
+        reply.status(200).send(users); // Envoie la liste des utilisateurs
+    }
+    catch (error) {
+        console.error('Erreur getAllUserInfo:', error);
+        reply.status(500).send({ error: 'Erreur lors de la récupération des utilisateurs' });
+    }
+});
+
+fastify.get('/getActiveUserInfo', async (request, reply) => {
+   try {
+        const users = await getActiveUserInfoInDB(); // appel du backend database
+       
+        if (!users || users.length === 0) {
+            return reply.status(200).send([]);
+        }
+           
+        reply.status(200).send(users); // Envoie la liste des utilisateurs
+    }
+    catch (error) {
+        console.error('Erreur getUserInfo:', error);
+        reply.status(500).send({ error: 'Erreur lors de la récupération des utilisateurs' });
+    }
+});
+
+fastify.post('/LogStatus', async (request, reply) => {
+
+  // const { user } = request.body;
+  console.log('User info received for status update:', request.body);
   
-  if (!auth0_id) {
-    return reply.status(400).send({ error: 'Auth0 ID is required' });
-  }
+  console.log('LogStatus request body:', request.body);
+
+  let nickname, status;
   
-  try {
-    const user = await getUserFromDatabase(auth0_id);
-    
-    if (!user) {
-      return reply.status(404).send({ error: 'User not found' });
+  nickname = request.body.nickname;
+  status = request.body.status;
+
+  console.log('Extracted nickname:', nickname);
+  console.log('Extracted status:', status);
+
+  // if (!user || !user.nickname || !user.status)
+  // {
+  //   return reply.status(400).send({ error: 'User nickname and status are required' });
+  // }
+
+   console.log('Extracted data:', { nickname, status });
+
+    if (!nickname || !status) 
+    {
+        return reply.status(400).send({ 
+            error: 'User nickname and status are required',
+            received: request.body 
+        });
     }
     
-    return reply.status(200).send({ 
-      message: 'User found',
-      user: {
-        id: user.id,
-        nickname: user.nickname,
-        email: user.email,
-        picture: user.picture,
-        provider_id: user.provider_id,
-        provider: user.provider,
-        created_at: user.created_at,
-        updated_at: user.updated_at
-      }
-    });
-    
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return reply.status(500).send({ 
-      error: 'Failed to fetch user',
-      details: error.message 
-    });
-  }
+  // const updated = await updateLogStatusInDatabase(user);
+  try 
+  {
+        const userUpdate = { nickname, status };
+        const result = await updateLogStatusInDatabase(userUpdate);
+        
+        return reply.status(200).send({ 
+            message: 'User status updated successfully',
+            result 
+        });
+    } 
+    catch (error) {
+        console.error('Error updating user status:', error);
+        return reply.status(500).send({ 
+            error: 'Failed to update user status',
+            details: error.message 
+        });
+    }
 });
 
 const start = async () => {
-  try {
+  try 
+  {
     await fastify.listen({ port: serviceport, host: '0.0.0.0' });
-  } catch (err) {
+  } 
+  catch (err) {
     fastify.log.error(err);
     process.exit(1);
   }

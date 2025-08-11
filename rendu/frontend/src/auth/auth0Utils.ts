@@ -1,6 +1,7 @@
 let Auth0Client: any = null;
 import { locale } from '../i18n';
 import { navigate } from '../router';
+// import { API_BASE_URL, BASE_URL } from '../config.ts';
 
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
 const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
@@ -36,6 +37,24 @@ export const authGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLEle
     });
 };
 
+async function sendUserInfoToBackend(user: any): Promise<void> 
+{
+    const response = await fetch(`/api/authentification/userRegistering`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user })});
+    if (response.ok) 
+    {
+        await response.json();
+        // const result = await response.json();
+        // console.log('Informations utilisateur synchronisées avec le backend:', result);
+    }
+    else 
+    {
+        // console.error('Erreur lors de la synchronisation des informations utilisateur avec le backend:', response.statusText);
+        throw new Error('Erreur de synchronisation avec le backend');
+    }
+}
 
 /**
  * Charge dynamiquement Auth0 avec gestion d'erreur
@@ -96,37 +115,31 @@ export const loginWithGoogle = async (): Promise<void> => {
                 redirect_uri: AUTH0_REDIRECT_URI
             }
         });
-        
+    
         console.log('Connexion popup réussie:', result);
-        console.log('URL de callback:', window.location.href);
+        console.log('URL:', window.location);
+        console.log('URL actuelle:', window.location.href);
+        console.log('client:', client);
         
-      
-        const isAuth = await client.isAuthenticated();
+        const isAuth = isSomeoneAuthenticated();
         if (isAuth)   // Vérifie l'authentification
         {
             const user = await client.getUser();
-            console.log('Utilisateur connecté:', user);
-            
-            // Synchronisation avec le backend 
+            console.log('Utilisateur récupéré:', user);
+
+            // Enoie données utilisateur vers backend 
             try 
             {
-                const response = await fetch(`/api/authentification/user`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user })
-                });
+                console.log('sending user info to backend for user:', user);
+                sendUserInfoToBackend(user); // si new user créé, sinon mise à jour avec update status connected
+                // sendTockenToBackend(user); // si new user créé, sinon mise à jour avec update status connected
                 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Informations utilisateur synchronisées avec le backend:', result);
-                }
             }
             catch (error) {
                 console.warn('Erreur lors de la synchronisation avec le backend:', error);
             }
             navigate('/');// Rediriger vers la page d'accueil après connexion réussie
         }
-        
     } 
     catch (error) 
     {
@@ -138,35 +151,14 @@ export const loginWithGoogle = async (): Promise<void> => {
 /**
  * Vérifie si l'utilisateur est authentifié
  */
-export const isAuthenticated = async (): Promise<boolean> => {
-    try 
-    {
-        const client = await initAuth0();
-        return await client.isAuthenticated();
-    } 
-    catch (error) {
-        console.error('Erreur lors de la vérification d\'authentification:', error);
+export const isSomeoneAuthenticated = (): boolean => 
+{
+    console.log('Vérification du localStorage pour l\'authentification...');
+    if (localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') === null)
         return false;
-    }
+    return true;
 };
 
-/**
- * Récupère les informations de l'utilisateur
- */
-export const getUser = async () => {
-    try {
-        const client = await initAuth0();
-        const isAuth = await client.isAuthenticated();
-        if (isAuth) {
-            console.log('OAuth récupération des info utilisateur');
-            return await client.getUser();
-        }
-        return null;
-    } catch (error) {
-        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
-        return null;
-    }
-};
 
 /**
  * Nettoie les données d'authentification locales
@@ -184,19 +176,49 @@ export const clearLocalAuth = (): void => {
 };
 
 
+
+async function updateLogStatus(status: string, nickname: string): Promise<void> {
+    try 
+    {
+        console.log('Mise à jour du statut utilisateur:', status, nickname);
+
+        const response = await fetch(`/api/authentification/LogStatus`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status, nickname })
+        });
+        if (!response.ok) 
+        {
+            throw new Error(`Erreur lors de la mise à jour du statut utilisateur: ${response.statusText}`);
+        }
+        console.log('Statut utilisateur mis à jour avec succès:', status);
+    } 
+    catch (error) {
+        console.error('Erreur lors de la mise à jour du statut utilisateur:', error);
+    }
+}
+
+
 /**
  * Déconnexion
  */
-export const logout = async (): Promise<void> => {
+export const logoutGoogleNickname = async (nickname: string): Promise<void> => {
     try 
     {
-        console.log('Début de la déconnexion...');
+        console.log('Début de la déconnexion de...', nickname);
+
+        await updateLogStatus('deconnected', nickname); 
+
         const client = await initAuth0();
-        // Déconnexion Auth0 :
+        console.log('Client Auth0 récupéré pour la déconnexion:', client);
+        clearLocalAuth();
+
         await client.logout({
             openUrl: false
         });
-        clearLocalAuth();  // Nettoyer les données locales
+
+        // clearLocalAuth();  // Nettoyer les données locales
+        console.log('Déconnexion réussie');
         navigate('/profile');
     }
     catch (error) {
@@ -212,25 +234,4 @@ export const logout = async (): Promise<void> => {
         }
     }
 };
-
-/**
- * Récupère le token d'accès
- */
-export const getAccessToken = async (): Promise<string | null> => {
-    try {
-        const client = await initAuth0();
-        const isAuth = await client.isAuthenticated();
-        if (isAuth) 
-        {
-            return await client.getTokenSilently();
-        }
-        return null;
-    } 
-    catch (error) {
-        console.error('Erreur lors de la récupération du token:', error);
-        return null;
-    }
-};
-
-
 

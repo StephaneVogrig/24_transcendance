@@ -1,7 +1,7 @@
-import { getUser, logout} from '../auth/auth0Utils';
+import { logoutGoogleNickname} from '../auth/auth0Utils';
 import { navigate } from '../router';
 import { locale } from '../i18n';
-import { notConnected, Connected, animateLoading } from '../utils/ProfileUtils';
+import { notConnected, userConnected, animateLoading, getActiveUserInfo, getAllUserInfo } from '../utils/ProfileUtils';
 
 // Fonction utilitaire 
 const createErrorMessage = (message: string, type: 'error' | 'warning' | 'info' = 'warning'): HTMLElement => {
@@ -73,14 +73,25 @@ export const ProfilePage = (): HTMLElement => {
                 const statusTitle = createElement('h3', { text: locale.userconnected,
                 className: 'text-xl font-semibold text-center text-green-600 mb-2', });
                 statusDiv.appendChild(statusTitle);
-
+               
+                let user = null; // let pour type dynamique
                 try  // Récupérer les informations utilisateur
-                {
-                    const user = await getUser();
+                { 
+                    user = await getAllUserInfo();
+                    console.log('ALL USERS LIST:', user);
+
+                    console.log('Utilisateur connecté');
+                    user = await getActiveUserInfo();
+                    // const user = await getAllUserInfo();
+
+                    console.log('ACTIVE User information retrieved:', user);
+                    console.log('ACTIVE User nickname-> ', user[0].nickname);
+            
                     if (user)  // si utilisateur connecté
                     {
                         userInfoDiv.innerHTML = ''; // Clear previous content
-                        Connected(user, userInfoDiv);
+                        console.log('Utilisateur connecté:', user);
+                        userConnected(user[0], userInfoDiv);
                     } 
                     else // si erreur lors de la récupération des informations utilisateur 
                     {
@@ -93,6 +104,9 @@ export const ProfilePage = (): HTMLElement => {
                     // console.error(locale.errorUserInfo, error);
                     userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
                 }
+        
+                let nickname = user[0].nickname;
+                console.log('nickname-> ', nickname);
 
                 // Actions pour utilisateur connecté
                 actionsDiv.innerHTML = ''; // Clear previous content
@@ -106,15 +120,22 @@ export const ProfilePage = (): HTMLElement => {
 
                 // Ajouter les événements
                 const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
+;
+                logoutBtn.setAttribute('data-nickname', nickname);
 
+                console.log('nickname-> ', nickname);
+                
                 logoutBtn?.addEventListener('click', async () => {
                     try 
                     {
                         logoutBtn.disabled = true;
-                        await logout();
+                        const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
+                        // console.log('Déconnexion en cours de l utilisateur');
+                        console.log('Déconnexion en cours de l\'utilisateur', nickname);
+                        await logoutGoogleNickname(nickname);
+                        // await logoutGoogle();
                     } 
                     catch (error) {
-                        // console.error(locale.errorconnection, error);
                         logoutBtn.disabled = false;
                         alert(locale.errorconnection);
                     }
