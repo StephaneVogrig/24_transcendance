@@ -225,7 +225,7 @@ const createEndedTournamentElement = (tournament: any): HTMLElement =>
             playersContainer.appendChild(winnerElement);
         }
     }
-    
+
     // Bouton de détail ------------------------------------
     const detailsBtn = document.createElement('button');
     detailsBtn.className = 'w-40 mt-2 px-2 py-0.5 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';

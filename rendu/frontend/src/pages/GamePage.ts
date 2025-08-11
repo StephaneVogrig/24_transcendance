@@ -123,7 +123,7 @@ function showGameOverModal() {
     document.body.appendChild(modalOverlay);
 }
 
-let isGameOver = false;
+export let isGameOver = false;
 
 export function gameOver() {
     if (isGameOver)

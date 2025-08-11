@@ -94,6 +94,17 @@ fastify.post('/startGame', async (request, reply) => {
 	return reply.status(200).send({ message: `Game session ${gameId} created and started for players ${player1Name} and ${player2Name}`, gameId });
 });
 
+fastify.post('/tournamentFinished', async (request, reply) => {
+    const players = request.body.players;
+    const winner = request.body.winner.name;
+    log.debug({name: 'tournamentFinished', players: players, winner: winner}, `receive tournamentFinished`), {players: players, winner: winner};
+    for (const player of players){
+        const socket = playerNameToSocketId.get(player.name);
+        io.to(socket).emit('tournamentFinished', {winner: winner});
+        log.debug({name: 'tournamentFinished'}, `tournamentFinished send to player: ${player.name} by socket ${socket}`);
+    }
+});
+
 async function sendInput(playerName, key, action) {
 	try {
 		const response = await fetch(`http://game:3004/input`, {

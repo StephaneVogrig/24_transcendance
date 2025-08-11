@@ -3,6 +3,7 @@ import { teamPing, updateBallAndPlatforms, setCameraPosition } from './scenes/sc
 import { getSocket, getPlayerName } from '../websocket/websocket';
 import { gameStatusUpdate, updateScores, setPlayerName, gameOver, gameOverDefault, gameOverTournament } from '../pages/GamePage';
 import { navigate } from '../router';
+import { modalBackHome } from '../pages/components/modalBackHome'
 
 export class InputManager {
 
@@ -107,6 +108,13 @@ export class InputManager {
 				this.socket.disconnect();
 			}
 		});
+
+        this.socket.on('tournamentFinished', (data: {winner: string}) => {
+            console.log("receive tournamentFinished");
+			this.socket.disconnect();
+            const modalOverlay = modalBackHome('Tournament finished', `The winner is ${data.winner}`);
+            document.body.appendChild(modalOverlay);
+        });
 
 		this.socket.on('teamPing', (data: { team: string }) => {
 			// console.debug(`Received team ping for team: ${data.team}`);

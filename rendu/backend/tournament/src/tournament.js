@@ -369,10 +369,20 @@ export async function advanceToNextRound(id)
 	{
 		tournament.status = 'ended';
 		tournament.winner = getWinner(id);
-		for (const player in tournament.players){
-			log.debug(tournament.players, `player to delete: `, player);
-			await deletePlayerFromDb(player.name);
+
+        try {
+            log.debug(tournament.players, 'tournament players: ');
+			fetch(`http://websocket:3008/tournamentFinished`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({players: tournament.players, winner: tournament.winner})
+			});
+
+			log.debug(tournament, 'tournament results succesfully sended');
+		} catch (error) {
+			log.debug(tournament, `Error while sending tournament finished to websocket: ${error.message}.`);
 		}
+
 		try {
 			const response = await fetch(`http://blockchain:3002/register`, {
 				method: 'POST',

@@ -41,17 +41,6 @@ export function enableJoining() {
     playLocal.disabled = false;
 }
 
-function cleanupSockets() {
-    socket.off('redirect');
-    socket.off('connect');
-    if (socket2)
-	{
-        socket2.off('connect');
-        socket2.disconnect();
-        socket2 = undefined;
-    }
-}
-
 function startGame(players: string) {
 	showGameModal(players, socket, isGameStarted);
 }
