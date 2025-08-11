@@ -50,15 +50,18 @@ export const getPlayerName = (): string | null => {
 export function socketJoin(socket: Socket, name: string, timeout = 5000): Promise<any> {
     return new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
-            reject(new Error('Le serveur ne répond pas'));
+            reject(new Error(`Echec pour join: timeout`));
         }, timeout);
 
         socket.emit('join', { name }, (response: {success: boolean, message: string}) => {
             clearTimeout(timeoutId);
-            if (response && response.success) {
+            if (response && response.success)
                 resolve(response);
-            } else {
-                reject(new Error(response.message || 'Connexion error'));
+            else {
+                if (response && response.message)
+                    reject(new Error(`Echec pour join: connexion refuse (${response.message}).`));
+                else
+                    reject(new Error('Echec pour join: reponse serveur invalide.'));
             }
         });
     });
