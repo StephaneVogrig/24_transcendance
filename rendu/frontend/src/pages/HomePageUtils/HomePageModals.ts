@@ -35,7 +35,6 @@ export function showGameModal(players: string, socket: Socket, isGameStartedRef:
     modalContent.appendChild(message);
 
     const joinLink = document.createElement('a');
-    joinLink.href = '#';
     joinLink.setAttribute('data-route', '/game');
     joinLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     joinLink.textContent = 'Join the game';
@@ -75,7 +74,6 @@ export function showTournamentModal(id: number, socket: Socket): HTMLDivElement 
     modalContent.appendChild(message);
 
     const quitButton = document.createElement('a');
-    quitButton.href = '#';
     quitButton.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     quitButton.textContent = 'Leave';
     quitButton.addEventListener('click', () => {
@@ -112,7 +110,6 @@ export function showWaitingGameModal(socket: Socket): HTMLDivElement {
     modalContent.appendChild(message);
 
     const quitButton = document.createElement('a');
-    quitButton.href = '#';
     quitButton.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     quitButton.textContent = 'Leave';
     quitButton.addEventListener('click', () => {

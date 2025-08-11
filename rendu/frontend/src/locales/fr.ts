@@ -44,6 +44,7 @@ export const fr = {
     "back": "Retour",
     "matchDownload": "Chargement des matchs...",
     "tournamentName": "Tournoi de ",
+    "blockchain_msg": "Les résultats sont toujours en cours d'enregistrement sur la blockchain ! Ce processus peut prendre jusqu'à 10 secondes, veuillez réessayer bientôt.",
 
     // profileUtils
     "notConnected": "Utilisateur Non Connecté",
@@ -54,15 +55,15 @@ export const fr = {
     "UserInTournament": "Nom d'utilisateur déjà dans un tournoi, quittez le tournoi ou changez votre nom d'utilisateur",
     "UserInOnlineGame": "Nom d'utilisateur déjà dans un jeu en ligne, quittez le jeu ou changez votre nom d'utilisateur",
 
-// Message
+    // Message
     "Sorry": "Désolé",
 
-// Error
+    // Error
     "INVALID_NAME": "Nom invalide (3 a 25 charactere, chiffre, lettre, trait d'union, tiret bas",
     "ALREADY_USE": "Le nom est dejà utilisé par un autre joueur",
     "DATABASE_ERROR": "Une erreur interne est survenue",
 
-// socketJoin
+    // socketJoin
     "SERVER_TIMEOUT": "Serveur injoignable (timeout)",
     "INVALID_SERVER_RESPONSE": "Reponse serveur invalide",
 

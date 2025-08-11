@@ -45,6 +45,7 @@ export const en = {
 	"back": "Back",
 	"matchDownload": "Downloading matches...",
 	"tournamentName": "Tournament of ",
+    "blockchain_msg": "Results are still being registered to the blockchain! This process can take up to 10 seconds, try again soon.",
 
 	// profileUtils
 	"notConnected": "User Not Connected",
@@ -55,15 +56,15 @@ export const en = {
 	"UserInTournament": "Username already in tournament, quit the tournament or change your username",
 	"UserInOnlineGame": "Username already in online game, quit the game or change your username",
 	
-// Message
+    // Message
     "Sorry": "Sorry",
 
-// Error
+    // Error
     "INVALID_NAME": "Invalid name (3 to 25 characters, digits, letters, hyphen, underscore)",
     "ALREADY_USE": "The name is already used by another player",
     "DATABASE_ERROR": "An internal error has occurred",
 
-// socketJoin
+    // socketJoin
     "SERVER_TIMEOUT": "Server unreachable (timeout)",
     "INVALID_SERVER_RESPONSE": "Invalid server response",
 

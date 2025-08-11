@@ -1,5 +1,6 @@
 import { navigate } from '../router';
 import { locale } from '../i18n';
+import { modalMessage } from './components/modalMessage'
 
 import { getTournamentsType, Match } from '../utils/matchDisplayUtils';
 
@@ -233,7 +234,7 @@ const createEndedTournamentElement = (tournament: any): HTMLElement =>
         if (tournament.hash)
             window.open(`https://subnets-test.avax.network/c-chain/tx/${tournament.hash}`, '_blank');
         else
-            alert(`Results are still being registered to the blockchain! This process can take up to 10 seconds, try again soon.`);
+            modalMessage(locale.Sorry, locale.blockchain_msg);
     };
 
     matchDiv.appendChild(playersContainer);

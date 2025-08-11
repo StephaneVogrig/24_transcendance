@@ -201,7 +201,7 @@ export const HomePage = (): HTMLElement => {
 			}
 			disableJoining();
 		} catch (error) {
-			alert(`Erreur lors de la création 1: ${(error as Error).message}`);
+			console.log(`Erreur lors de la création 1: ${(error as Error).message}`);
 			name = '';
 			button.remove();
 		}
@@ -268,7 +268,7 @@ export const HomePage = (): HTMLElement => {
 		}
 
 		} catch (error) {
-			alert(`Erreur lors de la création 2: ${(error as Error).message}`);
+			console.log(`Erreur lors de la création 2: ${(error as Error).message}`);
 			socket.off('redirect');
 			socket.off('connect');
 		}
@@ -315,7 +315,7 @@ export const HomePage = (): HTMLElement => {
             await socketJoin(socket, name as string);
         } catch (error) {
             console.log(`error send by socket: ${(error as Error).message}`)
-			alert(`${(error as Error).message}`);
+            modalMessage(locale.Sorry, `${(error as Error).message}`);
 			return;
         }
 
@@ -336,7 +336,7 @@ export const HomePage = (): HTMLElement => {
 
 		console.log(`Partie IA créée avec ${name}`);
 		} catch (error) {
-			alert(`Erreur lors de la création 3: ${(error as Error).message}`);
+			console.log(`Erreur lors de la création 3: ${(error as Error).message}`);
 			socket.off('redirect');
 			socket.off('connect');
 		}
@@ -368,7 +368,7 @@ export const HomePage = (): HTMLElement => {
                 await socketJoin(socket, name);
             } catch (error) {
                 console.log(`error send by socket: ${(error as Error).message}`)
-                alert(`${(error as Error).message}`);
+                modalMessage(locale.Sorry, `${(error as Error).message}`);
                 return;
             }
 
@@ -399,7 +399,7 @@ export const HomePage = (): HTMLElement => {
 				modal = showTournamentModal(data.id, socket);
 			disableJoining();
 		} catch (error) {
-			alert(`Erreur lors de la création 4: ${(error as Error).message}`);
+			console.log(`Erreur lors de la création 4: ${(error as Error).message}`);
 		}
 	});
 

@@ -44,25 +44,26 @@ export const es = {
     "back": "Volver",
     "matchDownload": "Descargando partidos...",
     "tournamentName": "Torneo de ",
+    "blockchain_msg": "¡Los resultados aún se están registrando en la cadena de bloques! Este proceso puede tardar hasta 10 segundos, inténtelo de nuevo pronto.",
 
-// profileUtils
+    // profileUtils
     "notConnected": "Usuario No Conectado",
     "connectForInfo": "Conéctese para ver su información",
 
-// Home Page
+    // Home Page
     "UsernameInUse": "Nombre de usuario ya en uso",
     "UserInTournament": "Nombre de usuario ya en torneo, salga del torneo o cambie su nombre de usuario",
     "UserInOnlineGame": "Nombre de usuario ya en juego en línea, salga del juego o cambie su nombre de usuario",
 
-// Message
+    // Message
     "Sorry": "Lo siento",
 
-// Error
+    // Error
     "INVALID_NAME": "Nombre inválido (3 a 25 caracteres, dígitos, letras, guión, guion bajo)",
     "ALREADY_USE": "El nombre ya está siendo utilizado por otro jugador",
     "DATABASE_ERROR": "Ha ocurrido un error interno",
 
-// socketJoin
+    // socketJoin
     "SERVER_TIMEOUT": "Servidor no accesible (tiempo de espera)",
     "INVALID_SERVER_RESPONSE": "Respuesta del servidor no válida",
 
