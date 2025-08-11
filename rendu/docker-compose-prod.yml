@@ -30,8 +30,8 @@ services:
         image: gateway
         container_name: gateway
         build:
-            context: .
-            dockerfile: backend/gateway/Dockerfile
+            context: ./backend
+            dockerfile: gateway/Dockerfile
         environment:
             - SERVICE_NAME=gateway
             - NODE_ENV=${NODE_ENV}

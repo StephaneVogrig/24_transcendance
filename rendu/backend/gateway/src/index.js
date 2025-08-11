@@ -1,10 +1,6 @@
-import Fastify from 'fastify';
+import { fastify, log } from '../shared/fastify.js';
 import proxy from '@fastify/http-proxy';
 import replyFrom from '@fastify/reply-from';
-import cors from '@fastify/cors';
-
-const serviceName = 'gateway';
-const serviceport = process.env.PORT;
 
 const AUTH_SERVICE_BASE_URL = 'http://authentification:3001';
 const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';
@@ -15,35 +11,8 @@ const SCORES_SERVICE_BASE_URL = 'http://scores:3006';
 const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
 const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 const AI_SERVICE_BASE_URL = 'http://ai:3009';
+const GATWEWAY_SERVICE_BASE_URL = 'http://gateway:3010';
 const FRONTEND_SERVICE_BASE_URL = 'http://frontend:5173';
-
-/* server ********************************************************/
-
-const fastify = Fastify({
-    logger: {
-        transport: {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'SYS:HH:MM:ss.l',
-                singleLine: true,
-                ignore: 'pid,hostname'
-            }
-        }
-    },
-});
-
-/* routes *************************************************************/
-
-// API endpoint to check the availability and operational status of the service.
-fastify.get('/api/gateway/health', async (request, reply) => {
-  return {
-    service: serviceName,
-    port: serviceport,
-    status: 'healthy',
-    uptime: process.uptime()
-  };
-});
 
 /* proxy **************************************************************/
 
@@ -94,6 +63,11 @@ fastify.register(proxy, {
 });
 
 fastify.register(proxy, {
+    upstream: GATWEWAY_SERVICE_BASE_URL,
+    prefix: '/api/gateway',
+});
+
+fastify.register(proxy, {
     upstream: FRONTEND_SERVICE_BASE_URL,
     prefix: '/vite-hmr',
     websocket: true,
@@ -118,19 +92,3 @@ fastify.setNotFoundHandler(async (request, reply) => {
 
     return reply.from(FRONTEND_SERVICE_BASE_URL + url);
 });
-
-/**********************************************************************/
-
-const start = async () => {
-    try {
-        await fastify.listen({
-            port: serviceport,
-            host: '0.0.0.0'
-        });
-    } catch (err) {
-        fastify.log.error(err);
-        process.exit(1);
-    }
-};
-
-start();

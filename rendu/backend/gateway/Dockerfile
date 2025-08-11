@@ -2,12 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY backend/gateway/package*.json ./
+COPY gateway/package*.json ./
 
 RUN npm ci
 
-COPY backend/gateway/src/ ./src/
+COPY shared ./shared
+
+COPY gateway/src ./src
+
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "shared/server.js"]
