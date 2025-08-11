@@ -1,7 +1,6 @@
 let Auth0Client: any = null;
 import { locale } from '../i18n';
 import { navigate } from '../router';
-// import { API_BASE_URL, BASE_URL } from '../config.ts';
 
 const AUTH0_DOMAIN = 'dev-yo45rdk5nhctgvu2.eu.auth0.com';
 const AUTH0_CLIENT_ID = 'VksN5p5Q9jbXcBAOw72RLLogClp44FVH';
@@ -46,12 +45,9 @@ async function sendUserInfoToBackend(user: any): Promise<void>
     if (response.ok) 
     {
         await response.json();
-        // const result = await response.json();
-        // console.log('Informations utilisateur synchronisées avec le backend:', result);
     }
     else 
     {
-        // console.error('Erreur lors de la synchronisation des informations utilisateur avec le backend:', response.statusText);
         throw new Error('Erreur de synchronisation avec le backend');
     }
 }
@@ -131,9 +127,7 @@ export const loginWithGoogle = async (): Promise<void> => {
             try 
             {
                 console.log('sending user info to backend for user:', user);
-                sendUserInfoToBackend(user); // si new user créé, sinon mise à jour avec update status connected
-                // sendTockenToBackend(user); // si new user créé, sinon mise à jour avec update status connected
-                
+                sendUserInfoToBackend(user); // si new user créé, sinon mise à jour avec update status connected    
             }
             catch (error) {
                 console.warn('Erreur lors de la synchronisation avec le backend:', error);
@@ -175,8 +169,6 @@ export const clearLocalAuth = (): void => {
     }
 };
 
-
-
 async function updateLogStatus(status: string, nickname: string): Promise<void> {
     try 
     {
@@ -198,7 +190,6 @@ async function updateLogStatus(status: string, nickname: string): Promise<void> 
     }
 }
 
-
 /**
  * Déconnexion
  */
@@ -216,8 +207,7 @@ export const logoutGoogleNickname = async (nickname: string): Promise<void> => {
         await client.logout({
             openUrl: false
         });
-
-        // clearLocalAuth();  // Nettoyer les données locales
+        
         console.log('Déconnexion réussie');
         navigate('/profile');
     }

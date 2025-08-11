@@ -25,7 +25,7 @@ export async function saveUserToDatabase(userInfo) {
     {
         console.log('Saving user to database:', { provider_id, email, nickname, picture, givenName, familyName, status });
 
-        const response = await fetch(`http://database:3003/user/oauth`, {
+        const response = await fetch(`http://database:3003/manageUserInDB`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -76,8 +76,6 @@ export async function saveUserToDatabase(userInfo) {
     }
 }
 
-
-// OK -----------------------------------------------------------
 export async function getActiveUserInfoInDB()
 {
    try
@@ -103,9 +101,7 @@ export async function getActiveUserInfoInDB()
        throw error;
    }
 }
-// -----------------------------------------------------------
 
-// OK -----------------------------------------------------------
 export async function getAllUserInfoInDB()
 {
    try
@@ -131,9 +127,6 @@ export async function getAllUserInfoInDB()
        throw error;
    }
 }
-// -----------------------------------------------------------
-
-
 
 export async function updateLogStatusInDatabase(user) {
     if (!user || !user.nickname || !user.status) 

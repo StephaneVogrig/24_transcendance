@@ -82,7 +82,6 @@ export const ProfilePage = (): HTMLElement => {
 
                     console.log('Utilisateur connecté');
                     user = await getActiveUserInfo();
-                    // const user = await getAllUserInfo();
 
                     console.log('ACTIVE User information retrieved:', user);
                     console.log('ACTIVE User nickname-> ', user[0].nickname);
@@ -130,10 +129,8 @@ export const ProfilePage = (): HTMLElement => {
                     {
                         logoutBtn.disabled = true;
                         const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
-                        // console.log('Déconnexion en cours de l utilisateur');
                         console.log('Déconnexion en cours de l\'utilisateur', nickname);
                         await logoutGoogleNickname(nickname);
-                        // await logoutGoogle();
                     } 
                     catch (error) {
                         logoutBtn.disabled = false;
@@ -145,7 +142,6 @@ export const ProfilePage = (): HTMLElement => {
                 notConnected(statusDiv, userInfoDiv, actionsDiv);
         } 
         catch (error) {
-            // console.error('Erreur lors de la vérification du statut:', error);
             userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));
         }
     };

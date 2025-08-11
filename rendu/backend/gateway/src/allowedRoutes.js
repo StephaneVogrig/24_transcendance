@@ -1,7 +1,9 @@
 export const allowedRoutes = [
     '/api/authentification/health',
-    '/api/authentification/register',
-    '/api/authentification/user',
+    '/api/authentification/userRegistering',
+    '/api/authentification/getAllUserInfo', //debug
+    '/api/authentification/getActiveUserInfo',
+    '/api/authentification/LogStatus',
 
     '/api/blockchain/health',
 

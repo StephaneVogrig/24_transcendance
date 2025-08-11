@@ -103,7 +103,7 @@ fastify.get('/getAllInDB', async (request, reply) => {
 // GOOGLE AUTHENTIFICATION ------------------------------------------------------------
 
 // OK Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
-fastify.post('/user/oauth', async (request, reply) => {
+fastify.post('/manageUserInDB', async (request, reply) => {
    
     console.log('Received user data 1:', request.body);
    
@@ -127,7 +127,7 @@ fastify.post('/user/oauth', async (request, reply) => {
         );
 
         const updatedUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
-        log.debug(`user/oauth/ User ${nickname} updated successfully`);
+        log.debug(`manageUserInDB User ${nickname} updated successfully`);
         return reply.status(200).send({
             message: 'User updated successfully',
             user: updatedUser
@@ -141,7 +141,7 @@ fastify.post('/user/oauth', async (request, reply) => {
         );
 
         const newUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
-        log.debug(`user/oauth/ User ${nickname} created successfully`);
+        log.debug(`manageUserInDB User ${nickname} created successfully`);
         return reply.status(201).send({
             message: 'User created successfully',
             user: newUser
@@ -149,30 +149,12 @@ fastify.post('/user/oauth', async (request, reply) => {
     }
 });
 
-
-// fastify.get('/user/oauth/:provider_id', async (request, reply) => {
-//     const { provider_id } = request.params;
-//     if (!provider_id) {
-//         return reply.status(400).send({ error: 'Missing provider_id parameter' });
-//     }
-
-//     const user = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
-//     if (!user) {
-//         log.debug(request, `user/oauth/ User ${user} not found`);
-//         return reply.status(404).send({ error: 'User not found' });
-//     }
-
-//     log.debug(request, `user/oauth/ User ${user} found`);
-//     return reply.status(200).send({ user });
-// });
-
 // Route to get all active players
 fastify.get('/getActivePlayers', async (request, reply) => {
     const players = await db.all('SELECT * FROM `players`');
     log.debug('Database: returning players:', players);
     reply.status(200).send(players);
 });
-
 
 // OK 
 fastify.get('/getActiveUserInDB', async (request, reply) => {

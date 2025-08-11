@@ -1,7 +1,6 @@
 import { locale } from '../i18n';
 import { authGoogleButton } from '../auth/auth0Utils';
-import { API_BASE_URL, BASE_URL } from '../config.ts';
-
+import { API_BASE_URL } from '../config.ts';
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
 {
@@ -111,7 +110,6 @@ export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void =
     }
 }
 
-    
 export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElement,
         actionsDiv: HTMLDivElement): void =>  
 {
@@ -135,19 +133,16 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         actionsDiv.innerHTML = ''; // Vider le contenu précédent
         const actionsTitle = document.createElement('h3');
         actionsTitle.className = 'text-lg font-semibold text-gray-800 mb-4';
-        // actionsTitle.textContent = ' ';
 
         const actionsContainer = document.createElement('div');
         actionsContainer.className = 'flex flex-wrap gap-4';
 
         authGoogleButton(actionsDiv, document.createElement('div'));
 
-        // actionsContainer.appendChild(loginButton);
         actionsDiv.appendChild(actionsTitle);
         actionsDiv.appendChild(actionsContainer);
 }
 
-// OK -----------------------------------------------------------
 export async function getAllUserInfo(): Promise<any>
 {
    return fetch(`${API_BASE_URL}/authentification/getAllUserInfo`, {
@@ -165,9 +160,7 @@ export async function getAllUserInfo(): Promise<any>
        throw error;
    });
 }
-//   -----------------------------------------------------------
 
-// OK -----------------------------------------------------------
 export async function getActiveUserInfo(): Promise<any>
 {
    return fetch(`${API_BASE_URL}/authentification/getActiveUserInfo`, {
@@ -185,7 +178,6 @@ export async function getActiveUserInfo(): Promise<any>
        throw error;
    });
 }
-//   -----------------------------------------------------------
 
 export async function getUserInfoWithID(): Promise<any>
 {
