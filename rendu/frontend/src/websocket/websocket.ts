@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { BASE_URL } from '../config.ts';
+import { locale } from '../i18n.ts';
 
 let socketInstance: Socket | null = null;
 let playerName: string | null = null;
@@ -50,18 +51,18 @@ export const getPlayerName = (): string | null => {
 export function socketJoin(socket: Socket, name: string, timeout = 5000): Promise<any> {
     return new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
-            reject(new Error(`Echec pour join: timeout`));
+            reject(new Error(locale.SERVER_TIMEOUT));
         }, timeout);
 
-        socket.emit('join', { name }, (response: {success: boolean, message: string}) => {
+        socket.emit('join', { name }, (response: {success: boolean, error: string}) => {
             clearTimeout(timeoutId);
             if (response && response.success)
                 resolve(response);
             else {
-                if (response && response.message)
-                    reject(new Error(`Echec pour join: connexion refuse (${response.message}).`));
+                if (response && response.error)
+                    reject(new Error(locale[response.error]));
                 else
-                    reject(new Error('Echec pour join: reponse serveur invalide.'));
+                    reject(new Error(locale.INVALID_SERVER_RESPONSE));
             }
         });
     });

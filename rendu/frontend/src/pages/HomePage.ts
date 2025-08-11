@@ -12,6 +12,7 @@ import { API_BASE_URL, BASE_URL } from '../config.ts';
 import { navigate } from '../router';
 
 import { createNavLink } from './HomePageUtils/HomePageUtils.ts';
+import { modalMessage } from './components/modalMessage.ts';
 
 let socket = getSocket();
 let socket2: Socket | undefined;
@@ -172,7 +173,7 @@ export const HomePage = (): HTMLElement => {
             await socketJoin(socket, name);
         } catch (error) {
             console.log(`error send by socket: ${(error as Error).message}`)
-			alert(`${(error as Error).message}`);
+            modalMessage(locale.Sorry, `${(error as Error).message}`);
 			return;
         }
 
@@ -317,8 +318,6 @@ export const HomePage = (): HTMLElement => {
 			alert(`${(error as Error).message}`);
 			return;
         }
-
-		// socket.emit('join', { name });
 
 		try {
 			const response = await fetch(`${API_BASE_URL}/ai/create`, {

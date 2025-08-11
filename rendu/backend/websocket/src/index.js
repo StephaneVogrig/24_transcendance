@@ -291,22 +291,22 @@ io.on('connection', async (socket) => {
 			});
 			if (!response.ok)
             {
-                let message = '';
+                let error = '';
                 if (response.status === 400)
-                    message = `Invalid player name: ${name}`;
+                    error = 'INVALID_NAME';
                 else if (response.status === 409)
-                    message = `Player name ${name} is already in use.`;
+                    error = `ALREADY_USE`;
                 else
-                    message = `Internal error (database)`;
-                log.debug({name: 'socketOnJoin'}, message);
-                callback({ success: false, message: message});
+                    error = `DATABASE_ERROR`;
+                log.debug({name: 'socketOnJoin'}, `${error} : ${name}`);
+                callback({ success: false, error: error});
             } else {
                 log.debug({name: 'socketOnJoin'}, `Player ${name} joined with socket ID: ${socket.id}`);
                 playerNameToSocketId.set(name, socket.id);
                 socketIdToPlayerName.set(socket.id, name);
                 socket.data.playerName = name;
                 log.debug({name: 'socketOnJoin'}, `succesfully completed for ${name}`);
-                callback({ success: true, message: '' });
+                callback({ success: true, error: '' });
             }
 		}
 		catch (error)

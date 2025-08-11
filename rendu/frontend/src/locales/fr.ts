@@ -54,6 +54,18 @@ export const fr = {
     "UserInTournament": "Nom d'utilisateur déjà dans un tournoi, quittez le tournoi ou changez votre nom d'utilisateur",
     "UserInOnlineGame": "Nom d'utilisateur déjà dans un jeu en ligne, quittez le jeu ou changez votre nom d'utilisateur",
 
+// Message
+    "Sorry": "Désolé",
+
+// Error
+    "INVALID_NAME": "Nom invalide (3 a 25 charactere, chiffre, lettre, trait d'union, tiret bas",
+    "ALREADY_USE": "Le nom est dejà utilisé par un autre joueur",
+    "DATABASE_ERROR": "Une erreur interne est survenue",
+
+// socketJoin
+    "SERVER_TIMEOUT": "Serveur injoignable (timeout)",
+    "INVALID_SERVER_RESPONSE": "Reponse serveur invalide",
+
     "team": "L'équipe",
 
     "exit_game": "Quitter le jeu",

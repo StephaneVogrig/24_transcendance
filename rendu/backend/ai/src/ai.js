@@ -48,7 +48,7 @@ function socketJoin(socket, name, timeout = 5000) {
             if (response && response.success) {
                 resolve(response);
             } else {
-                reject(new Error(response.message || 'Connexion error'));
+                reject(new Error(response.error || 'Connexion error'));
             }
         });
     });
@@ -138,7 +138,6 @@ export class AI {
 				throw new Error(err);
 			}
 
-			// this.socket.emit('join', { name: this.playerAI });
             await socketJoin(this.socket, this.playerAI);
 
 			await new Promise(r => setTimeout(r, 1000));

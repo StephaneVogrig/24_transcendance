@@ -55,6 +55,18 @@ export const en = {
 	"UserInTournament": "Username already in tournament, quit the tournament or change your username",
 	"UserInOnlineGame": "Username already in online game, quit the game or change your username",
 	
+// Message
+    "Sorry": "Sorry",
+
+// Error
+    "INVALID_NAME": "Invalid name (3 to 25 characters, digits, letters, hyphen, underscore)",
+    "ALREADY_USE": "The name is already used by another player",
+    "DATABASE_ERROR": "An internal error has occurred",
+
+// socketJoin
+    "SERVER_TIMEOUT": "Server unreachable (timeout)",
+    "INVALID_SERVER_RESPONSE": "Invalid server response",
+
 	"team": "The team",
 
 	"exit_game": "Exit Game",
