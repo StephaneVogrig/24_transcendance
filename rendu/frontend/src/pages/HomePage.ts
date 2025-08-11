@@ -152,8 +152,21 @@ export const HomePage = (): HTMLElement => {
 		console.log('isGameStarted set to :', isGameStarted);
 		console.log(`Rejoindre une partie avec le nom: ${name}`);
 
-		if (!socket.connected)
-			socket = getSocket();
+		if (!socket.connected) {
+			await new Promise<void>((resolve) => {
+				if (socket.connected)
+					resolve();
+				else
+				{
+					socket.on('connect', () => {
+						console.log('Player 1 socket connected for local play');
+						socket.off('connect');
+						resolve();
+					});
+					socket.connect();
+				}
+			});
+		}
 
         try {
             await socketJoin(socket, name);
