@@ -1,6 +1,6 @@
 import { fastify, log } from '../shared/fastify.js';
 import proxy from '@fastify/http-proxy';
-import replyFrom from '@fastify/reply-from';
+import { allowedRoutes } from './allowedRoutes.js';
 
 const AUTH_SERVICE_BASE_URL = 'http://authentification:3001';
 const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';
@@ -13,6 +13,19 @@ const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 const AI_SERVICE_BASE_URL = 'http://ai:3009';
 const GATWEWAY_SERVICE_BASE_URL = 'http://gateway:3010';
 const FRONTEND_SERVICE_BASE_URL = 'http://frontend:5173';
+
+fastify.addHook('preHandler', (request, reply, done) => {
+    log.debug(`Routes recue: ${request.url}`);
+    if (request.url.startsWith('/api/')) {
+        const isRouteAllowed = allowedRoutes.some(route => request.url.startsWith(route));
+        if (!isRouteAllowed) {
+            log.debug(`Routes refuse : ${request.url}`);
+            return reply.code(404).send({ error: 'Not Found' });
+        }
+    }
+    log.debug(`Routes accepte : ${request.url}`);
+    done();
+});
 
 /* proxy **************************************************************/
 
@@ -79,16 +92,4 @@ fastify.register(proxy, {
             };
         }
     }
-});
-
-await fastify.register(replyFrom, {});
-
-fastify.setNotFoundHandler(async (request, reply) => {
-    const url = request.url;
-
-    if (url.startsWith('/api/') || url.startsWith('/my-websocket/')) {
-        return reply.code(404).send({ error: 'Not Found' });
-    }
-
-    return reply.from(FRONTEND_SERVICE_BASE_URL + url);
 });
