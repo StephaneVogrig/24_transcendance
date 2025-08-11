@@ -43,7 +43,23 @@ export const getSocket2 = (): Socket | null => {
     return playerSocket2;
 };
 
-
 export const getPlayerName = (): string | null => {
     return playerName;
 };
+
+export function socketJoin(socket: Socket, name: string, timeout = 5000): Promise<any> {
+    return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            reject(new Error('Le serveur ne répond pas'));
+        }, timeout);
+
+        socket.emit('join', { name }, (response: {success: boolean, message: string}) => {
+            clearTimeout(timeoutId);
+            if (response && response.success) {
+                resolve(response);
+            } else {
+                reject(new Error(response.message || 'Connexion error'));
+            }
+        });
+    });
+}

@@ -37,6 +37,23 @@ function calculateYgoal(ballSpeed, ballPos, paddlePos) {
 	return y_goal;
 }
 
+function socketJoin(socket, name, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            reject(new Error('Le serveur ne répond pas'));
+        }, timeout);
+
+        socket.emit('join', { name }, (response) => {
+            clearTimeout(timeoutId);
+            if (response && response.success) {
+                resolve(response);
+            } else {
+                reject(new Error(response.message || 'Connexion error'));
+            }
+        });
+    });
+}
+
 export class AI {
 	constructor(name) {
 		log.debug(`Creating AI instance for player: ${name}`);
@@ -121,7 +138,8 @@ export class AI {
 				throw new Error(err);
 			}
 
-			this.socket.emit('join', { name: this.playerAI });
+			// this.socket.emit('join', { name: this.playerAI });
+            await socketJoin(this.socket, this.playerAI);
 
 			await new Promise(r => setTimeout(r, 1000));
 			this.socket.emit('acceptGame');

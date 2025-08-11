@@ -1,4 +1,4 @@
-import { getSocket, setPlayerName } from '../websocket/websocket';
+import { getSocket, setPlayerName, socketJoin } from '../websocket/websocket';
 import { bottomBtn } from './components/bottomBtn';
 import { joinButton } from './components/joinButton';
 import { locale } from '../i18n';
@@ -55,7 +55,6 @@ function startGame(players: string) {
 	showGameModal(players, socket, isGameStarted);
 }
 
-
 export const HomePage = (): HTMLElement => {
 	const content = document.createElement('div');
 	content.className = 'mx-auto max-w-7xl h-full grid grid-rows-[auto_1fr_auto] gap-8';
@@ -63,7 +62,6 @@ export const HomePage = (): HTMLElement => {
 	// Navigation
 	const nav = document.createElement('nav');
 	nav.className = 'flex flex-col space-y-4';
-
 
 	// Champ nom
 	const input = document.createElement('input');
@@ -88,6 +86,7 @@ export const HomePage = (): HTMLElement => {
 	playDiv.className = 'mt-16';
 	nav.appendChild(playDiv);
 
+    // Play text
 	const playTitle = document.createElement('h2');
 	playTitle.className = ' text-center text-3xl font-extrabold text-blue-400 mb-4 mt-8';
 	playTitle.textContent = locale.play;
@@ -97,28 +96,35 @@ export const HomePage = (): HTMLElement => {
 	playNav.className = 'grid gap-4 sm:grid-cols-3';
 	playDiv.appendChild(playNav);
 
+    // Button Online
 	playOnline = joinButton(locale.online);
 	playNav.appendChild(playOnline);
 
+    // Button Local
 	playLocal = joinButton(locale.local);
 	playLocal.disabled = false;
 	playNav.appendChild(playLocal);
 
+    // Button Solo
 	playAI = joinButton(locale.solo);
 	playAI.disabled = false;
 	playNav.appendChild(playAI);
 
+    // Button Join next tournament
 	playTournament = joinButton(locale.join_tournament);
 	nav.appendChild(playTournament);
 
+    // Button Tournament list
 	nav.appendChild(createNavLink(locale.matchDisplay, '/MatchDisplay'));
 
-	// language button
+	// Button Language
 	const languageButton = createNavLink(locale.language, '/');
+	languageButton.addEventListener('click', showLanguageSelectionModal);
 	nav.appendChild(languageButton);
+
 	content.appendChild(nav);
 
-	// login/logout button
+	// Button Login with google
 	if ( localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') === null )
 	{
 		authGoogleButton(nav, document.createElement('div'));
@@ -137,7 +143,7 @@ export const HomePage = (): HTMLElement => {
 	// about
 	content.appendChild(bottomBtn(locale.about, '/about'));
 
-	// Join game button
+	// Buton Online listener
 	let name: string;
 	playOnline.addEventListener('click', async () => {
 		name = input.value.trim();
@@ -150,22 +156,7 @@ export const HomePage = (): HTMLElement => {
 			socket = getSocket();
 
         try {
-            const joinWithTimeout = new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => {
-                    reject(new Error('Le serveur ne répond pas'));
-                }, 15000);
-
-                socket.emit('join', { name }, (response: {success: boolean, message: string}) => {
-                    clearTimeout(timeout);
-                    if (response && response.success) {
-                        resolve(response);
-                    } else {
-                        reject(new Error(response.message || 'Erreur de connexion'));
-                    }
-                });
-            });
-
-            await joinWithTimeout;
+            await socketJoin(socket, name);
         } catch (error) {
             console.log(`error send by socket: ${(error as Error).message}`)
 			alert(`${(error as Error).message}`);
@@ -202,7 +193,7 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
-	// Local button
+	// Buton Local listener
 	playLocal.addEventListener('click', async () => {
 	try {
 		socket.off('redirect');
@@ -245,7 +236,9 @@ export const HomePage = (): HTMLElement => {
 			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
 			socket.off('redirect');
 			startGame("you and your friend");
-			socket2.emit('join', { name: socket2.id });
+			socket2.emit('join', { name: socket2.id }, (response: {success: boolean, message: string}) => {
+                console.log(`socket join response = ${response.success}`);
+            });
 			socket2.emit('acceptGame');
 		});
 
@@ -267,7 +260,7 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
-	// Play AI
+	// Buton Solo listener
 	playAI.addEventListener('click', async () => {
 	try {
 		socket.off('redirect');
@@ -303,7 +296,16 @@ export const HomePage = (): HTMLElement => {
 			startGame("you and AI");
 		});
 
-		socket.emit('join', { name });
+
+        try {
+            await socketJoin(socket, name as string);
+        } catch (error) {
+            console.log(`error send by socket: ${(error as Error).message}`)
+			alert(`${(error as Error).message}`);
+			return;
+        }
+
+		// socket.emit('join', { name });
 
 		try {
 			const response = await fetch(`${API_BASE_URL}/ai/create`, {
@@ -328,7 +330,7 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
-	// Tournament button
+	// Buton Join tournament listener
 	playTournament.addEventListener('click', async () => {
 		const name = input.value.trim();
 
@@ -350,24 +352,8 @@ export const HomePage = (): HTMLElement => {
 			}
 			setPlayerName(name);
 
-
             try {
-                const joinWithTimeout = new Promise((resolve, reject) => {
-                    const timeout = setTimeout(() => {
-                        reject(new Error('Le serveur ne répond pas'));
-                    }, 15000);
-
-                    socket.emit('join', { name }, (response: {success: boolean, message: string}) => {
-                        clearTimeout(timeout);
-                        if (response && response.success) {
-                            resolve(response);
-                        } else {
-                            reject(new Error(response.message || 'Erreur de connexion'));
-                        }
-                    });
-                });
-
-                await joinWithTimeout;
+                await socketJoin(socket, name);
             } catch (error) {
                 console.log(`error send by socket: ${(error as Error).message}`)
                 alert(`${(error as Error).message}`);
@@ -405,7 +391,5 @@ export const HomePage = (): HTMLElement => {
 		}
 	});
 
-	// Language button
-	languageButton.addEventListener('click', showLanguageSelectionModal);
 	return content;
 }

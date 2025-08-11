@@ -276,10 +276,10 @@ io.on('connection', async (socket) => {
 	socket.data.status = 'connected';
 
 	socket.on('join', async (data, callback) => {
-		const name = data.name;
-
 		try
 		{
+            log.debug(data, `socketOn join started`);
+            const name = data.name;
 			const response = await fetch(`http://database:3003/addUser`, {
 				method: 'POST',
                 headers: {
@@ -303,18 +303,18 @@ io.on('connection', async (socket) => {
                 callback({ success: false, message: message});
                 return;
             }
+            log.debug(`Player ${name} joined with socket ID: ${socket.id}`);
+            playerNameToSocketId.set(name, socket.id);
+            socketIdToPlayerName.set(socket.id, name);
+            socket.data.playerName = name;
+            log.debug(data, `socketOn join succesfully completed`);
+            callback({ success: true, message: '' });
 		}
 		catch (error)
 		{
-			log.error(`Error notifying matchmaking service of player ${disconnectedPlayerName} disconnection:`, error);
+	        log.debug(error, `socketOn join error`);
             callback({ success: false, message: error.message});
-            return;
 		}
-		log.debug(`Player ${name} joined with socket ID: ${socket.id}`);
-		playerNameToSocketId.set(name, socket.id);
-		socketIdToPlayerName.set(socket.id, name);
-		socket.data.playerName = name;
-        callback({ success: true, message: '' });
 	});
 
 	socket.on('identify_player', (data) => {
