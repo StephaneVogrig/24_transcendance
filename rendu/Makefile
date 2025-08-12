@@ -66,9 +66,9 @@ export ACTIVE_ENV
 
 # *** Rules ********************************************************************
 
-all: up
+all: prod
 
-prod: up
+prod: up-prod
 
 dev: up-dev
 
@@ -93,23 +93,23 @@ setup:
 	@mkdir -p $(DB_DIR)
 	@echo "$(GREEN)Folder 'db_data' ready for SQLite.$(DEFAULT)"
 
-build:
-	$(DOCKER_COMPOSE_PROD_CMD) build;
+build: build-prod
 
-build-prod: build
+build-prod:
+	$(DOCKER_COMPOSE_PROD_CMD) build;
 
 build-dev:
 	$(DOCKER_COMPOSE_DEV_CMD) build;
 
-up: setup ssl
+up: up-prod
+
+up-prod: setup ssl
 	@if [ "$(ACTIVE_ENV)" = "dev" ]; then \
 		$(DOCKER_COMPOSE_DEV_CMD) down; \
 	fi; \
 	$(DOCKER_COMPOSE_PROD_CMD) up -d --build; \
 	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
 	echo "$(PURPPLE)Transcendence started in mode 🚀 production$(DEFAULT)";
-
-up-prod: up
 
 up-dev: setup ssl
 	@if [ "$(ACTIVE_ENV)" = "prod" ]; then \
@@ -119,9 +119,9 @@ up-dev: setup ssl
 	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
 	echo "$(PURPPLE)Transcendence started in mode ⚒️  development$(DEFAULT)";
 
-start: up
+start: start-prod
 
-start-prod: up
+start-prod: up-prod
 
 start-dev: up-dev
 

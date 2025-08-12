@@ -4,10 +4,16 @@ export function createSky(scene: Scene): Mesh {
     const skyDome = MeshBuilder.CreateSphere("skyDome", { segments: 32, diameter: -10000, sideOrientation: Mesh.BACKSIDE }, scene);
     const skyMaterial = new StandardMaterial("skyMat", scene);
     
+    let imageUrl: string;
+    if (import.meta.env.PROD) {
+        imageUrl = new URL('../../assets/sky_big.jpg', import.meta.url).href;
+    } else {
+        imageUrl = new URL('../../assets/sky_light.jpg', import.meta.url).href;
+    }
     skyMaterial.backFaceCulling = false;
     skyMaterial.diffuseColor = new Color3(0, 0, 0);
     skyMaterial.specularColor = new Color3(0, 0, 0);
-    skyMaterial.emissiveTexture = new Texture("assets/sky.jpg", scene);
+    skyMaterial.emissiveTexture = new Texture(imageUrl, scene);
     skyMaterial.emissiveColor = new Color3(0, 0, 0);
     skyDome.material = skyMaterial;
     skyDome.rotation.x = -Math.PI / 10;
