@@ -1,12 +1,11 @@
 import { AppLayout } from './AppLayout';
-import { BabylonGame } from './3d/main3d'; // Ensure this import is present
+import { BabylonGame } from './3d/main3d';
 
 /**
  * Interface définissant le contrat pour une route.
  */
 interface Route {
     path: string;
-    // Le composant accepte les paramètres de chemin ET les paramètres de requête (query).
     component: (params?: Record<string, string>, queryParams?: Record<string, string>) => HTMLElement;
     regex?: RegExp;
     paramNames?: string[];
@@ -54,12 +53,11 @@ export function navigate(path: string, pushState: boolean = true): void {
 
     // Sépare le chemin des paramètres de requête et des fragments (hash)
     const [basePath, queryStringWithHash] = path.split('?');
-    const [cleanPath, hashString] = basePath.split('#'); // CleanPath will be 'basePath' if no hash, otherwise part before '#'
+    const [cleanPath, hashString] = basePath.split('#');
     void hashString;
 
     // Parse les paramètres de requête
     if (queryStringWithHash) {
-        // We need to parse queryString before splitting off the hash
         const [queryStringOnly] = queryStringWithHash.split('#');
         new URLSearchParams(queryStringOnly).forEach((value, key) => {
             queryParams[key] = value;
@@ -77,7 +75,7 @@ export function navigate(path: string, pushState: boolean = true): void {
                 });
                 break;
             }
-        } else if (route.path === cleanPath) { // Correspondance exacte pour les chemins sans paramètres dynamiques
+        } else if (route.path === cleanPath) {
             matchedRoute = route;
             break;
         }
@@ -136,7 +134,7 @@ function handleLinkClick(event: MouseEvent): void {
  */
 function addNavigationListeners(element: HTMLElement): void {
     element.querySelectorAll('a[data-route]').forEach(link => {
-        link.removeEventListener('click', handleLinkClick as EventListener); // Empêche les écouteurs dupliqués
+        link.removeEventListener('click', handleLinkClick as EventListener);
         link.addEventListener('click', handleLinkClick as EventListener);
     });
 }
@@ -153,7 +151,6 @@ export function startRouter(): void {
             console.log('Popstate event triggered. Current path:', currentPath);
             console.log(window.location.search, window.location.hash);
 
-            
             // Cas particulier pour la page profile : toujours rediriger vers l'accueil
             if (currentPath === '/profile') 
             {
@@ -167,14 +164,12 @@ export function startRouter(): void {
         }
         catch (error) {
             console.error('Erreur lors de la navigation popstate:', error);
-            // Redirection vers la page d'accueil en cas d'erreur
             navigate('/', false);
         }
     });
 
     try 
     {
-        // Gère la navigation initiale avec l'URL complète lorsque l'application est chargée.
         navigate(window.location.pathname + window.location.search + window.location.hash);
     } 
     catch (error) {
