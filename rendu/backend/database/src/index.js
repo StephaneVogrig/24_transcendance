@@ -37,18 +37,14 @@ fastify.get('/getUser', {schema: schemas.usernameQuery}, async (request, reply) 
 fastify.post('/removeUser', {schema: schemas.usernameBody}, async (request, reply) => {
     const { username } = request.body;
     await db.run('DELETE FROM `players` WHERE `username` = ?', [username]);
-    log.debug(`player '${username}' deleted successfully`)
+    log.debug(`player '${username}' successfully deleted`)
     reply.status(200).send({message: "Player removed."});
 });
 
-fastify.post('/tournament/create', async (request, reply) => {
-    const { tournament } = request.body;
-    if (!tournament)
-        return reply.status(400).send({error: 'Missing tournament data.'});
-
-    await db.run('INSERT INTO `tournaments` (id, data) VALUES (?, ?)', [tournament.id, JSON.stringify(tournament)]);
-    log.debug(tournament, `tournament '${tournament.id}' inserted successfully`);
-    reply.status(200).send({message: 'Tournament registered.'});
+fastify.post('/tournament/createEmpty', async (request, reply) => {
+    const result = await db.run('INSERT INTO tournaments (data) VALUES (?)', ['{}']);
+    log.debug({name: '/tournament/createEmpty'}, `tournament empty succesfully created with id: ${result.lastID}`)
+    reply.status(200).send({ id: result.lastID });
 });
 
 // Route pour récupérer les tournois ouverts

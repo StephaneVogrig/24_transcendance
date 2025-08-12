@@ -1,5 +1,6 @@
 import * as Utils from './utils.js';
 import { log } from '../shared/fastify.js';
+import * as inDb from './tournamentDatabase.js';
 
 /* Player has:
  * name (string)
@@ -58,73 +59,43 @@ async function deletePlayerFromDb(name)
 
 async function deleteTournamentFromDb(id)
 {
-	try
-	{
-		const tournament = TOURNAMENT_LIST[id];
-		if (!tournament)
-			return;
-		for (const player in tournament.players)
-			await deletePlayerFromDb(player.name);
-		const response = await fetch(`http://database:3003/tournament/delete`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ id: id })
-		});
+    const tournament = TOURNAMENT_LIST[id];
+    if (!tournament)
+        return;
+    for (const player in tournament.players)
+        await deletePlayerFromDb(player.name);
+    const response = await fetch(`http://database:3003/tournament/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+    });
 
-		if (!response.ok) {
-			const err = await response.text();
-			throw new Error(err);
-		}
-	} catch (err)
-	{
-		throw new Error(err);
-	}
+    if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err);
+    }
 }
 
 async function modifyTournamentInDb(tournament)
 {
-	try
-	{
-		const response = await fetch(`http://database:3003/tournament/modify`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ tournament })
-		});
+    const response = await fetch(`http://database:3003/tournament/modify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tournament })
+    });
 
-		if (!response.ok) {
-			const err = await response.text();
-			throw new Error(err);
-		}
-	} catch (err)
-	{
-		throw new Error(err);
-	}
-}
-
-async function registerTournamentToDb(tournament)
-{
-	try {
-		const response = await fetch(`http://database:3003/tournament/create`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ tournament })
-		});
-
-		if (!response.ok) {
-        	const err = await response.text();
-        	throw new Error(err);
-    	}
-
-    	console.log('Registered tournament to database.');
-    } catch (error) {
-    	console.log(`Error while registering tournament to database: ${error.message}.`);
+    if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err);
     }
 }
 
 export async function createTournament(name)
 {
+    const tournamentId = await inDb.createEmptyTournament();
+
 	const tournament = {
-		id: TOTAL_TOURNAMENTS,
+		id: tournamentId,
 		players: [{name: name, score: 0, online: true}],
 		playerCount: 1,
 		rounds: [],
@@ -136,7 +107,7 @@ export async function createTournament(name)
 	};
 	TOURNAMENT_LIST[tournament.id] = tournament;
 	TOTAL_TOURNAMENTS++;
-	await registerTournamentToDb(tournament);
+    await inDb.updateTournament(tournament);
 	return tournament;
 }
 
@@ -150,13 +121,6 @@ async function startMatches(bracket)
 	log.debug(bracket, 'start macthes');
 	for (const players of bracket)
 	{
-		// if (bracket.length === 1 && (players[0].status === 'offline' || players[1].status === 'offline'))
-		// {
-		// 	console.log(`One of the players disconnected. Game ended.`);
-		// 	players[players[0].status === 'offline' ? 1 : 0].score = MAX_SCORE;
-		// 	await updatePlayerScores(players);
-		// 	return;
-		// }
 		try {
 			players.status = 'playing';
 			let player1 = players[0].name;
@@ -212,11 +176,7 @@ export async function joinTournament(name)
 	log.debug(`player %s want join tournament`, name);
 	const tmp = name;
 	name = name.trim();
-	// if (findTournamentWithPlayer(name))
-	// {
-	// 	log.debug(TOURNAMENT_LIST, `Couldn't join tournament: name '${name}' is already in a tournament.`);
-	// 	throw new Error(`Couldn't join tournament: name '${name}' is already in a tournament.`);
-	// }
+
 	const tournament = findTournament();
 	if (!tournament)
 		return await createTournament(name);

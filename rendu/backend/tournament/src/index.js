@@ -22,54 +22,37 @@ fastify.post('/create', async (request, reply) => {
     if (!request.body || typeof request.body.name !== 'string')
         return reply.status(400).send({ error: 'Missing or invalid name.' });
     const name = request.body.name;
-    try
-    {
-        const tournament = await Tournament.createTournament(name);
-        return reply.send(tournament);
-    } catch (err)
-    {
-        return reply.status(400).send({ error: err.message });
-    }
+
+    const tournament = await Tournament.createTournament(name);
+    return reply.send(tournament);
+
 });
 
 fastify.post('/leave', async (request, reply) => {
     if (!request.body || typeof request.body.name !== 'string')
         return reply.status(400).send({ error: 'Missing or invalid name.' });
     const name = request.body.name;
-    try
-    {
-        Tournament.leaveTournament(name);
-        return reply.status(200).send();
-    } catch (err)
-    {
-        return reply.status(400).send({ error: err.message });
-    }
+
+    Tournament.leaveTournament(name);
+    return reply.status(200).send();
+
 });
 
 fastify.post('/join', async (request, reply) => {
     if (!request.body || typeof request.body.name !== 'string')
         return reply.status(400).send({ error: 'Missing or invalid name.' });
     const name = request.body.name;
-    try
-    {
-        Utils.checkPlayerName(name);
-        const tournament = await Tournament.joinTournament(name);
-        return reply.send(tournament);
-    } catch (err)
-    {
-        return reply.status(400).send({ error: err.message });
-    }
+
+    Utils.checkPlayerName(name);
+    const tournament = await Tournament.joinTournament(name);
+    reply.status(200).send(tournament);
 });
 
 fastify.post('/raw', async (request, reply) => {
-    try
-    {
-        Tournament.addRawTournament(request.body.tournament);
-        reply.status(200).send("OK");
-    } catch (err)
-    {
-        return reply.status(400).send({ error: err.message });
-    }
+
+    Tournament.addRawTournament(request.body.tournament);
+    reply.status(200).send("OK");
+
 });
 
 fastify.post('/advance', async (request, reply) => {
