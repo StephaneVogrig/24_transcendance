@@ -102,6 +102,8 @@ export const ProfilePage = (): HTMLElement => {
                 {
                     // console.error(locale.errorUserInfo, error);
                     userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
+                    //nettoyer le localStorage
+                    localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@');
                 }
         
                 let nickname = user[0].nickname;

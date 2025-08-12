@@ -1,5 +1,5 @@
 import { locale } from '../i18n';
-import { authGoogleButton } from '../auth/auth0Utils';
+import { authGoogleButton, clearLocalAuth } from '../auth/auth0Utils';
 import { API_BASE_URL } from '../config.ts';
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
@@ -107,6 +107,8 @@ export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void =
         const errorContainer = createElement('div', { className: 'text-center text-yellow-600', });
         errorContainer.appendChild(createElement('p', {text: locale.errorUserInfo}));
         userInfoDiv.appendChild(errorContainer);
+        // nettoyer le localStorage
+        localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@');
     }
 }
 
