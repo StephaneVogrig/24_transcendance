@@ -202,6 +202,9 @@ export const HomePage = (): HTMLElement => {
 		socket.off('redirect');
 		socket.off('connect');
 
+		isGameStarted.value = false;
+		console.log('isGameStarted set to :', isGameStarted);
+
 		let socket2 = io(`${BASE_URL}`, {
 			path: '/api/websocket/my-websocket/'
 		});
@@ -269,6 +272,9 @@ export const HomePage = (): HTMLElement => {
 		socket.off('redirect');
 		socket.off('connect');
 
+		isGameStarted.value = false;
+		console.log('isGameStarted set to :', isGameStarted);
+
 		if (socket2 && socket2.connected) {
             socket2.disconnect();
             socket2 = undefined;
@@ -335,6 +341,8 @@ export const HomePage = (): HTMLElement => {
 	playTournament.addEventListener('click', async () => {
 		const name = input.value.trim();
 
+		isGameStarted.value = false;
+		console.log('isGameStarted set to :', isGameStarted);
 		try {
 			if (!socket.connected) {
 				await new Promise<void>((resolve) => {
