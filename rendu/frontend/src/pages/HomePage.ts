@@ -65,7 +65,7 @@ export const HomePage = (): HTMLElement => {
 		playTournament.disabled = isEmpty;
 	});
 	input.addEventListener('keydown', (e) => {
-		if (e.key === ' ' || e.key === 'Tab') {
+		if (e.key === ' ') {
 			e.preventDefault();
 		}
 	});
