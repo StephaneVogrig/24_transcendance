@@ -3,19 +3,13 @@ import { langBtn } from '../components/langBtn';
 import type { Socket } from "socket.io-client";
 import { enableJoining } from '../HomePage';
 
-interface MutableBoolean {
-    value: boolean;
-}
-
 /**
  * Modal for game found.
  */
-export function showGameModal(players: string, socket: Socket, isGameStartedRef: MutableBoolean) {
-    if (isGameStartedRef.value) {
-        console.log('Game already started, skipping modal display.');
-        return;
-    }
-    isGameStartedRef.value = true;
+export function showGameFoundModal(players: string, socket: Socket) {
+    const gameFoundModalOverlay = document.getElementById('gameFoundModalOverlay');
+    if (gameFoundModalOverlay)
+        gameFoundModalOverlay.remove();
 
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
@@ -40,7 +34,6 @@ export function showGameModal(players: string, socket: Socket, isGameStartedRef:
     joinLink.textContent = 'Join the game';
     joinLink.addEventListener('click', (event) => {
         event.preventDefault();
-        isGameStartedRef.value = false;
         modalOverlay.remove();
         socket.emit('acceptGame');
         navigate('/game');
@@ -55,10 +48,10 @@ export function showGameModal(players: string, socket: Socket, isGameStartedRef:
 /**
  * Modal for waiting tournament.
  */
-export function showTournamentModal(id: number, socket: Socket): HTMLDivElement {
+export function showTournamentWaitingModal(id: number, socket: Socket): HTMLDivElement {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-    modalOverlay.id = 'tournamentFoundModalOverlay';
+    modalOverlay.id = 'waitingModal';
 
     const modalContent = document.createElement('div');
     modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';
@@ -94,7 +87,7 @@ export function showTournamentModal(id: number, socket: Socket): HTMLDivElement 
 export function showWaitingGameModal(socket: Socket): HTMLDivElement {
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
-    modalOverlay.id = 'waitingGameModalOverlay';
+    modalOverlay.id = 'waitingModal';
 
     const modalContent = document.createElement('div');
     modalContent.className = 'bg-gray-800 p-8 rounded-lg shadow-2xl text-center flex flex-col items-center gap-6';

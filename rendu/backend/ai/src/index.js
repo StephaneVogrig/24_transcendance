@@ -10,8 +10,8 @@ fastify.post('/create', async (request, reply) => {
     try
     {
         await addAI(name);
-        reply.status(200).send(`Created AI game with ${name}.`);
+        reply.status(200).send({ message: `Created AI game with ${name}.`});
     } catch (err) {
-        reply.status(400).send(`Couldn't create AI game with ${name}: ${err.message}`);
+        reply.status(500).send({ error: `Couldn't create AI game with ${name}: ${err.message}`});
     }
 });

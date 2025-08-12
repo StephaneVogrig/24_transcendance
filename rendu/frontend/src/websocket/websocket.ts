@@ -1,33 +1,58 @@
 import { io, Socket } from "socket.io-client";
 import { BASE_URL } from '../config.ts';
-import { locale } from '../i18n.ts';
 
 let socketInstance: Socket | null = null;
+let socketId: string | undefined = undefined;
+
 let playerName: string | null = null;
 let playerSocket2: Socket | null = null;
 
+
+let socket2Instance: Socket | null = null;
+let socket2Id: string | undefined = undefined;
+
 export const getSocket = (): Socket => {
-    if (!socketInstance || !socketInstance.connected) {
+    if (!socketInstance) {
         if (!socketInstance) {
             socketInstance = io(`${BASE_URL}`, {
                 path: '/api/websocket/my-websocket/',
-				forceNew: true
+				forceNew: true,
+                autoConnect: false,
+                reconnection: false,
             });
-        }
-        if (!socketInstance.connected) {
-            socketInstance.connect();
             socketInstance.on('connect', () => {
-                console.log('Central Socket: Connecté au serveur Socket.IO !');
-                if (playerName)
-                    socketInstance!.emit('identify_player', { name: playerName });
+                socketId = socketInstance?.id;
+                console.log(`socket connected (${socketInstance?.id})`);
+            });
+            socketInstance.on('disconnect', () => {
+                console.log(`socket disconnected (${socketId})`);
+                socketId = undefined;
             });
         }
-
-        socketInstance.on('disconnect', () => {
-            console.log('Central Socket: Déconnecté du serveur Socket.IO !');
-        });
     }
     return socketInstance;
+};
+
+export const getSocket2 = (): Socket => {
+    if (!socket2Instance) {
+        if (!socket2Instance) {
+            socket2Instance = io(`${BASE_URL}`, {
+                path: '/api/websocket/my-websocket/',
+				forceNew: true,
+                autoConnect: false,
+                reconnection: false,
+            });
+            socket2Instance.on('connect', () => {
+                socket2Id = socket2Instance?.id;
+                console.log(`socket connected (${socket2Instance?.id})`);
+            });
+            socket2Instance.on('disconnect', () => {
+                console.log(`socket disconnected (${socket2Id})`);
+                socket2Id = undefined;
+            });
+        }
+    }
+    return socket2Instance;
 };
 
 export const setSocket2 = (Socket: Socket) => {
@@ -40,30 +65,6 @@ export const setPlayerName = (name: string) => {
         socketInstance.emit('identify_player', { name: playerName });
 };
 
-export const getSocket2 = (): Socket | null => {
-    return playerSocket2;
-};
-
 export const getPlayerName = (): string | null => {
     return playerName;
 };
-
-export function socketJoin(socket: Socket, name: string, timeout = 5000): Promise<any> {
-    return new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-            reject(new Error(locale.SERVER_TIMEOUT));
-        }, timeout);
-
-        socket.emit('join', { name }, (response: {success: boolean, error: string}) => {
-            clearTimeout(timeoutId);
-            if (response && response.success)
-                resolve(response);
-            else {
-                if (response && response.error)
-                    reject(new Error(locale[response.error]));
-                else
-                    reject(new Error(locale.INVALID_SERVER_RESPONSE));
-            }
-        });
-    });
-}

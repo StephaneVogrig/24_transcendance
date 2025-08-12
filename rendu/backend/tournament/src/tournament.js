@@ -154,7 +154,7 @@ export async function deleteTournament(id)
 
 export async function startTournament(tournament)
 {
-	tournament.status = 'ongoing';
+    await new Promise(resolve => setTimeout(resolve, 500));
 	tournament.rounds = [generateBracket(tournament.players)];
 	TOURNAMENT_LIST[tournament.id] = tournament;
 	await startMatches(tournament.rounds[tournament.roundIndex]);
@@ -186,9 +186,11 @@ export async function joinTournament(name)
 	tournament.playerCount++;
 	log.debug(`player %s succesfuly join tournament`, name);
 	if (tournament.playerCount === 4)
-		await startTournament(tournament);
-	else
-		await modifyTournamentInDb(tournament);
+    {
+        tournament.status = 'ongoing';
+		startTournament(tournament);
+    }
+	modifyTournamentInDb(tournament);
 	return tournament;
 }
 

@@ -4,6 +4,13 @@ import { enableJoining } from '../HomePage.ts';
 // import { isGameOver } from '../GamePage.ts';
 
 export function modalBackHome(title: string, content: string): HTMLDivElement {
+    const gameFoundModalOverlay = document.getElementById('gameFoundModalOverlay');
+    if (gameFoundModalOverlay)
+    {
+        gameFoundModalOverlay.remove();
+        enableJoining();
+    }
+
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50';
     modalOverlay.id = 'modalBackHome';
@@ -21,19 +28,11 @@ export function modalBackHome(title: string, content: string): HTMLDivElement {
     message.textContent = content;
     modalContent.appendChild(message);
 
-    const waitingModal = document.getElementById('gameFoundModalOverlay');
-    if (waitingModal)
-    {
-        waitingModal.remove();
-        enableJoining();
-    }
-
     const homeLink = document.createElement('a');
     homeLink.setAttribute('data-route', '/game');
     homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     homeLink.textContent = locale.back_home;
     homeLink.addEventListener('click', (event) => {
-        // isGameOver = false;
         event.preventDefault();
         modalOverlay.remove();
         navigate('/');

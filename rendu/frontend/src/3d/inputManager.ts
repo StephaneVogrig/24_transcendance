@@ -14,6 +14,9 @@ export class InputManager {
     private socket: Socket;
     private socket2: Socket | undefined;
 
+    private keydownHandler2?: (event: KeyboardEvent) => void;
+    private keyupHandler2?: (event: KeyboardEvent) => void;
+
 	constructor() {
 		console.log(`Restoring socket for getPlayerName(): ${getPlayerName()}`);
 		this.socket = getSocket();
@@ -27,15 +30,24 @@ export class InputManager {
 			if (this.socket) {
 				this.socket.disconnect();
 			}
+            if (this.socket2)
+                this.socket2.disconnect();
 			navigate('/');
 		});
 	}
 
 	public setSocket2(socket: Socket) {
+        if (this.keydownHandler2) {
+            window.removeEventListener("keydown", this.keydownHandler2);
+        }
+        if (this.keyupHandler2) {
+            window.removeEventListener("keyup", this.keyupHandler2);
+        }
 		this.socket2 = socket;
 		if (this.socket2)
 		{
-			window.addEventListener("keydown", (event) => {
+
+			this.keydownHandler2 = (event) => {
 				if ((event.code === "KeyA" || event.code === "KeyW") && !this.isLeftPressed2) {
 					this.isLeftPressed2 = true;
 					if (this.socket2)
@@ -46,8 +58,8 @@ export class InputManager {
 					if (this.socket2)
 						this.socket2.emit('keydown', { key: 'ArrowRight' });
 				}
-			});
-			window.addEventListener("keyup", (event) => {
+			};
+			this.keyupHandler2 = (event) => {
 				if (event.code === "KeyA" || event.code === "KeyW") {
 					if (this.socket2)
 						this.socket2.emit('keyup', { key: 'ArrowLeft' });
@@ -57,8 +69,15 @@ export class InputManager {
 					if (this.socket2)
 						this.socket2.emit('keyup', { key: 'ArrowRight' });
 					this.isRightPressed2 = false;
-			}
-			});
+			    }
+			};
+            window.addEventListener("keydown", this.keydownHandler2);
+            window.addEventListener("keyup", this.keyupHandler2);
+            window.addEventListener("popstate", () => {
+                if (this.socket2) {
+                    this.socket2.disconnect();
+                }
+            });
 		}
 	}
 

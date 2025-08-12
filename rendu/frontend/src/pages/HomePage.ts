@@ -1,22 +1,19 @@
-import { getSocket, setPlayerName, socketJoin } from '../websocket/websocket';
+import { getSocket, getSocket2 } from '../websocket/websocket';
+import { socketJoin, socketConnect, socketSetup } from '../websocket/socketSetRedirect.ts';
 import { bottomBtn } from './components/bottomBtn';
 import { joinButton } from './components/joinButton';
 import { locale } from '../i18n';
-import { io, Socket } from "socket.io-client";
 import { BabylonGame } from '../3d/main3d.ts';
 
 import { authGoogleButton } from '../auth/auth0Utils';
 
-import { showGameModal, showTournamentModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
-import { API_BASE_URL, BASE_URL } from '../config.ts';
+import { showTournamentWaitingModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { navigate } from '../router';
 
-import { createNavLink } from './HomePageUtils/HomePageUtils.ts';
+import { createNavLink, sendRegister } from './HomePageUtils/HomePageUtils.ts';
 import { modalMessage } from './components/modalMessage.ts';
 
 let socket = getSocket();
-let socket2: Socket | undefined;
-let isGameStarted = { value: false };
 let isWaitingForGame = false;
 
 let playOnline: HTMLButtonElement;
@@ -39,10 +36,6 @@ export function enableJoining() {
     playAI.disabled = false;
     playTournament.disabled = false;
     playLocal.disabled = false;
-}
-
-function startGame(players: string) {
-	showGameModal(players, socket, isGameStarted);
 }
 
 export const HomePage = (): HTMLElement => {
@@ -134,269 +127,68 @@ export const HomePage = (): HTMLElement => {
 	content.appendChild(bottomBtn(locale.about, '/about'));
 
 	// Buton Online listener
-	let name: string;
 	playOnline.addEventListener('click', async () => {
-		name = input.value.trim();
-
-		isGameStarted.value = false;
-		console.log('isGameStarted set to :', isGameStarted);
-		console.log(`Rejoindre une partie avec le nom: ${name}`);
-
-		if (!socket.connected) {
-			await new Promise<void>((resolve) => {
-				if (socket.connected)
-					resolve();
-				else
-				{
-					socket.on('connect', () => {
-						console.log('Player 1 socket connected for local play');
-						socket.off('connect');
-						resolve();
-					});
-					socket.connect();
-				}
-			});
-		}
-
         try {
-            await socketJoin(socket, name);
-        } catch (error) {
-            console.log(`error send by socket: ${(error as Error).message}`)
-            modalMessage(locale.Sorry, `${(error as Error).message}`);
-			return;
-        }
+            const name = input.value.trim();
 
-		const button = showWaitingGameModal(socket);
-
-		console.log(`redirecting to game with name: ${name}`);
-		socket.off('redirect');
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			button.remove();
-			startGame(data.gameId);
-		});
-
-		try {
-			console.log(`Envoi de la requête pour rejoindre une partie avec le nom: ${name}`);
-			const response = await fetch(`${API_BASE_URL}/matchmaking/join`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name: name })
-			});
-
-			if (!response.ok) {
-				console.error('Erreur lors de la requête de matchmaking:', response.statusText);
-				throw new Error('Failed to join the game');
-			}
+            await socketSetup(socket, 'online', name);
+            await sendRegister(`matchmaking/join`, { name: name });
 			disableJoining();
+		    showWaitingGameModal(socket);
 		} catch (error) {
-			console.log(`Erreur lors de la création 1: ${(error as Error).message}`);
-			name = '';
-			button.remove();
+			console.info((error as Error).message);
+			socket.off('redirect');
+            modalMessage(locale.Sorry, `${(error as Error).message}`);
 		}
 	});
 
 	// Buton Local listener
 	playLocal.addEventListener('click', async () => {
-	try {
-		socket.off('redirect');
-		socket.off('connect');
-
-		isGameStarted.value = false;
-		console.log('isGameStarted set to :', isGameStarted);
-
-		let socket2 = io(`${BASE_URL}`, {
-			path: '/api/websocket/my-websocket/'
-		});
-		
-		await Promise.all([
-			new Promise<void>((resolve) => {
-				if (socket.connected)
-					resolve();
-				else
-				{
-					socket.on('connect', () => {
-						console.log('Player 1 socket connected for local play');
-						socket.off('connect');
-						resolve();
-					});
-					socket.connect();
-				}
-			}),
-			new Promise<void>((resolve) => {
-				socket2.on('connect', () => {
-					console.log('Player 2 socket connected for local play');
-					socket2.off('connect');
-					
-					socket2.emit('identify_player', { name: socket2.id });
-					BabylonGame.getInstance().setSocket2(socket2);
-					resolve();
-				});
-			})
-		]);
-
-		if (socket.id)
-			setPlayerName(socket.id);
-
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			socket.off('redirect');
-			startGame("you and your friend");
-			socket2.emit('join', { name: socket2.id }, (response: {success: boolean, message: string}) => {
-                console.log(`socket join response = ${response.success}`);
+	    try {
+            // setup socket2 -----------------------
+            const socket2 = getSocket2();
+            await socketConnect(socket2);
+            BabylonGame.getInstance().setSocket2(socket2);
+            socket2.once('redirect', (data: { gameId: string, playerName: string }) => {
+                socket2.emit('acceptGame');
             });
-			socket2.emit('acceptGame');
-		});
+            await socketJoin(socket2, socket2.id as string);
 
-		const response = await fetch(`${API_BASE_URL}/game/start`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ player1: socket.id, player2: socket2.id, maxScore: 5 })
-		});
-
-		if (!response.ok) {
-			const err = await response.text();
-			throw new Error(err);
-		}
-
+            await socketSetup(socket, 'local');
+            await sendRegister(`game/start`, { player1: socket.id, player2: socket2.id, maxScore: 5 });
+			disableJoining();
 		} catch (error) {
-			console.log(`Erreur lors de la création 2: ${(error as Error).message}`);
+			console.info(`local: ${(error as Error).message}`);
 			socket.off('redirect');
-			socket.off('connect');
+            modalMessage(locale.Sorry, `${(error as Error).message}`);
 		}
 	});
 
 	// Buton Solo listener
 	playAI.addEventListener('click', async () => {
-	try {
-		socket.off('redirect');
-		socket.off('connect');
-
-		isGameStarted.value = false;
-		console.log('isGameStarted set to :', isGameStarted);
-
-		if (socket2 && socket2.connected) {
-            socket2.disconnect();
-            socket2 = undefined;
-        }
-
-		if (!socket.connected) {
-			await new Promise<void>((resolve) => {
-				if (socket.connected)
-					resolve();
-				else
-				{
-					socket.on('connect', () => {
-						console.log('Player 1 socket connected for local play');
-						socket.off('connect');
-						resolve();
-					});
-					socket.connect();
-				}
-			});
-		}
-		const name = socket.id;
-		if (name)
-			setPlayerName(name);
-
-		socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-			console.log(`HomePage-AI: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-			socket.off('redirect');
-			startGame("you and AI");
-		});
-
-
         try {
-            await socketJoin(socket, name as string);
-        } catch (error) {
-            console.log(`error send by socket: ${(error as Error).message}`)
-            modalMessage(locale.Sorry, `${(error as Error).message}`);
-			return;
-        }
-
-		try {
-			const response = await fetch(`${API_BASE_URL}/ai/create`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({name})
-			});
-
-			if (!response.ok) {
-				const err = await response.text();
-				throw new Error(err);
-			}
-		} catch (err) {
-			console.log(`Error while starting match between AI and ${name}: ${(err as Error).message}.`);
-		}
-
-		console.log(`Partie IA créée avec ${name}`);
+            await socketSetup(socket, 'solo');
+            await sendRegister('ai/create', { name: socket.id });
+			disableJoining();
 		} catch (error) {
-			console.log(`Erreur lors de la création 3: ${(error as Error).message}`);
+			console.info(`solo: ${(error as Error).message}`);
 			socket.off('redirect');
-			socket.off('connect');
+            modalMessage(locale.Sorry, `${(error as Error).message}`);
 		}
 	});
 
 	// Buton Join tournament listener
 	playTournament.addEventListener('click', async () => {
-		const name = input.value.trim();
-
-		isGameStarted.value = false;
-		console.log('isGameStarted set to :', isGameStarted);
 		try {
-			if (!socket.connected) {
-				await new Promise<void>((resolve) => {
-					if (socket.connected)
-						resolve();
-					else
-					{
-						socket.on('connect', () => {
-							console.log('Player 1 socket connected for local play');
-							socket.off('connect');
-							resolve();
-						});
-						socket.connect();
-					}
-				});
-			}
-			setPlayerName(name);
-
-            try {
-                await socketJoin(socket, name);
-            } catch (error) {
-                console.log(`error send by socket: ${(error as Error).message}`)
-                modalMessage(locale.Sorry, `${(error as Error).message}`);
-                return;
-            }
-
-			socket.off('redirect');
-			socket.on('redirect', (data: { gameId: string, playerName: string }) => {
-				console.log(`HomePage: Redirecting to game ${data.gameId} for player ${data.playerName}`);
-				if (modal)
-					modal.remove();
-				startGame(data.gameId);
-			});
-
-			let modal: HTMLDivElement;
-			const response = await fetch(`${API_BASE_URL}/tournament/join`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name })
-			});
-
-			if (!response.ok) {
-				const err = await response.text();
-				throw new Error(err);
-			}
-
-			const data = await response.json();
-			console.log('Tournoi rejoins:', data);
-
-			if (data.playerCount < 4)
-				modal = showTournamentModal(data.id, socket);
+            const name = input.value.trim();
+            await socketSetup(socket, 'tournament', name);
+            const tournament = await sendRegister('tournament/join', { name: name });
 			disableJoining();
+			showTournamentWaitingModal(tournament.id, socket);
 		} catch (error) {
-			console.log(`Erreur lors de la création 4: ${(error as Error).message}`);
+			console.info(`${(error as Error).message}`);
+			socket.off('redirect');
+            modalMessage(locale.Sorry, `${(error as Error).message}`);
 		}
 	});
 
