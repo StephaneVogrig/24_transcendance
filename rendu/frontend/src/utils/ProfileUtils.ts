@@ -1,5 +1,8 @@
 import { locale } from '../i18n';
-import { createGoogleButton } from '../auth/googleAuth';
+// import { createGoogleButton } from '../auth/googleAuth';
+import { createGoogleButton } from '../auth/authButton'; // Import the createGoogleButton function
+
+
 import { API_BASE_URL } from '../config';
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
@@ -85,15 +88,6 @@ function displayUserInfo(userData: any, userInfoDiv: HTMLDivElement): void
 
 export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void => 
 {
-    // console.log('+++ user Connected called with user:', userObj);
-
-// Object { id: "google|108259952350802037215", email: "666.gollum@gmail.com", name: "Gollum Smeagol", picture: "https://lh3.googleusercontent.com/a/ACg8ocIENaeZPVFX0lw6WoVma5HapN2nJpCsXYBW5EsJEh4q7_Kw6Ak=s96-c", given_name: "Gollum", family_name: "Smeagol" }
-// email: "666.gollum@gmail.com"
-// family_name: "Smeagol"
-// given_name: "Gollum"
-// id: "google|108259952350802037215"
-// name: "Gollum Smeagol"
-// picture: "https://lh3.googleusercontent.com/a/ACg8ocIENaeZPVFX0lw6WoVma5HapN2nJpCsXYBW5EsJEh4q7_Kw6Ak=s96-c"
 
     const userData = {
         picture: userObj.picture || '/assets/default_avatar.jpg',
@@ -106,8 +100,7 @@ export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void =
 
 //    console.log('User data prepared:', userData);
 
-    // AFFICHAGE DES INFORMATIONS UTILISATEUR
-    if (userData) 
+    if (userData)  // AFFICHAGE INFO UTILISATEUR
         displayUserInfo(userData, userInfoDiv);
     else // si erreur lors de la récupération des informations utilisateur
     {
@@ -152,24 +145,6 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
 
         actionsDiv.appendChild(actionsTitle);
         actionsDiv.appendChild(actionsContainer);
-}
-
-export async function getAllUserInfo(): Promise<any>
-{
-   return fetch(`${API_BASE_URL}/authentification/getAllUserInfo`, {
-       method: 'GET',
-       headers: { 'Content-Type': 'application/json' },
-   })
-   .then(response => {
-       if (!response.ok) {
-           throw new Error(`HTTP error! status: ${response.status}`);
-       }
-       return response.json();
-   })
-   .catch(error => {
-       console.error('!!! Erreur lors de la récupération des utilisateurs:', error);
-       throw error;
-   });
 }
 
 export async function getActiveUserInfo(): Promise<any>

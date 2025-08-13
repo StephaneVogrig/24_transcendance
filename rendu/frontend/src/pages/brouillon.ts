@@ -59,16 +59,12 @@ const updateStatus = async (userInfoDiv :HTMLDivElement, actionsDiv :HTMLDivElem
             {
                 userInfoDiv.innerHTML =  '';
                 userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-                localStorage.clear(); // Clear local storage on error
-                sessionStorage.clear(); // Clear session storage on error
-                // throw new Error(locale.errorUserInfo);
             }
         } 
         catch (error) 
         {
             console.error(locale.errorUserInfo, error);
             userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-            return
         }
 
         let nickname = user?.name || 'unknown';

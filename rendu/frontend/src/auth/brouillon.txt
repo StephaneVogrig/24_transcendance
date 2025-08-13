@@ -6,3 +6,8 @@ loginWithGoogle()          ← Point d'entrée simple
     ├── setInterval()      ← Surveillance fermeture
     ├── setTimeout()       ← Timeout de sécurité
     └── cleanup()          ← Nettoyage des ressources
+
+
+CLIENT_ID  '316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com';
+CLIENT_SECRET   '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';
+REDIRECT_URI   'https://localhost:3000/auth/callback';

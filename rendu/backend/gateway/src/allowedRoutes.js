@@ -1,9 +1,11 @@
 export const allowedRoutes = [
     '/api/authentification/health',
-    '/api/authentification/debug/oauth',
+    // '/api/authentification/debug/oauth',
     '/api/authentification/userRegistering',
-    '/api/authentification/getAllUserInfo', //debug
+    // '/api/authentification/getAllUserInfo', //debug
     '/api/authentification/getActiveUserInfo',
+    '/api/authentification/getUserInfo',
+
     '/api/authentification/LogStatus',
     '/api/authentification/oauth/google',
     '/api/authentification/user',
