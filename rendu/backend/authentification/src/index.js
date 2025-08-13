@@ -237,11 +237,14 @@ fastify.post('/LogStatus', async (request, reply) => {
 fastify.post('/oauth/google', async (request, reply) => {
   const { code, redirect_uri } = request.body;
   
+  console.log('OAuth Google code received from Popup:', { code, redirect_uri });
+
   if (!code || !redirect_uri) {
     return reply.status(400).send({ error: 'Code et redirect_uri requis' });
   }
   
-  try {
+  try 
+  {
     // Échanger le code contre un token d'accès Google
     const formData = createFormData({
       code: code,
@@ -251,6 +254,9 @@ fastify.post('/oauth/google', async (request, reply) => {
       grant_type: 'authorization_code',
     });
     
+    console.log('Form data for token exchange:', formData);
+    console.log('Sending request to Google OAuth token endpoint-> https://oauth2.googleapis.com/token');
+
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
@@ -259,7 +265,8 @@ fastify.post('/oauth/google', async (request, reply) => {
       body: formData,
     });
     
-    if (!tokenResponse.ok) {
+    if (!tokenResponse.ok) 
+    {
       const errorData = await tokenResponse.text();
       console.error('Erreur échange de code:', errorData);
       return reply.status(400).send({ error: 'Échec de l\'échange du code' });
@@ -269,17 +276,22 @@ fastify.post('/oauth/google', async (request, reply) => {
     const googleAccessToken = tokenData.access_token;
     
     // Récupérer les informations utilisateur depuis Google
+    console.log('Google access token received to get user info :', googleAccessToken);
+
     const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: {
         'Authorization': `Bearer ${googleAccessToken}`,
       },
     });
     
-    if (!userResponse.ok) {
+    if (!userResponse.ok) 
+    {
       return reply.status(400).send({ error: 'Échec de la récupération des informations utilisateur' });
     }
     
     const googleUser = await userResponse.json();
+
+    console.log('Google user info received:', googleUser);
     
     // Mapper les données Google vers notre format
     const mappedUser = {
@@ -292,7 +304,7 @@ fastify.post('/oauth/google', async (request, reply) => {
       status: 'active',
     };
     
-    console.log('Google user mapped:', mappedUser);
+    console.log('!! Google user mapped:', mappedUser);
     
     // Sauvegarder l'utilisateur en base de données
     const savedUser = await saveUserToDatabase(mappedUser);
@@ -310,6 +322,8 @@ fastify.post('/oauth/google', async (request, reply) => {
       },
       JWT_SECRET
     );
+
+    console.log('JWT token created for user:', savedUser.nickname);
     
     return reply.status(200).send({
       access_token: jwtToken,
@@ -323,7 +337,8 @@ fastify.post('/oauth/google', async (request, reply) => {
       }
     });
     
-  } catch (error) {
+  } 
+  catch (error) {
     console.error('Erreur OAuth Google:', error);
     return reply.status(500).send({ 
       error: 'Erreur interne du serveur',

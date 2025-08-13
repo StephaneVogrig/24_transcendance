@@ -46,17 +46,203 @@ function buildAuthUrl(): string {
         prompt: 'consent'
     });
     
+    console.log('OAuth URL params:', params.toString());
+    console.log('OAuth AUTH_URL:', GOOGLE_OAUTH_CONFIG.AUTH_URL);
+
     return `${GOOGLE_OAUTH_CONFIG.AUTH_URL}?${params.toString()}`;
 }
 
 /**
- * Connexion avec Google via popup
+ * Ferme la popup avec plusieurs méthodes de fallback
  */
+function closePopup(popup: Window): void {
+    try 
+    {
+        console.log('Closing popup');
+
+        popup.close();
+        setTimeout(() => {
+            if (!popup.closed) 
+            {
+                console.log('Popup still open, trying to force close...');
+                try 
+                {
+                    popup.location.href = 'about:blank';
+                    popup.close();
+                } 
+                catch (e) {
+                    console.warn('Could not force close popup:', e);
+                }
+            }
+        }, 200);
+    } 
+    catch (e) {
+        console.error('Error closing popup:', e);
+    }
+}
+
+/**
+ * Gestionnaire des messages OAuth reçus de la popup -> appel dans la fonction loginWithGoogle() -> createOAuthMessageListener 
+ */
+function createOAuthMessageListener( popup: Window, onSuccess: () => void, onError: (error: Error) => void, cleanup: () => void): (event: MessageEvent) => void {
+   
+    return (event: MessageEvent) => {
+        console.log('Message received from popup:', event.data);
+        console.log('Event origin:', event.origin);
+        console.log('Window origin:', window.location.origin);
+        
+        // Vérif origine -> sécurité
+        if (event.origin !== window.location.origin) 
+        {
+            console.log('Message ignored - wrong origin:', event.origin);
+            return;
+        }
+        
+        if (event.data.type === 'OAUTH_SUCCESS') 
+        {
+            console.log('OAuth success received, cleaning up...');
+            console.log('Token to save:', event.data.token ? event.data.token.substring(0, 20) + '...' : 'MISSING');
+            cleanup(); // Nettoyer les listeners et intervalles
+            
+            if (!event.data.token) 
+            {
+                console.error('No token in success message');
+                onError(new Error('Token manquant dans la réponse'));
+                return;
+            }
+            
+            if (!popup.closed) // Fermer la popup si elle tjrs ouverte
+                closePopup(popup); 
+            
+            try 
+            {
+                localStorage.setItem('access_token', event.data.token); // Sauvegarde token
+                console.log('Token saved to localStorage successfully');
+                
+                const savedToken = localStorage.getItem('access_token');// Vérif token a été sauvegardé
+                if (savedToken === event.data.token) 
+                {
+                    console.log('Token verification successful');
+                    notifyAuthStateChange(); // Notifier le changement d'état d'authentification
+                    onSuccess();
+                } 
+                else
+                {
+                    console.error('Token verification failed');
+                    throw new Error('Erreur lors de la sauvegarde du token');
+                }
+            } 
+            catch (e) {
+                console.error('Error saving token to localStorage:', e);
+                onError(new Error('Erreur lors de la sauvegarde du token'));
+            }
+            
+        } 
+        else if (event.data.type === 'OAUTH_ERROR') 
+        {
+            console.log('OAuth error received:', event.data.error);
+            cleanup();
+            
+            if (!popup.closed)
+                popup.close();
+
+            onError(new Error(event.data.error));
+        }
+    };
+}
+
+
+/**
+ * Nettoie les ressources OAuth popup
+ */
+function cleanupPopupResources(resources: PopupResources): void {
+    console.log('Cleaning up OAuth popup resources...');
+    
+    if (resources.intervalId) {
+        clearInterval(resources.intervalId);
+        resources.intervalId = null;
+        console.log('Interval cleared');
+    }
+    
+    if (resources.messageListener) {
+        window.removeEventListener('message', resources.messageListener);
+        resources.messageListener = null;
+        console.log('Message listener removed');
+    }
+}
+
+/**
+ * Gère l'attente de la réponse OAuth depuis la popup
+ */
+function handlePopupResponse(popup: Window): Promise<void> {
+        
+    return new Promise((resolve, reject) => {
+        const resources: PopupResources = {
+            intervalId: null,
+            messageListener: null
+        };
+
+         // Fonction de nettoyage qui utilise la fonction externalisée
+        const cleanup = () => cleanupPopupResources(resources);
+        
+        // Créer le gestionnaire de messages APRÈS avoir défini cleanup
+        resources.messageListener = createOAuthMessageListener( popup,
+            () => {
+                console.log('OAuth success - resolving promise');
+                resolve();
+            },
+            (error) => {
+                console.error('OAuth error - rejecting promise:', error);
+                reject(error);
+            },
+            cleanup
+        );
+
+        window.addEventListener('message', resources.messageListener); // Écoute messages popup
+
+        // Check fermeture manuelle de la popup
+        resources.intervalId = window.setInterval(() => {
+            console.log('Checking if popup is closed...');
+            if (popup.closed) 
+            {
+                console.log('Popup was closed manually');
+                cleanup();
+                
+                // Vérifier token reçu de la popup
+                const tempToken = localStorage.getItem('oauth_temp_token');
+                if (tempToken) 
+                {
+                    console.log('Found temp token, using it...');
+                    localStorage.removeItem('oauth_temp_token');
+                    localStorage.setItem('access_token', tempToken);
+                    notifyAuthStateChange();
+                    resolve();
+                } 
+                else 
+                {
+                    console.log('No temp token found, connection cancelled');
+                    reject(new Error('Connexion annulée par l\'utilisateur'));
+                }
+            }
+        }, 1000);
+
+
+        setTimeout(() => {
+            console.log('OAuth timeout reached');
+            cleanup();
+            if (!popup.closed)
+                closePopup(popup);
+            reject(new Error('Timeout de connexion (5 minutes)'));
+        }, 300000);
+    });
+}
+
 export async function loginWithGoogle(): Promise<void> {
-    try {
+    try
+    {
         const authUrl = buildAuthUrl();
         
-        // Configuration de la popup
+        // Config popup
         const popupWidth = 500;
         const popupHeight = 600;
         const left = window.screen.width / 2 - popupWidth / 2;
@@ -68,128 +254,16 @@ export async function loginWithGoogle(): Promise<void> {
             `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=yes`
         );
         
-        if (!popup) {
+        if (!popup) 
+        {
             throw new Error('Impossible d\'ouvrir la popup. Vérifiez que les popups ne sont pas bloquées.');
         }
         
-        // Écouter la fermeture de la popup ou le retour de l'OAuth
-        return new Promise((resolve, reject) => {
-            const checkClosed = setInterval(() => {
-                console.log('Checking if popup is closed...');
-                if (popup.closed) {
-                    console.log('Popup was closed');
-                    clearInterval(checkClosed);
-                    // Vérifier si on a reçu une réponse
-                    const token = localStorage.getItem('oauth_temp_token');
-                    if (token) {
-                        console.log('Found temp token, using it...');
-                        localStorage.removeItem('oauth_temp_token');
-                        localStorage.setItem('access_token', token);
-                        // Notifier le changement d'état d'authentification
-                        notifyAuthStateChange();
-                        resolve();
-                    } else {
-                        console.log('No temp token found, connection cancelled');
-                        reject(new Error('Connexion annulée par l\'utilisateur'));
-                    }
-                }
-            }, 1000);
-            
-            // Écouter les messages de la popup
-            const messageListener = (event: MessageEvent) => {
-                console.log('🔔 Message received from popup:', event.data);
-                console.log('🌐 Event origin:', event.origin);
-                console.log('🌐 Window origin:', window.location.origin);
-                
-                if (event.origin !== window.location.origin) {
-                    console.log('❌ Message ignored - wrong origin:', event.origin);
-                    return;
-                }
-                
-                if (event.data.type === 'OAUTH_SUCCESS') {
-                    console.log('✅ OAuth success received, cleaning up...');
-                    console.log('🔑 Token to save:', event.data.token ? event.data.token.substring(0, 20) + '...' : 'MISSING');
-                    
-                    clearInterval(checkClosed);
-                    window.removeEventListener('message', messageListener);
-                    
-                    // Vérifier que nous avons un token
-                    if (!event.data.token) {
-                        console.error('❌ No token in success message');
-                        reject(new Error('Token manquant dans la réponse'));
-                        return;
-                    }
-                    
-                    // Fermer la popup côté parent
-                    if (!popup.closed) {
-                        console.log('🔒 Closing popup from parent...');
-                        try {
-                            popup.close();
-                            // Vérifier si la fermeture a fonctionné
-                            setTimeout(() => {
-                                if (!popup.closed) {
-                                    console.log('⚠️ Popup still open, trying to force close...');
-                                    // Essayer de rediriger la popup vers about:blank
-                                    try {
-                                        popup.location.href = 'about:blank';
-                                        popup.close();
-                                    } catch (e) {
-                                        console.warn('Could not force close popup:', e);
-                                    }
-                                }
-                            }, 200);
-                        } catch (e) {
-                            console.error('Error closing popup:', e);
-                        }
-                    }
-                    
-                    try {
-                        localStorage.setItem('access_token', event.data.token);
-                        console.log('💾 Token saved to localStorage successfully');
-                        
-                        // Vérifier que le token a bien été sauvegardé
-                        const savedToken = localStorage.getItem('access_token');
-                        if (savedToken === event.data.token) {
-                            console.log('✅ Token verification successful');
-                            // Notifier le changement d'état d'authentification
-                            notifyAuthStateChange();
-                        } else {
-                            console.error('❌ Token verification failed');
-                            throw new Error('Erreur lors de la sauvegarde du token');
-                        }
-                    } catch (e) {
-                        console.error('❌ Error saving token to localStorage:', e);
-                        reject(new Error('Erreur lors de la sauvegarde du token'));
-                        return;
-                    }
-                    
-                    console.log('🎉 Resolving promise...');
-                    resolve();
-                } else if (event.data.type === 'OAUTH_ERROR') {
-                    console.log('OAuth error received:', event.data.error);
-                    clearInterval(checkClosed);
-                    window.removeEventListener('message', messageListener);
-                    
-                    if (!popup.closed) {
-                        popup.close();
-                    }
-                    reject(new Error(event.data.error));
-                }
-            };
-            
-            window.addEventListener('message', messageListener);
-            
-            // Timeout après 5 minutes
-            setTimeout(() => {
-                clearInterval(checkClosed);
-                window.removeEventListener('message', messageListener);
-                if (!popup.closed) {
-                    popup.close();
-                }
-                reject(new Error('Timeout de connexion'));
-            }, 300000); // 5 minutes
-        });
-    } catch (error) {
+        //gestion popup
+        await handlePopupResponse(popup);
+        console.log('Popup closed successfully, user logged in'); // si connection réussie
+    } 
+    catch (error) {
         console.error('Erreur lors de l\'ouverture de la popup Google:', error);
         throw new Error('Échec de l\'ouverture de la popup Google');
     }
@@ -205,9 +279,11 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
         const state = urlParams.get('state');
         const error = urlParams.get('error');
         
-        if (error) {
-            // Envoyer l'erreur à la fenêtre parent
-            if (window.opener) {
+        if (error) 
+        {
+            if (window.opener) // Envoie erreur à la fenêtre parent
+            {
+                console.error('Send error to window.location.origin ->', window.location.origin);
                 window.opener.postMessage({
                     type: 'OAUTH_ERROR',
                     error: `Erreur OAuth: ${error}`
@@ -217,9 +293,11 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
             throw new Error(`Erreur OAuth: ${error}`);
         }
         
-        if (!code) {
+        if (!code) 
+        {
             const errorMsg = 'Code d\'autorisation manquant';
-            if (window.opener) {
+            if (window.opener) 
+            {
                 window.opener.postMessage({
                     type: 'OAUTH_ERROR',
                     error: errorMsg
@@ -229,7 +307,7 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
             throw new Error(errorMsg);
         }
         
-        // Vérification du state pour la sécurité CSRF
+        // Vérification du state -> sécurité CSRF
         const savedState = sessionStorage.getItem('oauth_state');
         if (!savedState || savedState !== state) {
             const errorMsg = 'État OAuth invalide - possible attaque CSRF';
@@ -243,10 +321,9 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
             throw new Error(errorMsg);
         }
         
-        // Nettoyer le state du stockage
-        sessionStorage.removeItem('oauth_state');
+        sessionStorage.removeItem('oauth_state'); // Nettoyer state du stockage
         
-        // Échanger le code contre un token via notre backend
+        // Échanger code contre token dans backend
         const response = await fetch(`${API_BASE_URL}/authentification/oauth/google`, {
             method: 'POST',
             headers: {
@@ -258,11 +335,13 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
             })
         });
         
-        if (!response.ok) {
+        if (!response.ok) 
+        {
             const errorData = await response.json().catch(() => ({}));
             const errorMsg = errorData.message || 'Erreur lors de l\'échange du code';
             
-            if (window.opener) {
+            if (window.opener) 
+            {
                 window.opener.postMessage({
                     type: 'OAUTH_ERROR',
                     error: errorMsg
@@ -275,7 +354,8 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
         const data = await response.json();
         
         // Envoyer le succès à la fenêtre parent
-        if (window.opener) {
+        if (window.opener) 
+        {
             window.opener.postMessage({
                 type: 'OAUTH_SUCCESS',
                 token: data.access_token,
@@ -299,19 +379,6 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
     }
 }
 
-/**
- * Récupère les informations de l'utilisateur connecté
- */
-//         };
-        
-//     } catch (error) {
-//         console.error('Erreur lors du traitement du callback OAuth:', error);
-//         return {
-//             success: false,
-//             error: error instanceof Error ? error.message : 'Erreur inconnue'
-//         };
-//     }
-// }
 
 /**
  * Récupère les informations de l'utilisateur connecté
@@ -330,9 +397,10 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
             }
         });
         
-        if (!response.ok) {
-            if (response.status === 401) {
-                // Token expiré ou invalide
+        if (!response.ok) 
+        {
+            if (response.status === 401) // Token invalide
+            {
                 localStorage.removeItem('access_token');
                 return null;
             }
@@ -341,7 +409,7 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
         
         // console.log('+++ FRONT getCurrentUser response:', response);
         const user =  await response.json();
-        console.log('+++ FRONT  user:', user);
+        // console.log('+++ FRONT  user:', user);
 
         return user;  
     }
@@ -356,6 +424,7 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
  */
 export function isAuthenticated(): boolean {
     return Boolean(localStorage.getItem('access_token'));
+    // voir si change par appel db
 }
 
 // Système de callbacks pour notifier les changements d'état d'authentification
@@ -371,6 +440,8 @@ const authStateChangeCallbacks: (() => void)[] = [];
  * qui seront appelés lors d'une mise à jour du statut d'authentification (connexion, déconnexion, etc.).
  * Utilisez cette fonction pour réagir aux changements d'état d'authentification dans votre application.
  */
+
+// PLUS UTILISEE -> push directement dans createAuthButtonContainer
 export function onAuthStateChange(callback: () => void): void {
     authStateChangeCallbacks.push(callback);
 }
@@ -378,19 +449,19 @@ export function onAuthStateChange(callback: () => void): void {
 /**
  * Supprime un callback d'état d'authentification
  */
-export function removeAuthStateChangeCallback(callback: () => void): void {
-    const index = authStateChangeCallbacks.indexOf(callback);
-    if (index > -1) {
-        authStateChangeCallbacks.splice(index, 1);
-    }
-}
+// export function removeAuthStateChangeCallback(callback: () => void): void {
+//     const index = authStateChangeCallbacks.indexOf(callback);
+//     if (index > -1) {
+//         authStateChangeCallbacks.splice(index, 1);
+//     }
+// }
 
 /**
  * Notifie tous les callbacks que l'état d'authentification a changé
  */
 function notifyAuthStateChange(): void {
     for (let i = 0; i < authStateChangeCallbacks.length; i++) 
-{
+    {
         try 
         {
             authStateChangeCallbacks[i]();
@@ -442,7 +513,7 @@ export const createGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLE
     googleButton.id = 'google-oauth-btn';
     googleButton.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200';
     googleButton.innerHTML = `
-        <img class="w-5 h-5 mr-2" src="/assets/Google_logo.png" alt="Google Logo" />
+        <img class="w-5 h-5 mr-2" src="/assets/Google_logo.jpg" alt="Google Logo" />
         ${locale.google}
     `;
     loginForm.appendChild(googleButton);
@@ -478,19 +549,22 @@ export function createProfileButton(): HTMLElement {
 }
 
 function updateButton(container: HTMLElement): void {
+    
     container.innerHTML = ''; // Effacer le contenu
     
-    if (isAuthenticated()) {
-        // Utilisateur connecté : afficher le bouton Profile
+    // if (isAuthenticated()) 
+    
+    if (localStorage.getItem('access_token') !== null) // Utilisateur connecté -> bouton Profile
+    {
         const profileButton = createProfileButton();
         container.appendChild(profileButton);
-    } else {
-        // Utilisateur non connecté : afficher le bouton Google
+    } 
+    else // Utilisateur non connecté -> bouton Google
+    {
         const tempDiv = document.createElement('div');
         createGoogleButton(container, tempDiv);
     }
 }
-//     }
 
 
 /**
@@ -500,12 +574,20 @@ export function createAuthButtonContainer(): HTMLElement {
     const container = document.createElement('div');
     container.className = 'auth-button-container';
   
-    updateButton(container);
+    // Initialiser le conteneur avec l'état actuel
+    // si connecté -> Profile  | sinon -> Google
+    updateButton(container); 
     
     // S'abonner aux changements d'état
-    const authStateChange = () => updateButton(container); //  fonction de rappel
-    onAuthStateChange(authStateChange); // passe la fonction de rappel
+    const authStateChange = () => updateButton(container);
 
+    authStateChangeCallbacks.push(authStateChange);
+    onAuthStateChange(() => updateButton(container)); // mise à jour du bouton selon état authentification
+
+// ou
+    // authStateChangeCallbacks.push(() => updateButton(container)); // passe la fonction de rappel
+    // onAuthStateChange(authStateChange); // passe la fonction de rappel
+// ou
     // authStateChangeCallbacks.push(() => updateButton(container));
     // onAuthStateChange(() => updateButton(container));
     

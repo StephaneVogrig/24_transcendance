@@ -19,12 +19,12 @@ const createAvatar = (user: any): HTMLImageElement =>
     // Set up error handler before setting src to prevent blinking
     element.onerror = () => { 
         console.log('Avatar load failed, using default');
-        element.src = '/assets/default-avatar.png'; 
+        element.src = '/assets/default_avatar.jpg'; 
         element.onerror = null; // Prevent infinite loop if default image also fails
     };
     
     // Set src after error handler is in place
-    element.src = user.picture || '/assets/default-avatar.png';
+    element.src = user.picture || '/assets/default_avatar.jpg';
     
     console.log('Avatar created with src:', element.src);
     return element;
@@ -85,7 +85,7 @@ function displayUserInfo(userData: any, userInfoDiv: HTMLDivElement): void
 
 export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void => 
 {
-    console.log('+++ user Connected called with user:', userObj);
+    // console.log('+++ user Connected called with user:', userObj);
 
 // Object { id: "google|108259952350802037215", email: "666.gollum@gmail.com", name: "Gollum Smeagol", picture: "https://lh3.googleusercontent.com/a/ACg8ocIENaeZPVFX0lw6WoVma5HapN2nJpCsXYBW5EsJEh4q7_Kw6Ak=s96-c", given_name: "Gollum", family_name: "Smeagol" }
 // email: "666.gollum@gmail.com"
@@ -96,7 +96,7 @@ export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void =
 // picture: "https://lh3.googleusercontent.com/a/ACg8ocIENaeZPVFX0lw6WoVma5HapN2nJpCsXYBW5EsJEh4q7_Kw6Ak=s96-c"
 
     const userData = {
-        picture: userObj.picture || '/assets/default-avatar.png',
+        picture: userObj.picture || '/assets/default_avatar.jpg',
         mail: userObj.email || userObj.mail || 'Email non disponible',
         nickname: userObj.nickname  || 'Nickname non disponible',
         givenName:   userObj.given_name || 'Prénom non disponible',
@@ -104,7 +104,7 @@ export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void =
         status: userObj.status || 'unknown'
     };
 
-   console.log('User data prepared:', userData);
+//    console.log('User data prepared:', userData);
 
     // AFFICHAGE DES INFORMATIONS UTILISATEUR
     if (userData) 
@@ -146,6 +146,9 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         actionsContainer.className = 'flex flex-wrap gap-4';
 
         createGoogleButton(actionsDiv, document.createElement('div'));
+
+        // localStorage.clear(); // Clear local storage on error
+        // sessionStorage.clear(); // Clear session storage on error
 
         actionsDiv.appendChild(actionsTitle);
         actionsDiv.appendChild(actionsContainer);

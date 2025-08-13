@@ -62,17 +62,16 @@
                 const state = urlParams.get('state');
                 const error = urlParams.get('error');
                 
-                if (error) {
+                if (error)
                     throw new Error(`Erreur OAuth: ${error}`);
-                }
                 
-                if (!code) {
+                if (!code)
                     throw new Error('Code d\'autorisation manquant');
-                }
                 
                 // Vérification du state pour la sécurité CSRF
                 const savedState = sessionStorage.getItem('oauth_state');
-                if (!savedState || savedState !== state) {
+                if (!savedState || savedState !== state) 
+                {
                     throw new Error('État OAuth invalide');
                 }
                 
@@ -81,7 +80,7 @@
                 
                 statusEl.textContent = '...';
                 
-                // Échanger le code contre un token via notre backend
+                // Échanger le code contre un User token -> fait dans le backend
                 const response = await fetch(`${API_BASE_URL}/authentification/oauth/google`, {
                     method: 'POST',
                     headers: {
@@ -93,7 +92,8 @@
                     })
                 });
                 
-                if (!response.ok) {
+                if (!response.ok) 
+                {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.message || 'Erreur lors de l\'échange du code');
                 }
@@ -113,17 +113,19 @@
                 });
                 
                 // Vérifier que nous avons les données nécessaires
-                if (!data.access_token) {
+                if (!data.access_token) 
+                {
                     throw new Error('Token d\'accès manquant dans la réponse du serveur');
                 }
                 
                 // Envoyer le succès à la fenêtre parent
-                if (window.opener) {
+                if (window.opener) 
+                {
                     console.log('Sending success message to parent...');
                     const message = {
                         type: 'OAUTH_SUCCESS',
                         token: data.access_token,
-                        user: data.user,
+                        // user: data.user,
                         timestamp: Date.now()
                     };
                     console.log('Message to send:', message);

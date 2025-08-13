@@ -8,7 +8,6 @@ import { ProfilePage } from './pages/ProfilePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AboutPage } from './pages/AboutPage';
 import { MatchDisplayPage } from './pages/MatchDisplayPage';
-import { createAuthCallbackPage } from './pages/AuthCallbackPage';
 
 
 
@@ -18,7 +17,7 @@ addRoute('/profile', ProfilePage);
 addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
 addRoute('/MatchDisplay', MatchDisplayPage);
-addRoute('/auth/callback', createAuthCallbackPage);
+
 
 
 

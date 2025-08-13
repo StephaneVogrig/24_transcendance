@@ -117,7 +117,7 @@ export async function getAllUserInfoInDB()
            throw new Error(err);
        }
 
-       // Méthode qui lit la réponse HTTP via `fetch` et le convertit en objet JavaScript
+       // Méthode lit la réponse HTTP via `fetch` et le convertit en objet JavaScript
        const tournaments = await response.json();
       
        return tournaments;
