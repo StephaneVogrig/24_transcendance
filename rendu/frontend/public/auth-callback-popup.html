@@ -56,27 +56,35 @@
         async function handlePopupCallback() {
             const statusEl = document.getElementById('status');
             
-            try {
+
+            try 
+            {
+                // on doit avoir recuperé redirect_uri qui contient le code d'autorisation (retour de Google)
+                // code unique pour l'utilisateur + application (durée de vie 10min)
+                // contient le code d'autorisation
                 const urlParams = new URLSearchParams(window.location.search);
+                // console.log('URL Params:', urlParams.toString());
                 const code = urlParams.get('code');
-                const state = urlParams.get('state');
+                const state = urlParams.get('state'); // pour verif que state idem à celui que l'on a envoyé 
                 const error = urlParams.get('error');
                 
+                console.log('Code:', code);
+
                 if (error)
                     throw new Error(`Erreur OAuth: ${error}`);
                 
                 if (!code)
                     throw new Error('Code d\'autorisation manquant');
                 
-                // Vérification du state pour la sécurité CSRF
+                // Vérification du state -> securite CSRF
+                // compare avec le state sessionStorage
                 const savedState = sessionStorage.getItem('oauth_state');
                 if (!savedState || savedState !== state) 
                 {
                     throw new Error('État OAuth invalide');
                 }
                 
-                // Nettoyer le state du stockage
-                sessionStorage.removeItem('oauth_state');
+                sessionStorage.removeItem('oauth_state'); // Nettoyer le state du stockage
                 
                 statusEl.textContent = '...';
                 
@@ -92,12 +100,13 @@
                     })
                 });
                 
-                if (!response.ok) 
+                if (!response.ok) // probleme recup du token avec le code ou pb recup info utilisateur API Google
                 {
                     const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || 'Erreur lors de l\'échange du code');
+                    throw new Error(errorData.message || 'POPUP Erreur lors de l\'échange du code');
                 }
                 
+                // Réponse du backen authentification -> token d'accès
                 const data = await response.json();
                 
                 statusEl.textContent = 'Connexion réussie ! Fermeture...';
@@ -112,13 +121,10 @@
                     data_keys: Object.keys(data)
                 });
                 
-                // Vérifier que nous avons les données nécessaires
                 if (!data.access_token) 
-                {
                     throw new Error('Token d\'accès manquant dans la réponse du serveur');
-                }
                 
-                // Envoyer le succès à la fenêtre parent
+                // Envoyer l'info à la fenêtre parent
                 if (window.opener) 
                 {
                     console.log('Sending success message to parent...');
@@ -130,10 +136,12 @@
                     };
                     console.log('Message to send:', message);
                     
-                    try {
+                    try 
+                    {
                         window.opener.postMessage(message, window.location.origin);
                         console.log('Message sent successfully');
-                    } catch (e) {
+                    } 
+                    catch (e) {
                         console.error('Error sending message:', e);
                         throw new Error('Erreur lors de l\'envoi du message à la fenêtre parent');
                     }

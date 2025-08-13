@@ -154,23 +154,23 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         actionsDiv.appendChild(actionsContainer);
 }
 
-export async function getAllUserInfo(): Promise<any>
-{
-   return fetch(`${API_BASE_URL}/authentification/getAllUserInfo`, {
-       method: 'GET',
-       headers: { 'Content-Type': 'application/json' },
-   })
-   .then(response => {
-       if (!response.ok) {
-           throw new Error(`HTTP error! status: ${response.status}`);
-       }
-       return response.json();
-   })
-   .catch(error => {
-       console.error('!!! Erreur lors de la récupération des utilisateurs:', error);
-       throw error;
-   });
-}
+// export async function getAllUserInfo(): Promise<any>
+// {
+//    return fetch(`${API_BASE_URL}/authentification/getAllUserInfo`, {
+//        method: 'GET',
+//        headers: { 'Content-Type': 'application/json' },
+//    })
+//    .then(response => {
+//        if (!response.ok) {
+//            throw new Error(`HTTP error! status: ${response.status}`);
+//        }
+//        return response.json();
+//    })
+//    .catch(error => {
+//        console.error('!!! Erreur lors de la récupération des utilisateurs:', error);
+//        throw error;
+//    });
+// }
 
 export async function getActiveUserInfo(): Promise<any>
 {

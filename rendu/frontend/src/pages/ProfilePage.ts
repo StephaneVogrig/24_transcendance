@@ -1,10 +1,10 @@
 import { logout } from '../auth/googleAuth';
 import { navigate } from '../router';
 import { locale } from '../i18n';
-import { notConnected, userConnected, animateLoading, getActiveUserInfo, getAllUserInfo } from '../utils/ProfileUtils';
-import { isAuthenticated, getCurrentUser } from '../auth/googleAuth';
+import { notConnected, userConnected, animateLoading } from '../utils/ProfileUtils';
+import { getCurrentUser } from '../auth/googleAuth';
 
-// Fonction utilitaire 
+
 const createErrorMessage = (message: string, type: 'error' | 'warning' | 'info' = 'warning'): HTMLElement => {
     const container = document.createElement('div');
     const colorClass = {
@@ -32,80 +32,74 @@ const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: {
 
 
 const updateStatus = async (userInfoDiv :HTMLDivElement, actionsDiv :HTMLDivElement, statusDiv : HTMLDivElement ) => {
-            animateLoading(statusDiv); // Afficher l'indicateur de chargement
+           
+    animateLoading(statusDiv); // Affiche l'indicateur de chargement
 
-            userInfoDiv.innerHTML = '';
-            actionsDiv.innerHTML = '';
+    userInfoDiv.innerHTML = '';
+    actionsDiv.innerHTML = '';
 
-            if ( localStorage.getItem('access_token') !== null)
+    if ( localStorage.getItem('access_token') !== null)
+    {
+        statusDiv.innerHTML = ''; // Clear previous content
+        const statusTitle = createElement('h3', { text: locale.userconnected,
+        className: 'text-xl font-semibold text-center text-green-600 mb-2', });
+        statusDiv.appendChild(statusTitle);
+        
+        let user = null; // let = type dynamique
+        try  
+        { 
+            user = await getCurrentUser(); // Récupérer info utilisateur
+    
+            if (user)
             {
-                statusDiv.innerHTML = ''; // Clear previous content
-                const statusTitle = createElement('h3', { text: locale.userconnected,
-                className: 'text-xl font-semibold text-center text-green-600 mb-2', });
-                statusDiv.appendChild(statusTitle);
-               
-                let user = null; // let pour type dynamique
-                try  // Récupérer les informations utilisateur
-                { 
-                    user = await getCurrentUser();
-                    // console.log('Current user information retrieved:', user);
-            
-                    if (user)  // si utilisateur connecté
-                    {
-                        userInfoDiv.innerHTML = ''; // Clear previous content
-                        // console.log('Utilisateur connecté:', user);
-                        userConnected(user, userInfoDiv)
-                    } 
-                    else // si erreur lors de la récupération des informations utilisateur 
-                    {
-                        userInfoDiv.innerHTML =  '';
-                        userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-                    }
-                } 
-                catch (error) 
-                {
-                    console.error(locale.errorUserInfo, error);
-                    userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-                    // localStorage.clear(); // Clear local storage on error
-                    // sessionStorage.clear(); // Clear session storage on error
-                }
-                let nickname = user?.name || 'unknown';
-                console.log('nickname-> ', nickname);
-
-                // Actions pour utilisateur connecté
-                actionsDiv.innerHTML = ''; // Clear previous content
-
-                const actionsContainer = createElement('div', {className: 'flex flex-wrap gap-4'});
-                const logoutButton = createElement('button', {text:locale.logout, className: 'px-6 py-2 bg-red-700 text-white rounded-lg'});
-                logoutButton.id = 'logout-btn';
-
-                actionsContainer.appendChild(logoutButton);
-                actionsDiv.appendChild(actionsContainer);
-
-                // Ajouter les événements
-                const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
-
-                logoutBtn.setAttribute('data-nickname', nickname);
-
-                console.log('nickname-> ', nickname);
-                
-                logoutBtn?.addEventListener('click', async () => {
-                    try 
-                    {
-                        logoutBtn.disabled = true;
-                        const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
-                        console.log(' !!! Déconnexion en cours de l\'utilisateur', nickname);
-                        await logout();
-                    } 
-                    catch (error) {
-                        logoutBtn.disabled = false;
-                        alert(locale.errorconnection);
-                    }
-                });
+                userInfoDiv.innerHTML = ''; // Clear previous content
+                userConnected(user, userInfoDiv)
             } 
-            else // Utilisateur non connecté
-                notConnected(statusDiv, userInfoDiv, actionsDiv);
+            else // si erreur lors de la récupération des info user
+            {
+                userInfoDiv.innerHTML =  '';
+                userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
+            }
         } 
+        catch (error) 
+        {
+            console.error(locale.errorUserInfo, error);
+            userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
+        }
+
+        let nickname = user?.name || 'unknown';
+        console.log('nickname-> ', nickname);
+
+        //  Bouton logOut si utilisateur connecté
+        actionsDiv.innerHTML = ''; 
+
+        const actionsContainer = createElement('div', {className: 'flex flex-wrap gap-4'});
+        const logoutButton = createElement('button', {text:locale.logout, className: 'px-6 py-2 bg-red-700 text-white rounded-lg'});
+        logoutButton.id = 'logout-btn';
+
+        actionsContainer.appendChild(logoutButton);
+        actionsDiv.appendChild(actionsContainer);
+
+        const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
+        logoutBtn.setAttribute('data-nickname', nickname); //pour envoyer le pseudo au backend
+
+        logoutBtn?.addEventListener('click', async () => {
+            try 
+            {
+                logoutBtn.disabled = true;
+                const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
+                console.log(' !!! Déconnexion en cours de l\'utilisateur', nickname);
+                await logout();
+            } 
+            catch (error) {
+                logoutBtn.disabled = false;
+                alert(locale.errorconnection);
+            }
+        });
+    } 
+    else // Utilisateur non connecté
+        notConnected(statusDiv, userInfoDiv, actionsDiv);
+} 
 
 
 export const ProfilePage = (): HTMLElement => {
@@ -122,102 +116,20 @@ export const ProfilePage = (): HTMLElement => {
     title.textContent = locale.statusAuth;
     container.appendChild(title);
 
-    // Zone de statut
+    // Statut
     const statusDiv = document.createElement('div');
     statusDiv.className = 'bg-white rounded-lg shadow-lg p-6 mb-6';
     container.appendChild(statusDiv);
 
-    // Zone d'informations utilisateur
+    // Info utilisateur
     const userInfoDiv = document.createElement('div');
     userInfoDiv.className = 'bg-white rounded-lg shadow-lg p-6 mb-6';
     container.appendChild(userInfoDiv);
 
-    // Zone d'actions
+    // Actions
     const actionsDiv = document.createElement('div'); 
     actionsDiv.className = 'bg-white rounded-lg shadow-lg p-6';
     container.appendChild(actionsDiv);
-
-    // Fonction pour mettre à jour le statut
-    // const updateStatus = async () => {
-    //     try 
-    //     {
-    //         animateLoading(statusDiv); // Afficher l'indicateur de chargement
-
-    //         userInfoDiv.innerHTML = '';
-    //         actionsDiv.innerHTML = '';
-            
-    //         // if ( sessionStorage.getItem('oauth_state') !== null)
-    //         if ( isAuthenticated() )
-    //         {
-    //             statusDiv.innerHTML = ''; // Clear previous content
-    //             const statusTitle = createElement('h3', { text: locale.userconnected,
-    //             className: 'text-xl font-semibold text-center text-green-600 mb-2', });
-    //             statusDiv.appendChild(statusTitle);
-               
-    //             let user = null; // let pour type dynamique
-    //             try  // Récupérer les informations utilisateur
-    //             { 
-    //                 user = await getCurrentUser();
-    //                 console.log('Current user information retrieved:', user);
-            
-    //                 if (user)  // si utilisateur connecté
-    //                 {
-    //                     userInfoDiv.innerHTML = ''; // Clear previous content
-    //                     console.log('Utilisateur connecté:', user);
-    //                     userConnected(user, userInfoDiv)
-    //                 } 
-    //                 else // si erreur lors de la récupération des informations utilisateur 
-    //                 {
-    //                     userInfoDiv.innerHTML =  '';
-    //                     userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-    //                 }
-    //             } 
-    //             catch (error) 
-    //             {
-    //                 // console.error(locale.errorUserInfo, error);
-    //                 userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-    //             }
-    //             let nickname = user?.name || 'unknown';
-    //             console.log('nickname-> ', nickname);
-
-    //             // Actions pour utilisateur connecté
-    //             actionsDiv.innerHTML = ''; // Clear previous content
-
-    //             const actionsContainer = createElement('div', {className: 'flex flex-wrap gap-4'});
-    //             const logoutButton = createElement('button', {text:locale.logout, className: 'px-6 py-2 bg-red-700 text-white rounded-lg'});
-    //             logoutButton.id = 'logout-btn';
-
-    //             actionsContainer.appendChild(logoutButton);
-    //             actionsDiv.appendChild(actionsContainer);
-
-    //             // Ajouter les événements
-    //             const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
-
-    //             logoutBtn.setAttribute('data-nickname', nickname);
-
-    //             console.log('nickname-> ', nickname);
-                
-    //             logoutBtn?.addEventListener('click', async () => {
-    //                 try 
-    //                 {
-    //                     logoutBtn.disabled = true;
-    //                     const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
-    //                     console.log(' !!! Déconnexion en cours de l\'utilisateur', nickname);
-    //                     await logout();
-    //                 } 
-    //                 catch (error) {
-    //                     logoutBtn.disabled = false;
-    //                     alert(locale.errorconnection);
-    //                 }
-    //             });
-    //         } 
-    //         else // Utilisateur non connecté
-    //             notConnected(statusDiv, userInfoDiv, actionsDiv);
-    //     } 
-    //     catch (error) {
-    //         userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));
-    //     }
-    // };
 
     // Bouton retour
     const backButton = document.createElement('button');
@@ -231,12 +143,9 @@ export const ProfilePage = (): HTMLElement => {
     backButton.onclick = () => navigate('/');
     container.insertBefore(backButton, title);
 
-    // Charger le statut au démarrage
-    // updateStatus();
-
     try 
     {
-        updateStatus(userInfoDiv, actionsDiv, statusDiv); // Appel de la fonction
+        updateStatus(userInfoDiv, actionsDiv, statusDiv); // charger le statut
     }
     catch (error) {
         userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));

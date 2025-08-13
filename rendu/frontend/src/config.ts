@@ -3,7 +3,7 @@ console.log(`port=${PORT}`);
 export const BASE_URL = `https://${window.location.hostname}:${PORT}`;
 export const API_BASE_URL = `${BASE_URL}/api`;
 
-// Configuration OAuth 2.0 Google directe
+// Configuration OAuth 2.0 Google 
 export const GOOGLE_OAUTH_CONFIG = {
     CLIENT_ID: '316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com', // Même que le backend
     REDIRECT_URI: `https://localhost:3000/auth-callback-popup.html`, // URI fixe pour éviter les problèmes

@@ -107,9 +107,9 @@ export const HomePage = (): HTMLElement => {
 
 	content.appendChild(nav);
 
-	// Button Login with google / Profile
-	// afficher le bouton d'authentification Google
-	// et le bouton de profil si l'utilisateur est connecté
+	// Button Login withGoogle/Profile
+	// affiche  -> GoogleConnect si pas user connecté
+	// 			-> Profil si user
 	const authContainer = createAuthButtonContainer();
 	nav.appendChild(authContainer);
 

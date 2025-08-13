@@ -20,6 +20,12 @@ export interface AuthResponse {
     error?: string;
 }
 
+// Interface pour la popup OAuth
+interface PopupResources {
+    intervalId: number | null; // ID de l'intervalle vérif la fermeture popup
+    messageListener: ((event: MessageEvent) => void) | null; // Fonction qui écoute les messages de la popup
+}
+
 /**
  * Génère une chaîne aléatoire pour le state parameter (sécurité CSRF)
  */
@@ -29,11 +35,21 @@ function generateState(): string {
     return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
+
+//     GOOGLE_OAUTH_CONFIG = {
+//     CLIENT_ID: '316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com', // Même que le backend
+//     REDIRECT_URI: `https://localhost:3000/auth-callback-popup.html`, // URI fixe pour éviter les problèmes
+//     REDIRECT_URI_MAIN: `${BASE_URL}/auth/callback`, // Callback principal (si besoin)
+//     SCOPE: 'openid profile email',
+//     RESPONSE_TYPE: 'code',
+//     AUTH_URL: 'https://accounts.google.com/o/oauth2/v2/auth'
+// };
+
 /**
  * Génère l'URL d'autorisation Google OAuth 2.0
  */
 function buildAuthUrl(): string {
-    const state = generateState();
+    const state = generateState(); // chaine aléatoire créé pour state -> secure
     sessionStorage.setItem('oauth_state', state);
     
     const params = new URLSearchParams({
@@ -41,7 +57,7 @@ function buildAuthUrl(): string {
         redirect_uri: GOOGLE_OAUTH_CONFIG.REDIRECT_URI,
         scope: GOOGLE_OAUTH_CONFIG.SCOPE,
         response_type: GOOGLE_OAUTH_CONFIG.RESPONSE_TYPE,
-        state: state,
+        state: state, // securité verif dans la fenêtre de la popup
         access_type: 'offline',
         prompt: 'consent'
     });
@@ -158,13 +174,15 @@ function createOAuthMessageListener( popup: Window, onSuccess: () => void, onErr
 function cleanupPopupResources(resources: PopupResources): void {
     console.log('Cleaning up OAuth popup resources...');
     
-    if (resources.intervalId) {
+    if (resources.intervalId) 
+    {
         clearInterval(resources.intervalId);
         resources.intervalId = null;
         console.log('Interval cleared');
     }
     
-    if (resources.messageListener) {
+    if (resources.messageListener) 
+    {
         window.removeEventListener('message', resources.messageListener);
         resources.messageListener = null;
         console.log('Message listener removed');
@@ -175,17 +193,21 @@ function cleanupPopupResources(resources: PopupResources): void {
  * Gère l'attente de la réponse OAuth depuis la popup
  */
 function handlePopupResponse(popup: Window): Promise<void> {
-        
+
+// new Promise((resolve, reject)  =  crée Promisepour gérer état connexion
+// resolve -> fonction qui sera appelée si succès
+// reject -> fonction qui sera appelée si erreur
+
     return new Promise((resolve, reject) => {
         const resources: PopupResources = {
-            intervalId: null,
-            messageListener: null
+            intervalId: null, //Stock ID setInterval -init null-  -> window.setInterval()
+            messageListener: null //Stockefonction d'écoute des msg
         };
 
-         // Fonction de nettoyage qui utilise la fonction externalisée
+        // Fonction de nettoyage
         const cleanup = () => cleanupPopupResources(resources);
         
-        // Créer le gestionnaire de messages APRÈS avoir défini cleanup
+        // Créer le gestionnaire de messages
         resources.messageListener = createOAuthMessageListener( popup,
             () => {
                 console.log('OAuth success - resolving promise');
@@ -198,9 +220,12 @@ function handlePopupResponse(popup: Window): Promise<void> {
             cleanup
         );
 
-        window.addEventListener('message', resources.messageListener); // Écoute messages popup
+        // on met un event listener sur la fenetre entière (ecouye popup)
+        window.addEventListener('message', resources.messageListener);
 
         // Check fermeture manuelle de la popup
+        // window.setInterval(func, delay)
+        // func instruction à exécuter toutes delayl millisecondes
         resources.intervalId = window.setInterval(() => {
             console.log('Checking if popup is closed...');
             if (popup.closed) 
@@ -208,9 +233,8 @@ function handlePopupResponse(popup: Window): Promise<void> {
                 console.log('Popup was closed manually');
                 cleanup();
                 
-                // Vérifier token reçu de la popup
                 const tempToken = localStorage.getItem('oauth_temp_token');
-                if (tempToken) 
+                if (tempToken) // Vérif si token reçu de la popup
                 {
                     console.log('Found temp token, using it...');
                     localStorage.removeItem('oauth_temp_token');
@@ -226,7 +250,7 @@ function handlePopupResponse(popup: Window): Promise<void> {
             }
         }, 1000);
 
-
+        // Timeout de 5 minutes -> si boucles infinie
         setTimeout(() => {
             console.log('OAuth timeout reached');
             cleanup();
@@ -240,10 +264,11 @@ function handlePopupResponse(popup: Window): Promise<void> {
 export async function loginWithGoogle(): Promise<void> {
     try
     {
-        const authUrl = buildAuthUrl();
+        const authUrl = buildAuthUrl(); // on cree URL d'autorisation pour Google OAuth
         
-        // Config popup
-        const popupWidth = 500;
+        console.log('Google OAuth  URL:', authUrl);
+
+        const popupWidth = 500; // Config popup
         const popupHeight = 600;
         const left = window.screen.width / 2 - popupWidth / 2;
         const top = window.screen.height / 2 - popupHeight / 2;
@@ -381,8 +406,9 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
 
 
 /**
- * Récupère les informations de l'utilisateur connecté
+ * Récupère les informations de l'utilisateur connecté 
  */
+// recup info avec le JWT token que l'on a créé dans le backend depuis la popup
 export async function getCurrentUser(): Promise<GoogleUser | null> {
    
    console.log('+++ FRONT getCurrentUser called');
@@ -391,6 +417,7 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
         if (!token) 
             return null;
         
+        // on va demander au backend d'extraire les info user duJWT token
         const response = await fetch(`${API_BASE_URL}/authentification/user`, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -441,7 +468,7 @@ const authStateChangeCallbacks: (() => void)[] = [];
  * Utilisez cette fonction pour réagir aux changements d'état d'authentification dans votre application.
  */
 
-// PLUS UTILISEE -> push directement dans createAuthButtonContainer
+//  push directement dans createAuthButtonContainer
 export function onAuthStateChange(callback: () => void): void {
     authStateChangeCallbacks.push(callback);
 }
