@@ -1,0 +1,8 @@
+loginWithGoogle()          ← Point d'entrée simple
+├── buildAuthUrl()         ← Construction URL OAuth  
+├── window.open()          ← Ouverture popup
+└── handlePopupResponse()  ← Gestion des événements
+    ├── createOAuthMessageListener() ← Traitement des messages
+    ├── setInterval()      ← Surveillance fermeture
+    ├── setTimeout()       ← Timeout de sécurité
+    └── cleanup()          ← Nettoyage des ressources

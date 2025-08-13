@@ -1,4 +1,4 @@
-import './style.css';
+// import './style.css';
 
 import { addRoute, startRouter } from './router';
 
@@ -17,6 +17,7 @@ addRoute('/profile', ProfilePage);
 addRoute('/leaderboard', LeaderboardPage);
 addRoute('/about', AboutPage);
 addRoute('/MatchDisplay', MatchDisplayPage);
+
 
 
 

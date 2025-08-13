@@ -5,7 +5,7 @@ import { joinButton } from './components/joinButton';
 import { locale } from '../i18n';
 import { BabylonGame } from '../3d/main3d.ts';
 
-import { authGoogleButton } from '../auth/auth0Utils';
+import { createAuthButtonContainer } from '../auth/googleAuth';
 
 import { showTournamentWaitingModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { navigate } from '../router';
@@ -107,21 +107,11 @@ export const HomePage = (): HTMLElement => {
 
 	content.appendChild(nav);
 
-	// Button Login with google
-	if ( localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') === null )
-	{
-		authGoogleButton(nav, document.createElement('div'));
-	}
-	else
-	{
-		const profileButton = document.createElement('button');
-		profileButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-green-400 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
-		profileButton.textContent = locale.profile || 'Profile'; 
-		profileButton.addEventListener('click', () => {
-            navigate('/profile');
-		});
-		nav.appendChild(profileButton);
-	}
+	// Button Login with google / Profile
+	// afficher le bouton d'authentification Google
+	// et le bouton de profil si l'utilisateur est connecté
+	const authContainer = createAuthButtonContainer();
+	nav.appendChild(authContainer);
 
 	// about
 	content.appendChild(bottomBtn(locale.about, '/about'));

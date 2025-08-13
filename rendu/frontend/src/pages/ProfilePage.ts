@@ -1,7 +1,8 @@
-import { logoutGoogleNickname} from '../auth/auth0Utils';
+import { logout } from '../auth/googleAuth';
 import { navigate } from '../router';
 import { locale } from '../i18n';
 import { notConnected, userConnected, animateLoading, getActiveUserInfo, getAllUserInfo } from '../utils/ProfileUtils';
+import { isAuthenticated, getCurrentUser } from '../auth/googleAuth';
 
 // Fonction utilitaire 
 const createErrorMessage = (message: string, type: 'error' | 'warning' | 'info' = 'warning'): HTMLElement => {
@@ -28,6 +29,83 @@ const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: {
     if (options.className) element.className = options.className;
     return element;
 };
+
+
+const updateStatus = async (userInfoDiv :HTMLDivElement, actionsDiv :HTMLDivElement, statusDiv : HTMLDivElement ) => {
+            animateLoading(statusDiv); // Afficher l'indicateur de chargement
+
+            userInfoDiv.innerHTML = '';
+            actionsDiv.innerHTML = '';
+
+            if ( localStorage.getItem('access_token') !== null)
+            {
+                statusDiv.innerHTML = ''; // Clear previous content
+                const statusTitle = createElement('h3', { text: locale.userconnected,
+                className: 'text-xl font-semibold text-center text-green-600 mb-2', });
+                statusDiv.appendChild(statusTitle);
+               
+                let user = null; // let pour type dynamique
+                try  // Récupérer les informations utilisateur
+                { 
+                    user = await getCurrentUser();
+                    // console.log('Current user information retrieved:', user);
+            
+                    if (user)  // si utilisateur connecté
+                    {
+                        userInfoDiv.innerHTML = ''; // Clear previous content
+                        // console.log('Utilisateur connecté:', user);
+                        userConnected(user, userInfoDiv)
+                    } 
+                    else // si erreur lors de la récupération des informations utilisateur 
+                    {
+                        userInfoDiv.innerHTML =  '';
+                        userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
+                    }
+                } 
+                catch (error) 
+                {
+                    console.error(locale.errorUserInfo, error);
+                    userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
+                    // localStorage.clear(); // Clear local storage on error
+                    // sessionStorage.clear(); // Clear session storage on error
+                }
+                let nickname = user?.name || 'unknown';
+                console.log('nickname-> ', nickname);
+
+                // Actions pour utilisateur connecté
+                actionsDiv.innerHTML = ''; // Clear previous content
+
+                const actionsContainer = createElement('div', {className: 'flex flex-wrap gap-4'});
+                const logoutButton = createElement('button', {text:locale.logout, className: 'px-6 py-2 bg-red-700 text-white rounded-lg'});
+                logoutButton.id = 'logout-btn';
+
+                actionsContainer.appendChild(logoutButton);
+                actionsDiv.appendChild(actionsContainer);
+
+                // Ajouter les événements
+                const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
+
+                logoutBtn.setAttribute('data-nickname', nickname);
+
+                console.log('nickname-> ', nickname);
+                
+                logoutBtn?.addEventListener('click', async () => {
+                    try 
+                    {
+                        logoutBtn.disabled = true;
+                        const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
+                        console.log(' !!! Déconnexion en cours de l\'utilisateur', nickname);
+                        await logout();
+                    } 
+                    catch (error) {
+                        logoutBtn.disabled = false;
+                        alert(locale.errorconnection);
+                    }
+                });
+            } 
+            else // Utilisateur non connecté
+                notConnected(statusDiv, userInfoDiv, actionsDiv);
+        } 
 
 
 export const ProfilePage = (): HTMLElement => {
@@ -60,93 +138,86 @@ export const ProfilePage = (): HTMLElement => {
     container.appendChild(actionsDiv);
 
     // Fonction pour mettre à jour le statut
-    const updateStatus = async () => {
-        try {
-            animateLoading(statusDiv); // Afficher l'indicateur de chargement
+    // const updateStatus = async () => {
+    //     try 
+    //     {
+    //         animateLoading(statusDiv); // Afficher l'indicateur de chargement
 
-            userInfoDiv.innerHTML = '';
-            actionsDiv.innerHTML = '';
-
-            if ( localStorage.getItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@') != null )
-            {
-                statusDiv.innerHTML = ''; // Clear previous content
-                const statusTitle = createElement('h3', { text: locale.userconnected,
-                className: 'text-xl font-semibold text-center text-green-600 mb-2', });
-                statusDiv.appendChild(statusTitle);
-               
-                let user = null; // let pour type dynamique
-                try  // Récupérer les informations utilisateur
-                { 
-                    user = await getAllUserInfo();
-                    console.log('ALL USERS LIST:', user);
-
-                    console.log('Utilisateur connecté');
-                    user = await getActiveUserInfo();
-
-                    console.log('ACTIVE User information retrieved:', user);
-                    console.log('ACTIVE User nickname-> ', user[0].nickname);
+    //         userInfoDiv.innerHTML = '';
+    //         actionsDiv.innerHTML = '';
             
-                    if (user)  // si utilisateur connecté
-                    {
-                        userInfoDiv.innerHTML = ''; // Clear previous content
-                        console.log('Utilisateur connecté:', user);
-                        userConnected(user[0], userInfoDiv);
-                    } 
-                    else // si erreur lors de la récupération des informations utilisateur 
-                    {
-                        userInfoDiv.innerHTML =  '';
-                        userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-                    }
-                } 
-                catch (error) 
-                {
-                    // console.error(locale.errorUserInfo, error);
-                    userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-                    //nettoyer le localStorage
-                    localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@');
-                }
-        
-                let nickname = user[0].nickname;
-                console.log('nickname-> ', nickname);
+    //         // if ( sessionStorage.getItem('oauth_state') !== null)
+    //         if ( isAuthenticated() )
+    //         {
+    //             statusDiv.innerHTML = ''; // Clear previous content
+    //             const statusTitle = createElement('h3', { text: locale.userconnected,
+    //             className: 'text-xl font-semibold text-center text-green-600 mb-2', });
+    //             statusDiv.appendChild(statusTitle);
+               
+    //             let user = null; // let pour type dynamique
+    //             try  // Récupérer les informations utilisateur
+    //             { 
+    //                 user = await getCurrentUser();
+    //                 console.log('Current user information retrieved:', user);
+            
+    //                 if (user)  // si utilisateur connecté
+    //                 {
+    //                     userInfoDiv.innerHTML = ''; // Clear previous content
+    //                     console.log('Utilisateur connecté:', user);
+    //                     userConnected(user, userInfoDiv)
+    //                 } 
+    //                 else // si erreur lors de la récupération des informations utilisateur 
+    //                 {
+    //                     userInfoDiv.innerHTML =  '';
+    //                     userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
+    //                 }
+    //             } 
+    //             catch (error) 
+    //             {
+    //                 // console.error(locale.errorUserInfo, error);
+    //                 userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
+    //             }
+    //             let nickname = user?.name || 'unknown';
+    //             console.log('nickname-> ', nickname);
 
-                // Actions pour utilisateur connecté
-                actionsDiv.innerHTML = ''; // Clear previous content
+    //             // Actions pour utilisateur connecté
+    //             actionsDiv.innerHTML = ''; // Clear previous content
 
-                const actionsContainer = createElement('div', {className: 'flex flex-wrap gap-4'});
-                const logoutButton = createElement('button', {text:locale.logout, className: 'px-6 py-2 bg-red-700 text-white rounded-lg'});
-                logoutButton.id = 'logout-btn';
+    //             const actionsContainer = createElement('div', {className: 'flex flex-wrap gap-4'});
+    //             const logoutButton = createElement('button', {text:locale.logout, className: 'px-6 py-2 bg-red-700 text-white rounded-lg'});
+    //             logoutButton.id = 'logout-btn';
 
-                actionsContainer.appendChild(logoutButton);
-                actionsDiv.appendChild(actionsContainer);
+    //             actionsContainer.appendChild(logoutButton);
+    //             actionsDiv.appendChild(actionsContainer);
 
-                // Ajouter les événements
-                const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
-;
-                logoutBtn.setAttribute('data-nickname', nickname);
+    //             // Ajouter les événements
+    //             const logoutBtn = actionsDiv.querySelector('#logout-btn') as HTMLButtonElement;
 
-                console.log('nickname-> ', nickname);
+    //             logoutBtn.setAttribute('data-nickname', nickname);
+
+    //             console.log('nickname-> ', nickname);
                 
-                logoutBtn?.addEventListener('click', async () => {
-                    try 
-                    {
-                        logoutBtn.disabled = true;
-                        const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
-                        console.log('Déconnexion en cours de l\'utilisateur', nickname);
-                        await logoutGoogleNickname(nickname);
-                    } 
-                    catch (error) {
-                        logoutBtn.disabled = false;
-                        alert(locale.errorconnection);
-                    }
-                });
-            } 
-            else // Utilisateur non connecté
-                notConnected(statusDiv, userInfoDiv, actionsDiv);
-        } 
-        catch (error) {
-            userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));
-        }
-    };
+    //             logoutBtn?.addEventListener('click', async () => {
+    //                 try 
+    //                 {
+    //                     logoutBtn.disabled = true;
+    //                     const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
+    //                     console.log(' !!! Déconnexion en cours de l\'utilisateur', nickname);
+    //                     await logout();
+    //                 } 
+    //                 catch (error) {
+    //                     logoutBtn.disabled = false;
+    //                     alert(locale.errorconnection);
+    //                 }
+    //             });
+    //         } 
+    //         else // Utilisateur non connecté
+    //             notConnected(statusDiv, userInfoDiv, actionsDiv);
+    //     } 
+    //     catch (error) {
+    //         userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));
+    //     }
+    // };
 
     // Bouton retour
     const backButton = document.createElement('button');
@@ -161,7 +232,14 @@ export const ProfilePage = (): HTMLElement => {
     container.insertBefore(backButton, title);
 
     // Charger le statut au démarrage
-    updateStatus();
+    // updateStatus();
 
+    try 
+    {
+        updateStatus(userInfoDiv, actionsDiv, statusDiv); // Appel de la fonction
+    }
+    catch (error) {
+        userInfoDiv.appendChild(createErrorMessage(locale.errorStatus, 'warning'));
+    }
     return mainDiv;
 };

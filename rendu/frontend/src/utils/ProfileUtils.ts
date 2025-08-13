@@ -1,6 +1,6 @@
 import { locale } from '../i18n';
-import { authGoogleButton, clearLocalAuth } from '../auth/auth0Utils';
-import { API_BASE_URL } from '../config.ts';
+import { createGoogleButton } from '../auth/googleAuth';
+import { API_BASE_URL } from '../config';
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
 {
@@ -19,12 +19,12 @@ const createAvatar = (user: any): HTMLImageElement =>
     // Set up error handler before setting src to prevent blinking
     element.onerror = () => { 
         console.log('Avatar load failed, using default');
-        element.src = '/assets/default-avatar.png'; 
+        element.src = '/assets/default_avatar.jpg'; 
         element.onerror = null; // Prevent infinite loop if default image also fails
     };
     
     // Set src after error handler is in place
-    element.src = user.picture || '/assets/default-avatar.png';
+    element.src = user.picture || '/assets/default_avatar.jpg';
     
     console.log('Avatar created with src:', element.src);
     return element;
@@ -85,18 +85,26 @@ function displayUserInfo(userData: any, userInfoDiv: HTMLDivElement): void
 
 export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void => 
 {
-    console.log('userConnected called with user:', userObj);
+    // console.log('+++ user Connected called with user:', userObj);
+
+// Object { id: "google|108259952350802037215", email: "666.gollum@gmail.com", name: "Gollum Smeagol", picture: "https://lh3.googleusercontent.com/a/ACg8ocIENaeZPVFX0lw6WoVma5HapN2nJpCsXYBW5EsJEh4q7_Kw6Ak=s96-c", given_name: "Gollum", family_name: "Smeagol" }
+// email: "666.gollum@gmail.com"
+// family_name: "Smeagol"
+// given_name: "Gollum"
+// id: "google|108259952350802037215"
+// name: "Gollum Smeagol"
+// picture: "https://lh3.googleusercontent.com/a/ACg8ocIENaeZPVFX0lw6WoVma5HapN2nJpCsXYBW5EsJEh4q7_Kw6Ak=s96-c"
 
     const userData = {
-        picture: userObj.picture || '/assets/default-avatar.png',
+        picture: userObj.picture || '/assets/default_avatar.jpg',
         mail: userObj.email || userObj.mail || 'Email non disponible',
         nickname: userObj.nickname  || 'Nickname non disponible',
-        givenName:  userObj.givenName || 'Prénom non disponible',
-        familyName: userObj.familyName || 'Nom de famille non disponible',
+        givenName:   userObj.given_name || 'Prénom non disponible',
+        familyName:  userObj.family_name || 'Nom de famille non disponible',
         status: userObj.status || 'unknown'
     };
 
-   console.log('User data prepared:', userData);
+//    console.log('User data prepared:', userData);
 
     // AFFICHAGE DES INFORMATIONS UTILISATEUR
     if (userData) 
@@ -107,8 +115,6 @@ export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void =
         const errorContainer = createElement('div', { className: 'text-center text-yellow-600', });
         errorContainer.appendChild(createElement('p', {text: locale.errorUserInfo}));
         userInfoDiv.appendChild(errorContainer);
-        // nettoyer le localStorage
-        localStorage.removeItem('@@auth0spajs@@::VksN5p5Q9jbXcBAOw72RLLogClp44FVH::@@user@@');
     }
 }
 
@@ -139,7 +145,10 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         const actionsContainer = document.createElement('div');
         actionsContainer.className = 'flex flex-wrap gap-4';
 
-        authGoogleButton(actionsDiv, document.createElement('div'));
+        createGoogleButton(actionsDiv, document.createElement('div'));
+
+        // localStorage.clear(); // Clear local storage on error
+        // sessionStorage.clear(); // Clear session storage on error
 
         actionsDiv.appendChild(actionsTitle);
         actionsDiv.appendChild(actionsContainer);
