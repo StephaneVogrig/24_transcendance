@@ -203,6 +203,24 @@ fastify.get('/getActiveUserInfo', async (request, reply) => {
     }
 });
 
+fastify.get('/getUserInfo', async (request, reply) => {
+   try {
+        const users = await getUserInfoInDB(); // appel du backend database
+       
+        if (!users || users.length === 0) {
+            return reply.status(200).send([]);
+        }
+           
+        reply.status(200).send(users); // Envoie la liste des utilisateurs
+    }
+    catch (error) {
+        console.error('Erreur get UserInfo:', error);
+        reply.status(500).send({ error: 'Erreur lors de la récupération de l utilisateur' });
+    }
+});
+
+
+
 fastify.post('/LogStatus', async (request, reply) => {
 
   console.log('User info received for status update:', request.body);
@@ -359,27 +377,31 @@ fastify.post('/oauth/google', async (request, reply) => {
 });
 
 // Route pour récupérer les informations de l'utilisateur avec le token JWT
-// !! dans cette route on veridie le token JWT envoyé par le frontend -> preHandler: validateToken
+// !! dans cette route on vérifie le token JWT envoyé par le frontend -> preHandler: validateToken
 fastify.get('/user', { preHandler: validateToken }, async (request, reply) => {
-  
-  console.log('!!! BACK User info requested:', request.user);
-
-  // recupération des informations utilisateur depuis le token JWT décodé
-  try 
-  {
+  try {
     const user = request.user;
+    console.log('!!! BACK User info requested:', user);
+
+    // Vérifier que le nickname existe bien dans la base de données
+    const userInfoArr = await getUserInfoInDB(user.nickname);
+
+    if (!userInfoArr || userInfoArr.length === 0) 
+      return reply.status(404).send({ error: 'User not found' });
+
+    const userInfo = userInfoArr[0];
+
     return reply.status(200).send({
-      id: user.provider_id,
-      email: user.email,
-      name: user.nickname,
-      picture: user.picture || null,
-      given_name: user.givenName || null,
-      family_name: user.familyName || null,
+      id: userInfo.provider_id || userInfo.id,
+      email: userInfo.email,
+      name: userInfo.nickname,
+      picture: userInfo.picture || null,
+      given_name: userInfo.givenName || null,
+      family_name: userInfo.familyName || null,
     });
-  } 
-  catch (error) {
+  } catch (error) {
     console.error('Erreur récupération utilisateur:', error);
-    return reply.status(500).send({ error: 'Erreur interne du serveur' });
+    return reply.status(404).send({ error: 'User not found: Utilisateur n existe pas dans la db'});
   }
 });
 

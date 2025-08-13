@@ -4,6 +4,8 @@ export const allowedRoutes = [
     '/api/authentification/userRegistering',
     // '/api/authentification/getAllUserInfo', //debug
     '/api/authentification/getActiveUserInfo',
+    '/api/authentification/getUserInfo',
+
     '/api/authentification/LogStatus',
     '/api/authentification/oauth/google',
     '/api/authentification/user',

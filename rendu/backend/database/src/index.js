@@ -161,6 +161,15 @@ fastify.get('/getActiveUserInDB', async (request, reply) => {
 
 
 // OK 
+fastify.get('/getUserInDB', async (request, reply) => {
+    // const userList = await db.all('SELECT * FROM `users` WHERE status = "connected"');
+    const userList = await db.all('SELECT * FROM `users`');
+
+    log.debug(userList, `Connected users get`);
+    reply.status(200).send(userList);
+});
+
+// OK 
 fastify.get('/getAllUserInDB', async (request, reply) => {
    const userList = await db.all('SELECT * FROM `users`');
    log.debug(userList, `Users get`);
