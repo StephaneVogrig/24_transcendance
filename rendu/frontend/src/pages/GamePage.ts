@@ -97,7 +97,7 @@ function showGameOverModal() {
     
     const message = document.createElement('p');
     message.className = 'text-2xl text-gray-100 font-medium max-w-2xl';
-    message.textContent = 'You won by forfeit!';
+    message.textContent = locale.you_won_by_forfeit;
     modalContent.appendChild(message);
 
 	const waitingModal = document.getElementById('gameFoundModalOverlay');
@@ -155,7 +155,6 @@ export function updateScores(player1Score: number, player2Score: number) {
                 baseColor = separatorBaseColor;
                 glowEffect = `text-shadow: 0 0 10px ${separatorGlowColor};`;
             } else if (char === ' ') {
-                baseColor = 'transparent';
                 glowEffect = '';
             } else if (i < scoreString.indexOf('-')) {
                 baseColor = player1BaseColor;
@@ -182,11 +181,11 @@ export function gameStatusUpdate(status: string) {
 
 
         if (status === 'waiting') {
-            displayStatus = 'Waiting for Players';
+            displayStatus = locale.waiting_for_players;
             baseColor = '#F6AD55';
             glowColor = 'rgba(255, 140, 0, 0.7)';
         } else if (status === 'ready') {
-            displayStatus = 'Your opponent has joined the game!';
+            displayStatus = locale.your_opponent_has_joined_the_game;
             baseColor = '#4299E1';
             glowColor = 'rgba(124, 255, 253, 0.7)';
         } else if (status === '3' || status === '2' || status === '1') {
@@ -194,7 +193,7 @@ export function gameStatusUpdate(status: string) {
             baseColor = '#4299E1';
             glowColor = 'rgba(124, 255, 253, 0.7)';
         } else if ( status === '0') {
-            displayStatus = 'GO !';
+            displayStatus = locale.go;
             baseColor = '#F6AD55';
             glowColor = 'rgba(255, 140, 0, 0.7)';
         } else if (status === 'started') {
@@ -220,16 +219,12 @@ export function gameOverDefault(winner: string, score: [number, number]) {
         let baseColor = '#FFFFFF';
         let glowColor = 'rgba(255, 255, 255, 0.7)';
 
-        displayStatus = winner + ' wins ! ' + score[0] + ' - ' + score[1];
-        baseColor = '#4299E1';
-        glowColor = 'rgba(124, 255, 253, 0.7)';
-
         if (winner === name) {
-            displayStatus = 'You win';
+            displayStatus = locale.you_win;
             baseColor = '#48BB78';
             glowColor = 'rgba(0, 255, 0, 0.7)';
         } else {
-            displayStatus = 'You lose';
+            displayStatus = locale.you_lose;
             baseColor = '#F56565';
             glowColor = 'rgba(255, 0, 0, 0.7)';
         }
@@ -255,20 +250,16 @@ export function gameOverTournament(winner: string, score: [number, number]) {
         let baseColor = '#FFFFFF';
         let glowColor = 'rgba(255, 255, 255, 0.7)';
 
-        displayStatus = winner + ' wins ! ' + score[0] + ' - ' + score[1];
-        baseColor = '#4299E1';
-        glowColor = 'rgba(124, 255, 253, 0.7)';
-
         if (score[0] === score[1]) {
-            displayStatus = 'Your won by forfeit';
+            displayStatus = locale.you_won_by_forfeit;
             baseColor = '#48BB78';
             glowColor = 'rgba(0, 255, 0, 0.7)';
         } else if (winner === name) {
-            displayStatus = 'You won your match';
+            displayStatus = locale.you_won_your_match;
             baseColor = '#48BB78';
             glowColor = 'rgba(0, 255, 0, 0.7)';
         } else {
-            displayStatus = 'You lost the match';
+            displayStatus = locale.you_lost_the_match;
             baseColor = '#F56565';
             glowColor = 'rgba(255, 0, 0, 0.7)';
         }

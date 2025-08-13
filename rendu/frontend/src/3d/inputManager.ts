@@ -4,6 +4,7 @@ import { getSocket, getPlayerName } from '../websocket/websocket';
 import { gameStatusUpdate, updateScores, setPlayerName, gameOver, gameOverDefault, gameOverTournament } from '../pages/GamePage';
 import { navigate } from '../router';
 import { modalBackHome } from '../pages/components/modalBackHome'
+import { locale } from '../i18n'
 
 export class InputManager {
 
@@ -131,7 +132,7 @@ export class InputManager {
         this.socket.on('tournamentFinished', (data: {winner: string}) => {
             console.log("receive tournamentFinished");
 			this.socket.disconnect();
-            const modalOverlay = modalBackHome('Tournament finished', `The winner is ${data.winner}`);
+            const modalOverlay = modalBackHome(locale.tournament_finished, `${locale.the_winner_is} ${data.winner}`);
             document.body.appendChild(modalOverlay);
         });
 

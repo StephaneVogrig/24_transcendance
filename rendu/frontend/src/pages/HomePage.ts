@@ -49,7 +49,7 @@ export const HomePage = (): HTMLElement => {
 	// Champ nom
 	const input = document.createElement('input');
 	input.type = 'text';
-	input.placeholder = 'Pseudo...';
+	input.placeholder = locale.pseudo;
 	input.maxLength = 25;
 	input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-50 border-4 border-cyan-400 text-white bg-transparent focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-[0_0_10px_#00ffff]';
 	input.addEventListener('input', () => {
@@ -139,7 +139,7 @@ export const HomePage = (): HTMLElement => {
             const socket2 = getSocket2();
             await socketConnect(socket2);
             BabylonGame.getInstance().setSocket2(socket2);
-            socket2.once('redirect', (data: { gameId: string, playerName: string }) => {
+            socket2.once('redirect', () => {
                 socket2.emit('acceptGame');
             });
             await socketJoin(socket2, socket2.id as string);

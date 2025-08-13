@@ -11,9 +11,9 @@ export function socketSetRedirect(socket: Socket, gameType: string) {
             modal.remove();
         let titleGame: string;
         if (gameType === 'solo')
-            titleGame = 'you and ai'
+            titleGame = locale.you_and_ai;
         else if (gameType === 'local')
-            titleGame = 'player left and player right'
+            titleGame = locale.player_left_and_player_right;
         else
             titleGame = data.gameId;
         showGameFoundModal(titleGame, socket);

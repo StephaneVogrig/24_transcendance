@@ -75,4 +75,31 @@ export const en = {
     "game_over": "Game Over",
     "game_status": "You have no opponent.",
 
+    "tournament_finished": "Tournament finished",
+    "the_winner_is": "The winner is",
+
+    "waiting_for_players": "Waiting for Players",
+    "your_opponent_has_joined_the_game":"Your opponent has joined the game!",
+    "go": "GO !",
+    "you_win": "You win",
+    "you_lose": "You lose",
+    "you_won_your_match": "You won your match",
+    "you_won_by_forfeit": "You won by forfeit",
+    "you_lost_the_match":"You lost the match",
+
+    "game_found": "Game found!",
+    "thanks_for_waiting": "Thank you for waiting. The game can begin between",
+    "join_game": "Join the game",
+    "tournament": "Tournament",
+    "tournament_joined": "Tournament joined!",
+    "please_wait": "Please wait for other players to join.",
+    "leave": "Leave",
+    "game": "Game",
+    "exit": "exit",
+    "waiting_opponent": "Waiting for opponent...",
+
+    "you_and_ai": "you and ai",
+    "player_left_and_player_right": "player left (a,d or w,s) and player right (←,→ or ↑,↓)\npress 1 or 2 for change view",
+    "pseudo": "Pseudo...",
+    "ok": "ok",
 };

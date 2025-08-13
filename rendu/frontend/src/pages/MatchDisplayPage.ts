@@ -1,6 +1,7 @@
 import { navigate } from '../router';
 import { locale } from '../i18n';
-import { modalMessage } from './components/modalMessage'
+import { modalMessage } from './components/modalMessage';
+import { bottomBtn } from './components/bottomBtn';
 
 import { getTournamentsType, Match } from '../utils/matchDisplayUtils';
 
@@ -535,6 +536,9 @@ export const MatchDisplayPage = (): HTMLElement =>
     const cardsContainer = document.createElement('div');
     cardsContainer.className = 'space-y-3 mb-4';
     container.appendChild(cardsContainer);
+
+
+    container.appendChild(bottomBtn(locale.back_home, '/'));
 
     // Charger les matchs au chargement de la page
     loadMatches(cardsContainer);
