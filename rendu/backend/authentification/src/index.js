@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import { createHmac } from 'crypto';
-import { saveUserToDatabase, getActiveUserInfoInDB, updateLogStatusInDatabase } from './userDatabase.js';
+import { saveUserToDatabase, getActiveUserInfoInDB, getUserInfoInDB, updateLogStatusInDatabase } from './userDatabase.js';
 
 const serviceName = 'authentification';
 const serviceport = process.env.PORT;
@@ -205,13 +205,20 @@ fastify.get('/getActiveUserInfo', async (request, reply) => {
 
 fastify.get('/getUserInfo', async (request, reply) => {
    try {
-        const users = await getUserInfoInDB(); // appel du backend database
-       
-        if (!users || users.length === 0) {
+        const { nickname } = request.query;
+        console.log('Received nickname:', nickname);
+
+        if (!nickname) 
+            return reply.status(400).send({ error: 'Missing required field: nickname' });
+
+        console.log('Fetching user from the database with nickname:', nickname);
+        const user = await getUserInfoInDB(nickname);// appel du backend database
+        
+        // user est un tableau d'objets
+        if (!user || user.length === 0)
             return reply.status(200).send([]);
-        }
-           
-        reply.status(200).send(users); // Envoie la liste des utilisateurs
+
+        reply.status(200).send(user); // Envoie tableau avec 1 utilisateur
     }
     catch (error) {
         console.error('Erreur get UserInfo:', error);
@@ -379,18 +386,36 @@ fastify.post('/oauth/google', async (request, reply) => {
 // Route pour récupérer les informations de l'utilisateur avec le token JWT
 // !! dans cette route on vérifie le token JWT envoyé par le frontend -> preHandler: validateToken
 fastify.get('/user', { preHandler: validateToken }, async (request, reply) => {
-  try {
-    const user = request.user;
-    console.log('!!! BACK User info requested:', user);
+  
+  const user = request.user;
+  console.log('!!! AUTH BACK User info requested for ', user.nickname);
 
-    // Vérifier que le nickname existe bien dans la base de données
+  try 
+  {
+    // 1.Vérifier que le nickname existe bien dans la base de données
     const userInfoArr = await getUserInfoInDB(user.nickname);
 
+    console.log('User info retrieved from database:', userInfoArr);
+
+    // const userInfo = userInfoArr && userInfoArr[0];
+
     if (!userInfoArr || userInfoArr.length === 0) 
-      return reply.status(404).send({ error: 'User not found' });
+    {
+      console.error('Erreur récupération utilisateur: Utilisateur non trouvé dans la db');
+      return reply.status(404).send({ error: 'User not found: Utilisateur n\'existe pas dans la db' });
+    }
 
     const userInfo = userInfoArr[0];
+    console.log('User info found in database:', userInfo);
+    console.log('User info to return:userInfoArr[0]', userInfoArr[0])
+    // ✅ SÉCURITÉ SUPPLÉMENTAIRE : Vérifier que userInfo existe
+    if (!userInfo) 
+    {
+      console.error('Erreur récupération utilisateur: Données utilisateur vides');
+      return reply.status(404).send({ error: 'User data is empty' });
+    }
 
+    // 2. Retourner les informations utilisateur depuis la base de données
     return reply.status(200).send({
       id: userInfo.provider_id || userInfo.id,
       email: userInfo.email,
@@ -401,8 +426,22 @@ fastify.get('/user', { preHandler: validateToken }, async (request, reply) => {
     });
   } catch (error) {
     console.error('Erreur récupération utilisateur:', error);
-    return reply.status(404).send({ error: 'User not found: Utilisateur n existe pas dans la db'});
+    return reply.status(500).send({ error: 'Erreur interne du serveur' });
   }
+
+  //   // 2. Retourner les informations utilisateur depuis la base de données
+  //   return reply.status(200).send({
+  //     id: userInfo.provider_id || userInfo.id,
+  //     email: userInfo.email,
+  //     name: userInfo.nickname,
+  //     picture: userInfo.picture || null,
+  //     given_name: userInfo.givenName || null,
+  //     family_name: userInfo.familyName || null,
+  //   });
+  // } catch (error) {
+  //   console.error('Erreur récupération utilisateur:', error);
+  //   return reply.status(500).send({ error: 'Erreur interne du serveur' });
+  // }
 });
 
 // Route pour déconnecter l'utilisateur

@@ -102,6 +102,36 @@ export async function getActiveUserInfoInDB()
    }
 }
 
+export async function getUserInfoInDB(nickname)
+{
+    console.log('getUserInfoInDB called with nickname:', nickname);
+   try
+   {
+    //                  await fetch(`http://database:3003/getUserInDB <- Manque le paramètre nickname
+
+       const response = await fetch(`http://database:3003/getUserInDB?nickname=${encodeURIComponent(nickname)}`, {
+           method: 'GET',
+           headers: { 'Content-Type': 'application/json' }
+       });
+
+       if (!response.ok)
+       {
+           const err = await response.text();
+           throw new Error(err);
+       }
+
+       // Méthode qui lit la réponse HTTP via `fetch` et le convertit en objet JavaScript
+       const tournaments = await response.json();
+      
+       return tournaments;
+   }
+   catch (error) {
+       console.log(`Error while fetching users list from database: ${error.message}.`);
+       throw error;
+   }
+}
+
+
 // export async function getAllUserInfoInDB()
 // {
 //    try

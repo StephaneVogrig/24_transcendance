@@ -227,7 +227,7 @@ function handlePopupResponse(popup: Window): Promise<void> {
         // window.setInterval(func, delay)
         // func instruction à exécuter toutes delayl millisecondes
         resources.intervalId = window.setInterval(() => {
-            console.log('Checking if popup is closed...');
+            console.log('Checking if popup is closed for 5 minutes max then close it');
             if (popup.closed) 
             {
                 console.log('Popup was closed manually');
@@ -332,10 +332,10 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
             throw new Error(errorMsg);
         }
         
-        // Vérification du state -> sécurité CSRF
+        // Vérification du state -> sécurité CSRF -Cross site request forgery-
         const savedState = sessionStorage.getItem('oauth_state');
         if (!savedState || savedState !== state) {
-            const errorMsg = 'État OAuth invalide - possible attaque CSRF';
+            const errorMsg = 'État OAuth invalide';
             if (window.opener) {
                 window.opener.postMessage({
                     type: 'OAUTH_ERROR',
@@ -426,12 +426,16 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
         
         if (!response.ok) 
         {
-            if (response.status === 401) // Token invalide
+            if (response.status === 401) // Token invalide ou utilisateur n'est pas dans db
             {
                 localStorage.removeItem('access_token');
                 return null;
             }
-            throw new Error('Erreur lors de la récupération des informations utilisateur');
+            // throw new Error('données utilisateur non récupérées');
+            throw new Error('User not registered or error retrieving user information');
+
+            // throw console.warn('User non enrigistré ou erreur lors de la récupération des informations');
+            
         }
         
         // console.log('+++ FRONT getCurrentUser response:', response);
