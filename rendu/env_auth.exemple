@@ -1,0 +1,12 @@
+# Configuration Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=-
+
+# JWT Secret pour les tokens
+JWT_SECRET=
+#node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+#openssl rand -hex 64
+
+# Port pour les services
+PORT=3001
+

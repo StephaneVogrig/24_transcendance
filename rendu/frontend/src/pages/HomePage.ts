@@ -5,7 +5,9 @@ import { joinButton } from './components/joinButton';
 import { locale } from '../i18n';
 import { BabylonGame } from '../3d/main3d.ts';
 
-import { createAuthButtonContainer } from '../auth/googleAuth';
+// import { createAuthButtonContainer } from '../auth/googleAuth';
+import { createAuthButtonContainer } from '../auth/authStateChange';
+
 
 import { showTournamentWaitingModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
 import { navigate } from '../router';
@@ -107,9 +109,9 @@ export const HomePage = (): HTMLElement => {
 
 	content.appendChild(nav);
 
-	// Button Login with google / Profile
-	// afficher le bouton d'authentification Google
-	// et le bouton de profil si l'utilisateur est connecté
+	// Button Login withGoogle/Profile
+	// affiche  -> GoogleConnect si pas user connecté
+	// 			-> Profil si user
 	const authContainer = createAuthButtonContainer();
 	nav.appendChild(authContainer);
 

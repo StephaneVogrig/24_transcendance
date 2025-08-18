@@ -130,6 +130,7 @@ fastify.post('/manageUserInDB', async (request, reply) => {
         });
     }
     else {
+        // console.log('Creating new user:', { nickname, email, provider_id, picture, givenName, familyName, provider });
         // Créer un nouvel utilisateur
         await db.run(
             'INSERT INTO `users` (nickname, email, provider_id, picture, givenName, familyName, provider) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -158,6 +159,26 @@ fastify.get('/getActiveUserInDB', async (request, reply) => {
     log.debug(userList, `Connected users get`);
     reply.status(200).send(userList);
 });
+
+
+// OK 
+fastify.get('/getUserInDB', async (request, reply) => {
+    const { nickname } = request.query;
+    console.log('Received nickname:', nickname);
+    if (!nickname) 
+        return reply.status(400).send({ error: 'Missing required field: nickname' });
+    console.log('Fetching user from the database with nickname:', nickname);
+    const user = await db.get('SELECT * FROM `users` WHERE nickname = ?', [nickname]);
+    if (!user)
+        return reply.status(404).send({ error: 'User not found' });
+    log.debug(user, `User fetched with nickname: ${nickname}`);
+    // reply.status(200).send(user);
+    // on met [user] car on veut retourner un tableau d'objets
+    // pour faire comme les autres routes 
+    reply.status(200).send([user]); 
+});
+
+
 
 
 // OK 

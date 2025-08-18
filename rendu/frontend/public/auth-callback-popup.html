@@ -56,27 +56,44 @@
         async function handlePopupCallback() {
             const statusEl = document.getElementById('status');
             
-            try {
+
+            try 
+            {
+                // on doit avoir recuperé redirect_uri qui contient le code d'autorisation (retour de Google)
+                // code unique pour l'utilisateur + application (durée de vie 10min)
+                // contient le code d'autorisation
                 const urlParams = new URLSearchParams(window.location.search);
+                // console.log('URL Params:', urlParams.toString());
                 const code = urlParams.get('code');
-                const state = urlParams.get('state');
+                const state = urlParams.get('state'); // pour verif que state idem à celui que l'on a envoyé 
                 const error = urlParams.get('error');
                 
+                                
+                // Ajouter des logs de debug
+                console.log('Received state:', state);
+                console.log('All URL params:', Object.fromEntries(urlParams));
+
+                console.log('Code:', code);
+
                 if (error)
                     throw new Error(`Erreur OAuth: ${error}`);
                 
                 if (!code)
                     throw new Error('Code d\'autorisation manquant');
                 
-                // Vérification du state pour la sécurité CSRF
-                const savedState = sessionStorage.getItem('oauth_state');
-                if (!savedState || savedState !== state) 
-                {
-                    throw new Error('État OAuth invalide');
+                // Vérification du state -> securite CSRF
+                // compare avec le state localStorage
+                const savedState = localStorage.getItem('oauth_state');
+                console.log('Saved state:', savedState);
+                console.log('States match:', savedState === state);
+
+                   if (!savedState) 
+                   {
+                        console.error('Aucun state sauvegardé trouvé dans localStorage');
+                        throw new Error('État OAuth manquant - Veuillez réessayer la connexion');
                 }
-                
-                // Nettoyer le state du stockage
-                sessionStorage.removeItem('oauth_state');
+                            
+                localStorage.removeItem('oauth_state'); // Nettoyer le state du stockage
                 
                 statusEl.textContent = '...';
                 
@@ -92,12 +109,32 @@
                     })
                 });
                 
-                if (!response.ok) 
+                console.log('Backend response status:', response.status);
+                console.log('Backend response headers:', response.headers);
+                
+                if (!response.ok) // probleme recup du token avec le code ou pb recup info utilisateur API Google
                 {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || 'Erreur lors de l\'échange du code');
+                    const errorData = await response.text(); 
+                    // Utiliser text() au lieu de json() pour voir le contenu exact
+                    console.error('Backend error response:', errorData);
+                    console.error('Response status:', response.status);
+                    console.error('Response statusText:', response.statusText);
+                    
+                    let parsedError;
+                    try 
+                    {
+                        parsedError = JSON.parse(errorData);
+                    } 
+                    catch (e) {
+                        parsedError = { message: errorData };
+                    }
+                    
+                    // Message d'erreur plus détaillé
+                    const errorMessage = parsedError.message || errorData || `Erreur HTTP ${response.status}: ${response.statusText}`;
+                    throw new Error(`POPUP Backend Error: ${errorMessage} (Status: ${response.status})`);
                 }
                 
+                // Réponse du backen authentification -> token d'accès
                 const data = await response.json();
                 
                 statusEl.textContent = 'Connexion réussie ! Fermeture...';
@@ -112,13 +149,10 @@
                     data_keys: Object.keys(data)
                 });
                 
-                // Vérifier que nous avons les données nécessaires
                 if (!data.access_token) 
-                {
                     throw new Error('Token d\'accès manquant dans la réponse du serveur');
-                }
                 
-                // Envoyer le succès à la fenêtre parent
+                // Envoyer l'info à la fenêtre parent
                 if (window.opener) 
                 {
                     console.log('Sending success message to parent...');
@@ -130,10 +164,12 @@
                     };
                     console.log('Message to send:', message);
                     
-                    try {
+                    try 
+                    {
                         window.opener.postMessage(message, window.location.origin);
                         console.log('Message sent successfully');
-                    } catch (e) {
+                    } 
+                    catch (e) {
                         console.error('Error sending message:', e);
                         throw new Error('Erreur lors de l\'envoi du message à la fenêtre parent');
                     }
@@ -166,7 +202,12 @@
                 
             } catch (error) {
                 console.error('Erreur lors du traitement du callback OAuth:', error);
-                statusEl.textContent = error.message;
+                statusEl.innerHTML = `
+                    <strong>Erreur OAuth:</strong><br>
+                    ${error.message}<br><br>
+                    <small>Vérifiez la console pour plus de détails.<br>
+                    Cette fenêtre se fermera dans 10 secondes.</small>
+                `;
                 statusEl.className = 'error';
                 
                 // Envoyer l'erreur à la fenêtre parent
@@ -176,9 +217,15 @@
                         error: error.message
                     }, window.location.origin);
                     
+                    // Augmenter le délai pour lire l'erreur
                     setTimeout(() => {
                         window.close();
-                    }, 3000);
+                    }, 20000); // 20 secondes au lieu de 10
+                } else {
+                    // Si pas de window.opener, garder la fenêtre ouverte plus longtemps
+                    setTimeout(() => {
+                        window.close();
+                    }, 20000);
                 }
             }
         }
