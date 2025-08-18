@@ -12,7 +12,7 @@ export const fr = {
     "about": "à propos",
     "connection": "Connexion",
     "logout": "Déconnexion",
-    "profile": "Profil",
+    "profile": "Profile",
     "matchDisplay": "Liste des tournois",
     "errorUserInfo": "Impossible de récupérer les informations utilisateur",
     "google": "Se connecter avec Google",

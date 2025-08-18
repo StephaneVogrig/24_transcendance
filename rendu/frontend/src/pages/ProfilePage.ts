@@ -1,8 +1,9 @@
-import { logout } from '../auth/googleAuth';
+import { logout } from '../Auth/googleAuth';
 import { navigate } from '../router';
 import { locale } from '../i18n';
-import { notConnected, userConnected, animateLoading } from '../utils/ProfileUtils';
-import { getCurrentUser } from '../auth/googleAuth';
+import { notConnected, userConnected, animateLoading } from './ProfileUtils/ProfileUtils';
+import { getCurrentUser } from '../Auth/googleAuth';
+import { bottomBtn } from './components/bottomBtn';
 
 
 const createErrorMessage = (message: string, type: 'error' | 'warning' | 'info' = 'warning'): HTMLElement => {
@@ -116,7 +117,7 @@ export const ProfilePage = (): HTMLElement => {
 
     // Titre
     const title = document.createElement('h1');
-    title.className = 'text-4xl font-bold text-center text-gray-800 mb-8';
+    title.className = 'text-4xl font-bold text-center text-gray-400 mb-8';
     title.textContent = locale.statusAuth;
     container.appendChild(title);
 
@@ -136,16 +137,18 @@ export const ProfilePage = (): HTMLElement => {
     container.appendChild(actionsDiv);
 
     // Bouton retour
-    const backButton = document.createElement('button');
-    backButton.className = 'mb-6 flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200';
-    backButton.innerHTML = `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-        <span>${locale.return}</span>
-    `;
-    backButton.onclick = () => navigate('/');
-    container.insertBefore(backButton, title);
+    // const backButton = document.createElement('button');
+    // backButton.className = 'mb-6 flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200';
+    // backButton.innerHTML = `
+    //     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    //         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+    //     </svg>
+    //     <span>${locale.return}</span>
+    // `;
+    // backButton.onclick = () => navigate('/');
+    // container.insertBefore(backButton, title);
+
+    container.appendChild(bottomBtn(locale.back_home, '/'));
 
     try 
     {

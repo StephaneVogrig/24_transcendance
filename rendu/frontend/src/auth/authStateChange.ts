@@ -33,10 +33,11 @@ export function createAuthButtonContainer(): HTMLElement {
     updateButton(container); 
     
     // S'abonner aux changements d'état
+    // mise à jour du bouton selon état authentification
     const authStateChange = () => updateButton(container);
-
     authStateChangeCallbacks.push(authStateChange);
-    onAuthStateChange(() => updateButton(container)); // mise à jour du bouton selon état authentification
+
+    // onAuthStateChange(() => updateButton(container)); 
 
     return container;
 }

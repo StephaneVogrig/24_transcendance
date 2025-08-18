@@ -1,8 +1,8 @@
-import { logout } from '../auth/googleAuth';
+import { logout } from '../Auth/googleAuth';
 import { navigate } from '../router';
 import { locale } from '../i18n';
-import { notConnected, userConnected, animateLoading } from '../utils/ProfileUtils';
-import { getCurrentUser } from '../auth/googleAuth';
+import { notConnected, userConnected, animateLoading } from './ProfileUtils/ProfileUtils';
+import { getCurrentUser } from '../Auth/googleAuth';
 
 
 const createErrorMessage = (message: string, type: 'error' | 'warning' | 'info' = 'warning'): HTMLElement => {

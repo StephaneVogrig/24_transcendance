@@ -6,7 +6,7 @@ import { locale } from '../i18n';
 import { BabylonGame } from '../3d/main3d.ts';
 
 // import { createAuthButtonContainer } from '../auth/googleAuth';
-import { createAuthButtonContainer } from '../auth/authStateChange';
+import { createAuthButtonContainer } from '../Auth/authStateChange.ts';
 
 
 import { showTournamentWaitingModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';

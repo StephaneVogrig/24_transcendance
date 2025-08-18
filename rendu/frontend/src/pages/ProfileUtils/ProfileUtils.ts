@@ -1,9 +1,9 @@
-import { locale } from '../i18n';
+import { locale } from '../../i18n';
 // import { createGoogleButton } from '../auth/googleAuth';
-import { createGoogleButton } from '../auth/authButton'; // Import the createGoogleButton function
+import { createGoogleButton } from '../../Auth/authButton'; // Import the createGoogleButton function
 
 
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '../../config';
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
 {
