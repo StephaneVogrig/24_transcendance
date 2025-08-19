@@ -1,16 +1,16 @@
 export const allowedRoutes = [
     '/api/authentification/health',
     // '/api/authentification/debug/oauth',
-    '/api/authentification/userRegistering',
+    //'/api/authentification/userAuthRegistering',
     // '/api/authentification/getAllUserInfo', //debug
-    '/api/authentification/getActiveUserInfo',
-    '/api/authentification/getUserInfo',
-
+    // '/api/authentification/getActiveAuthUserInfo',
+    // '/api/authentification/getUserInfo',
     '/api/authentification/LogStatus',
-    '/api/authentification/oauth/google',
-    '/api/authentification/user',
+    '/api/authentification/oauth/googleCodeToTockenUser', // previously '/api/authentification/oauth/google',
+    '/api/authentification/userInfoJWT', // previously '/api/authentification/user'
     '/api/authentification/logout',
     '/api/authentification/refresh',
+    '/api/authentification/getAuthUserInfo',
 
     '/api/blockchain/health',
 

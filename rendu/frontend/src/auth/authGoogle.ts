@@ -1,7 +1,7 @@
 import { GOOGLE_OAUTH_CONFIG, API_BASE_URL } from '../config';
 // import { locale } from '../i18n';
 import { navigate } from '../router';
-import { handlePopupResponse } from './managePopUp';
+import { handlePopupResponse } from './authManagePopUp';
 import { notifyAuthStateChange } from './authStateChange';
 
 // Interface pour les informations utilisateur Google
@@ -159,7 +159,7 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
         localStorage.removeItem('oauth_state'); // Nettoyer state du stockage depuis localStorage
         
         // Échanger code contre token dans backend
-        const response = await fetch(`${API_BASE_URL}/authentification/oauth/google`, {
+        const response = await fetch(`${API_BASE_URL}/authentification/oauth/googleCodeToTockenUser`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
             return null;
         
         // on va demander au backend d'extraire les info user duJWT token
-        const response = await fetch(`${API_BASE_URL}/authentification/user`, {
+        const response = await fetch(`${API_BASE_URL}/authentification/userInfoJWT`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -296,32 +296,5 @@ export async function logout(): Promise<void> {
         console.error('Erreur lors de la déconnexion:', error);
         localStorage.removeItem('access_token');// Nettoie stockage local
         navigate('/');
-    }
-}
-
-/**
- * Rafraîchit le token d'accès
- */
-export async function refreshToken(): Promise<boolean> {
-    try {
-        const response = await fetch(`${API_BASE_URL}/authentification/refresh`, {
-            method: 'POST',
-            credentials: 'include' // Pour envoyer les cookies avec le refresh token
-        });
-        
-        if (!response.ok) 
-            return false;
-        
-        const data = await response.json();
-        if (data.access_token) 
-        {
-            localStorage.setItem('access_token', data.access_token);
-            return true;
-        }
-        return false;
-        
-    } catch (error) {
-        console.error('Erreur lors du rafraîchissement du token:', error);
-        return false;
     }
 }

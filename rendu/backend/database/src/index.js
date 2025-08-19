@@ -99,7 +99,7 @@ fastify.get('/getAllInDB', async (request, reply) => {
 // GOOGLE AUTHENTIFICATION ------------------------------------------------------------
 
 // OK Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
-fastify.post('/manageUserInDB', async (request, reply) => {
+fastify.post('/manageAuthUserInDB', async (request, reply) => {
    
     console.log('Received user data 1:', request.body);
    
@@ -123,7 +123,7 @@ fastify.post('/manageUserInDB', async (request, reply) => {
         );
 
         const updatedUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
-        log.debug(`manageUserInDB User ${nickname} updated successfully`);
+        log.debug(`manageAuthUserInDB User ${nickname} updated successfully`);
         return reply.status(200).send({
             message: 'User updated successfully',
             user: updatedUser
@@ -138,7 +138,7 @@ fastify.post('/manageUserInDB', async (request, reply) => {
         );
 
         const newUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
-        log.debug(`manageUserInDB User ${nickname} created successfully`);
+        log.debug(`manageAuthUserInDB User ${nickname} created successfully`);
         return reply.status(201).send({
             message: 'User created successfully',
             user: newUser
@@ -154,14 +154,14 @@ fastify.get('/getActivePlayers', async (request, reply) => {
 });
 
 // OK 
-fastify.get('/getActiveUserInDB', async (request, reply) => {
-    const userList = await db.all('SELECT * FROM `users` WHERE status = "connected"');
-    log.debug(userList, `Connected users get`);
-    reply.status(200).send(userList);
-});
+// fastify.get('/getActiveAuthUserInDB', async (request, reply) => {
+//     const userList = await db.all('SELECT * FROM `users` WHERE status = "connected"');
+//     log.debug(userList, `Connected users get`);
+//     reply.status(200).send(userList);
+// });
 
 
-// OK 
+// OK STEPHANIE
 fastify.get('/getUserInDB', async (request, reply) => {
     const { nickname } = request.query;
     console.log('Received nickname:', nickname);
@@ -182,11 +182,11 @@ fastify.get('/getUserInDB', async (request, reply) => {
 
 
 // OK 
-fastify.get('/getAllUserInDB', async (request, reply) => {
-   const userList = await db.all('SELECT * FROM `users`');
-   log.debug(userList, `Users get`);
-   reply.status(200).send(userList);
-});
+// fastify.get('/getAllUserInDB', async (request, reply) => {
+//    const userList = await db.all('SELECT * FROM `users`');
+//    log.debug(userList, `Users get`);
+//    reply.status(200).send(userList);
+// });
 
 
 // ok

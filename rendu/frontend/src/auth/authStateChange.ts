@@ -1,7 +1,6 @@
 import { createGoogleButton, createProfileButton} from './authButton';
-// Système de callbacks pour notifier les changements d'état d'authentification
+
 const authStateChangeCallbacks: (() => void)[] = [];
-// import { authStateChangeCallbacks } from './authStateChange.ts';
 
 export function notifyAuthStateChange(): void {
     for (let i = 0; i < authStateChangeCallbacks.length; i++) 
@@ -21,9 +20,9 @@ export function onAuthStateChange(callback: () => void): void {
 }
 
 
-/**
- * Crée un conteneur de bouton d'authentification qui se met à jour automatiquement
- */
+
+// conteneur de bouton d'authentification: se met à jour automatiquement
+
 export function createAuthButtonContainer(): HTMLElement {
     const container = document.createElement('div');
     container.className = 'auth-button-container';

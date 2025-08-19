@@ -6,9 +6,6 @@ interface PopupResources {
     messageListener: ((event: MessageEvent) => void) | null; // Fonction qui écoute les messages de la popup
 }
 
-/**
- * Ferme la popup avec plusieurs méthodes de fallback
- */
 export function closePopup(popup: Window): void {
     try 
     {
@@ -35,9 +32,6 @@ export function closePopup(popup: Window): void {
     }
 }
 
-/**
- * Nettoie les ressources OAuth popup
- */
 export function cleanupPopupResources(resources: PopupResources): void {
     console.log('Cleaning up OAuth popup resources...');
     
@@ -56,11 +50,6 @@ export function cleanupPopupResources(resources: PopupResources): void {
     }
 }
 
-
-
-/**
- * Gestionnaire des messages OAuth reçus de la popup -> appel dans la fonction loginWithGoogle() -> createOAuthMessageListener 
- */
 export function createOAuthMessageListener( popup: Window, onSuccess: () => void, onError: (error: Error) => void, cleanup: () => void): (event: MessageEvent) => void {
    
     return (event: MessageEvent) => {
@@ -128,11 +117,6 @@ export function createOAuthMessageListener( popup: Window, onSuccess: () => void
     };
 }
 
-
-
-/**
- * Gère l'attente de la réponse OAuth depuis la popup
- */
 export function handlePopupResponse(popup: Window): Promise<void> {
 
 // new Promise((resolve, reject)  =  crée Promisepour gérer état connexion

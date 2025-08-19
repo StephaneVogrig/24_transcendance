@@ -1,8 +1,7 @@
-import { logout } from '../Auth/googleAuth';
-import { navigate } from '../router';
+import { logout } from '../Auth/authGoogle';
 import { locale } from '../i18n';
 import { notConnected, userConnected, animateLoading } from './ProfileUtils/ProfileUtils';
-import { getCurrentUser } from '../Auth/googleAuth';
+import { getCurrentUser } from '../Auth/authGoogle';
 import { bottomBtn } from './components/bottomBtn';
 
 
@@ -136,19 +135,10 @@ export const ProfilePage = (): HTMLElement => {
     actionsDiv.className = 'bg-white rounded-lg shadow-lg p-6';
     container.appendChild(actionsDiv);
 
-    // Bouton retour
-    // const backButton = document.createElement('button');
-    // backButton.className = 'mb-6 flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200';
-    // backButton.innerHTML = `
-    //     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    //         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-    //     </svg>
-    //     <span>${locale.return}</span>
-    // `;
-    // backButton.onclick = () => navigate('/');
-    // container.insertBefore(backButton, title);
-
-    container.appendChild(bottomBtn(locale.back_home, '/'));
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'mt-8'; // Marge supplémentaire
+    buttonContainer.appendChild(bottomBtn(locale.back_home, '/'));
+    container.appendChild(buttonContainer);
 
     try 
     {

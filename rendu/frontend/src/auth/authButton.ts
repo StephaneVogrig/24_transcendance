@@ -1,6 +1,6 @@
 import { locale } from "../i18n";
 import { navigate } from "../router";
-import { loginWithGoogle } from "./googleAuth";
+import { loginWithGoogle } from "./authGoogle";
 
 /**
  * Crée le bouton de connexion Google

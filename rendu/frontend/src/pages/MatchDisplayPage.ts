@@ -80,17 +80,6 @@ export const MatchDisplayPage = (): HTMLElement =>
     const titleContainer = document.createElement('div');
     titleContainer.className = 'flex items-center justify-between mb-4';
 
-    // Bouton retour
-    // const backButton = document.createElement('button');
-    // backButton.className = 'flex items-center space-x-1 px-2 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200';
-    // backButton.innerHTML = `
-    //     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    //         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-    //     </svg>
-    //     <span class="text-xs">${locale.back}</span>
-    // `;
-    // backButton.onclick = () => navigate('/');
-
     const title = document.createElement('h1');
     title.className = 'text-2xl font-bold text-gray-400 flex-1 text-center';
     title.textContent = locale.matchTitle;

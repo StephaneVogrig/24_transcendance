@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import { createHmac } from 'crypto';
-import { saveUserToDatabase, getActiveUserInfoInDB, getUserInfoInDB, updateLogStatusInDatabase } from './userDatabase.js';
+import { saveAuthUserToDatabase } from './userDatabase.js';
+import { getAuthUserInfoInDB, updateLogStatusInDatabase } from './authUserInfo.js';
 
 const serviceName = 'authentification';
 const serviceport = process.env.PORT;
@@ -109,71 +110,10 @@ fastify.get('/health', async (request, reply) => {
   };
 });
 
-// Endpoint de debug pour vérifier la configuration OAuth
-// fastify.get('/debug/oauth', async (request, reply) => {
-//   return {
-//     service: 'OAuth Debug',
-//     google_client_id: GOOGLE_CLIENT_ID ? GOOGLE_CLIENT_ID.substring(0, 20) + '...' : 'NOT_SET',
-//     google_client_secret: GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT_SET',
-//     jwt_secret: JWT_SECRET ? 'SET' : 'NOT_SET',
-//     expected_redirect_uri: 'https://localhost:3000/auth/callback',
-//     test_auth_url: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=https://localhost:3000/auth/callback&scope=openid%20profile%20email&response_type=code&state=debug`
-//   };
-// });
 
-// Route pour recevoir les informations utilisateur d'Auth0
-fastify.post('/userRegistering', async (request, reply) => {
-  const { user } = request.body;
-  console.log('!!! User info received from Auth0:', user);
- 
-  if (!user) {
-    return reply.status(400).send({ error: 'No user information provided' });
-  }
-  
-  try // Mapping des données Auth0 vers notre format
-  {
-    const mappedUser = {
-      sub: user.sub,
-      email: user.email,
-      nickname: user.nickname || 'Unknown',
-      picture: user.picture,
-      givenName: user.given_name || 'Unknown',
-      familyName: user.family_name || 'Unknown',
-      status: 'active', // Par défaut, l'utilisateur est actif
-    };
-    
-    console.log('!!! Mapped user data:', mappedUser);
-    
-    // Sauvegarder l'utilisateur en base de données
-    const savedUser = await saveUserToDatabase(mappedUser);
-    console.log('User saved to database:', savedUser);
-    
-    return reply.status(200).send({ 
-      message: 'User information processed and saved successfully',
-      user: {
-        id: savedUser.id,
-        nickname: savedUser.nickname,
-        email: savedUser.email,
-        picture: savedUser.picture,
-        provider_id: savedUser.provider_id,
-        provider: savedUser.provider,
-        created_at: savedUser.created_at,
-        updated_at: savedUser.updated_at
-      }
-    });
-    
-  } catch (error) {
-    console.error('Error processing user information:', error);
-    return reply.status(500).send({ 
-      error: 'Failed to save user information',
-      details: error.message 
-    });
-  }
-});
-
-// fastify.get('/getAllUserInfo', async (request, reply) => {
+// fastify.get('/getActiveAuthUserInfo', async (request, reply) => {
 //    try {
-//         const users = await getAllUserInfoInDB(); // appel du backend database
+//         const users = await getActiveAuthUserInfo(); // appel du backend database
        
 //         if (!users || users.length === 0) {
 //             return reply.status(200).send([]);
@@ -182,28 +122,12 @@ fastify.post('/userRegistering', async (request, reply) => {
 //         reply.status(200).send(users); // Envoie la liste des utilisateurs
 //     }
 //     catch (error) {
-//         console.error('Erreur getAllUserInfo:', error);
+//         console.error('Erreur getUserInfo:', error);
 //         reply.status(500).send({ error: 'Erreur lors de la récupération des utilisateurs' });
 //     }
 // });
 
-fastify.get('/getActiveUserInfo', async (request, reply) => {
-   try {
-        const users = await getActiveUserInfoInDB(); // appel du backend database
-       
-        if (!users || users.length === 0) {
-            return reply.status(200).send([]);
-        }
-           
-        reply.status(200).send(users); // Envoie la liste des utilisateurs
-    }
-    catch (error) {
-        console.error('Erreur getUserInfo:', error);
-        reply.status(500).send({ error: 'Erreur lors de la récupération des utilisateurs' });
-    }
-});
-
-fastify.get('/getUserInfo', async (request, reply) => {
+fastify.get('/getAuthUserInfo', async (request, reply) => {
    try {
         const { nickname } = request.query;
         console.log('Received nickname:', nickname);
@@ -212,7 +136,7 @@ fastify.get('/getUserInfo', async (request, reply) => {
             return reply.status(400).send({ error: 'Missing required field: nickname' });
 
         console.log('Fetching user from the database with nickname:', nickname);
-        const user = await getUserInfoInDB(nickname);// appel du backend database
+        const user = await getAuthUserInfoInDB(nickname);// appel du backend database
         
         // user est un tableau d'objets
         if (!user || user.length === 0)
@@ -267,7 +191,11 @@ fastify.post('/LogStatus', async (request, reply) => {
 });
 
 // Route OAuth 2.0 pour échange code contre un token Google
-fastify.post('/oauth/google', async (request, reply) => {
+// recupere info utilisateur et crée un JWT
+// route appelée par front après que l'utilisateur ai autorisé l'application avec popup OAuth
+// frontend envoie code d'autorisation + URI redirection
+fastify.post('/oauth/googleCodeToTockenUser', async (request, reply) => {
+
   const { code, redirect_uri } = request.body;
   
   console.log('OAuth Google code received from Popup:', { code, redirect_uri });
@@ -360,7 +288,7 @@ fastify.post('/oauth/google', async (request, reply) => {
     console.log('!! Google user mapped:', mappedUser);
     
     // Sauvegarde utilisateur dans db
-    const savedUser = await saveUserToDatabase(mappedUser);
+    const savedUser = await saveAuthUserToDatabase(mappedUser);
     
     // Créer un JWT pour notre application
     const jwtToken = createJWT(
@@ -402,7 +330,7 @@ fastify.post('/oauth/google', async (request, reply) => {
 
 // Route pour récupérer les informations de l'utilisateur avec le token JWT
 // !! dans cette route on vérifie le token JWT envoyé par le frontend -> preHandler: validateToken
-fastify.get('/user', { preHandler: validateToken }, async (request, reply) => {
+fastify.get('/userInfoJWT', { preHandler: validateToken }, async (request, reply) => {
   
   const user = request.user;
   console.log('!!! AUTH BACK User info requested for ', user.nickname);
@@ -410,7 +338,7 @@ fastify.get('/user', { preHandler: validateToken }, async (request, reply) => {
   try 
   {
     // 1.Vérifier que le nickname existe bien dans la base de données
-    const userInfoArr = await getUserInfoInDB(user.nickname);
+    const userInfoArr = await getAuthUserInfoInDB(user.nickname);
 
     console.log('User info retrieved from database:', userInfoArr);
 

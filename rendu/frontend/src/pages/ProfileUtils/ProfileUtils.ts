@@ -1,9 +1,6 @@
 import { locale } from '../../i18n';
-// import { createGoogleButton } from '../auth/googleAuth';
-import { createGoogleButton } from '../../Auth/authButton'; // Import the createGoogleButton function
+import { createGoogleButton } from '../../Auth/authButton';
 
-
-import { API_BASE_URL } from '../../config';
 
 const createElement = <K extends keyof HTMLElementTagNameMap>(tag: K, options: { text?: string; className?: string }): HTMLElementTagNameMap[K] => 
 {
@@ -147,38 +144,3 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         actionsDiv.appendChild(actionsContainer);
 }
 
-export async function getActiveUserInfo(): Promise<any>
-{
-   return fetch(`${API_BASE_URL}/authentification/getActiveUserInfo`, {
-       method: 'GET',
-       headers: { 'Content-Type': 'application/json' },
-   })
-   .then(response => {
-       if (!response.ok) {
-           throw new Error(`HTTP error! status: ${response.status}`);
-       }
-       return response.json();
-   })
-   .catch(error => {
-       console.error('!!! Erreur lors de la récupération des utilisateurs:', error);
-       throw error;
-   });
-}
-
-export async function getUserInfoWithID(): Promise<any>
-{
-   return fetch(`${API_BASE_URL}/authentification/getUserInfoID`, {
-       method: 'GET',
-       headers: { 'Content-Type': 'application/json' },
-   })
-   .then(response => {
-       if (!response.ok) {
-           throw new Error(`HTTP error! status: ${response.status}`);
-       }
-       return response.json();
-   })
-   .catch(error => {
-       console.error('!!! Erreur lors de la récupération de l utilisateur:', error);
-       throw error;
-   });
-}
