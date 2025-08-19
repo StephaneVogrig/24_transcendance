@@ -6,6 +6,9 @@ interface PopupResources {
     messageListener: ((event: MessageEvent) => void) | null; // Fonction qui écoute les messages de la popup
 }
 
+/**
+ * Ferme la popup avec plusieurs méthodes de fallback
+ */
 export function closePopup(popup: Window): void {
     try 
     {
@@ -31,6 +34,7 @@ export function closePopup(popup: Window): void {
         console.error('Error closing popup:', e);
     }
 }
+
 
 export function cleanupPopupResources(resources: PopupResources): void {
     console.log('Cleaning up OAuth popup resources...');
