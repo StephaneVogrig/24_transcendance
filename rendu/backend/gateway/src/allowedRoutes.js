@@ -22,8 +22,6 @@ export const allowedRoutes = [
     '/api/matchmaking/health',
     '/api/matchmaking/join',
 
-    '/api/scores/health',
-
     '/api/tournament/health',
     '/api/tournament/join',
     '/api/tournament/getAllTournaments',

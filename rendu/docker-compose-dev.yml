@@ -51,11 +51,6 @@ services:
             - "${MATCHMAKING_PORT}:${MATCHMAKING_PORT}"
         stop_grace_period: 0s
 
-    scores:
-        ports:
-            - "${SCORES_PORT}:${SCORES_PORT}"
-        stop_grace_period: 0s
-
     tournament:
         ports:
             - "${TOURNAMENT_PORT}:${TOURNAMENT_PORT}"

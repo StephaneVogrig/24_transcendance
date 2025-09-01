@@ -43,7 +43,6 @@ services:
             - database
             - game
             - matchmaking
-            - scores
             - tournament
             - websocket
             - ai
@@ -125,20 +124,6 @@ services:
             - NODE_ENV=${NODE_ENV}
             - HOST_IP=${HOST_IP}
             - PORT=${MATCHMAKING_PORT}
-        networks:
-            - transcendence-network
-
-    scores:
-        image: scores
-        container_name: scores
-        build:
-            context: ./backend/scores
-            dockerfile: Dockerfile
-        environment:
-            - SERVICE_NAME=scores
-            - NODE_ENV=${NODE_ENV}
-            - HOST_IP=${HOST_IP}
-            - PORT=${SCORES_PORT}
         networks:
             - transcendence-network
 

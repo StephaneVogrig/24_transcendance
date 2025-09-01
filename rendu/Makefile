@@ -40,7 +40,6 @@ SERVICES_PORTS	:=	ai:3009 \
 					gateway:3010 \
 					matchmaking:3005 \
 					tournament:3007 \
-					scores:3006 \
 					websocket:3008 \
 					frontend:5173 \
 					proxy:3000

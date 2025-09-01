@@ -7,7 +7,6 @@ const BLOCKCHAIN_SERVICE_BASE_URL = 'http://blockchain:3002';
 const DATABASE_SERVICE_BASE_URL = 'http://database:3003';
 const GAME_SERVICE_BASE_URL = 'http://game:3004';
 const MATCHMAKING_SERVICE_BASE_URL = 'http://matchmaking:3005';
-const SCORES_SERVICE_BASE_URL = 'http://scores:3006';
 const TOURNAMENT_SERVICE_BASE_URL = 'http://tournament:3007';
 const WEBSOCKET_SERVICE_BASE_URL = 'http://websocket:3008';
 const AI_SERVICE_BASE_URL = 'http://ai:3009';
@@ -52,11 +51,6 @@ fastify.register(proxy, {
 fastify.register(proxy, {
     upstream: MATCHMAKING_SERVICE_BASE_URL,
     prefix: '/api/matchmaking'
-});
-
-fastify.register(proxy, {
-    upstream: SCORES_SERVICE_BASE_URL,
-    prefix: '/api/scores'
 });
 
 fastify.register(proxy, {
