@@ -45,6 +45,7 @@ export const es = {
     "matchDownload": "Descargando partidos...",
     "tournamentName": "Torneo de ",
     "blockchain_msg": "¡Los resultados aún se están registrando en la cadena de bloques! Este proceso puede tardar hasta 10 segundos, inténtelo de nuevo pronto.",
+    "viewOnBlockchain": "Ver en Blockchain",
 
     // profileUtils
     "notConnected": "Usuario No Conectado",
@@ -99,5 +100,6 @@ export const es = {
     "player_left_and_player_right": "jugador izquierdo (a,d o w,s) y jugador derecho (←,→ o ↑,↓)\npresione 1 o 2 para cambiar la vista",
     "pseudo": "Seudónimo...",
     "ok": "ok",
+    "number": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
 
 };

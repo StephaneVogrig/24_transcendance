@@ -45,6 +45,7 @@ export const fr = {
     "matchDownload": "Chargement des matchs...",
     "tournamentName": "Tournoi de ",
     "blockchain_msg": "Les résultats sont toujours en cours d'enregistrement sur la blockchain ! Ce processus peut prendre jusqu'à 10 secondes, veuillez réessayer bientôt.",
+    "viewOnBlockchain": "Voir dans la Blockchain",
 
     // profileUtils
     "notConnected": "Utilisateur Non Connecté",
@@ -99,5 +100,5 @@ export const fr = {
     "player_left_and_player_right": "joueur gauche (a,d ou w,s) et joueur droit (←,→ ou ↑,↓)\nappuyez sur 1 ou 2 pour changer de vue",
     "pseudo": "Pseudo...",
     "ok": "ok",
-
+    "number": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
 };
