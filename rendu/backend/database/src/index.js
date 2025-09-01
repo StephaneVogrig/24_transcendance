@@ -87,7 +87,6 @@ fastify.post('/tournament/modify', async (request, reply) => {
     reply.status(201).send({message: 'Tournament modified.'});
 });
 
-
 // Route pour récupérer tous les tournois
 fastify.get('/getAllInDB', async (request, reply) => {
     const tournaments = await db.all(`SELECT * FROM tournaments ORDER BY json_extract(data, '$.status') DESC`);
@@ -101,11 +100,10 @@ fastify.get('/getAllInDB', async (request, reply) => {
 // OK Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
 fastify.post('/manageAuthUserInDB', async (request, reply) => {
    
-    console.log('Received user data 1:', request.body);
+    console.log('--------------------------------------------------');
+    console.log('Received user data :', request.body);
    
     const { provider_id, email, nickname, picture, givenName, familyName, provider } = request.body;
-
-    console.log('Received user data 2:', request.body);
 
     if (!provider_id || !email || !nickname || !provider) {
         return reply.status(400).send({ error: 'Missing required fields: provider_id, email, nickname, provider' });
@@ -114,31 +112,41 @@ fastify.post('/manageAuthUserInDB', async (request, reply) => {
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
 
-    if (existingUser) 
+    if (existingUser)  // Utilisateur existe déjà, mettre à jour ses informations
     {
-        // Utilisateur existe déjà, mettre à jour ses informations
+        console.log('----------------------');
+        console.log('User exists, updating info for:', nickname);
+
         await db.run(
             'UPDATE `users` SET nickname = ?, email = ?, picture = ?, givenName = ?, familyName = ?, status = ? WHERE provider_id = ?',
             [nickname, email, picture, givenName, familyName, 'connected', provider_id]
         );
 
         const updatedUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+
         log.debug(`manageAuthUserInDB User ${nickname} updated successfully`);
+        console.log('--------------------------------------------------');
+
         return reply.status(200).send({
             message: 'User updated successfully',
             user: updatedUser
         });
     }
-    else {
-        // console.log('Creating new user:', { nickname, email, provider_id, picture, givenName, familyName, provider });
-        // Créer un nouvel utilisateur
+    else // Créer un nouvel utilisateur
+    {
+        console.log('----------------------');
+        console.log('Creating new user:', nickname);
+
         await db.run(
             'INSERT INTO `users` (nickname, email, provider_id, picture, givenName, familyName, provider) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [nickname, email, provider_id, picture, givenName, familyName, provider]
         );
 
         const newUser = await db.get('SELECT * FROM `users` WHERE provider_id = ?', [provider_id]);
+
         log.debug(`manageAuthUserInDB User ${nickname} created successfully`);
+        console.log('--------------------------------------------------');
+
         return reply.status(201).send({
             message: 'User created successfully',
             user: newUser
@@ -153,41 +161,19 @@ fastify.get('/getActivePlayers', async (request, reply) => {
     reply.status(200).send(players);
 });
 
-// OK 
-// fastify.get('/getActiveAuthUserInDB', async (request, reply) => {
-//     const userList = await db.all('SELECT * FROM `users` WHERE status = "connected"');
-//     log.debug(userList, `Connected users get`);
-//     reply.status(200).send(userList);
-// });
-
-
 // OK STEPHANIE
 fastify.get('/getUserInDB', async (request, reply) => {
     const { nickname } = request.query;
-    console.log('Received nickname:', nickname);
     if (!nickname) 
         return reply.status(400).send({ error: 'Missing required field: nickname' });
     console.log('Fetching user from the database with nickname:', nickname);
     const user = await db.get('SELECT * FROM `users` WHERE nickname = ?', [nickname]);
     if (!user)
         return reply.status(404).send({ error: 'User not found' });
-    log.debug(user, `User fetched with nickname: ${nickname}`);
-    // reply.status(200).send(user);
     // on met [user] car on veut retourner un tableau d'objets
     // pour faire comme les autres routes 
     reply.status(200).send([user]); 
 });
-
-
-
-
-// OK 
-// fastify.get('/getAllUserInDB', async (request, reply) => {
-//    const userList = await db.all('SELECT * FROM `users`');
-//    log.debug(userList, `Users get`);
-//    reply.status(200).send(userList);
-// });
-
 
 // ok
 fastify.post('/updateUserLogStatusInDB', async (request, reply) => {

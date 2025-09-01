@@ -59,9 +59,8 @@ const updateStatus = async (userInfoDiv :HTMLDivElement, actionsDiv :HTMLDivElem
             {
                 userInfoDiv.innerHTML =  '';
                 userInfoDiv.appendChild(createErrorMessage(locale.errorUserInfo, 'warning'));
-                localStorage.clear(); // Clear local storage on error
-                sessionStorage.clear(); // Clear session storage on error
-                // throw new Error(locale.errorUserInfo);
+                localStorage.clear();
+                sessionStorage.clear();
             }
         } 
         catch (error) 
@@ -92,7 +91,7 @@ const updateStatus = async (userInfoDiv :HTMLDivElement, actionsDiv :HTMLDivElem
             {
                 logoutBtn.disabled = true;
                 const nickname = logoutBtn.getAttribute('data-nickname') || 'unknown';
-                console.log(' !!! Déconnexion en cours de l\'utilisateur', nickname);
+                console.log('Deconnection is processing for user: ', nickname);
                 await logout();
             } 
             catch (error) {

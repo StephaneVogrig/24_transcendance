@@ -1,5 +1,4 @@
 import { GOOGLE_OAUTH_CONFIG, API_BASE_URL } from '../config';
-// import { locale } from '../i18n';
 import { navigate } from '../router';
 import { handlePopupResponse } from './authManagePopUp';
 import { notifyAuthStateChange } from './authStateChange';
@@ -22,9 +21,7 @@ export interface AuthResponse {
     error?: string;
 }
 
-/**
- * Génère une chaîne aléatoire pour le state parameter (sécurité CSRF)
- */
+// Génère une chaîne aléatoire qui sera le state parameter (sécurité CSRF)
 function generateStateCode(): string {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
@@ -32,18 +29,7 @@ function generateStateCode(): string {
 }
 
 
-//     GOOGLE_OAUTH_CONFIG = {
-//     CLIENT_ID: '316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com', // Même que le backend
-//     REDIRECT_URI: `https://localhost:3000/auth-callback-popup.html`, // URI fixe pour éviter les problèmes
-//     REDIRECT_URI_MAIN: `${BASE_URL}/auth/callback`, // Callback principal (si besoin)
-//     SCOPE: 'openid profile email',
-//     RESPONSE_TYPE: 'code',
-//     AUTH_URL: 'https://accounts.google.com/o/oauth2/v2/auth'
-// };
-
-/**
- * Génère l'URL d'autorisation Google OAuth 2.0
- */
+// Génère l'URL d'autorisation Google OAuth 2.0
 function buildAuthUrl(): string {
     const stateCode = generateStateCode(); // chaine aléatoire créé pour state -> secure
     
@@ -76,7 +62,7 @@ export async function loginWithGoogle(): Promise<void> {
         
         console.log('Google OAuth  URL:', authUrl);
 
-        // config et ouverture popup
+        // config + ouverture popup
         const popupWidth = 500;
         const popupHeight = 600;
         const left = window.screen.width / 2 - popupWidth / 2;
@@ -102,9 +88,8 @@ export async function loginWithGoogle(): Promise<void> {
     }
 }
 
-/**
- * Traite le callback OAuth dans la popup
- */
+
+// Gestion callback OAuth dans popup
 export async function handleOAuthCallback(): Promise<AuthResponse> {
     try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -141,9 +126,8 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
         }
         
         // Vérification du state -> sécurité CSRF -Cross site request forgery-
-        const savedState = localStorage.getItem('oauth_state'); // sessionStorage.getItem('oauth_state'); 
-        // Utiliser localStorage pour partager entre fenêtres
-        
+        const savedState = localStorage.getItem('oauth_state');  // Utilise localStorage pour partager entre fenêtres
+       
         if (!savedState || savedState !== state) {
             const errorMsg = 'État OAuth invalide';
             if (window.opener) {
@@ -213,14 +197,9 @@ export async function handleOAuthCallback(): Promise<AuthResponse> {
     }
 }
 
-
-/**
- * Récupère les informations de l'utilisateur connecté 
- */
-// recup info avec le JWT token que l'on a créé dans le backend depuis la popup
+// recup info utilisateur connecte avec le JWT token que l'on a créé dans le backend depuis la popup
 export async function getCurrentUser(): Promise<GoogleUser | null> {
-   
-   console.log('+++ FRONT getCurrentUser called');
+
     try {
         const token = localStorage.getItem('access_token');
         if (!token) 
@@ -240,14 +219,10 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
                 localStorage.removeItem('access_token');
                 return null;
             }
-            // throw new Error('données utilisateur non récupérées');
             throw new Error('User not registered or error retrieving user information');
-            // throw console.warn('User non enrigistré ou erreur lors de la récupération des informations');
         }
         
-        // console.log('+++ FRONT getCurrentUser response:', response);
         const user =  await response.json();
-        // console.log('+++ FRONT  user:', user);
 
         return user;  
     }
@@ -257,20 +232,13 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
     }
 }
 
-/**
- * Vérifie si l'utilisateur est connecté
- */
+// Vérif si user connecté
 export function isAuthenticated(): boolean {
     return Boolean(localStorage.getItem('access_token'));
-    // voir si change par appel db
 }
 
-
-/**
- * Déconnecte l'utilisateur
- */
+//Déco utilisateur
 export async function logout(): Promise<void> {
-    console.log('!!!!!Déconnexion de l\'utilisateur...');
     try {
         const token = localStorage.getItem('access_token');
         
@@ -288,12 +256,12 @@ export async function logout(): Promise<void> {
         localStorage.removeItem('access_token');
         sessionStorage.removeItem('oauth_state');
         
-        // Notifier les changements d'état
+        // Notif changements d'état
         notifyAuthStateChange();
         navigate('/');  // Redir accueil
     } 
     catch (error) {
-        console.error('Erreur lors de la déconnexion:', error);
+        console.error('Error diring deconnection :', error);
         localStorage.removeItem('access_token');// Nettoie stockage local
         navigate('/');
     }

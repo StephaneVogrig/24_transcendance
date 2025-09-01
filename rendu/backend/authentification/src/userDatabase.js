@@ -45,7 +45,7 @@ async function performDatabaseSave(userData)
         throw new Error('Invalid JSON response from database service');
     }
         
-    console.log('User saved successfully:', result.message);
+    console.log('User saved or updated:', result.message);
     return result.user;
 }    
 
@@ -66,8 +66,6 @@ export async function saveAuthUserToDatabase(userInfo)
         throw new Error('Missing required user fields: sub (provider_id), email, nickname');
 
     console.log(`Saving user to database: `, userInfo);
-    console.log(`provider_id, email, nickname, `, { provider_id, email, nickname });
-    console.log(` picture, givenName, familyName, status `, { picture, givenName, familyName, status });
 
     try 
     {

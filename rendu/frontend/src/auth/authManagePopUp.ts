@@ -58,11 +58,8 @@ export function createOAuthMessageListener( popup: Window, onSuccess: () => void
    
     return (event: MessageEvent) => {
         console.log('Message received from popup:', event.data);
-        console.log('Event origin:', event.origin);
-        console.log('Window origin:', window.location.origin);
-        
-        // Vérif origine -> sécurité
-        if (event.origin !== window.location.origin) 
+
+        if (event.origin !== window.location.origin) // Vérif origine -> sécurité
         {
             console.log('Message ignored - wrong origin:', event.origin);
             return;

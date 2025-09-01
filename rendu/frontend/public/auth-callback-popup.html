@@ -63,16 +63,14 @@
                 // code unique pour l'utilisateur + application (durée de vie 10min)
                 // contient le code d'autorisation
                 const urlParams = new URLSearchParams(window.location.search);
-                // console.log('URL Params:', urlParams.toString());
+
                 const code = urlParams.get('code');
                 const state = urlParams.get('state'); // pour verif que state idem à celui que l'on a envoyé 
                 const error = urlParams.get('error');
-                
-                                
-                // Ajouter des logs de debug
+                          
+                // debug
                 console.log('Received state:', state);
                 console.log('All URL params:', Object.fromEntries(urlParams));
-
                 console.log('Code:', code);
 
                 if (error)
@@ -87,10 +85,10 @@
                 console.log('Saved state:', savedState);
                 console.log('States match:', savedState === state);
 
-                   if (!savedState) 
-                   {
-                        console.error('Aucun state sauvegardé trouvé dans localStorage');
-                        throw new Error('État OAuth manquant - Veuillez réessayer la connexion');
+                if (!savedState) 
+                {
+                    console.error('Aucun state sauvegardé trouvé dans localStorage');
+                    throw new Error('État OAuth manquant - Veuillez réessayer la connexion');
                 }
                             
                 localStorage.removeItem('oauth_state'); // Nettoyer le state du stockage
@@ -129,7 +127,7 @@
                         parsedError = { message: errorData };
                     }
                     
-                    // Message d'erreur plus détaillé
+                    // Parse le message d'erreur pour avoir tout les details
                     const errorMessage = parsedError.message || errorData || `Erreur HTTP ${response.status}: ${response.statusText}`;
                     throw new Error(`POPUP Backend Error: ${errorMessage} (Status: ${response.status})`);
                 }
@@ -137,18 +135,11 @@
                 // Réponse du backen authentification -> token d'accès
                 const data = await response.json();
                 
-                statusEl.textContent = 'Connexion réussie ! Fermeture...';
+                statusEl.textContent = ' Connection success! Closing...';
                 statusEl.className = 'success';
                 
                 console.log('OAuth success data:', data);
-                console.log('Window opener exists:', !!window.opener);
-                console.log('Current window origin:', window.location.origin);
-                console.log('Data structure:', {
-                    access_token: data.access_token ? 'Present' : 'Missing',
-                    user: data.user ? 'Present' : 'Missing',
-                    data_keys: Object.keys(data)
-                });
-                
+
                 if (!data.access_token) 
                     throw new Error('Token d\'accès manquant dans la réponse du serveur');
                 
@@ -159,7 +150,7 @@
                     const message = {
                         type: 'OAUTH_SUCCESS',
                         token: data.access_token,
-                        // user: data.user,
+                        // user: data.user, // on a maintenant les info dans la DB
                         timestamp: Date.now()
                     };
                     console.log('Message to send:', message);
@@ -177,11 +168,13 @@
                     console.log('Message sent, closing window in 500ms...');
                     setTimeout(() => {
                         console.log('Attempting to close window...');
-                        try {
+                        try 
+                        {
                             window.close();
-                            // Si window.close() ne fonctionne pas, essayer une autre méthode
+                            
                             setTimeout(() => {
                                 if (!window.closed) {
+                                    // Si window.close() ne fonctionne pas
                                     console.log('Window.close() failed, trying alternative...');
                                     // Rediriger vers about:blank peut forcer la fermeture
                                     window.location.href = 'about:blank';
@@ -192,7 +185,9 @@
                             statusEl.textContent = 'Connexion réussie - Vous pouvez fermer cette fenêtre';
                         }
                     }, 500);
-                } else {
+                } 
+                else 
+                {
                     console.log('No window.opener, closing immediately...');
                     statusEl.textContent = ' ... ';
                     setTimeout(() => {
@@ -211,18 +206,20 @@
                 statusEl.className = 'error';
                 
                 // Envoyer l'erreur à la fenêtre parent
-                if (window.opener) {
+                if (window.opener) 
+                {
                     window.opener.postMessage({
                         type: 'OAUTH_ERROR',
                         error: error.message
                     }, window.location.origin);
                     
-                    // Augmenter le délai pour lire l'erreur
+                    // Augmenter le délai pour lire l'erreur pour Debug
                     setTimeout(() => {
                         window.close();
                     }, 20000); // 20 secondes au lieu de 10
-                } else {
-                    // Si pas de window.opener, garder la fenêtre ouverte plus longtemps
+                } 
+                else // Si pas de window.opener, garder la fenêtre ouverte plus longtemps
+                {
                     setTimeout(() => {
                         window.close();
                     }, 20000);
