@@ -2,6 +2,7 @@ import { en } from './locales/en';
 import { fr } from './locales/fr';
 import { es } from './locales/es';
 import { la } from './locales/la';
+import { lc } from './locales/lc';
 
 type Dictionary = {
 	[key: string]: string;
@@ -9,10 +10,11 @@ type Dictionary = {
 
 
 const translations: { [key: string]: Dictionary } = {
-    en: en,
-    fr: fr,
+	en: en,
+	fr: fr,
 	es: es,
 	la: la,
+	lc: lc
 };
 
 export type supportedLanguage = keyof typeof translations;
@@ -22,8 +24,8 @@ function getUserLanguage(): supportedLanguage {
 	const userLanguageCode: string = userLanguage.substring(0,2);
 	let lang: supportedLanguage = 'en';
 	if (userLanguageCode in translations) {
-        lang = userLanguageCode as supportedLanguage;
-    }
+		lang = userLanguageCode as supportedLanguage;
+	}
 	return lang;
 }
 
@@ -37,14 +39,14 @@ export let locale: {[key: string]: string } = {};
  * @param lang La langue à définir ('en', 'fr', 'es').
  */
 export function setLanguage(lang: supportedLanguage): void {
-    if (translations[lang]) {
-        currentLanguage = lang;
-        // localStorage.setItem('lang', lang);
+	if (translations[lang]) {
+		currentLanguage = lang;
+		// localStorage.setItem('lang', lang);
 		Object.assign(locale, translations[lang]);
-        console.log(`Language set to: ${lang}`);
-    } else {
-        console.warn(`Language '${lang}' not supported.`);
-    }
+		console.log(`Language set to: ${lang}`);
+	} else {
+		console.warn(`Language '${lang}' not supported.`);
+	}
 }
 
 /**
@@ -52,7 +54,7 @@ export function setLanguage(lang: supportedLanguage): void {
  * @returns La langue actuelle.
  */
 export function getCurrentLanguage(): supportedLanguage {
-    return currentLanguage;
+	return currentLanguage;
 }
 
 export function getLaguangeName(lang: supportedLanguage): string {

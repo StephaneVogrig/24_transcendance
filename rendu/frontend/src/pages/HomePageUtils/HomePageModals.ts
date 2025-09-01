@@ -59,7 +59,7 @@ export function showTournamentWaitingModal(id: number, socket: Socket): HTMLDivE
 
     const title = document.createElement('h2');
     title.className = 'text-5xl font-extrabold text-gray-100 mb-4 tracking-wide';
-    title.textContent = 'Tournament';
+    title.textContent = locale.tournament;
     modalContent.appendChild(title);
 
     const message = document.createElement('p');
@@ -134,6 +134,7 @@ export async function showLanguageSelectionModal() {
     modalContent.appendChild(langBtn('fr'));
     modalContent.appendChild(langBtn('es'));
     modalContent.appendChild(langBtn('la'));
+    modalContent.appendChild(langBtn('lc'));
 
     const exitBtn = document.createElement('button');
     exitBtn.className = `text-blue-600 text-lg font-semibold transition-transform transform hover:scale-110`;
