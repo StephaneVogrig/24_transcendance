@@ -1,7 +1,7 @@
-import { logout } from '../Auth/authGoogle';
+import { logout } from '../auth/authGoogle';
 import { locale } from '../i18n';
 import { notConnected, userConnected, animateLoading } from './ProfileUtils/ProfileUtils';
-import { getCurrentUser } from '../Auth/authGoogle';
+import { getCurrentUser } from '../auth/authGoogle';
 import { bottomBtn } from './components/bottomBtn';
 
 

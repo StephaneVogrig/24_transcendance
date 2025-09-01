@@ -5,12 +5,9 @@ import { joinButton } from './components/joinButton';
 import { locale } from '../i18n';
 import { BabylonGame } from '../3d/main3d.ts';
 
-// import { createAuthButtonContainer } from '../auth/googleAuth';
-import { createAuthButtonContainer } from '../Auth/authStateChange.ts';
-
+import { createAuthButtonContainer } from '../auth/authStateChange.ts';
 
 import { showTournamentWaitingModal, showWaitingGameModal, showLanguageSelectionModal } from './HomePageUtils/HomePageModals';
-import { navigate } from '../router';
 
 import { createNavLink, sendRegister } from './HomePageUtils/HomePageUtils.ts';
 import { modalMessage } from './components/modalMessage.ts';
