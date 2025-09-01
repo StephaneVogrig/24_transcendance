@@ -25,7 +25,7 @@ export class InputManager {
 		console.log("InputManager initialized");
 	}
 
-	public setHomeLink(homeLink: HTMLAnchorElement) {
+	public setHomeLink(homeLink: HTMLButtonElement) {
 		homeLink.addEventListener('click', (event) => {
 			event.preventDefault();
 			if (this.socket) {

@@ -29,7 +29,7 @@ export function showGameFoundModal(players: string, socket: Socket) {
     message.textContent = locale.thanks_for_waiting + ' ' + players + '!';
     modalContent.appendChild(message);
 
-    const joinLink = document.createElement('a');
+    const joinLink = document.createElement('button');
     joinLink.setAttribute('data-route', '/game');
     joinLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     joinLink.textContent = locale.join_game;
@@ -67,7 +67,7 @@ export function showTournamentWaitingModal(id: number, socket: Socket): HTMLDivE
     message.textContent = `${locale.tournament_joined} ID: ${id}. ${locale.please_wait}`;
     modalContent.appendChild(message);
 
-    const quitButton = document.createElement('a');
+    const quitButton = document.createElement('button');
     quitButton.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     quitButton.textContent = locale.leave;
     quitButton.addEventListener('click', () => {
@@ -103,7 +103,7 @@ export function showWaitingGameModal(socket: Socket): HTMLDivElement {
     message.textContent = locale.waiting_opponent;
     modalContent.appendChild(message);
 
-    const quitButton = document.createElement('a');
+    const quitButton = document.createElement('button');
     quitButton.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     quitButton.textContent = locale.leave;
     quitButton.addEventListener('click', () => {

@@ -57,7 +57,7 @@ export const GamePage = (): HTMLElement => {
 
     cardDiv.appendChild(gameContainer);
 
-    const homeLink = document.createElement('a');
+    const homeLink = document.createElement('button');
     homeLink.className = 'absolute bottom-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 hover:text-blue-500 transition-colors duration-200';
     homeLink.textContent = locale.exit_game;
 
@@ -107,7 +107,7 @@ function showGameOverModal() {
 		enableJoining();
 	}
 
-    const homeLink = document.createElement('a');
+    const homeLink = document.createElement('button');
     homeLink.setAttribute('data-route', '/game');
     homeLink.className = 'inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200';
     homeLink.textContent = locale.back_home;

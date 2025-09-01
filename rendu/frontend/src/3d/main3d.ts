@@ -18,7 +18,7 @@ export class BabylonGame {
         return BabylonGame.instance;
     }
 
-    public setHomeLink(homeLink: HTMLAnchorElement) {
+    public setHomeLink(homeLink: HTMLButtonElement) {
         if (!this.inputManager) {
             throw new Error("InputManager is not initialized.");
         }

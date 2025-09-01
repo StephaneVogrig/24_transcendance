@@ -1,7 +1,7 @@
 import { API_BASE_URL, BASE_URL } from '../../config.ts';
 
-export const createNavLink = (text: string, route: string, loginLogout?: string): HTMLAnchorElement => {
-	const link = document.createElement('a');
+export const createNavLink = (text: string, route: string, loginLogout?: string): HTMLButtonElement => {
+	const link = document.createElement('button');
 	link.setAttribute('data-route', route);
 	link.className = loginLogout || 'btn btn-secondary text-center';
 	link.textContent = text;
