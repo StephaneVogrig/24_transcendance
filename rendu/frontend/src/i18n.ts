@@ -1,6 +1,7 @@
 import { en } from './locales/en';
 import { fr } from './locales/fr';
 import { es } from './locales/es';
+import { la } from './locales/la';
 
 type Dictionary = {
 	[key: string]: string;
@@ -11,6 +12,7 @@ const translations: { [key: string]: Dictionary } = {
     en: en,
     fr: fr,
 	es: es,
+	la: la,
 };
 
 export type supportedLanguage = keyof typeof translations;

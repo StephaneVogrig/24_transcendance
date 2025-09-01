@@ -102,4 +102,5 @@ export const en = {
     "player_left_and_player_right": "player left (a,d or w,s) and player right (←,→ or ↑,↓)\npress 1 or 2 for change view",
     "pseudo": "Pseudo...",
     "ok": "ok",
+    "number": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
 };

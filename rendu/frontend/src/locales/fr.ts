@@ -99,5 +99,5 @@ export const fr = {
     "player_left_and_player_right": "joueur gauche (a,d ou w,s) et joueur droit (←,→ ou ↑,↓)\nappuyez sur 1 ou 2 pour changer de vue",
     "pseudo": "Pseudo...",
     "ok": "ok",
-
+    "number": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
 };

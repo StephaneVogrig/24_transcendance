@@ -133,6 +133,7 @@ export async function showLanguageSelectionModal() {
     modalContent.appendChild(langBtn('en'));
     modalContent.appendChild(langBtn('fr'));
     modalContent.appendChild(langBtn('es'));
+    modalContent.appendChild(langBtn('la'));
 
     const exitBtn = document.createElement('button');
     exitBtn.className = `text-blue-600 text-lg font-semibold transition-transform transform hover:scale-110`;

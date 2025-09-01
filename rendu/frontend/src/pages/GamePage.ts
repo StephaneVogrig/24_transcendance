@@ -39,7 +39,7 @@ export const GamePage = (): HTMLElement => {
 
     const scoreParagraph = document.createElement('p');
     scoreParagraph.id = 'gameScoreDisplay';
-    scoreParagraph.textContent = '0 - 0';
+    scoreParagraph.textContent = locale.number[0] + " - " + locale.number[0];
     scoreParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 ';
     gameContainer.appendChild(scoreParagraph);
 
@@ -135,7 +135,7 @@ export function gameOver() {
 export function updateScores(player1Score: number, player2Score: number) {
     const scoreParagraph = document.getElementById('gameScoreDisplay') as HTMLParagraphElement;
     if (scoreParagraph) {
-        const scoreString = `${player1Score} - ${player2Score}`;
+        const scoreString = `${locale.number[player1Score]} - ${locale.number[player2Score]}`;
         let coloredHtml = '';
 
         const player2BaseColor = '#4299E1';
@@ -189,7 +189,7 @@ export function gameStatusUpdate(status: string) {
             baseColor = '#4299E1';
             glowColor = 'rgba(124, 255, 253, 0.7)';
         } else if (status === '3' || status === '2' || status === '1') {
-            displayStatus = status;
+            displayStatus = locale.number[status];
             baseColor = '#4299E1';
             glowColor = 'rgba(124, 255, 253, 0.7)';
         } else if ( status === '0') {
