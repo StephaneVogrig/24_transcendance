@@ -55,7 +55,7 @@ const loadMatches = async (cardsContainer : HTMLElement ) =>
 
         // Créer un conteneur pour les deux cartes du bas
         const bottomCardsContainer = document.createElement('div');
-        bottomCardsContainer.className = 'grid grid-cols-1 lg:grid-cols-2 gap-6';
+        bottomCardsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-fit';
         
         // Ajouter les cartes waiting et finished côte à côte
         bottomCardsContainer.appendChild(waitingCard);
@@ -72,34 +72,23 @@ export const MatchDisplayPage = (): HTMLElement =>
 {
     // Conteneur principal (remplace mainDiv)
     const container = document.createElement('div');
-    container.className = 'max-w-none mx-auto min-h-screen p-3';
+    container.className = 'mx-auto max-w-7xl h-full grid grid-rows-[auto_1fr_auto]';
 
     // Titre de la page
     const titleContainer = document.createElement('div');
-    titleContainer.className = 'flex items-center justify-between mb-4';
+    titleContainer.className = 'flex items-center justify-between';
+
+    const leftSpacer = document.createElement('div');
+    leftSpacer.className = 'w-10';
+    titleContainer.appendChild(leftSpacer);
 
     const title = document.createElement('h1');
-    title.className = 'text-2xl font-bold text-gray-400 flex-1 text-center';
+    title.className = 'text-center text-3xl font-extrabold text-blue-400 mb-4';
     title.textContent = locale.matchTitle;
-
-    // Espace pour équilibrer
-    const spacer = document.createElement('div');
-    spacer.className = 'w-16';
-
-    // titleContainer.appendChild(backButton);
     titleContainer.appendChild(title);
-    titleContainer.appendChild(spacer);
+
+    // titleContainer.appendChild(spacer);
     container.appendChild(titleContainer);
-
-    // Conteneur des cartes de tournois
-    const cardsContainer = document.createElement('div');
-    cardsContainer.className = 'space-y-3 mb-4';
-    container.appendChild(cardsContainer);
-
-    container.appendChild(bottomBtn(locale.back_home, '/'));
-
-    // Charger les matchs au chargement de la page
-    loadMatches(cardsContainer);
 
     //Bouton de rafraîchissement
     const refreshButton = document.createElement('button');
@@ -112,11 +101,16 @@ export const MatchDisplayPage = (): HTMLElement =>
     refreshButton.onclick = () => {
         loadMatches(cardsContainer);
     };
-
     titleContainer.appendChild(refreshButton);
 
-    // Charger les matchs au démarrage
+    // Conteneur des cartes de tournois
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'space-y-3 pb-12';
+    // Charger les matchs au chargement de la page
     loadMatches(cardsContainer);
+    container.appendChild(cardsContainer);
+
+    container.appendChild(bottomBtn(locale.back_home, '/'));
     
     return container;
 };
