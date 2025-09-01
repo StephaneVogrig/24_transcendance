@@ -11,6 +11,7 @@ import { showTournamentWaitingModal, showWaitingGameModal, showLanguageSelection
 
 import { createNavLink, sendRegister } from './HomePageUtils/HomePageUtils.ts';
 import { modalMessage } from './components/modalMessage.ts';
+import { navigate } from '../router.ts';
 
 let socket = getSocket();
 let isWaitingForGame = false;
@@ -97,7 +98,9 @@ export const HomePage = (): HTMLElement => {
 	nav.appendChild(playTournament);
 
     // Button Tournament list
-	nav.appendChild(createNavLink(locale.matchDisplay, '/MatchDisplay'));
+	const tournamentListButton = createNavLink(locale.matchDisplay, '/MatchDisplay');
+	tournamentListButton.addEventListener('click', () => {navigate('/MatchDisplay')});
+	nav.appendChild(tournamentListButton);
 
 	// Button Language
 	const languageButton = createNavLink(locale.language, '/');
