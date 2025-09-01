@@ -45,6 +45,7 @@ export const fr = {
     "matchDownload": "Chargement des matchs...",
     "tournamentName": "Tournoi de ",
     "blockchain_msg": "Les résultats sont toujours en cours d'enregistrement sur la blockchain ! Ce processus peut prendre jusqu'à 10 secondes, veuillez réessayer bientôt.",
+    "viewOnBlockchain": "Voir dans la Blockchain",
 
     // profileUtils
     "notConnected": "Utilisateur Non Connecté",

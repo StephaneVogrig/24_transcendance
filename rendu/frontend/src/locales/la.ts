@@ -45,6 +45,7 @@ export const la = {
 	"matchDownload": "Certamina deponens...",
 	"tournamentName": "Certamen de ",
     "blockchain_msg": "Effectus in blockchain adhuc scripti sunt! Hic processus usque ad 10 secundas capere potest, mox iterum conare.",
+    "viewOnBlockchain": "Vide in Blockchain",
 
 	// profileUtils
 	"notConnected": "Usor non coniunctus",

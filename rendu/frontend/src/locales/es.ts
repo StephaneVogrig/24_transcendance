@@ -45,6 +45,7 @@ export const es = {
     "matchDownload": "Descargando partidos...",
     "tournamentName": "Torneo de ",
     "blockchain_msg": "¡Los resultados aún se están registrando en la cadena de bloques! Este proceso puede tardar hasta 10 segundos, inténtelo de nuevo pronto.",
+    "viewOnBlockchain": "Ver en Blockchain",
 
     // profileUtils
     "notConnected": "Usuario No Conectado",

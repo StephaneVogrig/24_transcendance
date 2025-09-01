@@ -55,7 +55,7 @@ const createEndedTournamentElement = (tournament: any): HTMLElement =>
     // Bouton de détail ------------------------------------
     const detailsBtn = document.createElement('button');
     detailsBtn.className = 'w-40 mt-2 px-2 py-0.5 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 transition-colors duration-200';
-    detailsBtn.textContent = 'View on Blockchain';
+    detailsBtn.textContent = locale.viewOnBlockchain;
     detailsBtn.onclick = () => {
         if (tournament.hash)
             window.open(`https://subnets-test.avax.network/c-chain/tx/${tournament.hash}`, '_blank');
