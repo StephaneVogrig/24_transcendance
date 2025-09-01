@@ -60,7 +60,7 @@ async function addPlayerToSession(playerName) {
     }
     if (session.players1 && session.players2) {
         session.status = 'ready';
-        await new Promise(r => setTimeout(r, 500));
+		// await new Promise(r => setTimeout(r, 500)); motclefpourlegrep
         if (!session.players1 || !session.players2) {
             console.error(`Game session ${session.gameId} is not ready, missing players`);
             session.status = 'waiting';
