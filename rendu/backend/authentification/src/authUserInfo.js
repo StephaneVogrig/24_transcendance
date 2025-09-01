@@ -4,8 +4,6 @@ export async function getAuthUserInfoInDB(nickname)
     console.log('getAuthUserInfoInDB called with nickname:', nickname);
    try
    {
-    //                  await fetch(`http://database:3003/getUserInDB <- Manque le paramètre nickname
-
        const response = await fetch(`http://database:3003/getUserInDB?nickname=${encodeURIComponent(nickname)}`, {
            method: 'GET',
            headers: { 'Content-Type': 'application/json' }
@@ -17,7 +15,7 @@ export async function getAuthUserInfoInDB(nickname)
            throw new Error(err);
        }
 
-       // Méthode qui lit la réponse HTTP via `fetch` et le convertit en objet JavaScript
+       // Méthode lit réponse HTTP via `fetch` + convertit en objet JavaScript
        const userInfo = await response.json();
       
        return userInfo;

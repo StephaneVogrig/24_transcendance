@@ -15,7 +15,6 @@ const errorInfo = (cardsContainer: HTMLElement,  msg1: string, msg2: string): vo
             `;
 }
 
-
 const loadMatches = async (cardsContainer : HTMLElement ) => 
 {
     try {
@@ -63,7 +62,6 @@ const loadMatches = async (cardsContainer : HTMLElement ) =>
         bottomCardsContainer.appendChild(finishedCard);
         
         cardsContainer.appendChild(bottomCardsContainer);
-
     } 
     catch (error) {
         errorInfo(cardsContainer, locale.errorMatchDownload, locale.errorMatchDisplay);
@@ -97,7 +95,6 @@ export const MatchDisplayPage = (): HTMLElement =>
     const cardsContainer = document.createElement('div');
     cardsContainer.className = 'space-y-3 mb-4';
     container.appendChild(cardsContainer);
-
 
     container.appendChild(bottomBtn(locale.back_home, '/'));
 

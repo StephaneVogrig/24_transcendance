@@ -1,0 +1,5 @@
+# Google OAuth 2.0
+GOOGLE_CLIENT_ID=316874582743-ntu3nvld3lh4iodhmjup7uj836eujt0g.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+JWT_SECRET=516e92643521f30ccdcd977f127e2144adb24598a0dedc40ce157b53ced5d08b730c19dc1b4ad73c5c723ba0465775af54e358ce1c87a4eb8ab9a407f4ee7490
+#GENERER UN JWT_SECRET -> node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"

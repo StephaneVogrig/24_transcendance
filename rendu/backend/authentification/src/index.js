@@ -9,17 +9,16 @@ const serviceport = process.env.PORT;
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-key';
-
-// Fonction pour encoder en URLSearchParams
+// encoder en URLSearchParams
 function createFormData(data) {
   return Object.keys(data)
     .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
     .join('&');
 }
 
-// Fonction simple pour créer un tocken JWT 
+// créer un tocken JWT 
 function createJWT(payload, secret, expiresIn = '24h') {
   const header = { alg: 'HS256', typ: 'JWT' };
   const exp = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // 24h en secondes
@@ -53,7 +52,6 @@ function verifyJWT(token, secret) {
     // decode ce qu'on a recup de expectedSignature payload
     const decodedPayload = JSON.parse(Buffer.from(payload, 'base64url').toString());
     
-    console.log('verifyJWT -> Decoded JWT: ', decodedPayload);
     // verif expiration tocken
     if (decodedPayload.exp && decodedPayload.exp < Math.floor(Date.now() / 1000))
       throw new Error('Token expired');
@@ -83,20 +81,24 @@ const fastify = Fastify({
 async function validateToken(request, reply) {
   try 
   {
+    console.log('----------------------------------');
+
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) 
-      return reply.status(401).send({ error: 'Token d\'accès manquant' });
+      return reply.status(401).send({ error: 'Acces Tocken missing' });
     
     // extraction tocken d'accès
     const token = authHeader.split(' ')[1];
 
     // verif token JWT + extraction info user
     const decoded = verifyJWT(token, JWT_SECRET);
+    console.info('Decoded JWT (send by ProfilePage): ', decoded);
+
     request.user = decoded;
   } 
   catch (error) {
-    return reply.status(401).send({ error: 'Token invalide ou expiré' });
+    return reply.status(401).send({ error: 'Invalid Tocken or expired' });
   }
 }
 
@@ -110,25 +112,9 @@ fastify.get('/health', async (request, reply) => {
   };
 });
 
-
-// fastify.get('/getActiveAuthUserInfo', async (request, reply) => {
-//    try {
-//         const users = await getActiveAuthUserInfo(); // appel du backend database
-       
-//         if (!users || users.length === 0) {
-//             return reply.status(200).send([]);
-//         }
-           
-//         reply.status(200).send(users); // Envoie la liste des utilisateurs
-//     }
-//     catch (error) {
-//         console.error('Erreur getUserInfo:', error);
-//         reply.status(500).send({ error: 'Erreur lors de la récupération des utilisateurs' });
-//     }
-// });
-
 fastify.get('/getAuthUserInfo', async (request, reply) => {
-   try {
+   try
+   {
         const { nickname } = request.query;
         console.log('Received nickname:', nickname);
 
@@ -138,19 +124,16 @@ fastify.get('/getAuthUserInfo', async (request, reply) => {
         console.log('Fetching user from the database with nickname:', nickname);
         const user = await getAuthUserInfoInDB(nickname);// appel du backend database
         
-        // user est un tableau d'objets
-        if (!user || user.length === 0)
+        if (!user || user.length === 0) // user = tableau d'objets
             return reply.status(200).send([]);
 
         reply.status(200).send(user); // Envoie tableau avec 1 utilisateur
     }
     catch (error) {
         console.error('Erreur get UserInfo:', error);
-        reply.status(500).send({ error: 'Erreur lors de la récupération de l utilisateur' });
+        reply.status(500).send({ error: 'Error when fetching user from the database' });
     }
 });
-
-
 
 fastify.post('/LogStatus', async (request, reply) => {
 
@@ -173,21 +156,21 @@ fastify.post('/LogStatus', async (request, reply) => {
 
   try 
   {
-        const userUpdate = { nickname, status };
-        const result = await updateLogStatusInDatabase(userUpdate);
-        
-        return reply.status(200).send({ 
-            message: 'User status updated successfully',
-            result 
-        });
-    } 
-    catch (error) {
-        console.error('Error updating user status:', error);
-        return reply.status(500).send({ 
-            error: 'Failed to update user status',
-            details: error.message 
-        });
-    }
+    const userUpdate = { nickname, status };
+    const result = await updateLogStatusInDatabase(userUpdate);
+    
+    return reply.status(200).send({ 
+        message: 'User status updated successfully',
+        result 
+    });
+  } 
+  catch (error) {
+      console.error('Error updating user status:', error);
+      return reply.status(500).send({ 
+          error: 'Failed to update user status',
+          details: error.message 
+      });
+  }
 });
 
 // Route OAuth 2.0 pour échange code contre un token Google
@@ -197,12 +180,12 @@ fastify.post('/LogStatus', async (request, reply) => {
 fastify.post('/oauth/googleCodeToTockenUser', async (request, reply) => {
 
   const { code, redirect_uri } = request.body;
-  
+
+  console.log('------------------------------------------------------------');
   console.log('OAuth Google code received from Popup:', { code, redirect_uri });
-  console.log('Environment check:', {
-    GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID ? 'Present' : 'Missing',
-    GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET ? 'Present' : 'Missing'
-  });
+  // console.log('Environment check:', { GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID ? 'Present' : 'Missing',
+  //   GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET ? 'Present' : 'Missing'}); // Debug 
+  console.log('------------------------------');
 
   if (!code || !redirect_uri) 
     return reply.status(400).send({ error: 'Code et redirect_uri requis' });
@@ -253,7 +236,6 @@ fastify.post('/oauth/googleCodeToTockenUser', async (request, reply) => {
     const tokenData = await tokenResponse.json();
     const googleAccessToken = tokenData.access_token;
     
-    
     console.log('Google access token received to get user info :', googleAccessToken);
 
     // Récupérer les informations utilisateur depuis Google
@@ -270,11 +252,12 @@ fastify.post('/oauth/googleCodeToTockenUser', async (request, reply) => {
       return reply.status(400).send({ error: 'Échec de la récupération des informations utilisateur' });
     }
     
-    // on recup les infos utilisateur du fetch 
-    const googleUser = await userResponse.json();
+    const googleUser = await userResponse.json();  // on recup les infos utilisateur du fetch 
+
+    console.log('------------------------------');
     console.log('Google user info received:', googleUser);
     
-    // Mapper les données Google vers notre format
+    // Mappe les données Google vers le format de la DB
     const mappedUser = {
       sub: `google|${googleUser.id}`,
       email: googleUser.email,
@@ -284,13 +267,14 @@ fastify.post('/oauth/googleCodeToTockenUser', async (request, reply) => {
       familyName: googleUser.family_name || 'Unknown',
       status: 'active',
     };
-    
-    console.log('!! Google user mapped:', mappedUser);
+    console.log('------------------------------');
     
     // Sauvegarde utilisateur dans db
     const savedUser = await saveAuthUserToDatabase(mappedUser);
     
-    // Créer un JWT pour notre application
+    console.log('------------------------------');
+
+    // Créer un JWT avec les infos utilisateur
     const jwtToken = createJWT(
       { 
         id: savedUser.id,
@@ -305,6 +289,8 @@ fastify.post('/oauth/googleCodeToTockenUser', async (request, reply) => {
     );
 
     console.log('JWT token created for user:', savedUser.nickname);
+    console.log('JWT token = ', jwtToken);
+    console.log('------------------------------------------------------------');
     
     return reply.status(200).send({
       access_token: jwtToken,
@@ -333,32 +319,29 @@ fastify.post('/oauth/googleCodeToTockenUser', async (request, reply) => {
 fastify.get('/userInfoJWT', { preHandler: validateToken }, async (request, reply) => {
   
   const user = request.user;
-  console.log('!!! AUTH BACK User info requested for ', user.nickname);
+  console.log('----------------------------------------------');
+  console.log('User info requested by ProfilePage for ', user.nickname);
 
   try 
   {
     // 1.Vérifier que le nickname existe bien dans la base de données
     const userInfoArr = await getAuthUserInfoInDB(user.nickname);
 
-    console.log('User info retrieved from database:', userInfoArr);
-
-    // const userInfo = userInfoArr && userInfoArr[0];
-
     if (!userInfoArr || userInfoArr.length === 0) 
     {
-      console.error('Erreur récupération utilisateur: Utilisateur non trouvé dans la db');
-      return reply.status(404).send({ error: 'User not found: Utilisateur n\'existe pas dans la db' });
+      console.error('Error when fectching user: User not found in DB');
+      return reply.status(404).send({ error: 'User not found: User does not exists in DB' });
     }
 
     const userInfo = userInfoArr[0];
     console.log('User info found in database:', userInfo);
-    console.log('User info to return:userInfoArr[0]', userInfoArr[0])
-    // ✅ SÉCURITÉ SUPPLÉMENTAIRE : Vérifier que userInfo existe
-    if (!userInfo) 
+
+    if (!userInfo)// SÉCU SUP-> Vérif userInfo existe 
     {
-      console.error('Erreur récupération utilisateur: Données utilisateur vides');
+      console.error('Error when fectching user: User data is empty');
       return reply.status(404).send({ error: 'User data is empty' });
     }
+    console.log('----------------------------------------------');
 
     // 2. Retourner les informations utilisateur depuis la base de données
     return reply.status(200).send({
@@ -370,26 +353,25 @@ fastify.get('/userInfoJWT', { preHandler: validateToken }, async (request, reply
       family_name: userInfo.familyName || null,
     });
   } catch (error) {
-    console.error('Erreur récupération utilisateur:', error);
-    return reply.status(500).send({ error: 'Erreur interne du serveur' });
+    console.error('Error when fectching user:', error);
+    return reply.status(500).send({ error: 'Error when fectching user: Error in server' });
   }
 });
 
 // Route pour déconnecter l'utilisateur
 fastify.post('/logout', { preHandler: validateToken }, async (request, reply) => {
-  try {
+  try 
+  {
     const user = request.user;
     
     // Mettre à jour le statut en base de données
-    await updateLogStatusInDatabase({
-      nickname: user.nickname,
-      status: 'disconnected'
-    });
-    
-    return reply.status(200).send({ message: 'Déconnexion réussie' });
-  } catch (error) {
-    console.error('Erreur lors de la déconnexion:', error);
-    return reply.status(500).send({ error: 'Erreur lors de la déconnexion' });
+    await updateLogStatusInDatabase({ nickname: user.nickname, status: 'disconnected' });
+
+    return reply.status(200).send({ message: 'Disconnection successfull' });
+  } 
+  catch (error) {
+    console.error('Error during disconnection:', error);
+    return reply.status(500).send({ error: 'Error during disconnection' });
   }
 });
 

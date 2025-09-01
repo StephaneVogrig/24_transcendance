@@ -26,7 +26,7 @@ const createAvatar = (user: any): HTMLImageElement =>
     // Set src after error handler is in place
     element.src = user.picture || '/assets/default_avatar.jpg';
     
-    console.log('Avatar created with src:', element.src);
+    console.log('Avatar link:', element.src);
     return element;
 }
 
@@ -39,7 +39,7 @@ export const animateLoading = (container: HTMLElement): void => {
     });
     
     const loadingText = createElement('p', { 
-        text: 'Chargement...', 
+        text: 'Charging...', 
         className: 'text-gray-600' 
     });
     
@@ -51,7 +51,7 @@ export const animateLoading = (container: HTMLElement): void => {
 function displayUserInfo(userData: any, userInfoDiv: HTMLDivElement): void
 {
 
-        console.log('DISPLAY USER INFO', userData);
+        console.log('User info retreived ->', userData);
         // Title
         const infoTitle = createElement('h3', {
             text: locale.userInfo,
@@ -88,14 +88,12 @@ export const userConnected = (userObj: any, userInfoDiv: HTMLDivElement): void =
 
     const userData = {
         picture: userObj.picture || '/assets/default_avatar.jpg',
-        mail: userObj.email || userObj.mail || 'Email non disponible',
-        nickname: userObj.nickname  || 'Nickname non disponible',
-        givenName:   userObj.given_name || 'Prénom non disponible',
-        familyName:  userObj.family_name || 'Nom de famille non disponible',
+        mail: userObj.email || userObj.mail || 'Email not available',
+        nickname: userObj.nickname  || 'Nickname not available',
+        givenName:   userObj.given_name || 'Given name not available',
+        familyName:  userObj.family_name || 'Family name not available',
         status: userObj.status || 'unknown'
     };
-
-//    console.log('User data prepared:', userData);
 
     if (userData)  // AFFICHAGE INFO UTILISATEUR
         displayUserInfo(userData, userInfoDiv);
@@ -136,11 +134,10 @@ export const notConnected = (statusDiv: HTMLDivElement, userInfoDiv: HTMLDivElem
         actionsContainer.className = 'flex flex-wrap gap-4';
 
         createGoogleButton(actionsDiv, document.createElement('div'));
-
+        // ???
         // localStorage.clear(); // Clear local storage on error
         // sessionStorage.clear(); // Clear session storage on error
 
         actionsDiv.appendChild(actionsTitle);
         actionsDiv.appendChild(actionsContainer);
 }
-
