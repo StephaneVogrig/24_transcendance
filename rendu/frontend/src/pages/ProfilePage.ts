@@ -114,8 +114,8 @@ export const ProfilePage = (): HTMLElement => {
     mainDiv.appendChild(container);
 
     // Titre
-    const title = document.createElement('h1');
-    title.className = 'text-4xl font-bold text-center text-gray-400 mb-8';
+    const title = document.createElement('h2');
+    title.className = 'title-page';
     title.textContent = locale.statusAuth;
     container.appendChild(title);
 

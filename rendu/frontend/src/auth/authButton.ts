@@ -8,7 +8,7 @@ import { loginWithGoogle } from "./authGoogle";
 export const createGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLElement): void => {
     const googleButton = document.createElement('button');
     googleButton.id = 'google-oauth-btn';
-    googleButton.className = 'w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200';
+    googleButton.className = 'btn w-full flex justify-center py-3 px-4 bg-white text-gray-600 focus:outline-none focus:ring-2  focus:ring-red-500';
     googleButton.innerHTML = `
         <img class="w-5 h-5 mr-2" src="/assets/Google_logo.jpg" alt="Google Logo" />
         ${locale.google}
@@ -37,7 +37,6 @@ export const createGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLE
  */
 export function createProfileButton(): HTMLElement {
     const profileButton = document.createElement('button');
-    // profileButton.className = 'btn btn-secondary max-w-40 mx-auto text-center bg-green-400 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200';
     profileButton.className = 'w-full flex justify-center items-center py-2 px-4 rounded-md shadow-sm bg-green-400 text-white text-m font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ';
     profileButton.textContent = locale.profile || 'Profile';
     profileButton.addEventListener('click', () => {
