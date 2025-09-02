@@ -48,15 +48,14 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'https://localhost:3000/api';
+        const hostname = localStorage.getItem('hostname');
+        const API_BASE_URL = `https://${hostname}:3000/api`;
         const GOOGLE_OAUTH_CONFIG = {
-            REDIRECT_URI: 'https://localhost:3000/auth-callback-popup.html'
+            REDIRECT_URI: `https://${hostname}:3000/auth-callback-popup.html`
         };
 
         async function handlePopupCallback() {
             const statusEl = document.getElementById('status');
-            
-
             try 
             {
                 // on doit avoir recuperé redirect_uri qui contient le code d'autorisation (retour de Google)

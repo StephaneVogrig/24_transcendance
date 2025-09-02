@@ -171,7 +171,6 @@ export function handlePopupResponse(popup: Window): Promise<void> {
                 else 
                 {
                     console.log('No temp token found, connection cancelled');
-                    // reject(new Error('Connexion annulée par l\'utilisateur'));
                     return;
                 }
             }
@@ -183,7 +182,6 @@ export function handlePopupResponse(popup: Window): Promise<void> {
             cleanup();
             if (!popup.closed)
                 closePopup(popup);
-            // reject(new Error('Timeout de connexion (5 minutes)'));
         }, 300000);
     });
 }

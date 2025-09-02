@@ -21,6 +21,7 @@ services:
             dockerfile: Dockerfile.nginx
             args:
                 VITE_PROXY_PORT: ${PROXY_PORT}
+                VITE_HOST_ADDRESS: ${VITE_HOST_ADDRESS}
         volumes:
             - ./ssl:/app/ssl
         networks:

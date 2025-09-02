@@ -3,6 +3,8 @@ import { navigate } from '../router';
 import { handlePopupResponse } from './authManagePopUp';
 import { notifyAuthStateChange } from './authStateChange';
 
+const hostname = import.meta.env.VITE_HOST_ADDRESS;
+
 // Interface pour les informations utilisateur Google
 export interface GoogleUser {
     id: string;
@@ -35,7 +37,9 @@ function buildAuthUrl(): string {
     
     // Utiliser localStorage au lieu de sessionStorage pour partager entre fenêtres
     localStorage.setItem('oauth_state', stateCode);
-    //sessionStorage.setItem('oauth_state', stateCode);
+    if (hostname)
+        localStorage.setItem('hostname', hostname);
+    console.log(hostname);
 
     const params = new URLSearchParams({
         client_id: GOOGLE_OAUTH_CONFIG.CLIENT_ID,
@@ -51,15 +55,15 @@ function buildAuthUrl(): string {
     console.log('OAuth AUTH_URL:', GOOGLE_OAUTH_CONFIG.AUTH_URL);
     console.log('State saved to localStorage:', stateCode);
 
-
     return `${GOOGLE_OAUTH_CONFIG.AUTH_URL}?${params.toString()}`;
 }
 
 export async function loginWithGoogle(): Promise<void> {
     try
     {
+
         const authUrl = buildAuthUrl(); // on cree URL d'autorisation pour Google OAuth
-        
+
         console.log('Google OAuth  URL:', authUrl);
 
         // config + ouverture popup
@@ -68,11 +72,7 @@ export async function loginWithGoogle(): Promise<void> {
         const left = window.screen.width / 2 - popupWidth / 2;
         const top = window.screen.height / 2 - popupHeight / 2;
         
-        const popup = window.open(
-            authUrl,
-            'google-oauth',
-            `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=yes`
-        );
+        const popup = window.open(authUrl, 'google-oauth',`width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=yes`);
         
         if (!popup) 
         {

@@ -19,6 +19,7 @@ services:
             - ./ssl:/app/ssl
         environment:
             - VITE_PROXY_PORT=${PROXY_PORT}
+            - VITE_HOST_ADDRESS=${VITE_HOST_ADDRESS}
         stop_grace_period: 0s
 
     gateway:

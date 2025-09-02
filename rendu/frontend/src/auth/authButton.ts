@@ -22,7 +22,7 @@ export const createGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLE
         {
             authMessageDiv.textContent = 'Redirection vers Google...';
             authMessageDiv.className = 'text-center text-sm mb-6 font-medium text-blue-600';
-            await loginWithGoogle();
+            await loginWithGoogle(); // appel du html popup
         } 
         catch (error) {
             console.error('Erreur lors de la connexion Google:', error);

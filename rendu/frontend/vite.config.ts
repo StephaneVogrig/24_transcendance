@@ -5,7 +5,7 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 5173,
-        allowedHosts: ['frontend', 'localhost', '127.0.0.1'],
+        allowedHosts: ['frontend', 'localhost', '127.0.0.1', '1f2.42angouleme.fr'],
         // PopUp : Configuration pour autoriser les popups et messages
         headers: {
             'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
