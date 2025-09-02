@@ -55,7 +55,7 @@ const loadMatches = async (cardsContainer : HTMLElement ) =>
 
         // Créer un conteneur pour les deux cartes du bas
         const bottomCardsContainer = document.createElement('div');
-        bottomCardsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-fit';
+        bottomCardsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-full';
         
         // Ajouter les cartes waiting et finished côte à côte
         bottomCardsContainer.appendChild(waitingCard);
@@ -86,8 +86,6 @@ export const MatchDisplayPage = (): HTMLElement =>
     title.className = 'text-center text-3xl font-extrabold text-blue-400 mb-4';
     title.textContent = locale.matchTitle;
     titleContainer.appendChild(title);
-
-    // titleContainer.appendChild(spacer);
     container.appendChild(titleContainer);
 
     //Bouton de rafraîchissement
@@ -106,7 +104,6 @@ export const MatchDisplayPage = (): HTMLElement =>
     // Conteneur des cartes de tournois
     const cardsContainer = document.createElement('div');
     cardsContainer.className = 'space-y-3 pb-12';
-    // Charger les matchs au chargement de la page
     loadMatches(cardsContainer);
     container.appendChild(cardsContainer);
 
