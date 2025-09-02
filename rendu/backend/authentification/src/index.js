@@ -19,32 +19,32 @@ function createFormData(data) {
 }
 
 // créer un tocken JWT 
-function createJWT(payload, secret, expiresIn = '24h') {
-  const header = { alg: 'HS256', typ: 'JWT' };
-  const exp = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // 24h en secondes
-  
+function createJWT(payload, secret, expiresIn = '24h') 
+{
+  const header = { alg: 'HS256', typ: 'JWT' }; // header fixe -> algo = HS256 + type = JWT
+
+  const exp = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // -> expire 24h 
   const payloadWithExp = { ...payload, exp };
   
-  const base64Header = Buffer.from(JSON.stringify(header)).toString('base64url');
-  const base64Payload = Buffer.from(JSON.stringify(payloadWithExp)).toString('base64url');
+  const base64Header = Buffer.from(JSON.stringify(header)).toString('base64url'); //encodage header
+  const base64Payload = Buffer.from(JSON.stringify(payloadWithExp)).toString('base64url'); // données user + timestamp expiration
+ 
+
+  // creation Signature HMAC-SHA256 -> HMAC-SHA256 du header + payload avc clé secrète
+  const signature = createHmac('sha256', secret).update(`${base64Header}.${base64Payload}`).digest('base64url');
   
-  const signature = createHmac('sha256', secret)
-    .update(`${base64Header}.${base64Payload}`)
-    .digest('base64url');
-    
-  return `${base64Header}.${base64Payload}.${signature}`;
+  return `${base64Header}.${base64Payload}.${signature}`; // -> header.payload.signature 
 }
 
 
-function verifyJWT(token, secret) {
+function verifyJWT(token, secret) 
+{
   try 
   {
     const [header, payload, signature] = token.split('.');
     
-    // Vérifier la signature
-    const expectedSignature = createHmac('sha256', secret)
-      .update(`${header}.${payload}`)
-      .digest('base64url');
+    // Vérif signature
+    const expectedSignature = createHmac('sha256', secret).update(`${header}.${payload}`).digest('base64url');
       
     if (signature !== expectedSignature) 
       throw new Error('Invalid signature');
@@ -95,7 +95,7 @@ async function validateToken(request, reply) {
     const decoded = verifyJWT(token, JWT_SECRET);
     console.info('Decoded JWT (send by ProfilePage): ', decoded);
 
-    request.user = decoded;
+    request.user = decoded; // donnees user decodées
   } 
   catch (error) {
     return reply.status(401).send({ error: 'Invalid Tocken or expired' });
