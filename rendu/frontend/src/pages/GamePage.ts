@@ -40,7 +40,7 @@ export const GamePage = (): HTMLElement => {
 	const scoreParagraph = document.createElement('p');
 	scoreParagraph.id = 'gameScoreDisplay';
 	scoreParagraph.textContent = locale.number[0] + " - " + locale.number[0];
-	scoreParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 ';
+	scoreParagraph.className = 'absolute top-4 left-1/2 -translate-x-1/2 text-5xl font-semibold text-blue-300 z-10 justify-content';
 	gameContainer.appendChild(scoreParagraph);
 
 	statusParagraph.id = 'gameStatusDisplay';
@@ -135,38 +135,34 @@ export function gameOver() {
 export function updateScores(player1Name: string, player1Score: number, player2Name: string, player2Score: number) {
 	const scoreParagraph = document.getElementById('gameScoreDisplay') as HTMLParagraphElement;
 	if (scoreParagraph) {
-		const scoreString = `${player1Name} | ${locale.number[player1Score]} - ${locale.number[player2Score]} | ${player2Name}`;
-		let coloredHtml = '';
+        while (scoreParagraph.firstChild)
+            scoreParagraph.removeChild(scoreParagraph.firstChild);
 
-		const player2BaseColor = '#4299E1';
-		const player2GlowColor = 'rgba(124, 255, 253, 0.7)';
+        const player1NameSpan = document.createElement('span');
+        player1NameSpan.className = 'text-xl sm:text-2xl md:text-3xl orangeGame';
+        player1NameSpan.textContent = player1Name;
 
-		const player1BaseColor = '#F6AD55';
-		const player1GlowColor = 'rgba(255, 140, 0, 0.7)';
+        const player1ScoreSpan = document .createElement('span');
+        player1ScoreSpan.className = 'orangeGame mx-2.5';
+        player1ScoreSpan.textContent = locale.number[player1Score];
 
-		const separatorBaseColor = '#FFFFFF';
-		const separatorGlowColor = 'rgb(255, 255, 255)';
+        const player2NameSpan = document.createElement('span');
+        player2NameSpan.className = 'text-xl sm:text-2xl md:text-3xl blueGame';
+        player2NameSpan.textContent = player2Name;
 
-		for (let i = 0; i < scoreString.length; i++) {
-			const char = scoreString[i];
-			let baseColor = '';
-			let glowEffect = ''
-			if (char === '-') {
-				baseColor = separatorBaseColor;
-				glowEffect = `text-shadow: 0 0 10px ${separatorGlowColor};`;
-			} else if (char === ' ') {
-				glowEffect = '';
-			} else if (i < scoreString.indexOf('-')) {
-				baseColor = player1BaseColor;
-				glowEffect = `text-shadow: 0 0 10px ${player1GlowColor};`;
-			} else {
-				baseColor = player2BaseColor;
-				glowEffect = `text-shadow: 0 0 10px ${player2GlowColor};`;
-			}
-			
-			coloredHtml += `<span style="color: ${baseColor}; ${glowEffect}">${char}</span>`;
-		}
-		scoreParagraph.innerHTML = coloredHtml;
+        const player2ScoreSpan = document .createElement('span');
+        player2ScoreSpan.className = 'blueGame mx-2.5';
+        player2ScoreSpan.textContent = locale.number[player2Score];
+
+        const separatorSpan = document.createElement('span');
+        separatorSpan.className = 'separatorStyle';
+        separatorSpan.textContent = '-';
+
+        scoreParagraph.appendChild(player1NameSpan);
+        scoreParagraph.appendChild(player1ScoreSpan);
+        scoreParagraph.appendChild(separatorSpan);
+        scoreParagraph.appendChild(player2ScoreSpan);
+        scoreParagraph.appendChild(player2NameSpan);
 	}
 }
 
