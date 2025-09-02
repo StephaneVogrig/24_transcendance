@@ -107,7 +107,7 @@ export class InputManager {
 				z: data.player2.paddle._y / 2.5
 			};
 			updateBallAndPlatforms(ballPos, platform1Pos, platform2Pos);
-			updateScores(data.score[0], data.score[1]);
+			updateScores(data.player1.name, data.score[0], data.player2.name, data.score[1]);
 			if (gameStatus != data.gameStatus) {
 				gameStatus = data.gameStatus;
 				gameStatusUpdate(gameStatus);
