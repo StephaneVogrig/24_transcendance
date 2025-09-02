@@ -1,12 +1,8 @@
-# Configuration Google OAuth
+# Google OAuth 2.0 : 
 GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=-
-
-# JWT Secret pour les tokens
+GOOGLE_CLIENT_SECRET=
 JWT_SECRET=
-#node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-#openssl rand -hex 64
 
-# Port pour les services
-PORT=3001
-
+# Blochain :
+BLOCKCHAIN_PRIVATE_KEY=
+BLOCKCHAIN_INFURIA_KEY=
