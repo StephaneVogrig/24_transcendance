@@ -5,14 +5,14 @@ import { locale } from '../i18n';
 export const AboutPage = (): HTMLElement => {
 
     const content = document.createElement('div');
-    content.className = 'mx-auto max-w-7xl h-full w-full grid grid-rows-[auto_1fr_auto] gap-8';
+    content.className = 'content-page';
 
     const team = document.createElement('div');
     team.className = 'text-center pb-16 px-8';
     content.appendChild(team);
 
     const h2 = document.createElement('h2');
-    h2.className = 'text-3xl font-extrabold text-blue-400 mb-8';
+    h2.className = 'title-page';
     h2.textContent = locale.team;
     team.appendChild(h2);
 

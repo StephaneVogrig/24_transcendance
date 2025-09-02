@@ -72,7 +72,7 @@ export const MatchDisplayPage = (): HTMLElement =>
 {
     // Conteneur principal (remplace mainDiv)
     const container = document.createElement('div');
-    container.className = 'mx-auto max-w-7xl h-full grid grid-rows-[auto_1fr_auto]';
+    container.className = 'content-page';
 
     // Titre de la page
     const titleContainer = document.createElement('div');
@@ -82,8 +82,8 @@ export const MatchDisplayPage = (): HTMLElement =>
     leftSpacer.className = 'w-10';
     titleContainer.appendChild(leftSpacer);
 
-    const title = document.createElement('h1');
-    title.className = 'text-center text-3xl font-extrabold text-blue-400 mb-4';
+    const title = document.createElement('h2');
+    title.className = 'title-page';
     title.textContent = locale.matchTitle;
     titleContainer.appendChild(title);
     container.appendChild(titleContainer);

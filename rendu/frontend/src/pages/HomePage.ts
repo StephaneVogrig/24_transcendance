@@ -40,7 +40,7 @@ export function enableJoining() {
 
 export const HomePage = (): HTMLElement => {
 	const content = document.createElement('div');
-	content.className = 'mx-auto max-w-7xl h-full grid grid-rows-[auto_1fr_auto] gap-8';
+	content.className = 'content-page';
 
 	// Navigation
 	const nav = document.createElement('nav');
@@ -51,7 +51,7 @@ export const HomePage = (): HTMLElement => {
 	input.type = 'text';
 	input.placeholder = locale.pseudo;
 	input.maxLength = 25;
-	input.className = 'mb-6 px-4 py-3 rounded-xl text-lg text-black w-50 border-4 border-cyan-400 text-white bg-transparent focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-[0_0_10px_#00ffff]';
+	input.className = 'px-4 py-3 rounded-xl text-lg text-black w-50 border-4 border-cyan-400 text-white bg-transparent focus:outline-none focus:ring-2 focus:ring-cyan-300 shadow-[0_0_10px_#00ffff]';
 	input.addEventListener('input', () => {
 		const isEmpty = (input.value.trim().length < 3 || input.value.length > 25) || isWaitingForGame;
 		playOnline.disabled = isEmpty;
@@ -71,7 +71,7 @@ export const HomePage = (): HTMLElement => {
 
     // Play text
 	const playTitle = document.createElement('h2');
-	playTitle.className = ' text-center text-3xl font-extrabold text-blue-400 mb-4 mt-8';
+	playTitle.className = 'title-page';
 	playTitle.textContent = locale.play;
 	playDiv.appendChild(playTitle);
 

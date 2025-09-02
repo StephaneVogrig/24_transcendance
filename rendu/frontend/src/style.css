@@ -38,4 +38,12 @@
   .title-glow {
     text-shadow: 0 0 10px #0ea5e9, 0 0 20px #0ea5e9, 0 0 30px #0ea5e9;
   }
+
+  .title-page {
+    @apply text-center text-4xl font-extrabold text-blue-400 m-4;
+  }
+
+  .content-page {
+    @apply mx-auto max-w-7xl h-full grid grid-rows-[auto_1fr_auto];
+  }
 }
