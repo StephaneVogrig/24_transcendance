@@ -8,7 +8,6 @@ type Dictionary = {
 	[key: string]: string;
 };
 
-
 const translations: { [key: string]: Dictionary } = {
 	en: en,
 	fr: fr,
@@ -19,7 +18,7 @@ const translations: { [key: string]: Dictionary } = {
 
 export type supportedLanguage = keyof typeof translations;
 
-function getUserLanguage(): supportedLanguage {
+function getNavigatorLanguage(): supportedLanguage {
 	const userLanguage: string = navigator.language;
 	const userLanguageCode: string = userLanguage.substring(0,2);
 	let lang: supportedLanguage = 'en';
@@ -29,19 +28,27 @@ function getUserLanguage(): supportedLanguage {
 	return lang;
 }
 
-let currentLanguage: supportedLanguage = getUserLanguage();
+function getPreferredLanguage(): supportedLanguage {
+  const storedLang = localStorage.getItem('lang');
+  if (storedLang) {
+    return storedLang;
+  }
+  return getNavigatorLanguage();
+}
+
+let userLanguage: supportedLanguage = getPreferredLanguage();
 
 export let locale: {[key: string]: string } = {};
 
 /**
  * Définit la langue actuelle de l'application.
  * Met à jour l'objet `locale` et le localStorage.
- * @param lang La langue à définir ('en', 'fr', 'es').
+ * @param lang La langue à définir ('en', 'fr', 'es', ...).
  */
 export function setLanguage(lang: supportedLanguage): void {
 	if (translations[lang]) {
-		currentLanguage = lang;
-		// localStorage.setItem('lang', lang);
+		userLanguage = lang;
+		localStorage.setItem('lang', lang as string);
 		Object.assign(locale, translations[lang]);
 		console.log(`Language set to: ${lang}`);
 	} else {
@@ -53,12 +60,12 @@ export function setLanguage(lang: supportedLanguage): void {
  * Retourne la langue actuellement sélectionnée.
  * @returns La langue actuelle.
  */
-export function getCurrentLanguage(): supportedLanguage {
-	return currentLanguage;
+export function getuserLanguage(): supportedLanguage {
+	return userLanguage;
 }
 
 export function getLaguangeName(lang: supportedLanguage): string {
 	return translations[lang]['language'];
 }
 
-setLanguage(currentLanguage);
+setLanguage(userLanguage);
