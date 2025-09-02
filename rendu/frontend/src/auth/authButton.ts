@@ -37,7 +37,7 @@ export const createGoogleButton = (loginForm: HTMLElement, authMessageDiv: HTMLE
  */
 export function createProfileButton(): HTMLElement {
     const profileButton = document.createElement('button');
-    profileButton.className = 'w-full flex justify-center items-center py-2 px-4 rounded-md shadow-sm bg-green-400 text-white text-m font-bold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ';
+    profileButton.className = 'btn w-full flex justify-center items-center py-3 px-4 rounded-md shadow-sm bg-green-600 text-white text-m font-bold focus:outline-none focus:ring-2 focus:ring-green-500 ';
     profileButton.textContent = locale.profile || 'Profile';
     profileButton.addEventListener('click', () => {
         navigate('/profile');
