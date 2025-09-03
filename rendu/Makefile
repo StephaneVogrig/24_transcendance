@@ -26,6 +26,9 @@ HOST_IP	:=	$(if $(HOST_IP),$(HOST_IP),$(shell hostname -I | cut -d' ' -f1))
 HOST_IP	:=	$(if $(HOST_IP),$(HOST_IP),localhost)
 export HOST_IP
 
+VITE_HOST_ADDRESS := $(shell echo $$SESSION_MANAGER | cut -d'@' -f1 | cut -d':' -f1 | cut -d'/' -f2)
+export VITE_HOST_ADDRESS
+
 # Directory for SSL certificates
 SSL_DIR	:=	ssl
 
