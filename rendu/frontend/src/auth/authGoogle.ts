@@ -16,12 +16,12 @@ export interface GoogleUser {
 }
 
 // Interface pour la réponse d'authentification
-export interface AuthResponse {
-    success: boolean;
-    user?: GoogleUser;
-    token?: string;
-    error?: string;
-}
+// export interface AuthResponse {
+//     success: boolean;
+//     user?: GoogleUser;
+//     token?: string;
+//     error?: string;
+// }
 
 // Génère une chaîne aléatoire qui sera le state parameter (sécurité CSRF)
 function generateStateCode(): string {
@@ -61,7 +61,6 @@ function buildAuthUrl(): string {
 export async function loginWithGoogle(): Promise<void> {
     try
     {
-
         const authUrl = buildAuthUrl(); // on cree URL d'autorisation pour Google OAuth
 
         console.log('Google OAuth  URL:', authUrl);
@@ -71,7 +70,6 @@ export async function loginWithGoogle(): Promise<void> {
         const popupHeight = 600;
         const left = window.screen.width / 2 - popupWidth / 2;
         const top = window.screen.height / 2 - popupHeight / 2;
-        
         const popup = window.open(authUrl, 'google-oauth',`width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=yes`);
         
         if (!popup) 
@@ -83,119 +81,119 @@ export async function loginWithGoogle(): Promise<void> {
         console.log('Popup closed successfully, user logged in'); // si connection réussie
     } 
     catch (error) {
-        console.error('Erreur lors de l\'ouverture de la popup Google:', error);
-        throw new Error('Échec de l\'ouverture de la popup Google');
+        console.error('Error occurred on popup Google:', error);
+        throw new Error('Failed to open Google popup');
     }
 }
 
-
+// !! plus utilisé car maintenant fait dans popup auth-callback-popup.html
 // Gestion callback OAuth dans popup
-export async function handleOAuthCallback(): Promise<AuthResponse> {
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        const error = urlParams.get('error');
+// export async function handleOAuthCallback(): Promise<AuthResponse> {
+//     try {
+//         const urlParams = new URLSearchParams(window.location.search);
+//         const code = urlParams.get('code');
+//         const state = urlParams.get('state');
+//         const error = urlParams.get('error');
         
-        if (error) 
-        {
-            if (window.opener) // Envoie erreur à la fenêtre parent
-            {
-                console.error('Send error to window.location.origin ->', window.location.origin);
-                window.opener.postMessage({
-                    type: 'OAUTH_ERROR',
-                    error: `Erreur OAuth: ${error}`
-                }, window.location.origin);
-                window.close();
-            }
-            throw new Error(`Erreur OAuth: ${error}`);
-        }
+//         if (error) 
+//         {
+//             if (window.opener) // Envoie erreur à la fenêtre parent
+//             {
+//                 console.error('Send error to window.location.origin ->', window.location.origin);
+//                 window.opener.postMessage({
+//                     type: 'OAUTH_ERROR',
+//                     error: `Erreur OAuth: ${error}`
+//                 }, window.location.origin);
+//                 window.close();
+//             }
+//             throw new Error(`Erreur OAuth: ${error}`);
+//         }
         
-        if (!code) 
-        {
-            const errorMsg = 'Code d\'autorisation manquant';
-            if (window.opener) 
-            {
-                window.opener.postMessage({
-                    type: 'OAUTH_ERROR',
-                    error: errorMsg
-                }, window.location.origin);
-                window.close();
-            }
-            throw new Error(errorMsg);
-        }
+//         if (!code) 
+//         {
+//             const errorMsg = 'Code d\'autorisation manquant';
+//             if (window.opener) 
+//             {
+//                 window.opener.postMessage({
+//                     type: 'OAUTH_ERROR',
+//                     error: errorMsg
+//                 }, window.location.origin);
+//                 window.close();
+//             }
+//             throw new Error(errorMsg);
+//         }
         
-        // Vérification du state -> sécurité CSRF -Cross site request forgery-
-        const savedState = localStorage.getItem('oauth_state');  // Utilise localStorage pour partager entre fenêtres
+//         // Vérification du state -> sécurité CSRF -Cross site request forgery-
+//         const savedState = localStorage.getItem('oauth_state');  // Utilise localStorage pour partager entre fenêtres
        
-        if (!savedState || savedState !== state) {
-            const errorMsg = 'État OAuth invalide';
-            if (window.opener) {
-                window.opener.postMessage({
-                    type: 'OAUTH_ERROR',
-                    error: errorMsg
-                }, window.location.origin);
-                window.close();
-            }
-            throw new Error(errorMsg);
-        }
+//         if (!savedState || savedState !== state) {
+//             const errorMsg = 'État OAuth invalide';
+//             if (window.opener) {
+//                 window.opener.postMessage({
+//                     type: 'OAUTH_ERROR',
+//                     error: errorMsg
+//                 }, window.location.origin);
+//                 window.close();
+//             }
+//             throw new Error(errorMsg);
+//         }
         
-        localStorage.removeItem('oauth_state'); // Nettoyer state du stockage depuis localStorage
+//         localStorage.removeItem('oauth_state'); // Nettoyer state du stockage depuis localStorage
         
-        // Échanger code contre token dans backend
-        const response = await fetch(`${API_BASE_URL}/authentification/oauth/googleCodeToTockenUser`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                code: code,
-                redirect_uri: GOOGLE_OAUTH_CONFIG.REDIRECT_URI
-            })
-        });
+//         // Échanger code contre token dans backend
+//         const response = await fetch(`${API_BASE_URL}/authentification/oauth/googleCodeToTockenUser`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({
+//                 code: code,
+//                 redirect_uri: GOOGLE_OAUTH_CONFIG.REDIRECT_URI
+//             })
+//         });
         
-        if (!response.ok) 
-        {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMsg = errorData.message || 'Erreur lors de l\'échange du code';
+//         if (!response.ok) 
+//         {
+//             const errorData = await response.json().catch(() => ({}));
+//             const errorMsg = errorData.message || 'Erreur lors de l\'échange du code';
             
-            if (window.opener) 
-            {
-                window.opener.postMessage({
-                    type: 'OAUTH_ERROR',
-                    error: errorMsg
-                }, window.location.origin);
-                window.close();
-            }
-            throw new Error(errorMsg);
-        }
+//             if (window.opener) 
+//             {
+//                 window.opener.postMessage({
+//                     type: 'OAUTH_ERROR',
+//                     error: errorMsg
+//                 }, window.location.origin);
+//                 window.close();
+//             }
+//             throw new Error(errorMsg);
+//         }
         
-        const data = await response.json();
+//         const data = await response.json();
         
-        if (window.opener) // Envoyer le succès à la fenêtre parent
-        {
-            window.opener.postMessage({
-                type: 'OAUTH_SUCCESS',
-                token: data.access_token,
-                user: data.user
-            }, window.location.origin);
-            window.close();
-        }
+//         if (window.opener) // Envoyer le succès à la fenêtre parent
+//         {
+//             window.opener.postMessage({
+//                 type: 'OAUTH_SUCCESS',
+//                 token: data.access_token,
+//                 user: data.user
+//             }, window.location.origin);
+//             window.close();
+//         }
         
-        return {
-            success: true,
-            user: data.user,
-            token: data.access_token
-        };
+//         return {
+//             success: true,
+//             user: data.user,
+//             token: data.access_token
+//         };
         
-    } catch (error) {
-        console.error('Erreur lors du traitement du callback OAuth:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Erreur inconnue'
-        };
-    }
-}
+//     } catch (error) {
+//         console.error('Erreur lors du traitement du callback OAuth:', error);
+//         return {
+//             success: false,
+//             error: error instanceof Error ? error.message : 'Erreur inconnue'
+//         };
+//     }
+// }
 
 // recup info utilisateur connecte avec le JWT token que l'on a créé dans le backend depuis la popup
 export async function getCurrentUser(): Promise<GoogleUser | null> {

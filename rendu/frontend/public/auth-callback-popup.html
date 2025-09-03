@@ -89,6 +89,14 @@
                     console.error('Aucun state sauvegardé trouvé dans localStorage');
                     throw new Error('État OAuth manquant - Veuillez réessayer la connexion');
                 }
+
+                // Ajout verif state que l'on a envoyé et celui reçu dans le callback   
+                // j'avais oublié de faire la vérif ... -_-
+                if (savedState !== state) 
+                {
+                    console.error('States do not match:', { saved: savedState, received: state });
+                    throw new Error('État OAuth invalide - Possible attaque CSRF détectée');
+                }
                             
                 localStorage.removeItem('oauth_state'); // Nettoyer le state du stockage
                 
