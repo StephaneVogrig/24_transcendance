@@ -26,8 +26,9 @@ HOST_IP	:=	$(if $(HOST_IP),$(HOST_IP),$(shell hostname -I | cut -d' ' -f1))
 HOST_IP	:=	$(if $(HOST_IP),$(HOST_IP),localhost)
 export HOST_IP
 
-VITE_HOST_ADDRESS := $(shell echo $$SESSION_MANAGER | cut -d'@' -f1 | cut -d':' -f1 | cut -d'/' -f2)
-export VITE_HOST_ADDRESS
+HOST_DOMAIN	:= $(shell echo $$SESSION_MANAGER | cut -d':' -f1 | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')
+HOST_DOMAIN	:=	$(if $(HOST_DOMAIN),$(HOST_DOMAIN),localhost)
+export HOST_DOMAIN
 
 # Directory for SSL certificates
 SSL_DIR	:=	ssl
@@ -110,7 +111,8 @@ up-prod: setup ssl
 		$(DOCKER_COMPOSE_DEV_CMD) down; \
 	fi; \
 	$(DOCKER_COMPOSE_PROD_CMD) up -d --build; \
-	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
+	echo "$(BLUE)host IP: $(HOST_IP)$(DEFAULT)"; \
+	echo "$(BLUE)Host domain: $(HOST_DOMAIN)$(DEFAULT)"; \
 	echo "$(PURPPLE)Transcendence started in mode 🚀 production$(DEFAULT)";
 
 up-dev: setup ssl
@@ -118,7 +120,8 @@ up-dev: setup ssl
 		$(DOCKER_COMPOSE_PROD_CMD) down; \
 	fi; \
 	$(DOCKER_COMPOSE_DEV_CMD) up -d --build; \
-	echo "$(BLUE)IP hôte: $(HOST_IP)$(DEFAULT)"; \
+	echo "$(BLUE)host IP: $(HOST_IP)$(DEFAULT)"; \
+	echo "$(BLUE)Host domain: $(HOST_DOMAIN)$(DEFAULT)"; \
 	echo "$(PURPPLE)Transcendence started in mode ⚒️  development$(DEFAULT)";
 
 start: start-prod
