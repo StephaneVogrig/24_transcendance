@@ -1,9 +1,6 @@
 const PORT = (import.meta as any).env.VITE_PROXY_PORT || '3000';
 console.log(`port=${PORT}`);
-
-const HOST_DOMAIN = (import.meta as any).env.VITE_HOST_ADDRESS || 'localhost';
-
-export const BASE_URL = `https://${HOST_DOMAIN}:${PORT}`;
+export const BASE_URL = `https://${window.location.hostname}:${PORT}`;
 export const API_BASE_URL = `${BASE_URL}/api`;
 
 // Configuration OAuth 2.0 Google 
