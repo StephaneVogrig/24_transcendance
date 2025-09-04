@@ -19,7 +19,8 @@ services:
             - ./ssl:/app/ssl
         environment:
             - VITE_PROXY_PORT=${PROXY_PORT}
-            - VITE_HOST_ADDRESS=${HOST_DOMAIN}
+            - VITE_HOST_DOMAIN=${HOST_DOMAIN}
+            - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
         stop_grace_period: 0s
 
     gateway:

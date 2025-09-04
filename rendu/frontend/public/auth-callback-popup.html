@@ -48,12 +48,6 @@
     </div>
 
     <script>
-        const hostname = localStorage.getItem('hostname');
-        const API_BASE_URL = `https://${hostname}:3000/api`;
-        const GOOGLE_OAUTH_CONFIG = {
-            REDIRECT_URI: `https://${hostname}:3000/auth-callback-popup.html`
-        };
-
         async function handlePopupCallback() {
             const statusEl = document.getElementById('status');
             try 
@@ -68,97 +62,31 @@
                 const error = urlParams.get('error');
                           
                 // debug
-                console.log('Received state:', state);
-                console.log('All URL params:', Object.fromEntries(urlParams));
-                console.log('Code:', code);
+                console.debug('Received state:', state);
+                console.debug('All URL params:', Object.fromEntries(urlParams));
+                console.debug('Code:', code);
 
                 if (error)
                     throw new Error(`Erreur OAuth: ${error}`);
                 
                 if (!code)
                     throw new Error('Code d\'autorisation manquant');
-                
-                // Vérification du state -> securite CSRF
-                // compare avec le state localStorage
-                const savedState = localStorage.getItem('oauth_state');
-                console.log('Saved state:', savedState);
-                console.log('States match:', savedState === state);
 
-                if (!savedState) 
-                {
-                    console.error('Aucun state sauvegardé trouvé dans localStorage');
-                    throw new Error('État OAuth manquant - Veuillez réessayer la connexion');
-                }
-
-                // Ajout verif state que l'on a envoyé et celui reçu dans le callback   
-                // j'avais oublié de faire la vérif ... -_-
-                if (savedState !== state) 
-                {
-                    console.error('States do not match:', { saved: savedState, received: state });
-                    throw new Error('État OAuth invalide - Possible attaque CSRF détectée');
-                }
-                            
-                localStorage.removeItem('oauth_state'); // Nettoyer le state du stockage
-                
                 statusEl.textContent = '...';
-                
-                // Échanger le code contre un User token -> fait dans le backend
-                const response = await fetch(`${API_BASE_URL}/authentification/oauth/googleCodeToTockenUser`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        code: code,
-                        redirect_uri: GOOGLE_OAUTH_CONFIG.REDIRECT_URI
-                    })
-                });
-                
-                console.log('Backend response status:', response.status);
-                console.log('Backend response headers:', response.headers);
-                
-                if (!response.ok) // probleme recup du token avec le code ou pb recup info utilisateur API Google
-                {
-                    const errorData = await response.text(); 
-                    // Utiliser text() au lieu de json() pour voir le contenu exact
-                    console.error('Backend error response:', errorData);
-                    console.error('Response status:', response.status);
-                    console.error('Response statusText:', response.statusText);
-                    
-                    let parsedError;
-                    try 
-                    {
-                        parsedError = JSON.parse(errorData);
-                    } 
-                    catch (e) {
-                        parsedError = { message: errorData };
-                    }
-                    
-                    // Parse le message d'erreur pour avoir tout les details
-                    const errorMessage = parsedError.message || errorData || `Erreur HTTP ${response.status}: ${response.statusText}`;
-                    throw new Error(`POPUP Backend Error: ${errorMessage} (Status: ${response.status})`);
-                }
-                
-                // Réponse du backen authentification -> token d'accès
-                const data = await response.json();
-                
                 statusEl.textContent = ' Connection success! Closing...';
                 statusEl.className = 'success';
-                
-                console.log('OAuth success data:', data);
 
-                if (!data.access_token) 
-                    throw new Error('Token d\'accès manquant dans la réponse du serveur');
-                
                 // Envoyer l'info à la fenêtre parent
                 if (window.opener) 
                 {
                     console.log('Sending success message to parent...');
                     const message = {
                         type: 'OAUTH_SUCCESS',
-                        token: data.access_token,
+                        // token: data.access_token,
                         // user: data.user, // on a maintenant les info dans la DB
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        code: code,
+                        state: state,
                     };
                     console.log('Message to send:', message);
                     

@@ -1,9 +1,8 @@
-import { GOOGLE_OAUTH_CONFIG, API_BASE_URL } from '../config';
+import { API_BASE_URL, HOST_DOMAIN, GOOGLE_CLIENT_ID, PORT, GOOGLE_REDIRECT_URI } from '../config';
 import { navigate } from '../router';
 import { handlePopupResponse } from './authManagePopUp';
 import { notifyAuthStateChange } from './authStateChange';
 
-const hostname = import.meta.env.VITE_HOST_ADDRESS;
 
 // Interface pour les informations utilisateur Google
 export interface GoogleUser {
@@ -37,25 +36,23 @@ function buildAuthUrl(): string {
     
     // Utiliser localStorage au lieu de sessionStorage pour partager entre fenêtres
     localStorage.setItem('oauth_state', stateCode);
-    if (hostname)
-        localStorage.setItem('hostname', hostname);
-    console.log(hostname);
+    if (HOST_DOMAIN)
+        localStorage.setItem('hostname', HOST_DOMAIN);
 
     const params = new URLSearchParams({
-        client_id: GOOGLE_OAUTH_CONFIG.CLIENT_ID,
-        redirect_uri: GOOGLE_OAUTH_CONFIG.REDIRECT_URI,
-        scope: GOOGLE_OAUTH_CONFIG.SCOPE,
-        response_type: GOOGLE_OAUTH_CONFIG.RESPONSE_TYPE,
+        client_id: GOOGLE_CLIENT_ID,
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        scope: 'openid profile email',
+        response_type: 'code',
         state: stateCode, // pour securité verif dans la fenêtre de la popup
         access_type: 'offline',
         prompt: 'consent'
     });
     
     console.log('OAuth URL params:', params.toString());
-    console.log('OAuth AUTH_URL:', GOOGLE_OAUTH_CONFIG.AUTH_URL);
     console.log('State saved to localStorage:', stateCode);
 
-    return `${GOOGLE_OAUTH_CONFIG.AUTH_URL}?${params.toString()}`;
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
 export async function loginWithGoogle(): Promise<void> {

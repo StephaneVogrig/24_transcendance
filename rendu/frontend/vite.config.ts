@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config();
 
-const HOST_ADDRESS = process.env.VITE_HOST_ADDRESS as string;
+const HOST_ADDRESS = process.env.VITE_HOST_DOMAIN as string;
 
 export default defineConfig({
     base: '/',

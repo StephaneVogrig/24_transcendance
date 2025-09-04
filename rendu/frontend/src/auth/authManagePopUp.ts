@@ -1,5 +1,7 @@
 import { notifyAuthStateChange } from './authStateChange.ts'; // Importer la fonction pour notifier les changements d'état d'authentification
 
+import { API_BASE_URL, GOOGLE_REDIRECT_URI } from '../config.ts';
+
 // Interface pour la popup OAuth
 interface PopupResources {
     intervalId: number | null; // ID de l'intervalle vérif la fermeture popup
@@ -54,9 +56,90 @@ export function cleanupPopupResources(resources: PopupResources): void {
     }
 }
 
-export function createOAuthMessageListener( popup: Window, onSuccess: () => void, onError: (error: Error) => void, cleanup: () => void): (event: MessageEvent) => void {
+function checkState(receivedState: string): void {
+    // Vérification du state -> securite CSRF
+    // compare avec le state localStorage
+    const savedState = localStorage.getItem('oauth_state');
+
+    if (!savedState)
+    {
+        console.error('Aucun state sauvegardé trouvé dans localStorage');
+        throw new Error('État OAuth manquant - Veuillez réessayer la connexion');
+    }
+    console.log('Saved state:', savedState);
+    console.log('States match:', savedState === receivedState);
+
+    // Ajout verif state que l'on a envoyé et celui reçu dans le callback
+    // j'avais oublié de faire la vérif ... -_-
+    if (savedState !== receivedState)
+    {
+        console.error('States do not match:', { saved: savedState, received: receivedState });
+        throw new Error('État OAuth invalide - Possible attaque CSRF détectée');
+    }
+    localStorage.removeItem('oauth_state'); // Nettoyer le state du stockage
+}
+
+async function changeCodeByToken(receivedCode: string): Promise<void> {
+    // Échanger le code contre un User token -> fait dans le backend
+    try {
+        const response = await fetch(`${API_BASE_URL}/authentification/oauth/googleCodeToTockenUser`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code: receivedCode,
+                redirect_uri: GOOGLE_REDIRECT_URI,
+            })
+        });
+
+        console.log('Backend response status:', response.status);
+        console.log('Backend response headers:', response.headers);
+
+        if (!response.ok) // probleme recup du token avec le code ou pb recup info utilisateur API Google
+        {
+            const errorData = await response.text();
+            // Utiliser text() au lieu de json() pour voir le contenu exact
+            console.error('Backend error response:', errorData);
+            console.error('Response status:', response.status);
+            console.error('Response statusText:', response.statusText);
+
+            let parsedError;
+            try {
+                parsedError = JSON.parse(errorData);
+            } catch (error) {
+                parsedError = { message: errorData };
+            }
+
+            // Parse le message d'erreur pour avoir tout les details
+            const errorMessage = parsedError.message || errorData || `Erreur HTTP ${response.status}: ${response.statusText}`;
+            throw new Error(`POPUP Backend Error: ${errorMessage} (Status: ${response.status})`);
+        }
+
+        // Réponse du backen authentification -> token d'accès
+        const data = await response.json();
+        console.log('OAuth success data:', data);
+
+        if (!data.access_token)
+            throw new Error('Token d\'accès manquant dans la réponse du serveur');
+        // Sauvegarde du token
+        localStorage.setItem('access_token', data.access_token);
+        console.log('Token d\'accès sauvegardé avec succès.');
+        notifyAuthStateChange(); // Notifier le changement d'état d'authentification
+    } catch (error) {
+        console.error('Erreur lors de l\'échange du code:', error);
+        throw error;
+    }
+}
+
+export function createOAuthMessageListener(
+    popup: Window,
+    onSuccess: () => void,
+    onError: (error: Error) => void,
+    cleanup: () => void
+): (event: MessageEvent) => void {
    
-    return (event: MessageEvent) => {
+    return async (event: MessageEvent) => {
         console.log('Message received from popup:', event.data);
 
         if (event.origin !== window.location.origin) // Vérif origine -> sécurité
@@ -67,41 +150,26 @@ export function createOAuthMessageListener( popup: Window, onSuccess: () => void
         
         if (event.data.type === 'OAUTH_SUCCESS') 
         {
-            console.log('OAuth success received, cleaning up...');
-            console.log('Token to save:', event.data.token ? event.data.token.substring(0, 20) + '...' : 'MISSING');
+            console.debug('OAuth success received');
+
+            const receivedCode = event.data.code;
+            const receivedState = event.data.state;
+            try {
+            checkState(receivedState);
+            await changeCodeByToken(receivedCode);
+
             cleanup(); // Nettoyer les listeners et intervalles
-            
-            if (!event.data.token) 
-            {
-                console.error('No token in success message');
-                onError(new Error('Token manquant dans la réponse'));
-                return;
-            }
             
             if (!popup.closed) // Fermer la popup si elle tjrs ouverte
                 closePopup(popup); 
-            
-            try 
-            {
-                localStorage.setItem('access_token', event.data.token); // Sauvegarde token
-                console.log('Token saved to localStorage successfully');
-                
-                const savedToken = localStorage.getItem('access_token');// Vérif token a été sauvegardé
-                if (savedToken === event.data.token) 
-                {
-                    console.log('Token verification successful');
-                    notifyAuthStateChange(); // Notifier le changement d'état d'authentification
-                    onSuccess();
-                } 
-                else
-                {
-                    console.error('Token verification failed');
-                    throw new Error('Erreur lors de la sauvegarde du token');
+            onSuccess();
+            } catch (error) {
+                console.error('Erreur dans le processus OAuth:', error);
+                cleanup();
+                if (!popup.closed) {
+                    closePopup(popup);
                 }
-            } 
-            catch (e) {
-                console.error('Error saving token to localStorage:', e);
-                onError(new Error('Erreur lors de la sauvegarde du token'));
+                onError(error as Error);
             }
             
         } 
@@ -140,7 +208,7 @@ export function handlePopupResponse(popup: Window): Promise<void> {
                 resolve();
             },
             (error) => {
-                console.error('OAuth error - rejecting promise:', error);
+                console.log('OAuth error - rejecting promise:', error);
                 reject(error);
             },
             cleanup
