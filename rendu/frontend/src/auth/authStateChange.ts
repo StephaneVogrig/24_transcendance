@@ -19,10 +19,7 @@ export function onAuthStateChange(callback: () => void): void {
     authStateChangeCallbacks.push(callback);
 }
 
-
-
 // conteneur de bouton d'authentification: se met à jour automatiquement
-
 export function createAuthButtonContainer(): HTMLElement {
     const container = document.createElement('div');
     container.className = 'auth-button-container';
@@ -40,7 +37,6 @@ export function createAuthButtonContainer(): HTMLElement {
 
     return container;
 }
-
 
 function updateButton(container: HTMLElement): void {
     

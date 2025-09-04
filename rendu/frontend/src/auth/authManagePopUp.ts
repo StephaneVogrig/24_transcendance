@@ -14,60 +14,60 @@ interface PopupResources {
 export function closePopup(popup: Window): void {
     try 
     {
-        console.log('Closing popup');
+        console.debug('Closing popup');
 
         popup.close();
         setTimeout(() => {
             if (!popup.closed) 
             {
-                console.log('Popup still open, trying to force close...');
+                console.debug('Popup still open, trying to force close...');
                 try 
                 {
                     popup.location.href = 'about:blank';
                     popup.close();
                 } 
-                catch (e) {
-                    console.warn('Could not force close popup:', e);
+                catch (error) {
+                    console.warn('Could not force close popup:', error);
                 }
             }
         }, 200);
     } 
-    catch (e) {
-        console.error('Error closing popup:', e);
+    catch (error) {
+        console.error('Error closing popup:', error);
     }
 }
 
 
 export function cleanupPopupResources(resources: PopupResources): void {
-    console.log('Cleaning up OAuth popup resources...');
+    console.debug('Cleaning up OAuth popup resources...');
     
     if (resources.intervalId) 
     {
         clearInterval(resources.intervalId);
         resources.intervalId = null;
-        console.log('Interval cleared');
+        console.debug('Interval cleared');
     }
     
     if (resources.messageListener) 
     {
         window.removeEventListener('message', resources.messageListener);
         resources.messageListener = null;
-        console.log('Message listener removed');
+        console.debug('Message listener removed');
     }
 }
 
 function checkState(receivedState: string): void {
     // Vérification du state -> securite CSRF
     // compare avec le state localStorage
-    const savedState = localStorage.getItem('oauth_state');
+    const savedState = sessionStorage.getItem('oauth_state');
 
     if (!savedState)
     {
         console.error('Aucun state sauvegardé trouvé dans localStorage');
         throw new Error('État OAuth manquant - Veuillez réessayer la connexion');
     }
-    console.log('Saved state:', savedState);
-    console.log('States match:', savedState === receivedState);
+    console.debug('Saved state:', savedState);
+    console.debug('States match:', savedState === receivedState);
 
     // Ajout verif state que l'on a envoyé et celui reçu dans le callback
     // j'avais oublié de faire la vérif ... -_-
@@ -93,8 +93,8 @@ async function changeCodeByToken(receivedCode: string): Promise<void> {
             })
         });
 
-        console.log('Backend response status:', response.status);
-        console.log('Backend response headers:', response.headers);
+        console.debug('Backend response status:', response.status);
+        console.debug('Backend response headers:', response.headers);
 
         if (!response.ok) // probleme recup du token avec le code ou pb recup info utilisateur API Google
         {
@@ -118,13 +118,13 @@ async function changeCodeByToken(receivedCode: string): Promise<void> {
 
         // Réponse du backen authentification -> token d'accès
         const data = await response.json();
-        console.log('OAuth success data:', data);
+        console.debug('OAuth success data:', data);
 
         if (!data.access_token)
             throw new Error('Token d\'accès manquant dans la réponse du serveur');
         // Sauvegarde du token
         localStorage.setItem('access_token', data.access_token);
-        console.log('Token d\'accès sauvegardé avec succès.');
+        console.debug('Token d\'accès sauvegardé avec succès.');
         notifyAuthStateChange(); // Notifier le changement d'état d'authentification
     } catch (error) {
         console.error('Erreur lors de l\'échange du code:', error);
@@ -140,29 +140,24 @@ export function createOAuthMessageListener(
 ): (event: MessageEvent) => void {
    
     return async (event: MessageEvent) => {
-        console.log('Message received from popup:', event.data);
+        console.debug('Message received from popup:', event.data);
 
-        if (event.origin !== window.location.origin) // Vérif origine -> sécurité
-        {
-            console.log('Message ignored - wrong origin:', event.origin);
-            return;
-        }
-        
         if (event.data.type === 'OAUTH_SUCCESS') 
         {
             console.debug('OAuth success received');
 
             const receivedCode = event.data.code;
             const receivedState = event.data.state;
-            try {
-            checkState(receivedState);
-            await changeCodeByToken(receivedCode);
 
-            cleanup(); // Nettoyer les listeners et intervalles
-            
-            if (!popup.closed) // Fermer la popup si elle tjrs ouverte
-                closePopup(popup); 
-            onSuccess();
+            try {
+                checkState(receivedState);
+                await changeCodeByToken(receivedCode);
+
+                cleanup(); // Nettoyer les listeners et intervalles
+
+                if (!popup.closed) // Fermer la popup si elle tjrs ouverte
+                    closePopup(popup);
+                onSuccess();
             } catch (error) {
                 console.error('Erreur dans le processus OAuth:', error);
                 cleanup();
@@ -175,7 +170,7 @@ export function createOAuthMessageListener(
         } 
         else if (event.data.type === 'OAUTH_ERROR') 
         {
-            console.log('OAuth error received:', event.data.error);
+            console.debug('OAuth error received:', event.data.error);
             cleanup();
             
             if (!popup.closed)
@@ -200,15 +195,15 @@ export function handlePopupResponse(popup: Window): Promise<void> {
 
         // Fonction de nettoyage
         const cleanup = () => cleanupPopupResources(resources);
-        
+
         // Créer le gestionnaire de messages
         resources.messageListener = createOAuthMessageListener( popup,
             () => {
-                console.log('OAuth success - resolving promise');
+                console.debug('OAuth success - resolving promise');
                 resolve();
             },
             (error) => {
-                console.log('OAuth error - rejecting promise:', error);
+                console.debug('OAuth error - rejecting promise:', error);
                 reject(error);
             },
             cleanup
@@ -230,7 +225,7 @@ export function handlePopupResponse(popup: Window): Promise<void> {
                 const tempToken = localStorage.getItem('oauth_temp_token');
                 if (tempToken) // Vérif si token reçu de la popup
                 {
-                    console.log('Found temp token, using it...');
+                    console.debug('Found temp token, using it...');
                     localStorage.removeItem('oauth_temp_token');
                     localStorage.setItem('access_token', tempToken);
                     notifyAuthStateChange();
@@ -238,7 +233,7 @@ export function handlePopupResponse(popup: Window): Promise<void> {
                 } 
                 else 
                 {
-                    console.log('No temp token found, connection cancelled');
+                    console.debug('No temp token found, connection cancelled');
                     return;
                 }
             }
@@ -246,7 +241,7 @@ export function handlePopupResponse(popup: Window): Promise<void> {
 
         // Timeout de 5 minutes -> si boucles infinie
         setTimeout(() => {
-            console.log('OAuth timeout reached');
+            console.debug('OAuth timeout reached');
             cleanup();
             if (!popup.closed)
                 closePopup(popup);

@@ -1,8 +1,8 @@
-import { API_BASE_URL, HOST_DOMAIN, GOOGLE_CLIENT_ID, PORT, GOOGLE_REDIRECT_URI } from '../config';
+import { API_BASE_URL, GOOGLE_CLIENT_ID, GOOGLE_REDIRECT_URI } from '../config';
 import { navigate } from '../router';
 import { handlePopupResponse } from './authManagePopUp';
 import { notifyAuthStateChange } from './authStateChange';
-
+import { v4 as new_uuid } from 'uuid';
 
 // Interface pour les informations utilisateur Google
 export interface GoogleUser {
@@ -14,30 +14,27 @@ export interface GoogleUser {
     family_name?: string;
 }
 
-// Interface pour la réponse d'authentification
-// export interface AuthResponse {
-//     success: boolean;
-//     user?: GoogleUser;
-//     token?: string;
-//     error?: string;
-// }
-
-// Génère une chaîne aléatoire qui sera le state parameter (sécurité CSRF)
-function generateStateCode(): string {
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+interface StateObject {
+  uuid: string;
+  returnUrl: string;
 }
 
+// Génère le state parameter (sécurité CSRF)
+function generateStateCode(): string {
+    const stateObject: StateObject = {
+        uuid: new_uuid(),
+        returnUrl: window.location.href
+    }
+    const stateString: string = JSON.stringify(stateObject);
+    return btoa(stateString);
+}
 
 // Génère l'URL d'autorisation Google OAuth 2.0
 function buildAuthUrl(): string {
     const stateCode = generateStateCode(); // chaine aléatoire créé pour state -> secure
     
     // Utiliser localStorage au lieu de sessionStorage pour partager entre fenêtres
-    localStorage.setItem('oauth_state', stateCode);
-    if (HOST_DOMAIN)
-        localStorage.setItem('hostname', HOST_DOMAIN);
+    sessionStorage.setItem('oauth_state', stateCode);
 
     const params = new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
@@ -49,8 +46,8 @@ function buildAuthUrl(): string {
         prompt: 'consent'
     });
     
-    console.log('OAuth URL params:', params.toString());
-    console.log('State saved to localStorage:', stateCode);
+    console.debug('OAuth URL params:', params.toString());
+    console.debug('State saved to localStorage:', stateCode);
 
     return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
@@ -60,7 +57,7 @@ export async function loginWithGoogle(): Promise<void> {
     {
         const authUrl = buildAuthUrl(); // on cree URL d'autorisation pour Google OAuth
 
-        console.log('Google OAuth  URL:', authUrl);
+        console.debug('Google OAuth  URL:', authUrl);
 
         // config + ouverture popup
         const popupWidth = 500;
@@ -75,122 +72,13 @@ export async function loginWithGoogle(): Promise<void> {
         }
         
         await handlePopupResponse(popup); //gestion popup
-        console.log('Popup closed successfully, user logged in'); // si connection réussie
+        console.debug('Popup closed successfully, user logged in'); // si connection réussie
     } 
     catch (error) {
         console.error('Error occurred on popup Google:', error);
         throw new Error('Failed to open Google popup');
     }
 }
-
-// !! plus utilisé car maintenant fait dans popup auth-callback-popup.html
-// Gestion callback OAuth dans popup
-// export async function handleOAuthCallback(): Promise<AuthResponse> {
-//     try {
-//         const urlParams = new URLSearchParams(window.location.search);
-//         const code = urlParams.get('code');
-//         const state = urlParams.get('state');
-//         const error = urlParams.get('error');
-        
-//         if (error) 
-//         {
-//             if (window.opener) // Envoie erreur à la fenêtre parent
-//             {
-//                 console.error('Send error to window.location.origin ->', window.location.origin);
-//                 window.opener.postMessage({
-//                     type: 'OAUTH_ERROR',
-//                     error: `Erreur OAuth: ${error}`
-//                 }, window.location.origin);
-//                 window.close();
-//             }
-//             throw new Error(`Erreur OAuth: ${error}`);
-//         }
-        
-//         if (!code) 
-//         {
-//             const errorMsg = 'Code d\'autorisation manquant';
-//             if (window.opener) 
-//             {
-//                 window.opener.postMessage({
-//                     type: 'OAUTH_ERROR',
-//                     error: errorMsg
-//                 }, window.location.origin);
-//                 window.close();
-//             }
-//             throw new Error(errorMsg);
-//         }
-        
-//         // Vérification du state -> sécurité CSRF -Cross site request forgery-
-//         const savedState = localStorage.getItem('oauth_state');  // Utilise localStorage pour partager entre fenêtres
-       
-//         if (!savedState || savedState !== state) {
-//             const errorMsg = 'État OAuth invalide';
-//             if (window.opener) {
-//                 window.opener.postMessage({
-//                     type: 'OAUTH_ERROR',
-//                     error: errorMsg
-//                 }, window.location.origin);
-//                 window.close();
-//             }
-//             throw new Error(errorMsg);
-//         }
-        
-//         localStorage.removeItem('oauth_state'); // Nettoyer state du stockage depuis localStorage
-        
-//         // Échanger code contre token dans backend
-//         const response = await fetch(`${API_BASE_URL}/authentification/oauth/googleCodeToTockenUser`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify({
-//                 code: code,
-//                 redirect_uri: GOOGLE_OAUTH_CONFIG.REDIRECT_URI
-//             })
-//         });
-        
-//         if (!response.ok) 
-//         {
-//             const errorData = await response.json().catch(() => ({}));
-//             const errorMsg = errorData.message || 'Erreur lors de l\'échange du code';
-            
-//             if (window.opener) 
-//             {
-//                 window.opener.postMessage({
-//                     type: 'OAUTH_ERROR',
-//                     error: errorMsg
-//                 }, window.location.origin);
-//                 window.close();
-//             }
-//             throw new Error(errorMsg);
-//         }
-        
-//         const data = await response.json();
-        
-//         if (window.opener) // Envoyer le succès à la fenêtre parent
-//         {
-//             window.opener.postMessage({
-//                 type: 'OAUTH_SUCCESS',
-//                 token: data.access_token,
-//                 user: data.user
-//             }, window.location.origin);
-//             window.close();
-//         }
-        
-//         return {
-//             success: true,
-//             user: data.user,
-//             token: data.access_token
-//         };
-        
-//     } catch (error) {
-//         console.error('Erreur lors du traitement du callback OAuth:', error);
-//         return {
-//             success: false,
-//             error: error instanceof Error ? error.message : 'Erreur inconnue'
-//         };
-//     }
-// }
 
 // recup info utilisateur connecte avec le JWT token que l'on a créé dans le backend depuis la popup
 export async function getCurrentUser(): Promise<GoogleUser | null> {

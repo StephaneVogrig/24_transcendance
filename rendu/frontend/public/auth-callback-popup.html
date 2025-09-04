@@ -48,10 +48,18 @@
     </div>
 
     <script>
+
+        function decodeState(encodedState) {
+        const stateString = atob(encodedState);
+        return JSON.parse(stateString);
+        }
+
         async function handlePopupCallback() {
             const statusEl = document.getElementById('status');
             try 
             {
+                console.debug(`window.location.origin: `, window.location.origin);
+
                 // on doit avoir recuperé redirect_uri qui contient le code d'autorisation (retour de Google)
                 // code unique pour l'utilisateur + application (durée de vie 10min)
                 // contient le code d'autorisation
@@ -79,7 +87,8 @@
                 // Envoyer l'info à la fenêtre parent
                 if (window.opener) 
                 {
-                    console.log('Sending success message to parent...');
+                    const stateOject = decodeState(state);
+                    console.debug('Sending success message to parent...');
                     const message = {
                         type: 'OAUTH_SUCCESS',
                         // token: data.access_token,
@@ -88,12 +97,12 @@
                         code: code,
                         state: state,
                     };
-                    console.log('Message to send:', message);
+                    console.debug('Message to send:', message);
                     
                     try 
                     {
-                        window.opener.postMessage(message, window.location.origin);
-                        console.log('Message sent successfully');
+                        window.opener.postMessage(message, stateOject.returnUrl);
+                        console.debug('Message sent successfully');
                     } 
                     catch (e) {
                         console.error('Error sending message:', e);
@@ -102,7 +111,7 @@
                     
                     console.log('Message sent, closing window in 500ms...');
                     setTimeout(() => {
-                        console.log('Attempting to close window...');
+                        console.debug('Attempting to close window...');
                         try 
                         {
                             window.close();
@@ -123,7 +132,7 @@
                 } 
                 else 
                 {
-                    console.log('No window.opener, closing immediately...');
+                    console.debug('No window.opener, closing immediately...');
                     statusEl.textContent = ' ... ';
                     setTimeout(() => {
                         window.close();
