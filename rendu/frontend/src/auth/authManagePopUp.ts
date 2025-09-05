@@ -69,8 +69,6 @@ function checkState(receivedState: string): void {
     console.debug('Saved state:', savedState);
     console.debug('States match:', savedState === receivedState);
 
-    // Ajout verif state que l'on a envoyé et celui reçu dans le callback
-    // j'avais oublié de faire la vérif ... -_-
     if (savedState !== receivedState)
     {
         console.error('States do not match:', { saved: savedState, received: receivedState });

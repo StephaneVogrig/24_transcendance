@@ -154,7 +154,6 @@ export async function deleteTournament(id)
 
 export async function startTournament(tournament)
 {
-	// await new Promise(resolve => setTimeout(resolve, 500)); motclefpourlegrep
 	tournament.rounds = [generateBracket(tournament.players)];
 	TOURNAMENT_LIST[tournament.id] = tournament;
 	await startMatches(tournament.rounds[tournament.roundIndex]);

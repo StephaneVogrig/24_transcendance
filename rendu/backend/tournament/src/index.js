@@ -126,7 +126,7 @@ fastify.get('/getAllTournaments', async (request, reply) => {
     } 
     catch (error) {
         console.error('Erreur getAllTournaments:', error);
-        reply.status(500).send({ error: 'Erreur lors de la récupération des tournois' });
+        reply.status(500).send({ error: 'Error while fetching tournaments' });
     }
 });
 

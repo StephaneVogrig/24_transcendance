@@ -22,8 +22,8 @@ interface StateObject {
 // Génère le state parameter (sécurité CSRF)
 function generateStateCode(): string {
     const stateObject: StateObject = {
-        uuid: new_uuid(),
-        returnUrl: window.location.href
+        uuid: new_uuid(), // state code aléatoire
+        returnUrl: window.location.href // url pour postMessage de la popup (nom_domaine:3000 ou IP_adress:3000 ou localhost:3000)
     }
     const stateString: string = JSON.stringify(stateObject);
     return btoa(stateString);
@@ -65,12 +65,10 @@ export async function loginWithGoogle(): Promise<void> {
         const left = window.screen.width / 2 - popupWidth / 2;
         const top = window.screen.height / 2 - popupHeight / 2;
         const popup = window.open(authUrl, 'google-oauth',`width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=yes`);
-        
-        if (!popup) 
-        {
-            throw new Error('Impossible d\'ouvrir la popup. Vérifiez que les popups ne sont pas bloquées.');
-        }
-        
+
+        if (!popup)
+            throw new Error('Failed to open popup windows');
+
         await handlePopupResponse(popup); //gestion popup
         console.debug('Popup closed successfully, user logged in'); // si connection réussie
     } 

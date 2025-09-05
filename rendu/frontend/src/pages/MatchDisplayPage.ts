@@ -31,14 +31,6 @@ const loadMatches = async (cardsContainer : HTMLElement ) =>
         const ongoing = await getTournamentsType('ongoing');
         const ended = await getTournamentsType('ended');
 
-        // DEBUG ------------
-        if (open.length != 0 )
-            console.log('+++ open TOURNAMENT récupérés +++ ', open);
-        if (ongoing.length != 0) 
-            console.log('??? ongoing TOURNAMENT récupérés ??? ', ongoing);
-        if (ended.length != 0)   
-            console.log('*** ended TOURNAMENT récupérés *** ', ended);
-
         // Vider le conteneur et créer les cartes
         cardsContainer.innerHTML = '';
 

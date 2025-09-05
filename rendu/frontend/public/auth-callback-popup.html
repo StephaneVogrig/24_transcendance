@@ -78,7 +78,7 @@
                     throw new Error(`Erreur OAuth: ${error}`);
                 
                 if (!code)
-                    throw new Error('Code d\'autorisation manquant');
+                    throw new Error('Missing auth code');
 
                 statusEl.textContent = '...';
                 statusEl.textContent = ' Connection success! Closing...';
@@ -91,8 +91,6 @@
                     console.debug('Sending success message to parent...');
                     const message = {
                         type: 'OAUTH_SUCCESS',
-                        // token: data.access_token,
-                        // user: data.user, // on a maintenant les info dans la DB
                         timestamp: Date.now(),
                         code: code,
                         state: state,
@@ -106,7 +104,7 @@
                     } 
                     catch (e) {
                         console.error('Error sending message:', e);
-                        throw new Error('Erreur lors de l\'envoi du message à la fenêtre parent');
+                        throw new Error('Error occured during post message to parent window');
                     }
                     
                     console.log('Message sent, closing window in 500ms...');
@@ -126,7 +124,7 @@
                             }, 100);
                         } catch (e) {
                             console.error('Error closing window:', e);
-                            statusEl.textContent = 'Connexion réussie - Vous pouvez fermer cette fenêtre';
+                            statusEl.textContent = 'Connection succed. You can close this popup';
                         }
                     }, 500);
                 } 
@@ -140,12 +138,12 @@
                 }
                 
             } catch (error) {
-                console.error('Erreur lors du traitement du callback OAuth:', error);
+                console.error('Error during callback OAuth:', error);
                 statusEl.innerHTML = `
-                    <strong>Erreur OAuth:</strong><br>
+                    <strong>Error OAuth:</strong><br>
                     ${error.message}<br><br>
-                    <small>Vérifiez la console pour plus de détails.<br>
-                    Cette fenêtre se fermera dans 10 secondes.</small>
+                    <small>Check console logs for details.<br>
+                    Popup will close in 20 seconds</small>
                 `;
                 statusEl.className = 'error';
                 
@@ -156,11 +154,10 @@
                         type: 'OAUTH_ERROR',
                         error: error.message
                     }, window.location.origin);
-                    
-                    // Augmenter le délai pour lire l'erreur pour Debug
+
                     setTimeout(() => {
                         window.close();
-                    }, 20000); // 20 secondes au lieu de 10
+                    }, 20000);
                 } 
                 else // Si pas de window.opener, garder la fenêtre ouverte plus longtemps
                 {

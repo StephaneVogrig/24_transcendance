@@ -1,7 +1,6 @@
 import { navigate } from '../../router';
 import { locale } from '../../i18n';
 import { enableJoining } from '../HomePage.ts';
-// import { isGameOver } from '../GamePage.ts';
 
 export function modalBackHome(title: string, content: string): HTMLDivElement {
     const gameFoundModalOverlay = document.getElementById('gameFoundModalOverlay');

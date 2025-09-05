@@ -33,16 +33,12 @@ export function createAuthButtonContainer(): HTMLElement {
     const authStateChange = () => updateButton(container);
     authStateChangeCallbacks.push(authStateChange);
 
-    // onAuthStateChange(() => updateButton(container)); 
-
     return container;
 }
 
 function updateButton(container: HTMLElement): void {
     
     container.innerHTML = ''; // Effacer le contenu
-    
-    // if (isAuthenticated()) 
     if (localStorage.getItem('access_token') !== null) // Utilisateur connecté -> bouton Profile
     {
         const profileButton = createProfileButton();

@@ -97,7 +97,7 @@ fastify.get('/getAllInDB', async (request, reply) => {
 
 // GOOGLE AUTHENTIFICATION ------------------------------------------------------------
 
-// OK Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
+// Route pour créer ou mettre à jour un utilisateur OAuth (Auth0)
 fastify.post('/manageAuthUserInDB', async (request, reply) => {
    
     console.log('--------------------------------------------------');
@@ -161,7 +161,6 @@ fastify.get('/getActivePlayers', async (request, reply) => {
     reply.status(200).send(players);
 });
 
-// OK STEPHANIE
 fastify.get('/getUserInDB', async (request, reply) => {
     const { nickname } = request.query;
     if (!nickname) 
@@ -175,7 +174,7 @@ fastify.get('/getUserInDB', async (request, reply) => {
     reply.status(200).send([user]); 
 });
 
-// ok
+
 fastify.post('/updateUserLogStatusInDB', async (request, reply) => {
     const { nickname, status } = request.body;
 
