@@ -150,13 +150,6 @@ export function startRouter(): void {
             const currentPath = window.location.pathname;
             console.log('Popstate event triggered. Current path:', currentPath);
             console.log(window.location.search, window.location.hash);
-
-            // Cas particulier pour la page profile : toujours rediriger vers l'accueil
-            if (currentPath === '/profile') 
-            {
-                navigate('/', false);
-                return;
-            }
             
             // Lors d'un popstate, l'URL est déjà celle souhaitée, on la navigue telle quelle,
             // y compris query params et hash. On ne push pas une nouvelle entrée.
