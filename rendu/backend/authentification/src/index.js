@@ -326,19 +326,18 @@ fastify.get('/userInfoJWT', { preHandler: validateToken }, async (request, reply
   {
     // 1.Vérifier que le nickname existe bien dans la base de données
     const userInfoArr = await getAuthUserInfoInDB(user.nickname);
-
     if (!userInfoArr || userInfoArr.length === 0) 
     {
-      console.error('Error when fectching user: User not found in DB');
+      console.error('Error when fetching user: User not found in DB');
       return reply.status(404).send({ error: 'User not found: User does not exists in DB' });
     }
 
     const userInfo = userInfoArr[0];
     console.log('User info found in database:', userInfo);
 
-    if (!userInfo)// SÉCU SUP-> Vérif userInfo existe 
+    if (!userInfo)// SÉCU SUP-> Vérif userInfo existe
     {
-      console.error('Error when fectching user: User data is empty');
+      console.error('Error when fetching user: User data is empty');
       return reply.status(404).send({ error: 'User data is empty' });
     }
     console.log('----------------------------------------------');
@@ -353,8 +352,8 @@ fastify.get('/userInfoJWT', { preHandler: validateToken }, async (request, reply
       family_name: userInfo.familyName || null,
     });
   } catch (error) {
-    console.error('Error when fectching user:', error);
-    return reply.status(500).send({ error: 'Error when fectching user: Error in server' });
+    console.error('Database error when fetching user:', error);
+    return reply.status(404).send({ error: 'Database error when fetching user' });
   }
 });
 

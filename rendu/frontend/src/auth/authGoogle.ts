@@ -110,7 +110,7 @@ export async function getCurrentUser(): Promise<GoogleUser | null> {
         return user;  
     }
     catch (error) {
-        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        console.log('Error retrieving user information:', error);
         return null;
     }
 }
