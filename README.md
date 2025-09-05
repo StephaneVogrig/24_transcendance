@@ -53,6 +53,13 @@ websocket
 		├── tournament
 		└── websocket 
 ```
+# Pages
+
+HomePage -> LoginPage -> RegisterPage
+HomePage -> GamePage
+HomePage -> TournamentPage
+HomePage -> ProfilPage
+HomePage -> AboutPage
 
 # Tutos
 ### Installation sur la session
@@ -263,5 +270,5 @@ Le processus d'authentification se divise en plusieurs phases distinctes, impliq
     * Le backend genere un jeton de session interne (**JWT**) et l'envoi en reponse au frontend pour finaliser le processus d'authentification.
 ---
 
-## credits
+# credits
 Skybox voie lactee: [nasa](https://svs.gsfc.nasa.gov/4851/)

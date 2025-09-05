@@ -1,9 +1,1 @@
-HomePage -> LoginPage -> RegisterPage
-HomePage -> ChoicegamePage -> GamePage
-HomePage -> TournamentPage
-HomePage -> ProfilPage
-HomePage -> LeaderboardPage
-HomePage -> AboutPage
-
-
 Je realise un jeu Pong web implémenté comme une Single-Page Application (SPA). Il s'appuie sur une architecture microservices et Docker pour le déploiement. Un choix de conception important est l'utilisation minimale de frameworks : le frontend est en Tailwind CSS et TypeScript, et le backend est en Node.js pur avec Fastify. Nginx agit comme point d'entrée unique, acheminant les requêtes vers le frontend (Vite/Nginx) ou la passerelle backend qui dispatche vers les services individuels. Repond en francais.
